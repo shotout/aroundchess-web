@@ -143,12 +143,12 @@ export function AnalysisSection() {
               </div>
 
               {/* Fixed height carousel container */}
-              <div className="border border-input md:border-none rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
+              <div className="border border-input md:border 2 rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
                 <div className="flex flex-col xl:flex-row w-full min-h-[600px] sm:min-h-[500px] xl:min-h-auto">
                   {/* Image container with fixed dimensions */}
-                  <div className="flex items-start border border-input sm:border-none w-full xl:w-1/2 overflow-hidden rounded-[8px] bg-white">
+                  <div className="flex items-start border border-input sm:border-none w-full xl:w-[58%] overflow-hidden rounded-[8px] bg-white">
                     <div className="relative bg-white rounded-[8px] p-[8px] border border-[#DEDEDE] w-full flex xl:items-center">
-                      <div className="relative h-[200px] sm:h-[250px] xl:h-[600px] w-full">
+                      <div className="relative w-full aspect-square">
                         <AnimatePresence mode="wait">
                           <motion.div
                             key={current}
@@ -178,7 +178,7 @@ export function AnalysisSection() {
                   </div>
 
                   {/* Content container with fixed height */}
-                  <div className="px-1 lg:px-4 w-full xl:w-1/2 md:mt-2 flex flex-col">
+                  <div className="px-1 lg:px-6 w-full xl:w-[42%] md:mt-2 flex flex-col ">
                     <div className="flex-1 overflow-hidden">
                       <AnimatePresence mode="wait">
                         <motion.div

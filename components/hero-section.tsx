@@ -4,10 +4,11 @@ import Image from "next/image";
 import { motion, fadeInUp, staggerContainer } from "@/utils/motion";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FamousGameButton } from "./famous-game-button";
 import { useProfileStore } from "@/app/store/profile";
 import { TimerResetIcon } from "lucide-react";
 import { WelcomeBack } from "./welcome-back";
+import { HeroGamePreview } from "./hero-game-preview";
+import { HeroSubtitle } from "./hero-subtitle";
 
 export function HeroSection() {
   const router = useRouter();
@@ -50,7 +51,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="bg-[url('/images/homepage/hero-banner-homepage-mobile.png')] sm:bg-[url('/images/homepage/hero-banner-homepage-tablet.png')] lg:bg-[url('/images/homepage/hero-banner-homepage.jpg')] bg-bottom bg-no-repeat bg-[#e0f6fd] bg-contain sm:bg-cover flex flex-1 relative overflow-hidden py-4 lg:pb-[88px] lg:mb-[-32px] lg:pt-0 w-full">
+    <section className="bg-[url('/images/homepage/v2/chess_background.png')] bg-center bg-no-repeat bg-contain sm:bg-cover bg-[#e0f6fd] flex flex-1 relative overflow-hidden py-4 lg:pb-[88px] lg:mb-[-32px] lg:pt-0 w-full">
       <div className="container mx-auto px-4 md:px-6 lg:px-12 z-10">
         <motion.div
           className="py-0 sm:pt-[22px]"
@@ -84,25 +85,22 @@ export function HeroSection() {
 
           <motion.div
             className={
-              !isSignedIn 
-                ? "sm:w-2/3 lg:pr-12 lg:mb-0 text-center sm:text-left flex sm:block flex-col" 
+              !isSignedIn
+                ? "w-full text-center flex flex-col items-center"
                 : ""}
             variants={fadeInUp}
           >
-            <div className="bg-[black] sm:bg-transparent rounded-lg p-[10px] mb-[16px] sm:mb-[32px] sm:p-0">
-              <h1 className={`text-[18px] text-white sm:text-black ${!isSignedIn ? 'sm:text-[40px]' : 'sm:text-[36px]'} tracking-wide leading-[140%]`}>
-                Understand your <strong className="text-primary font-semibold">Chess</strong> Game with our <strong className="font-bold">Advanced Game Analysis</strong>
-              </h1>
-              <p className="mt-1 sm:mt-2 text-[14px] --xs sm:text-[17.3px] text-white sm:text-black leading-[140%] font-light mx-auto lg:mx-0">
-                Experience an in-depth analysis of every move with our
-                cutting-edge tools and AI-driven insights - simply by looking up
-                your Chess.com account.
-              </p>
-            </div>
+            {!isSignedIn ? (
+              <div className="w-full">
+                <div className="bg-[black] sm:bg-transparent rounded-lg p-[10px] pb-0 sm:p-0">
+                  <h1 className="text-[18px] text-white sm:text-black sm:text-[clamp(22px,2.8vw,40px)] tracking-wide leading-[140%] text-center sm:whitespace-nowrap">
+                    Challenge <strong className="text-[#221AE9] font-bold">AI Opponents</strong>. Improve Every Game.
+                  </h1>
+                </div>
 
-            <div className="flex flex-col gap-2 sm:hidden">
-              {!isSignedIn && (
-                <>
+                <HeroSubtitle />
+
+                <div className="flex flex-col gap-2 sm:hidden w-full max-w-[900px] mx-auto">
                   <button
                     onClick={handleRegister}
                     className="w-full btn-primary rounded-full h-[44px] "
@@ -112,34 +110,77 @@ export function HeroSection() {
                     </span>
                   </button>
                   <span className="font-bold text-[14px] -- text-black">Or</span>
-                </>
-              )}
-              <motion.div
-                className="w-full flex-row justify-center flex gap-x-[16px] px-4 mb-[16px]"
-                variants={fadeInUp}
-              >
-                <Image
-                  src={"/download-app-store.png"}
-                  alt="herobanner"
-                  width={1000}
-                  height={1000}
-                  onClick={handleAppStore}
-                  className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
-                  priority
-                />
-                <Image
-                  src={"/download-play-store.png"}
-                  alt="herobanner"
-                  width={1000}
-                  height={1000}
-                  onClick={handlePlayStore}
-                  className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
-                  priority
-                />
-              </motion.div>
-            </div>
-            
-            {!isSignedIn ? <FamousGameButton /> : <WelcomeBack />}
+                  <motion.div
+                    className="w-full flex-row justify-center flex gap-x-[16px] px-4 mb-[16px]"
+                    variants={fadeInUp}
+                  >
+                    <Image
+                      src={"/download-app-store.png"}
+                      alt="herobanner"
+                      width={1000}
+                      height={1000}
+                      onClick={handleAppStore}
+                      className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
+                      priority
+                    />
+                    <Image
+                      src={"/download-play-store.png"}
+                      alt="herobanner"
+                      width={1000}
+                      height={1000}
+                      onClick={handlePlayStore}
+                      className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
+                      priority
+                    />
+                  </motion.div>
+                </div>
+
+                <div className="w-full max-w-[900px] mx-auto">
+                  <HeroGamePreview />
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="bg-[black] sm:bg-transparent rounded-lg p-[10px] mb-[16px] sm:mb-[32px] sm:p-0">
+                  <h1 className="text-[18px] text-white sm:text-black sm:text-[36px] tracking-wide leading-[140%]">
+                    Understand your <strong className="text-primary font-semibold">Chess</strong> Game with our <strong className="font-bold">Advanced Game Analysis</strong>
+                  </h1>
+                  <p className="mt-1 sm:mt-2 text-[14px] --xs sm:text-[17.3px] text-white sm:text-black leading-[140%] font-light mx-auto lg:mx-0">
+                    Experience an in-depth analysis of every move with our
+                    cutting-edge tools and AI-driven insights - simply by looking up
+                    your Chess.com account.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2 sm:hidden">
+                  <motion.div
+                    className="w-full flex-row justify-center flex gap-x-[16px] px-4 mb-[16px]"
+                    variants={fadeInUp}
+                  >
+                    <Image
+                      src={"/download-app-store.png"}
+                      alt="herobanner"
+                      width={1000}
+                      height={1000}
+                      onClick={handleAppStore}
+                      className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
+                      priority
+                    />
+                    <Image
+                      src={"/download-play-store.png"}
+                      alt="herobanner"
+                      width={1000}
+                      height={1000}
+                      onClick={handlePlayStore}
+                      className="cursor-pointer w-[135px] h-[40px] object-contain z-2 relative overflow-hidden"
+                      priority
+                    />
+                  </motion.div>
+                </div>
+
+                <WelcomeBack />
+              </>
+            )}
           </motion.div>
         </motion.div>
       </div>

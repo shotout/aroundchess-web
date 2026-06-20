@@ -9,39 +9,27 @@ import { useProfileStore } from "@/app/store/profile";
 
 const benefits = [
   {
-    image: "/images/homepage/real-time-analysis-icon.png",
-    title: "Real-time Analysis",
+    image: "/images/homepage/v2/icon_playground.png",
+    title: "Challenge Dozens of AI Opponents",
     description:
-      "Get instant feedback on every move, powered by Stockfish engine.",
+      "Choose from more than 70 AI opponents with unique ELO Score, matched to every skill level.",
   },
   {
-    image: "/images/homepage/personalized-training-icon.png",
-    title: "Personalized Training",
-    description:
-      "Set your chess goals and receive tailored training plans to achieve them.",
+    image: "/images/homepage/v2/icon_discover.png",
+    title: "Discover Mistakes. Improve. Repeat.",
+    description: "Review every game, spot mistakes, and improve with AI insights.",
   },
   {
-    image: "/images/homepage/rapid-improvement-icon.png",
-    title: "Rapid Improvement",
+    image: "/images/homepage/v2/icon_climb.png",
+    title: "Climb the Leaderboard",
     description:
-      "Track your progress and see your skills improve with data-driven insights.",
+      "Win matches, increase your ELO, and compete with players worldwide.",
   },
   {
-    image: "/images/homepage/time-management-icon.png",
-    title: "Time Management",
+    image: "/images/homepage/v2/icon_personalized.png",
+    title: "Personalized Training Rapid Improvement",
     description:
-      "Learn to manage your time effectively with specialized exercises.",
-  },
-  {
-    image: "/images/homepage/comprehensive-library-icon.png",
-    title: "Comprehensive Library",
-    description: "Access a vast library of annotated games and chess puzzles.",
-  },
-  {
-    image: "/images/homepage/goal-tracking-icon.png",
-    title: "Goal Tracking",
-    description:
-      "Set and monitor your chess improvement goals with detailed progress reports.",
+      "Learn from your mistakes and become a stronger player with every game.",
   },
 ];
 
@@ -62,11 +50,9 @@ export function BenefitsOf() {
     checkSession();
   }, [sessionId, isSignedIn]);
   
-  const handleAnalyze = () => {
-    // router.push("/analysis");
-    // router.push("/register");
+  const handlePlayNow = () => {
     if (isSignedIn) {
-      router.push("/my-game-history");
+      router.push("/playground/play-vs-ai");
     } else {
       router.push("/register");
     }
@@ -98,8 +84,8 @@ export function BenefitsOf() {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          {/* Grid Layout: 1 column on mobile, 3 columns on desktop */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+          {/* Grid Layout: 1 column on mobile, 4 columns on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {benefits.map((item, index) => {
               return (
                 <div
@@ -127,10 +113,10 @@ export function BenefitsOf() {
         </motion.div>
         <div className="flex flex-col items-center justify-center pt-6">
           <Button
-            onClick={handleAnalyze}
+            onClick={handlePlayNow}
             className="w-fill btn-primary rounded-full px-12 py-6 font-normal text-[14px] --sm sm:text-[20px] xl:min-w-[467px] mb-3"
           >
-            Analyze your most recent Game now
+            Play Now
           </Button>
         </div>
       </div>
