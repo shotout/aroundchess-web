@@ -29,17 +29,6 @@ const analysis = [
       "Implement an integrated analysis tool that connects to the chessboard, providing real-time feedback on moves and highlighting errors or missed opportunities with visual indicators. After the game, the tool generates a detailed report, offering insights into strategic weaknesses and suggesting improvements based on move assessments.",
   },
   {
-    image: "/images/homepage/threats.png",
-    title: "THREATS",
-    description:
-      "Get insights into your Game's <b>most Critical Threats</b> and find out how to avoid them in the next Game. ",
-    idea: `<span>Identify and display <b style="color:#221AE9">Critical Threats</b> in during the analysis, providing insights into the potential dangers each player faces, such as imminent checkmate or piece captures.</span>`,
-    problem:
-      "Players often miss crucial threats to their pieces or king position during the game, leading to unexpected losses and missed opportunities.",
-    solution:
-      "Utilize an AI-powered analysis tool of AroundChess that continuously evaluates the board and highlights threats, suggesting defensive moves to counter these dangers and enhance strategic awareness.",
-  },
-  {
     image: "/images/homepage/move-quality.png",
     title: "MOVE QUALITY",
     description:
@@ -49,6 +38,17 @@ const analysis = [
       "Players may struggle to assess the quality of their moves and those of their opponents, leading to repeated mistakes and missed opportunities for improvement.",
     solution:
       "Utilize an AI-driven analysis tool of AroundChess that grades each move based on strategic value and potential outcomes, highlighting strong moves and questionable ones. AroundChess analysis tool also provides alternative suggestions to enhance overall gameplay quality.",
+  },
+  {
+    image: "/images/homepage/improvement-training.png",
+    title: "IMPROVEMENT & TRAINING",
+    description:
+      "Find out if you have improved any of your past Strategy Flaws and discover your custom Training Plan based on your most recent Games. ",
+    idea: `<span>Enhance your chess skills by understanding your <b style="color:#221AE9">areas for improvement</b> and receiving a tailored training plan that builds on your recent games.</span>`,
+    problem:
+      "Review past gameplay to identify recurring strategy flaws and track your progress over time, helping you recognize growth areas.",
+    solution:
+      "Use the analysis tool to generate a customized training plan that focuses on specific weaknesses, reinforcing crucial strategies, and improving overall performance through targeted practice.",
   },
   {
     image: "/images/homepage/opening.png",
@@ -73,15 +73,15 @@ const analysis = [
       "Use AroundChess AI-driven analysis tool that reviews the endgame phase, highlighting missed opportunities and offering strategies for converting advantages into wins, thereby enhancing endgame skills for future matches.",
   },
   {
-    image: "/images/homepage/improvement-training.png",
-    title: "IMPROVEMENT & TRAINING",
+    image: "/images/homepage/threats.png",
+    title: "THREATS",
     description:
-      "Find out if you have improved any of your past Strategy Flaws and discover your custom Training Plan based on your most recent Games. ",
-    idea: `<span>Enhance your chess skills by understanding your <b style="color:#221AE9">areas for improvement</b> and receiving a tailored training plan that builds on your recent games.</span>`,
+      "Get insights into your Game's <b>most Critical Threats</b> and find out how to avoid them in the next Game. ",
+    idea: `<span>Identify and display <b style="color:#221AE9">Critical Threats</b> in during the analysis, providing insights into the potential dangers each player faces, such as imminent checkmate or piece captures.</span>`,
     problem:
-      "Review past gameplay to identify recurring strategy flaws and track your progress over time, helping you recognize growth areas.",
+      "Players often miss crucial threats to their pieces or king position during the game, leading to unexpected losses and missed opportunities.",
     solution:
-      "Use the analysis tool to generate a customized training plan that focuses on specific weaknesses, reinforcing crucial strategies, and improving overall performance through targeted practice.",
+      "Utilize the AI-powered analysis tool of AroundChess that continuously evaluates the board and highlights threats, suggesting defensive moves to counter these dangers and enhance strategic awareness.",
   },
 ];
 
@@ -142,6 +142,23 @@ export function AnalysisSection() {
                 </span>
               </div>
 
+              {/* Wrapping tab navigation — mobile/tablet only */}
+              <div className="flex xl:hidden flex-wrap gap-2 mt-3 justify-center">
+                {analysis.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`whitespace-nowrap flex-shrink-0 px-3 py-1.5 rounded-full text-[12px] sm:text-[13px] font-medium transition-colors border ${
+                      current === index
+                        ? "bg-[#221AE9] text-white border-[#221AE9]"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-[#221AE9] hover:text-[#221AE9]"
+                    }`}
+                  >
+                    {item.title}
+                  </button>
+                ))}
+              </div>
+
               {/* Fixed height carousel container */}
               <div className="border border-input md:border 2 rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
                 <div className="flex flex-col xl:flex-row w-full min-h-[600px] sm:min-h-[500px] xl:min-h-auto">
@@ -173,13 +190,23 @@ export function AnalysisSection() {
                             />
                           </motion.div>
                         </AnimatePresence>
+
+                        {/* Floating next button on image — mobile/tablet only */}
+                        <button
+                          onClick={nextSlide}
+                          disabled={current === analysis.length - 1}
+                          className="xl:hidden absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#221AE9] text-white flex items-center justify-center shadow-md disabled:opacity-30 z-10"
+                          aria-label="Next slide"
+                        >
+                          <ChevronRight size={20} />
+                        </button>
                       </div>
                     </div>
                   </div>
 
                   {/* Content container with fixed height */}
                   <div className="px-1 lg:px-6 w-full xl:w-[42%] md:mt-2 flex flex-col ">
-                    <div className="flex-1 overflow-hidden">
+                    <div className="xl:overflow-hidden">
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={current}
@@ -187,7 +214,7 @@ export function AnalysisSection() {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -20 }}
                           transition={{ duration: 0.3 }}
-                          className="h-full flex flex-col"
+                          className="flex flex-col"
                         >
                           <span className="block text-[14px] --sm sm:text-md lg:text-[18px] font-bold text-black lg:text-left mt-4 sm:mt-0">
                             {analysis[current].title}
@@ -200,50 +227,54 @@ export function AnalysisSection() {
                                 "<b>$1</b>"
                               ),
                             }}
-                            className="block mt-1 text-[14px] --xs sm:text-md lg:text-[16px] font-normal text-[#364152] lg:text-left leading-[1.2] line-clamp-3"
+                            className="block mt-1 text-[14px] --xs sm:text-md lg:text-[16px] font-normal text-[#364152] lg:text-left leading-[1.2] line-clamp-3 [&_b]:font-bold"
                           />
 
-                          {/* Content sections with scroll if needed */}
-                          <div className="flex-1 overflow-y-auto mt-4 space-y-3 max-h-[500px] sm:max-h-[200px] xl:max-h-[400px]">
-                            <div className="border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4">
-                              <span className="text-[#221AE9] text-[14px] --sm sm:text-md font-bold">
-                                Idea
-                              </span>
-                              <span
-                                dangerouslySetInnerHTML={{
-                                  __html: analysis[current].idea.replace(
-                                    /\*\*(.*?)\*\*/g,
-                                    "<b>$1</b>"
-                                  ),
-                                }}
-                                className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]"
-                              />
-                            </div>
+                          {/* Cards: horizontal scroll on mobile, vertical stack on desktop */}
+                          {/* Outer: block-level overflow-x scroll — height driven by inner flex child */}
+                          <div className="mt-4 overflow-x-auto xl:overflow-y-auto xl:max-h-[400px]">
+                            {/* Inner: flex row on mobile, block stack on desktop */}
+                            <div className="flex xl:block gap-3 xl:gap-0 xl:space-y-3 pb-2 xl:pb-0">
+                              <div className="w-[240px] xl:w-auto flex-shrink-0 border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4">
+                                <span className="text-[#221AE9] text-[14px] --sm sm:text-md font-bold">
+                                  Idea
+                                </span>
+                                <span
+                                  dangerouslySetInnerHTML={{
+                                    __html: analysis[current].idea.replace(
+                                      /\*\*(.*?)\*\*/g,
+                                      "<b>$1</b>"
+                                    ),
+                                  }}
+                                  className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3] [&_b]:font-bold"
+                                />
+                              </div>
 
-                            <div className="border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4">
-                              <span className="text-[#FA402D] text-[14px] --sm sm:text-md font-bold">
-                                Problem
-                              </span>
-                              <span className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
-                                {analysis[current].problem}
-                              </span>
-                            </div>
+                              <div className="w-[240px] xl:w-auto flex-shrink-0 border border-[#FA402D] border-l-4 bg-[#FA402D08] rounded-md py-2 px-2 sm:px-4">
+                                <span className="text-[#FA402D] text-[14px] --sm sm:text-md font-bold">
+                                  Problem
+                                </span>
+                                <span className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
+                                  {analysis[current].problem}
+                                </span>
+                              </div>
 
-                            <div className="border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4">
-                              <span className="text-[#27C2A3] text-[14px] --sm sm:text-md font-bold">
-                                Solution
-                              </span>
-                              <span className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
-                                {analysis[current].solution}
-                              </span>
+                              <div className="w-[240px] xl:w-auto flex-shrink-0 border border-[#27C2A3] border-l-4 bg-[#27C2A308] rounded-md py-2 px-2 sm:px-4">
+                                <span className="text-[#27C2A3] text-[14px] --sm sm:text-md font-bold">
+                                  Solution
+                                </span>
+                                <span className="block mt-2 text-[14px] sm:text-md lg:text-[14px] font-normal text-[#364152] lg:text-left leading-[1.3]">
+                                  {analysis[current].solution}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
                       </AnimatePresence>
                     </div>
 
-                    {/* Button container - always at bottom */}
-                    <div className="flex flex-col w-full items-center justify-center pt-4">
+                    {/* Button — desktop only (mobile version is after navigation) */}
+                    <div className="hidden xl:flex flex-col w-full items-center justify-center pt-4">
                       <button
                         onClick={handleAnalysis}
                         className="btn-primary rounded-full py-2 w-full px-7 sm:px-16 font-normal text-[14px] --sm sm:text-md hover:opacity-90 transition-opacity"
@@ -255,7 +286,7 @@ export function AnalysisSection() {
                 </div>
               </div>
 
-              {/* Navigation controls */}
+              {/* Navigation controls — always visible */}
               <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 pt-4 md:pt-1">
                 {/* Left Arrow */}
                 <button
@@ -299,6 +330,16 @@ export function AnalysisSection() {
                       current !== analysis.length - 1 ? "#221AE9" : "#221AE950"
                     }
                   />
+                </button>
+              </div>
+
+              {/* Button — mobile only, after navigation */}
+              <div className="xl:hidden pt-3">
+                <button
+                  onClick={handleAnalysis}
+                  className="btn-primary rounded-full py-1 w-full px-7 font-normal text-[14px] --sm hover:opacity-90 transition-opacity"
+                >
+                  Discover AroundChess's Analysis
                 </button>
               </div>
             </div>

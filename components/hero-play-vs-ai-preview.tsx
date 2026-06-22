@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 
@@ -70,6 +70,22 @@ export function HeroPlayVSAIPreview() {
   const [selectedColor, setSelectedColor] = useState<"white" | "black">("white");
   const [selectedTab, setSelectedTab] = useState("recommended");
   const [selectedOpponent, setSelectedOpponent] = useState(opponentsByTab.recommended[0]);
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0 });
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    dragState.current.isDragging = true;
+    dragState.current.startX = e.clientX;
+    dragState.current.scrollLeft = tabsScrollRef.current?.scrollLeft ?? 0;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!dragState.current.isDragging || !tabsScrollRef.current) return;
+    const dx = e.clientX - dragState.current.startX;
+    tabsScrollRef.current.scrollLeft = dragState.current.scrollLeft - dx;
+  };
+
+  const stopDrag = () => { dragState.current.isDragging = false; };
 
   const currentOpponents = opponentsByTab[selectedTab] ?? opponentsByTab.recommended;
 
@@ -120,29 +136,41 @@ export function HeroPlayVSAIPreview() {
         Choose Your Opponent
       </h2>
 
-      <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => {
-              setSelectedTab(tab.key);
-              setSelectedOpponent(opponentsByTab[tab.key][0]);
-            }}
-            className={`flex-shrink-0 min-w-[110px] px-3 py-2 rounded-lg border text-center transition-colors ${
-              selectedTab === tab.key
-                ? "border-blue-base text-blue-base"
-                : "border-gray-200 text-gray-700"
-            }`}
-          >
-            <div className="text-[12px] sm:text-[13px] font-semibold leading-tight">
-              {tab.label}
-            </div>
-            <div className="text-[10px] sm:text-[11px] text-gray-500 leading-tight">
-              {tab.sub}
-            </div>
-          </button>
-        ))}
+      <div className="relative">
+        <div
+          ref={tabsScrollRef}
+          className="flex overflow-x-auto gap-2 pb-1 scrollbar-hide pr-8 cursor-grab active:cursor-grabbing"
+          style={{ scrollbarWidth: "none" }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={stopDrag}
+          onMouseLeave={stopDrag}
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => {
+                setSelectedTab(tab.key);
+                setSelectedOpponent(opponentsByTab[tab.key][0]);
+              }}
+              className={`flex-shrink-0 min-w-[110px] px-3 py-2 rounded-lg border text-center transition-colors ${
+                selectedTab === tab.key
+                  ? "border-blue-base text-blue-base"
+                  : "border-gray-200 text-gray-700"
+              }`}
+            >
+              <div className="text-[12px] sm:text-[13px] font-semibold leading-tight">
+                {tab.label}
+              </div>
+              <div className="text-[10px] sm:text-[11px] text-gray-500 leading-tight">
+                {tab.sub}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Arrow pinned at right edge — always visible on mobile */}
         <button
           type="button"
           onClick={() => {
@@ -150,9 +178,13 @@ export function HeroPlayVSAIPreview() {
             const next = tabs[(i + 1) % tabs.length];
             setSelectedTab(next.key);
             setSelectedOpponent(opponentsByTab[next.key][0]);
+            if (tabsScrollRef.current) {
+              const tabWidth = tabsScrollRef.current.scrollWidth / tabs.length;
+              tabsScrollRef.current.scrollTo({ left: (i + 1) * tabWidth, behavior: "smooth" });
+            }
           }}
           aria-label="Next difficulty"
-          className="flex-shrink-0 self-center w-6 h-6 rounded-full bg-blue-base text-white flex items-center justify-center"
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-blue-base text-white flex items-center justify-center animate-bounce hover:opacity-80 transition-opacity"
         >
           <ChevronRight size={14} />
         </button>
@@ -168,7 +200,7 @@ export function HeroPlayVSAIPreview() {
         </div>
       )}
 
-      <div className="grid grid-cols-4 gap-2 max-h-[220px] overflow-y-auto">
+      <div className="grid grid-cols-4 gap-2 max-h-[340px] overflow-y-auto">
         {currentOpponents.map((opponent) => (
           <button
             key={opponent.name}
@@ -208,10 +240,12 @@ export function HeroPlayVSAIPreview() {
       <button
         type="button"
         onClick={handlePlayNow}
-        className="w-full py-3 btn-primary text-white font-semibold rounded-full flex items-center justify-center gap-1"
+        className="w-full py-1 px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-xs sm:text-base"
       >
         Start Game
-        <ChevronRight size={18} />
+        <span className="bg-white rounded-full w-5 h-5 sm:w-5 h-5  flex items-center justify-center flex-shrink-0">
+          <ChevronRight size={16} className="text-blue-base" />
+        </span>
       </button>
     </div>
   );

@@ -19,7 +19,7 @@ export function FeaturesSection() {
             <div className="hidden sm:flex w-[286px]" />
             <Button
               variant={"outlineprimary"}
-              className="text-[#221AE9] rounded-[8px] sm:rounded-[16px] p-[4px] sm:px-[12px] sm:py-[8px] font-normal text-[11px] sm:text-[20px]"
+              className="text-[#221AE9] rounded-[8px] sm:rounded-[16px] px-[2px] sm:px-[12px] py-[1px] sm:py-[8px] h-auto sm:h-[96px] font-normal text-[11px] sm:text-[20px]"
             >
               Boost your Chess Skills
             </Button>
@@ -32,7 +32,7 @@ export function FeaturesSection() {
               className="w-[130px] h-[44px] sm:w-[286px] sm:h-[96px] object-contain"
             />
           </div>
-          <p className="md:my-2 lg:my-4 text-xl md:text-xl lg:text-[40px] font-semibold text-black">
+          <p className="md:my-2 lg:my-4 text-xl md:text-xl lg:text-[40px] font-semibold text-black pt-2">
             Your Personal Chess Lab
           </p>
           <p className="xl:max-w-[496px] text-[14px] --xs sm:text-md md:text-md lg:text-md xl:text-[20px] font-normal leading-[1.2] text-[#2e2e2e] max-w-2xl mx-auto">

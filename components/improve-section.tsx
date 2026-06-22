@@ -153,7 +153,7 @@ export function ImproveSection() {
                 <div className="flex flex-col items-center justify-center pt-[16px] md:pt-6 sm:pt-2 sm:mt-12 xl:mt-0">
                   <Button
                     onClick={handleAnalyze}
-                    className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-6 sm:py-4 font-medium text-[14px] --xs sm:text-[16px] text-[#221AE9] mb-3"
+                    className="btn-tertiary rounded-full w-fill px-10 sm:px-12 py-4 sm:py-4 font-medium text-[14px] --xs sm:text-[16px] text-[#221AE9] mb-3"
                   >
                     Analyze your most recent Game now
                   </Button>
