@@ -71,6 +71,7 @@ export const useProfileStore = create<ProfileState>()(
           allMembershipPackages: {},
           puzzleLog: {},
           isMember: null,
+          isMemberMonthly: null,
         }),
     }),
 
@@ -90,6 +91,7 @@ export const useProfileStore = create<ProfileState>()(
         allMembershipPackages: state.allMembershipPackages,
         puzzleLog: state.puzzleLog,
         isMember: state.isMember,
+        isMemberMonthly: state.isMemberMonthly,
       }),
     }
   )

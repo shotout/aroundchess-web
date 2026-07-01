@@ -5,9 +5,9 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { FaChevronRight } from "react-icons/fa";
 
 import { cn } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import InitialAvatar from "../avatar/InitialAvatar";
 import { fadeInUp } from "@/utils/motion";
 
@@ -17,8 +17,6 @@ import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useTutorial } from "@/components/TutorialProvider";
 import { trackPaywallInteraction } from "@/functions/tracking";
-
-import { headers } from 'next/headers';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -32,6 +30,7 @@ interface SidebarLink {
   href?: string;
   disabled?: boolean;
   permission?: boolean;
+  isPremium?: boolean;
   children?: {
     name: string;
     href: string;
@@ -51,43 +50,17 @@ const sidebarLinks: SidebarLink[] = [
     permission: true,
   },
   {
-    name: "Play & Practice",
-    href: "/play-practice",
+    name: "Play",
+    href: "/play",
     icon: "/icons/sidebar-playground-practice-icon.png",
     iconActive: "/icons/sidebar-playground-practice-icon-active.png",
     children: [
       {
-        name: "You vs AI",
+        name: "Play vs AI",
         href: "/playground/play-vs-ai",
         icon: "/icons/sidebar-play-vs-ai-icon.png",
         iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
       },
-      {
-        name: "Puzzles",
-        href: "/playground/puzzle",
-        icon: "/icons/sidebar-puzzle-icon.png",
-        iconActive: "/icons/sidebar-puzzle-icon-active.png",
-      },
-      {
-        name: "Board Vision",
-        href: "/playground/board-vision",
-        icon: "/icons/sidebar-board-vision-icon.png",
-        iconActive: "/icons/sidebar-board-vision-icon-active.png",
-      },
-      {
-        name: "Endgame Training",
-        href: "/playground/endgame-training",
-        icon: "/icons/sidebar-endgame-training-icon.png",
-        iconActive: "/icons/sidebar-endgame-training-icon-active.png",
-      },
-    ]
-  },
-  {
-    name: "Analyze Games",
-    href: "/my-game-history",
-    icon: "/icons/sidebar-analyze-icon.png",
-    iconActive: "/icons/sidebar-analyze-icon-active.png",
-    children: [
       {
         name: "Game History",
         href: "/my-game-history",
@@ -99,99 +72,23 @@ const sidebarLinks: SidebarLink[] = [
         href: "/saved-mistakes",
         icon: "/icons/sidebar-saved-mistakes-icon.svg",
         iconActive: "/icons/sidebar-saved-mistakes-icon-active.svg",
-      }
-    ]
-  },
-  {
-    name: "Training",
-    href: "/training",
-    icon: "/icons/sidebar-training-plan-icon.png",
-    iconActive: "/icons/sidebar-training-plan-icon-active.png",
-    children: [
-      {
-        name: "Training Plan",
-        href: "/training-plan",
-        icon: "/icons/sidebar-training-plan-icon-2.svg",
-        iconActive: "/icons/sidebar-training-plan-icon-active-2.svg",
-      },
-      {
-        name: "Handbook : Chess Theory",
-        href: "/handbook",
-        icon: "/icons/sidebar-theory-icon.png",
-        iconActive: "/icons/sidebar-theory-icon-active.png",
-      }
-    ]
-  },
-
-  /*
-  {
-    name: "Dashboard",
-    icon: "/icons/sidebar-dashboard-icon.png",
-    iconActive: "/icons/sidebar-dashboard-icon-active.png",
-    children: [
-      {
-        name: "Analyze Game",
-        href: "/analysis",
-        icon: "/icons/sidebar-analyze-icon.png",
-        iconActive: "/icons/sidebar-analyze-icon-active.png",
-        permission: true,
-      },
-      {
-        name: "My Game History",
-        href: "/my-game-history",
-        icon: "/icons/sidebar-game-history.png",
-        iconActive: "/icons/sidebar-game-history-active.png",
-      },
-      {
-        name: "Feedback Log",
-        href: "/feedback-log",
-        icon: "/icons/sidebar-mistake-log-icon.png",
-        iconActive: "/icons/sidebar-mistake-log-icon-active.png",
-      },
-      {
-        name: "My Training Plan",
-        href: "/training-plan",
-        icon: "/icons/sidebar-training-plan-icon.png",
-        iconActive: "/icons/sidebar-training-plan-icon-active.png",
       },
     ],
   },
   {
-    name: "Handbook : Chess Theory",
-    icon: "/icons/sidebar-theory-icon.png",
-    iconActive: "/icons/sidebar-theory-icon-active.png",
-    children: [
-      {
-        name: "Opening Theory",
-        href: "/opening-theory",
-        icon: "/icons/sidebar-opening-theory-icon.png",
-        iconActive: "/icons/sidebar-opening-theory-icon-active.png",
-      },
-      {
-        name: "Middlegame Strategy",
-        href: "/middlegame-strategy",
-        icon: "/icons/sidebar-middlegame-strategy-icon.png",
-        iconActive: "/icons/sidebar-middlegame-strategy-icon-active.png",
-      },
-      {
-        name: "Endgame Mastery",
-        href: "/endgame-mastery",
-        icon: "/icons/sidebar-endgame-mastery-icon.png",
-        iconActive: "/icons/sidebar-endgame-mastery-icon-active.png",
-      },
-    ],
+    name: "Leaderboard",
+    href: "/leaderboard",
+    icon: "/images/v2/sidebar/Ranking.png",
+    iconActive: "/images/v2/sidebar/Ranking.png",
+    permission: true,
   },
   {
-    name: "Playground : Practice",
-    icon: "/icons/sidebar-playground-practice-icon.png",
-    iconActive: "/icons/sidebar-playground-practice-icon-active.png",
+    name: "Practice",
+    href: "/practice",
+    icon: "/icons/sidebar-puzzle-icon.png",
+    iconActive: "/icons/sidebar-puzzle-icon-active.png",
+    isPremium: true,
     children: [
-      {
-        name: "You vs AI",
-        href: "/playground/play-vs-ai",
-        icon: "/icons/sidebar-play-vs-ai-icon.png",
-        iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
-      },
       {
         name: "Puzzles",
         href: "/playground/puzzle",
@@ -212,7 +109,27 @@ const sidebarLinks: SidebarLink[] = [
       },
     ],
   },
-  */
+  {
+    name: "Learn",
+    href: "/training",
+    icon: "/icons/sidebar-training-plan-icon.png",
+    iconActive: "/icons/sidebar-training-plan-icon-active.png",
+    isPremium: true,
+    children: [
+      {
+        name: "Training Plan",
+        href: "/training-plan",
+        icon: "/icons/sidebar-training-plan-icon-2.svg",
+        iconActive: "/icons/sidebar-training-plan-icon-active-2.svg",
+      },
+      {
+        name: "Handbook: Chess Theory",
+        href: "/handbook",
+        icon: "/icons/sidebar-theory-icon.png",
+        iconActive: "/icons/sidebar-theory-icon-active.png",
+      },
+    ],
+  },
 ];
 
 export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
@@ -230,11 +147,29 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { startTutorial } = useTutorial();
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [currentStreak, setCurrentStreak] = useState(0);
 
   useEffect(() => {
     if (sessionId) {
       setIsSignedIn(true);
     }
+  }, [sessionId]);
+
+  useEffect(() => {
+    if (!sessionId) return;
+    fetch(`${process.env.BASE_URL}/streaks/status?t=${Date.now()}`, {
+      headers: {
+        Authorization: `Bearer ${sessionId}`,
+        Accept: "*/*",
+      },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success) {
+          setCurrentStreak(data.data?.currentStreak ?? 0);
+        }
+      })
+      .catch(() => {});
   }, [sessionId]);
 
   const handleToProfile = () => {
@@ -279,24 +214,18 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   };
 
   const [isIphone, setIsIPhone] = useState(false);
-  
+
   useEffect(() => {
-    // Check if window is defined (client-side only)
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const userAgent = navigator.userAgent;
-      // Use the 'platform' property for a potentially more reliable check (less easily faked)
-      const platform = navigator.platform; 
-
-      // Check for iPhone/iPod in userAgent or platform
-      const isIphone = /iPhone|iPod/i.test(userAgent) || /(iPhone|iPod)/i.test(platform);
-      
-      // Note: Modern iPads often use a desktop user agent, so checking 'iPad' might be less reliable.
-      // For general "mobile device" detection, you might include other mobile regex.
-
-      console.log("isIphone", isIphone);
+      const platform = navigator.platform;
+      const isIphone =
+        /iPhone|iPod/i.test(userAgent) || /(iPhone|iPod)/i.test(platform);
       setIsIPhone(isIphone);
     }
   }, []);
+
+  const isSubscribed = isMember || isMemberMonthly;
 
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col z-10">
@@ -332,81 +261,119 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         </button>
       </motion.div>
 
-      {/* Mobile token & offers */}
-      <motion.div
-        className="flex sm:hidden flex-col justify-center pb-4 px-4 border-b gap-2"
-        variants={isMobile ? itemVariants : {}}
+      {/* Navigation + streak + mobile offers — all scrollable */}
+      <div
+        className="flex-1 min-h-0 overflow-y-auto"
+        style={{ WebkitOverflowScrolling: "touch" }}
       >
-        <div className="flex items-center justify-center gap-[8px]">
-          <Image
-            src="/images/pricing/token-icon.png"
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-5 h-5 object-contain"
-          />
-          <span className={`flex gap-[4px] ${token.balance === 0 ? "text-[#2e3133]" : "text-[#221AE9]"} font-medium`}>
-            Remaining Tokens:
-            <span className={`${token.balance === 0 ? "text-[#FD0000]" : "text-[#221AE9]"} font-bold`}>
-              {token.balance}
-            </span>
-          </span>
-
-          <button type="button" className="font-semibold text-[#221AE9] underline" onClick={() => handleOpenOffer("tokens")}>
-            Buy More
-          </button>
-        </div>
-        {/* Show Premium if user is a member (yearly or monthly) */}
-        {(isMember || isMemberMonthly) && token.balance > 0 ? (
+        {/* Streak section */}
+        {isSignedIn && (
           <motion.div
-            variants={fadeInUp}
-            className="relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#B2E8F9)] outline-dashed outline-[2px] outline-white -outline-offset-[2px]"
+            className="px-4 py-3 flex flex-col gap-2 border-b"
+            variants={isMobile ? itemVariants : {}}
           >
-            <div className="flex bg-[url(/icons/sparks-member.png)] bg-contain bg-no-repeat bg-right items-center gap-2 h-[64px] rounded-[8px] px-[16px]">
-              <Image
-                src="/icons/onboarding-popup.png"
-                alt="icon"
-                width={40}
-                height={40}
-                className="w-[40px] h-[40] object-contain"
-              />
-              <span className="font-semibold text-[4vw] text-[#17119B]">
-                Premium package active!
-              </span>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            variants={fadeInUp}
-            className="relative w-full rounded-lg bg-[linear-gradient(to_right,_#f7fdff,_#E6F7FE,_#f7fdff)] outline-dashed outline-[2px] outline-[#C0CED4] -outline-offset-[2px]"
-          >
-            <div className="flex flex-col justify-center items-center bg-[url(/images/asset-icon-_member.svg)] bg-contain bg-no-repeat bg-right h-[64px] rounded-[8px] px-[16px]">
-              <div className="flex items-center gap-[8px] text-[14px]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <Image
-                  src="/images/asset-icon-_member2.svg"
-                  alt="icon"
-                  width={24}
-                  height={24}
-                  className="w-[24px] h-[24px] object-contain"
+                  src={
+                    currentStreak >= 3
+                      ? "/images/v2/sidebar/mode_heat_on.png"
+                      : "/images/v2/sidebar/mode_heat.png"
+                  }
+                  alt="streak"
+                  width={40}
+                  height={48}
+                  className="w-10 h-12 object-contain"
                 />
-                <span className="mt-1">You are on the Free Package.</span>
+                <div className="flex flex-col leading-tight">
+                  <span className="font-bold text-sm text-[#2e3133]">{currentStreak} Day</span>
+                  <span className="font-base text-xs text-[#2e3133]">Streak</span>
+                </div>
               </div>
-              <button type="button" className="font-semibold text-[16px] text-[#221AE9] leading-[140%] underline" onClick={() => handleOpenOffer("subscription")}>
-                Get the Unlimited Package now.
-              </button>
+              <Link
+                href="/play"
+                onClick={() => isMobile && onClose?.()}
+                className="flex items-center gap-1 px-5 py-2 bg-[#221AE9] text-white text-sm font-semibold rounded-full hover:bg-[#2d25ea] transition-colors whitespace-nowrap"
+              >
+                Play Now <FaChevronRight className="pl-2 text-sm" />
+              </Link>
             </div>
+            <Link
+              href="/leaderboard"
+              onClick={() => isMobile && onClose?.()}
+              className="text-sm pt-2 font-medium text-[#221AE9] flex items-center gap-1 hover:underline"
+            >
+              See Leaderboard <span>&#8250;</span>
+            </Link>
           </motion.div>
         )}
-      </motion.div>
 
-      {/* Navigation */}
-      <ScrollArea
-        className="flex-1 min-h-0 py-3"
-        showScrollbar={isMobile}
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
+        {/* Mobile token & offers */}
+        <motion.div
+          className="flex sm:hidden flex-col justify-center pb-4 px-4 border-b gap-2"
+          variants={isMobile ? itemVariants : {}}
+        >
+          <div className="flex items-center justify-center gap-[8px]">
+            <Image
+              src="/images/pricing/token-icon.png"
+              alt="icon"
+              width={1000}
+              height={1000}
+              className="w-5 h-5 object-contain"
+            />
+            <span className={`flex gap-[4px] ${token.balance === 0 ? "text-[#2e3133]" : "text-[#221AE9]"} font-medium`}>
+              Remaining Tokens:
+              <span className={`${token.balance === 0 ? "text-[#FD0000]" : "text-[#221AE9]"} font-bold`}>
+                {token.balance}
+              </span>
+            </span>
+            <button type="button" className="font-semibold text-[#221AE9] underline" onClick={() => handleOpenOffer("tokens")}>
+              Buy More
+            </button>
+          </div>
+          {(isMember || isMemberMonthly) && token.balance > 0 ? (
+            <motion.div
+              variants={fadeInUp}
+              className="relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#B2E8F9)] outline-dashed outline-[2px] outline-white -outline-offset-[2px]"
+            >
+              <div className="flex bg-[url(/icons/sparks-member.png)] bg-contain bg-no-repeat bg-right items-center gap-2 h-[64px] rounded-[8px] px-[16px]">
+                <Image
+                  src="/icons/onboarding-popup.png"
+                  alt="icon"
+                  width={40}
+                  height={40}
+                  className="w-[40px] h-[40] object-contain"
+                />
+                <span className="font-semibold text-[4vw] text-[#17119B]">
+                  Premium package active!
+                </span>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              variants={fadeInUp}
+              className="relative w-full rounded-lg bg-[linear-gradient(to_right,_#f7fdff,_#E6F7FE,_#f7fdff)] outline-dashed outline-[2px] outline-[#C0CED4] -outline-offset-[2px]"
+            >
+              <div className="flex flex-col justify-center items-center bg-[url(/images/asset-icon-_member.svg)] bg-contain bg-no-repeat bg-right h-[64px] rounded-[8px] px-[16px]">
+                <div className="flex items-center gap-[8px] text-[14px]">
+                  <Image
+                    src="/images/asset-icon-_member2.svg"
+                    alt="icon"
+                    width={24}
+                    height={24}
+                    className="w-[24px] h-[24px] object-contain"
+                  />
+                  <span className="mt-1">You are on the Free Package.</span>
+                </div>
+                <button type="button" className="font-semibold text-[16px] text-[#221AE9] leading-[140%] underline" onClick={() => handleOpenOffer("subscription")}>
+                  Get the Unlimited Package now.
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
         <motion.nav
-          className="space-y-5 px-2"
+          className="space-y-5 px-2 py-3"
           variants={isMobile ? containerVariants : {}}
           initial={isMobile ? "hidden" : "visible"}
           animate="visible"
@@ -414,7 +381,8 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           {sidebarLinks.map((section) => {
             const hasChildren = !!section.children?.length;
             const isActive = section.href
-              ? pathname?.includes(section.href)
+              ? pathname?.includes(section.href) ||
+                section.children?.some((c) => pathname?.includes(c.href))
               : section.children?.some((c) => pathname === c.href);
 
             return (
@@ -453,6 +421,15 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                       <span className="flex-1 font-semibold">
                         {section.name}
                       </span>
+                      {section.isPremium && !isSubscribed && (
+                        <Image
+                          src="/images/v2/sidebar/premium_badge.png"
+                          alt="Premium"
+                          width={60}
+                          height={20}
+                          className="h-5 w-auto object-contain"
+                        />
+                      )}
                       {!isSignedIn && !section.permission && (
                         <Image
                           src="/icons/lock.png"
@@ -490,6 +467,15 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                       <span className="flex-1 font-semibold">
                         {section.name}
                       </span>
+                      {section.isPremium && !isSubscribed && (
+                        <Image
+                          src="/images/v2/sidebar/premium_badge.png"
+                          alt="Premium"
+                          width={60}
+                          height={20}
+                          className="h-5 w-auto object-contain"
+                        />
+                      )}
                     </div>
                   )}
 
@@ -507,7 +493,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                           >
                             <Link
                               data-tutorial={
-                                child.name === "You vs AI"
+                                child.name === "Play vs AI"
                                   ? "play-vs-ai-step-1"
                                   : null
                               }
@@ -571,13 +557,13 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
         {isSignedIn && (
           <motion.div
-            className={`md:hidden mt-[16px] border-t border-[#c0ced4] p-[14px] ${isIphone ? 'pb-0' : ''}`}
+            className={`md:hidden mt-[16px] border-t border-[#c0ced4] p-[14px] ${isIphone ? "pb-0" : ""}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: isMobile ? 0.4 : 0.3 }}
           >
             <div className="flex xl:hidden w-full items-center gap-[8px] mb-[12px]">
-              <Link href={'/faq'} className="flex items-center justify-center gap-[4px] w-1/2 bg-[#f7fcff] rounded-full border border-[#81cff3] p-[8px] text-[#17119B] font-medium hover:bg-[#def3ff]">
+              <Link href={"/faq"} className="flex items-center justify-center gap-[4px] w-1/2 bg-[#f7fcff] rounded-full border border-[#81cff3] p-[8px] text-[#17119B] font-medium hover:bg-[#def3ff]">
                 <svg width="20" height="24" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clipPath="url(#clip0_821_190318)">
                     <path d="M16.2105 16.6094H5.33266C5.07559 16.6094 4.86719 16.8185 4.86719 17.0764V18.315C4.86719 18.5729 5.07559 18.782 5.33266 18.782H16.2105C16.4675 18.782 16.6759 18.5729 16.6759 18.315V17.0764C16.6759 16.8185 16.4675 16.6094 16.2105 16.6094Z" fill="#17119B"/>
@@ -598,7 +584,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                 <span>FAQ</span>
               </Link>
 
-              <Link href={'/about-us'} className="flex items-center justify-center gap-[4px] w-1/2 bg-[#f7fcff] rounded-full border border-[#81cff3] p-[8px] text-[#17119B] font-medium hover:bg-[#def3ff]">
+              <Link href={"/about-us"} className="flex items-center justify-center gap-[4px] w-1/2 bg-[#f7fcff] rounded-full border border-[#81cff3] p-[8px] text-[#17119B] font-medium hover:bg-[#def3ff]">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M4.71337 15.3303C1.82471 12.3396 1.82471 7.48762 4.71337 4.49693C7.60203 1.50623 12.2884 1.50623 15.1771 4.49693C18.0658 7.48762 18.0658 12.3396 15.1771 15.3303C12.2884 18.321 7.60203 18.321 4.71337 15.3303Z" fill="#17119B"/>
                   <path d="M8.79688 6.63352V6.1386C8.79688 5.57599 9.23814 5.11914 9.78155 5.11914H10.1248C10.6682 5.11914 11.1094 5.57599 11.1094 6.1386V6.63352C11.1094 7.19613 10.6682 7.65298 10.1248 7.65298H9.78155C9.23814 7.65298 8.79688 7.19613 8.79688 6.63352ZM8.79688 14.0532V9.85687C8.79688 9.29427 9.23814 8.83741 9.78155 8.83741H10.1248C10.6682 8.83741 11.1094 9.29427 11.1094 9.85687V14.0532C11.1094 14.6158 10.6682 15.0726 10.1248 15.0726H9.78155C9.23814 15.0726 8.79688 14.6158 8.79688 14.0532Z" fill="#17119B"/>
@@ -645,55 +631,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             </div>
           </motion.div>
         )}
-      </ScrollArea>
-
-      {/* ========================================
-          🧪 TESTING BUTTON - EASY TO DELETE
-          Tutorial Test Button (Delete this section when done)
-          ======================================== */}
-      {/* <motion.div
-        className="flex px-4 py-2 border-t border-dashed border-yellow-400 bg-yellow-50"
-        variants={isMobile ? itemVariants : {}}
-      >
-        <button
-          onClick={async () => {
-            // Close sidebar first on mobile before starting tutorial
-            if (isMobile && onClose) {
-              await onClose();
-            }
-
-            await router.replace("/my-game-history");
-              // Wait a bit for navigation to complete before starting tutorial
-            await setTimeout(() => {
-              startTutorial();
-           }, 300);
-          }}
-          className="w-full text-[14px] px-3 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-l-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
-        >
-          <span>Tutorial 1</span>
-        </button>
-
-        <button
-          onClick={async () => {
-            if (isMobile && onClose) {
-              await onClose();
-            }
-
-            // NEW: You vs AI Tutorial
-            router.replace("/playground/play-vs-ai");
-            // Wait a bit for navigation to complete before starting tutorial
-            await setTimeout(() => {
-              startTutorial();
-            }, 300);
-          }}
-          className="w-full text-[14px] px-3 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-r-lg shadow-md transition-all duration-200 flex items-center justify-center gap-2"
-        >
-          <span>Tutorial 2</span>
-        </button>
-      </motion.div> */}
-      {/* ========================================
-          END OF TESTING BUTTON
-          ======================================== */}
+      </div>
 
       {/* Profile */}
       {isSignedIn && (

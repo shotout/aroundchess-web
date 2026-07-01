@@ -711,6 +711,21 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+
+  const getStreakStatus = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/streaks/status`,
+    });
+  }, [apiRequest]);
+
+  const getLeaderboardData = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/v4/leaderboard`,
+    });
+  }, [apiRequest]);
+
   return {
     isLoading,
     error,
@@ -772,5 +787,7 @@ export function useApiClient() {
     contactUs,
     GameHistoryOpenings,
     checkoutSessions,
+    getStreakStatus,
+    getLeaderboardData,
   };
 }

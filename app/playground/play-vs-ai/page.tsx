@@ -8,6 +8,7 @@ import { useApiClient } from "@/functions/api-client";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import AnalyzeGameFreePopup from "@/components/v2/analyze-game-free-popup";
 
 export default function PlayVSAI() {
   const { isLoading } = useApiClient();
@@ -15,9 +16,14 @@ export default function PlayVSAI() {
   const [showPremiumDialog, setShowPremiumDialog] = useState<boolean>(false);
   const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showAnalyzePopup, setShowAnalyzePopup] = useState(false);
 
   useEffect(() => {
     trackCustomEvent("ViewPlayVSAI");
+    if (sessionStorage.getItem("showAnalyzePopup") === "true") {
+      sessionStorage.removeItem("showAnalyzePopup");
+      setShowAnalyzePopup(true);
+    }
   }, []);
   useEffect(() => {
     const checkScreenSize = () => {
@@ -59,7 +65,11 @@ export default function PlayVSAI() {
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
-          <div className="w-full h-[64vh] md:h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
+          <div className="relative w-full h-[64vh] md:h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">
+            <AnalyzeGameFreePopup
+              visible={showAnalyzePopup}
+              onClose={() => setShowAnalyzePopup(false)}
+            />
             <main className="w-full h-full xl:p-8">
               <div className="relative bg-[#e0f6ff] mx-auto w-full h-full flex items-center justify-center md:rounded-xl overflow-hidden border">
                 {/* Premium Subscription Modal */}

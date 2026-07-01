@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/app/store/profile";
 import { TimerResetIcon } from "lucide-react";
 import { WelcomeBack } from "./welcome-back";
-import { HeroGamePreview } from "./hero-game-preview";
-import { HeroSubtitle } from "./hero-subtitle";
+import { HeroGamePreview } from "./v2/hero-game-preview";
+import { HeroSubtitle } from "./v2/hero-subtitle";
 
 export function HeroSection() {
   const router = useRouter();

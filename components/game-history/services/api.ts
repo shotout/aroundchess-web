@@ -179,6 +179,19 @@ export const gameHistoryApi = {
     );
   },
 
+  getLeaderboardMe: async (sessionId: string | null) => {
+    return apiRequest<ApiResponse<{
+      can_join: boolean;
+      is_inactive: boolean;
+      games_remaining: number;
+      ac_games_played: number;
+      elo: number;
+      rank: number | null;
+      rank_change: number | null;
+      chess_com_elo_transferred: boolean;
+    }>>("/v4/leaderboard/me", { sessionId });
+  },
+
   getPerformanceData: async (sessionId: string | null) => {
     return apiRequest<ApiResponse<any>>(
       "/analytic-games/my-game-performance-history",

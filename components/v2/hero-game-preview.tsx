@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { HeroPlayVSAIPreview } from "./hero-play-vs-ai-preview";
 
-export function HeroGamePreview() {
+export function HeroGamePreview({ recommendedListHeightClass }: { recommendedListHeightClass?: string }) {
   return (
     <div className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
       <div className="hidden sm:flex sm:w-[70%] bg-white rounded-2xl shadow-lg border border-[#DEDEDE] p-3 sm:p-4 flex-col gap-2">
@@ -51,8 +51,8 @@ export function HeroGamePreview() {
         </div>
       </div>
 
-      <div className="w-full sm:w-[40%] bg-white rounded-2xl shadow-lg border-2 border-[#7CC0F2] p-3 sm:p-4">
-        <HeroPlayVSAIPreview />
+      <div className="w-full sm:w-[40%] bg-white rounded-2xl shadow-lg border-2 border-[#7CC0F2] p-3 sm:p-4 flex flex-col">
+        <HeroPlayVSAIPreview recommendedListHeightClass={recommendedListHeightClass} />
       </div>
     </div>
   );

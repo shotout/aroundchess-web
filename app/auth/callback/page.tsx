@@ -175,9 +175,13 @@ export default function SSOCallbackPage() {
               
               const userUsername =
                 profileData.data?.username || profileData.username;
+              const userOnboardElo =
+                profileData.data?.onboard_elo ?? profileData.onboard_elo;
 
               if (userUsername && userUsername.trim() !== "") {
                 router.push("/my-game-history");
+              } else if (!userOnboardElo) {
+                router.push("/chess-knowledge");
               } else {
                 router.push("/my-game-history");
               }

@@ -63,7 +63,41 @@ const tabs = [
   { key: "master", label: "Master", sub: "2200 - 2700 ELO" },
 ];
 
-export function HeroPlayVSAIPreview() {
+function OpponentCard({
+  opponent,
+  selected,
+  onClick,
+}: {
+  opponent: Opponent;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex flex-col items-center gap-1 p-1.5 rounded-lg border transition-colors ${
+        selected ? "border-blue-base bg-blue-base/5" : "border-transparent"
+      }`}
+    >
+      <Image
+        src={opponent.img}
+        alt={opponent.name}
+        width={48}
+        height={48}
+        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
+      />
+      <div className="text-center">
+        <div className={`text-[11px] sm:text-[12px] font-medium ${selected ? "text-blue-base" : "text-gray-900"}`}>
+          {opponent.name}
+        </div>
+        <div className="text-[9px] sm:text-[10px] text-gray-500">ELO {opponent.elo}</div>
+      </div>
+    </button>
+  );
+}
+
+export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }: { recommendedListHeightClass?: string }) {
   const router = useRouter();
   const { setAIChoosed } = usePlayVSAIStore();
 
@@ -99,7 +133,7 @@ export function HeroPlayVSAIPreview() {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col flex-1 gap-3">
       <h2 className="text-base sm:text-lg font-semibold text-gray-900 text-center">
         Choose Your Color
       </h2>
@@ -200,47 +234,55 @@ export function HeroPlayVSAIPreview() {
         </div>
       )}
 
-      <div className="grid grid-cols-4 gap-2 max-h-[340px] overflow-y-auto">
-        {currentOpponents.map((opponent) => (
-          <button
-            key={opponent.name}
-            type="button"
-            onClick={() => setSelectedOpponent(opponent)}
-            className={`flex flex-col items-center gap-1 p-1.5 rounded-lg border transition-colors ${
-              selectedOpponent.name === opponent.name
-                ? "border-blue-base bg-blue-base/5"
-                : "border-transparent"
-            }`}
-          >
-            <Image
-              src={opponent.img}
-              alt={opponent.name}
-              width={48}
-              height={48}
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
-            />
-            <div className="text-center">
-              <div
-                className={`text-[11px] sm:text-[12px] font-medium ${
-                  selectedOpponent.name === opponent.name
-                    ? "text-blue-base"
-                    : "text-gray-900"
-                }`}
-              >
-                {opponent.name}
+      {selectedTab === "recommended" ? (
+        <div className={`${recommendedListHeightClass} overflow-y-auto space-y-2 pr-0.5`}>
+          <div className="grid grid-cols-4 gap-2">
+            {opponentsByTab.recommended.map((opponent) => (
+              <OpponentCard
+                key={`rec-${opponent.name}-${opponent.elo}`}
+                opponent={opponent}
+                selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
+                onClick={() => setSelectedOpponent(opponent)}
+              />
+            ))}
+          </div>
+          {tabs.slice(1).map((tab) => (
+            <div key={tab.key}>
+              <div className="flex items-center gap-3 py-1">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-[12px] sm:text-sm text-gray-500">{tab.label}</span>
+                <div className="h-px flex-1 bg-gray-200" />
               </div>
-              <div className="text-[9px] sm:text-[10px] text-gray-500">
-                ELO {opponent.elo}
+              <div className="grid grid-cols-4 gap-2">
+                {opponentsByTab[tab.key].map((opponent) => (
+                  <OpponentCard
+                    key={`${tab.key}-${opponent.name}-${opponent.elo}`}
+                    opponent={opponent}
+                    selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
+                    onClick={() => setSelectedOpponent(opponent)}
+                  />
+                ))}
               </div>
             </div>
-          </button>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 gap-2 h-[320px] overflow-y-auto">
+          {currentOpponents.map((opponent) => (
+            <OpponentCard
+              key={`${selectedTab}-${opponent.name}-${opponent.elo}`}
+              opponent={opponent}
+              selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
+              onClick={() => setSelectedOpponent(opponent)}
+            />
+          ))}
+        </div>
+      )}
 
       <button
         type="button"
         onClick={handlePlayNow}
-        className="w-full py-1 px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-xs sm:text-base"
+        className="mt-auto w-full py-1 px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-xs sm:text-base"
       >
         Start Game
         <span className="bg-white rounded-full w-5 h-5 sm:w-5 h-5  flex items-center justify-center flex-shrink-0">

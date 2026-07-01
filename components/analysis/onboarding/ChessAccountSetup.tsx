@@ -33,7 +33,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 }) => {
   const { setUsername, setIsOpenTutorial } = usePgnStore();
   const { setCallFetch } = useProfileFetch();
-  const { setToken, sessionId } = useProfileStore();
+  const { setToken, sessionId, profile } = useProfileStore();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
   const { getTokenBalance } = useApiClient();
   const { startTutorial, isTutorialPlay } = useTutorial();
@@ -133,13 +133,13 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
     // Show ChessAccountSetup for ALL users without username
     // Tutorial completion only affects whether we show tutorial AFTER they interact with the dialog
-    if (isSignedIn && !hasUsername) {
+    if (isSignedIn && !hasUsername && !profile?.onboard_elo) {
       setShowConnectDialog(true);
       setShowPremiumDialog(false);
     } else {
       setShowConnectDialog(false);
     }
-  }, [isSignedIn, hasUsername, checkComplete, isLoading]);
+  }, [isSignedIn, hasUsername, checkComplete, isLoading, profile]);
 
   const handleConnectSuccess = async (username: string) => {
     setShowConnectDialog(false);
