@@ -192,6 +192,31 @@ export const gameHistoryApi = {
     }>>("/v4/leaderboard/me", { sessionId });
   },
 
+  getOpponentsPlayed: async (
+    sessionId: string | null,
+    page = 1,
+    limit = 20
+  ) => {
+    return apiRequest<
+      ApiResponse<
+        {
+          opponentUsername: string;
+          opponentElo: number | null;
+          opponentAvatar: string | null;
+          totalGames: number;
+          wins: number;
+          draws: number;
+          losses: number;
+        }[]
+      > & {
+        pagination: { page: number; limit: number; total: number; totalPages: number };
+      }
+    >("/v3/games/opponents-played", {
+      sessionId,
+      params: { sources: "vs_ai", page, limit },
+    });
+  },
+
   getPerformanceData: async (sessionId: string | null) => {
     return apiRequest<ApiResponse<any>>(
       "/analytic-games/my-game-performance-history",

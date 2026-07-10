@@ -13,10 +13,11 @@ interface UsePaginationResult {
 }
 
 export function usePagination(
-  data: any[]
+  data: any[],
+  initialItemsPerPage = 10
 ): UsePaginationResult {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
 
   const totalPages = useMemo(() => Math.ceil(data.length / itemsPerPage), [data.length, itemsPerPage]);
   

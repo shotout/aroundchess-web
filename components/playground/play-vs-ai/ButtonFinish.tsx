@@ -1,6 +1,6 @@
 import { fadeInUp, motion } from "@/utils/motion";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { Eye, Plus } from "lucide-react";
+import { Eye, Loader2, Plus } from "lucide-react";
 import Image from "next/image";
 import { useTutorial } from "@/components/TutorialProvider";
 import { usePgnStore } from "@/app/store/zustandStore";
@@ -16,6 +16,8 @@ interface ButtonFinishProps {
   pgn: string;
   isSaved: boolean;
   hasAnalysis: boolean;
+  /** True while an analysis is being started headlessly (skip-dialog flow). */
+  isAnalyzing?: boolean;
   onAnalyzeClick: () => void;
   onShowAnalysisClick: () => void;
 }
@@ -31,6 +33,7 @@ export const ButtonFinish = ({
   isSaved,
   pgn,
   hasAnalysis,
+  isAnalyzing,
   onAnalyzeClick,
   onShowAnalysisClick,
 }: ButtonFinishProps) => {
@@ -59,15 +62,20 @@ export const ButtonFinish = ({
                 console.log("🔘 Analyze Now button clicked in ButtonFinish");
                 onAnalyzeClick();
               }}
-              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-[3px] border-[#19A23C] bg-[#34C759] z-1 shadow-[0px_0px_1px_2px_rgba(52,199,89,.2] relative before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:inset-2 before:shadow-[0px_0px_0px_2px_#6AFB8F] before:z-5 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:rounded-full after:inset-2 after:shadow-[0px_2px_2px_0px_#0A6D23]"
+              disabled={isAnalyzing}
+              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-[3px] border-[#19A23C] bg-[#34C759] z-1 shadow-[0px_0px_1px_2px_rgba(52,199,89,.2] relative before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:inset-2 before:shadow-[0px_0px_0px_2px_#6AFB8F] before:z-5 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:rounded-full after:inset-2 after:shadow-[0px_2px_2px_0px_#0A6D23] disabled:opacity-70"
               data-tutorial="play-vs-ai-step-3"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 13.3327V6.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M8 13.3327V2.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M4 13.332V9.33203" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Analyze Now
+              {isAnalyzing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 13.3327V6.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 13.3327V2.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 13.332V9.33203" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+              {isAnalyzing ? "Starting..." : "Analyze Now"}
             </button>
           )}
         </div>

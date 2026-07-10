@@ -12,11 +12,13 @@ import InitialAvatar from "../avatar/InitialAvatar";
 import { fadeInUp } from "@/utils/motion";
 
 import { useProfileStore } from "@/app/store/profile";
+import { useStreakStore } from "@/app/store/streak";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useTutorial } from "@/components/TutorialProvider";
 import { trackPaywallInteraction } from "@/functions/tracking";
+import { useApiClient } from "@/functions/api-client";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -146,8 +148,12 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { startTutorial } = useTutorial();
+  const { getStreakStatus } = useApiClient();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [currentStreak, setCurrentStreak] = useState(0);
+  // Streak comes from the persisted store so the badge keeps its value
+  // across navigations instead of flashing 0 while refetching; the login
+  // trigger and post-game flow keep the store current.
+  const currentStreak = useStreakStore((s) => s.currentStreak);
 
   useEffect(() => {
     if (sessionId) {
@@ -157,16 +163,13 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
   useEffect(() => {
     if (!sessionId) return;
-    fetch(`${process.env.BASE_URL}/streaks/status?t=${Date.now()}`, {
-      headers: {
-        Authorization: `Bearer ${sessionId}`,
-        Accept: "*/*",
-      },
-    })
-      .then((r) => r.json())
-      .then((data) => {
+    // Only fetch when the store has never been filled (e.g. first visit on
+    // this device); otherwise trust the persisted value.
+    if (useStreakStore.getState().status !== null) return;
+    getStreakStatus()
+      .then((data: any) => {
         if (data?.success) {
-          setCurrentStreak(data.data?.currentStreak ?? 0);
+          useStreakStore.getState().setStatus(data.data);
         }
       })
       .catch(() => {});
@@ -272,8 +275,8 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             className="px-4 py-3 flex flex-col gap-2 border-b"
             variants={isMobile ? itemVariants : {}}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <Image
                   src={
                     currentStreak >= 3
@@ -293,7 +296,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               <Link
                 href="/play"
                 onClick={() => isMobile && onClose?.()}
-                className="flex items-center gap-1 px-5 py-2 bg-[#221AE9] text-white text-sm font-semibold rounded-full hover:bg-[#2d25ea] transition-colors whitespace-nowrap"
+                className="flex items-center gap-1 px-5 py-2 bg-[#221AE9] text-white text-sm font-semibold rounded-full hover:bg-[#2d25ea] transition-colors whitespace-nowrap shrink-0"
               >
                 Play Now <FaChevronRight className="pl-2 text-sm" />
               </Link>

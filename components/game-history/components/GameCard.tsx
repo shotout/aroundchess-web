@@ -21,6 +21,8 @@ import GameAnalysis from "./GameAnalysis";
 interface GameCardProps {
   gameData: Game;
   isNewlyImported?: boolean;
+  /** "default" preserves the legacy look; "v2" opts into the revamped design. */
+  variant?: "default" | "v2";
 }
 
 interface LastAnalysisResponse {
@@ -87,8 +89,29 @@ const fetchLastAnalysisV3 = async (
 const GameCard: React.FC<GameCardProps> = ({
   gameData,
   isNewlyImported = false,
+  variant = "default",
 }) => {
+  const isV2 = variant === "v2";
+
+  const displaySource = (src: string) => {
+    if (!src) return "Unknown";
+    const map: Record<string, string> = {
+      chesscom: "Chess.com",
+      "chess.com": "Chess.com",
+      vs_ai: "Against AI",
+      ai: "Against AI",
+      "against ai": "Against AI",
+      pgn_upload: "Import",
+      "pgn upload": "Import",
+      "pdn upload": "Import",
+      import: "Import",
+    };
+    return map[src.toLowerCase().trim()] ?? src;
+  };
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
+  // Analyze/Retry now skip the depth dialog: this flag makes AnalyzeGameHistory
+  // auto-run the Standard analysis headlessly (its dialog never opens).
+  const [autoStartAnalyze, setAutoStartAnalyze] = useState(false);
   const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
   const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
   const [v2AnalysisData, setV2AnalysisData] = useState<any>(null);
@@ -134,6 +157,17 @@ const GameCard: React.FC<GameCardProps> = ({
         },
         disabled: true,
       };
+    } else if (autoStartAnalyze) {
+      // Analysis is being kicked off headlessly — hold the button until the
+      // loading dialog takes over (or the run fails and re-enables it).
+      return {
+        text: "Starting...",
+        icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
+        className:
+          "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
+        onClick: () => {},
+        disabled: true,
+      };
     } else if (gameData.isAnalysis || (job && job.status === "completed")) {
       return {
         text: "View Analysis",
@@ -160,10 +194,17 @@ const GameCard: React.FC<GameCardProps> = ({
             setV2AnalysisData(v2Analysis);
             setShortAnalysisData(v3Analysis);
 
-            if (v3Analysis?.success && v3Analysis.data) {
-              console.log("✅ [GameCard - View Analysis] V3 Analysis found, opening ChooseAnalysisMode");
+            if (v3Analysis?.success && v3Analysis.data?.summary) {
+              console.log("✅ [GameCard - View Analysis] V3 Analysis found, opening GameAnalysis directly");
 
-              // Open ChooseAnalysisMode dialog with both v2 and v3 data
+              // Skip ChooseAnalysisMode — show the mistakes result right away
+              setV3AnalysisResult({
+                ...v3Analysis.data,
+                analysisId: v3Analysis.data.analysisId || v3Analysis.data.id,
+              });
+              setGameAnalysisOpen(true);
+            } else if (v3Analysis?.success && v3Analysis.data) {
+              // v3 data without a summary — the choose dialog still handles this shape
               setIsChooseAnalysisModeOpen(true);
             } else {
               console.log("⚠️ [GameCard - View Analysis] No v3 analysis found in response");
@@ -174,7 +215,7 @@ const GameCard: React.FC<GameCardProps> = ({
                 setIsChooseAnalysisModeOpen(true);
               } else {
                 console.error("❌ [GameCard - View Analysis] No analysis found for this game");
-                setIsAnalyzeOpen(true);
+                setAutoStartAnalyze(true);
               }
             }
           } catch (error) {
@@ -186,7 +227,7 @@ const GameCard: React.FC<GameCardProps> = ({
               setShortAnalysisData({ data: job.result });
               setIsChooseAnalysisModeOpen(true);
             } else {
-              setIsAnalyzeOpen(true);
+              setAutoStartAnalyze(true);
             }
           }
         },
@@ -207,8 +248,8 @@ const GameCard: React.FC<GameCardProps> = ({
             className:
               "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
             onClick: () => {
-              // Open ChooseAnalysisMode to view progress
-              setIsChooseAnalysisModeOpen(true);
+              // Analysis still running — show the loading dialog directly
+              setProcessingAnalysisModeOpen(true);
             },
             disabled: false,
           };
@@ -218,7 +259,7 @@ const GameCard: React.FC<GameCardProps> = ({
             icon: <AlertCircle className="h-4 w-4 mr-2" />,
             className:
               "border border-white bg-red-600 hover:bg-red-700 border border-white text-white shadow-sm ring-1 ring-red-200",
-            onClick: () => setIsAnalyzeOpen(true),
+            onClick: () => setAutoStartAnalyze(true),
             disabled: false,
           };
       }
@@ -229,7 +270,7 @@ const GameCard: React.FC<GameCardProps> = ({
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
       className:
         "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
-      onClick: () => setIsAnalyzeOpen(true),
+      onClick: () => setAutoStartAnalyze(true),
       disabled: false,
     };
   };
@@ -243,10 +284,13 @@ const GameCard: React.FC<GameCardProps> = ({
     [
       { label: "Opening", value: gameData.opening },
       { label: "Moves", value: displayMoves(gameData.moves) },
-      { label: "Source", value: gameData.source },
+      { label: "Source", value: isV2 ? displaySource(gameData.source) : gameData.source },
     ],
   ];
   const btn = getButtonContent();
+
+  const eloRaw = Number(String(gameData.eloChange ?? "0").replace("+", ""));
+  const eloDisplay = eloRaw > 0 ? `+${eloRaw}` : `${eloRaw}`;
 
   return (
     <>
@@ -254,9 +298,11 @@ const GameCard: React.FC<GameCardProps> = ({
         open={isAnalyzeOpen}
         onOpenChange={setIsAnalyzeOpen}
         game={gameData}
+        autoStart={autoStartAnalyze}
+        onAutoStartComplete={() => setAutoStartAnalyze(false)}
         onAnalysisStarted={() => {
-          // Open ChooseAnalysisMode when analysis starts
-          setIsChooseAnalysisModeOpen(true);
+          // Skip ChooseAnalysisMode — go straight to the loading dialog
+          setProcessingAnalysisModeOpen(true);
         }}
         onShortAnalysisReceived={(data) => {
           console.log("📥 GameCard received short-analysis data:", data);
@@ -301,13 +347,26 @@ const GameCard: React.FC<GameCardProps> = ({
       />
       
       <div
-        className={`px-[16px] py-[8px] md:p-4 border-t border-b mx-[-16px] md:rounded-md relative`}
+        className={`px-[16px] py-[8px] md:p-4 border-t border-b mx-[-16px] md:rounded-md relative ${isV2 ? "bg-[#F7FCFF]" : ""}`}
         data-tutorial="1"
       >
         <div className="flex justify-between items-center mb-4 text-[14px] --xs">
           <div className="text-gray-500">{gameData.date}</div>
-          <div className={`font-semibold ${gameData.resultColor}`}>
-            {gameData.result}
+          <div className="flex items-center gap-2">
+            <span className={`font-semibold ${gameData.resultColor}`}>
+              {gameData.result}
+            </span>
+            {isV2 && eloRaw !== 0 && !Number.isNaN(eloRaw) && (
+              <span
+                className={
+                  eloRaw > 0
+                    ? "font-semibold text-green-600"
+                    : "font-semibold text-red-500"
+                }
+              >
+                {eloDisplay}
+              </span>
+            )}
           </div>
         </div>
 
@@ -336,14 +395,38 @@ const GameCard: React.FC<GameCardProps> = ({
 
         {(() => {
           const buttonContent = getButtonContent();
+          // Inline boxShadow (not a Tailwind class) so it can't be dropped by the
+          // shadcn Button's own class-merging — a crisp white ring plus a glow in
+          // the button's own color, matching the desktop table's v2 buttons.
+          const v2ClassName =
+            buttonContent.text === "View Analysis"
+              ? "bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:opacity-90 text-white"
+              : buttonContent.text === "Retry"
+              ? "bg-red-600 hover:bg-red-700 text-white"
+              : "bg-[#221AE9] hover:bg-[#1B14CC] text-white";
+          const v2Style: React.CSSProperties | undefined = isV2
+            ? {
+                boxShadow:
+                  buttonContent.text === "View Analysis"
+                    ? "0 0 0 2px #ffffff, 0 0 10px 3px rgba(10, 216, 71, 0.6)"
+                    : buttonContent.text === "Retry"
+                    ? "0 0 0 2px #ffffff, 0 0 10px 3px rgba(220, 38, 38, 0.6)"
+                    : "0 0 0 2px #ffffff, 0 0 10px 3px rgba(34, 26, 233, 0.6)",
+              }
+            : undefined;
           return (
             <Button
-              className={`w-full p-[10px] rounded-3xl ${buttonContent.className} h-[36px] text-white`}
+              className={`w-full p-[10px] ${isV2 ? "rounded-full" : "rounded-3xl"} ${isV2 ? v2ClassName : buttonContent.className} h-[36px] text-white`}
+              style={v2Style}
               onClick={buttonContent.onClick}
               disabled={buttonContent.disabled}
             >
               {buttonContent.icon}
-              <h1 className="text-[14px] --xs">{buttonContent.text}</h1>
+              <h1 className="text-[14px] --xs">
+                {isV2 && buttonContent.text === "View Analysis"
+                  ? "See Mistakes"
+                  : buttonContent.text}
+              </h1>
             </Button>
           );
         })()}

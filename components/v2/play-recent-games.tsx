@@ -53,37 +53,64 @@ function GameRow({ game }: { game: Game }) {
   const { date, time } = game.date ? formatDateTime(game.date) : { date: "", time: "" };
 
   return (
-    <div className="flex items-center gap-[10px] sm:gap-[16px] py-[12px] border-b border-[#F3F4F6] last:border-0">
-      {/* Avatar initial */}
-      <div
-        className={`w-[36px] h-[36px] rounded-full flex items-center justify-center font-semibold text-[14px] shrink-0 ${badgeClass}`}
-      >
-        {initial}
+    <div className="py-[12px] border-b border-[#F3F4F6] last:border-0">
+      {/* Info row */}
+      <div className="flex items-center gap-[10px] sm:gap-[16px]">
+        {/* Avatar initial */}
+        <div
+          className={`w-[36px] h-[36px] rounded-full flex items-center justify-center font-semibold text-[14px] shrink-0 ${badgeClass}`}
+        >
+          {initial}
+        </div>
+
+        {/* Meta */}
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] text-[#9CA3AF] leading-tight">
+            {date}
+            {time ? ` · ${time}` : ""}
+            {" · "}
+            <span className={`font-semibold ${resultColor} inline-flex items-center gap-[4px]`}>
+              {resultLabel} ({eloDisplay})
+              {(isWin || isLoss) && (
+                <Image
+                  src={isWin ? "/images/v2/play/up.png" : "/images/v2/play/down.png"}
+                  alt={isWin ? "up" : "down"}
+                  width={12}
+                  height={12}
+                />
+              )}
+            </span>
+          </p>
+          <p className="text-lg font-bold text-[#111827] truncate">
+            {game.opponent}
+            {game.rating ? ` (${game.rating})` : ""}
+          </p>
+        </div>
+
+        {/* Source */}
+        <span className="text-[12px] text-[#6B7280] shrink-0">{game.source}</span>
+
+        {/* Action button — desktop only */}
+        <Link
+          href="/my-game-history"
+          className={`hidden sm:flex shrink-0 items-center justify-center gap-[5px] w-[250px] py-[12px] rounded-full text-sm sm:text-lg font-normal text-white transition-opacity hover:opacity-90 ${
+            isAI ? "bg-[#1B14CC]" : "bg-gradient-to-b from-[#0AD847] to-[#018F34]"
+          }`}
+        >
+          <Image
+            src={isAI ? "/images/v2/play/bar-chart.png" : "/images/v2/play/Eye.png"}
+            alt=""
+            width={16}
+            height={16}
+          />
+          {isAI ? "Analyze Mistakes" : "See Mistakes"}
+        </Link>
       </div>
 
-      {/* Meta */}
-      <div className="flex-1 min-w-0">
-        <p className="text-[11px] text-[#9CA3AF] leading-tight">
-          {date}
-          {time ? ` · ${time}` : ""}
-          {" · "}
-          <span className={`font-semibold ${resultColor}`}>
-            {resultLabel} ({eloDisplay})
-          </span>
-        </p>
-        <p className="text-lg font-bold text-[#111827] truncate">
-          {game.opponent}
-          {game.rating ? ` (${game.rating})` : ""}
-        </p>
-      </div>
-
-      {/* Source */}
-      <span className="hidden sm:block text-[12px] text-[#6B7280] shrink-0">{game.source}</span>
-
-      {/* Action button */}
+      {/* Action button — mobile full width */}
       <Link
         href="/my-game-history"
-        className={`shrink-0 flex items-center justify-center gap-[5px] w-[250px] py-[12px] rounded-full text-lg font-normal text-white transition-opacity hover:opacity-90 ${
+        className={`sm:hidden mt-[10px] flex w-full items-center justify-center gap-[5px] py-[12px] rounded-full text-lg font-normal text-white transition-opacity hover:opacity-90 ${
           isAI ? "bg-[#1B14CC]" : "bg-gradient-to-b from-[#0AD847] to-[#018F34]"
         }`}
       >

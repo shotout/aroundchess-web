@@ -282,6 +282,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
       <button
         type="button"
         onClick={handlePlayNow}
+        data-tutorial="play-vs-ai-step-2"
         className="mt-auto w-full py-1 px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-xs sm:text-base"
       >
         Start Game

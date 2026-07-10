@@ -140,7 +140,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               <ul className="space-y-2 text-[15px]">
                 <li>
                   <Link
-                    href="/play-practice"
+                    href="/play"
                     className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Play & Practice

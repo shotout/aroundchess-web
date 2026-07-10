@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import { HeroGamePreview } from "@/components/v2/hero-game-preview";
+import { PlayHeroGamePreview } from "@/components/v2/play-hero-game-preview";
 import { PlayTopBar } from "@/components/v2/play-top-bar";
 import { PlayRecentGames } from "@/components/v2/play-recent-games";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { gameHistoryApi } from "@/components/game-history/services/api";
+import { transformApiDataToComponentFormat } from "@/components/game-history/hooks/useGameData";
 import Navigation from "@/components/navigator/navigation";
+import { useApiClient } from "@/functions/api-client";
 
 export function PlayPage() {
   const { sessionId } = useProfileStore();
+  const { getStreakStatus, getLeaderboardData, getLeaderboardMe } = useApiClient();
   const {
     streak, setStreak,
     leaderboard, setLeaderboard,
@@ -21,30 +24,22 @@ export function PlayPage() {
   useEffect(() => {
     if (!sessionId) return;
 
-    const headers = {
-      Authorization: `Bearer ${sessionId}`,
-      Accept: "*/*",
-    };
-
-    fetch(`${process.env.BASE_URL}/streaks/status?t=${Date.now()}`, { headers })
-      .then((r) => r.json())
-      .then((data) => { if (data?.success) setStreak(data.data?.currentStreak ?? 0); })
+    getStreakStatus()
+      .then((data: any) => { if (data?.success) setStreak(data.data?.currentStreak ?? 0); })
       .catch(() => {});
 
-    fetch(`${process.env.BASE_URL}/v4/leaderboard?t=${Date.now()}`, { headers })
-      .then((r) => r.json())
-      .then((data) => { if (data?.success) setLeaderboard(data.data); })
+    getLeaderboardData()
+      .then((data: any) => { if (data?.success) setLeaderboard(data.data); })
       .catch(() => {});
 
-    gameHistoryApi
-      .getLeaderboardMe(sessionId)
-      .then((res) => { if (res?.data) setLeaderboardMe(res.data); })
+    getLeaderboardMe()
+      .then((res: any) => { if (res?.data) setLeaderboardMe(res.data); })
       .catch(() => {});
 
     gameHistoryApi
       .getUserGames(sessionId, { limit: 5, page: 1 })
       .then((res) => {
-        if (res?.data) setRecentGames(Array.isArray(res.data) ? res.data.slice(0, 5) : []);
+        if (res?.data) setRecentGames(transformApiDataToComponentFormat(Array.isArray(res.data) ? res.data.slice(0, 5) : []));
       })
       .catch(() => {});
   }, [sessionId]);
@@ -53,7 +48,7 @@ export function PlayPage() {
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
-          <div className="p-[16px] sm:p-[24px] flex flex-col gap-[20px] max-w-[1200px] min-[1600px]:max-w-[1400px] mx-auto w-full">
+          <div className="p-[10px] sm:p-[24px] flex flex-col gap-[20px] max-w-[1200px] min-[1600px]:max-w-[1400px] mx-auto w-full">
             <PlayTopBar
               streak={streak}
               elo={leaderboard?.my_elo ?? 0}
@@ -61,9 +56,10 @@ export function PlayPage() {
               movedUp={leaderboard?.moved_up ?? null}
               canJoin={leaderboardMe?.can_join}
               gamesRemaining={leaderboardMe?.games_remaining}
+              isInactive={leaderboardMe?.can_join !== false && leaderboardMe?.is_inactive === true}
             />
 
-            <div className="bg-[#E6F7FE] p-7 rounded-3xl"><HeroGamePreview recommendedListHeightClass="h-[440px] min-[1600px]:h-[530px]" />
+            <div className="bg-[#E6F7FE] p-3 sm:p-7 rounded-3xl"><PlayHeroGamePreview recommendedListHeightClass="h-[440px] min-[1600px]:h-[530px]" />
 
             <div className="pt-8"><PlayRecentGames games={recentGames} isLoading={false} /></div>
             </div>

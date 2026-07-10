@@ -715,14 +715,39 @@ export function useApiClient() {
   const getStreakStatus = useCallback(() => {
     return apiRequest({
       method: "GET",
-      path: `${process.env.BASE_URL}/streaks/status`,
+      path: `${process.env.BASE_URL}/v4/streaks/status`,
     });
   }, [apiRequest]);
+
+  const recordStreakPlay = useCallback(() => {
+    return apiRequest({
+      method: "POST",
+      path: `${process.env.BASE_URL}/v4/streaks/record-play`,
+    });
+  }, [apiRequest]);
+
+  const postLeaderboardGameResult = useCallback(
+    (body: { game_id: string; used_hint: boolean }) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/v4/leaderboard/game-result`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
 
   const getLeaderboardData = useCallback(() => {
     return apiRequest({
       method: "GET",
       path: `${process.env.BASE_URL}/v4/leaderboard`,
+    });
+  }, [apiRequest]);
+
+  const getLeaderboardMe = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/v4/leaderboard/me`,
     });
   }, [apiRequest]);
 
@@ -788,6 +813,9 @@ export function useApiClient() {
     GameHistoryOpenings,
     checkoutSessions,
     getStreakStatus,
+    recordStreakPlay,
+    postLeaderboardGameResult,
     getLeaderboardData,
+    getLeaderboardMe,
   };
 }

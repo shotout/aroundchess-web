@@ -18,6 +18,7 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useUserStore } from "@/app/training-plan/store";
 import { useApiClient } from "@/functions/api-client";
+import { usePlayPageStore } from "@/app/store/playPage";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -29,12 +30,21 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { token: tokenBalance, isMember, isMemberMonthly, sessionId, profile } = useProfileStore();
+  const { streak, setStreak } = usePlayPageStore();
   // const { profile } = useUserStore();
-  const { isLoading } = useApiClient();
+  const { isLoading, getStreakStatus } = useApiClient();
 
   const isSignedIn = sessionId.length > 0;
   const isGuestMode = !isSignedIn;
   const isEndgameTraining = pathname?.includes("endgame-training");
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    getStreakStatus()
+      .then((data: any) => { if (data?.success) setStreak(data.data?.currentStreak ?? 0); })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSignedIn]);
 
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -277,18 +287,51 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           isGuestMode ? "xl:w-full xl:justify-center" : ""
         } items-center h-[70px] lg:h-[100px]`}
       >
+        {/* Mobile: streak when signed in, logo otherwise */}
         <div className="xl:hidden">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/icons/logo.png"
-              alt="logo"
-              className="max-w-20 h-28 object-contain"
-              quality={100}
-              width={90}
-              height={90}
-            />
-          </Link>
+          {isSignedIn ? (
+            <div className="flex items-center gap-[6px]">
+              <Image
+                src={streak >= 3 ? "/images/v2/sidebar/mode_heat_on.png" : "/images/v2/sidebar/mode_heat.png"}
+                alt="streak"
+                width={28}
+                height={34}
+                className="w-[28px] h-[34px] object-contain"
+              />
+              <div className="flex flex-col leading-tight">
+                <span className="text-[13px] font-bold text-[#2e3133]">{streak} Day</span>
+                <span className="text-[13px] text-[#2e3133]">Streak</span>
+              </div>
+            </div>
+          ) : (
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/icons/logo.png"
+                alt="logo"
+                className="max-w-20 h-28 object-contain"
+                quality={100}
+                width={90}
+                height={90}
+              />
+            </Link>
+          )}
         </div>
+
+        {/* Mobile: logo centered when streak is shown in the left slot */}
+        {isSignedIn && (
+          <div className="xl:hidden absolute left-1/2 -translate-x-1/2">
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/icons/logo.png"
+                alt="logo"
+                className="max-w-20 h-28 object-contain"
+                quality={100}
+                width={90}
+                height={90}
+              />
+            </Link>
+          </div>
+        )}
 
         <NavigationTabs />
       </div>

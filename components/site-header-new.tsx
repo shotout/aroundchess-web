@@ -384,7 +384,7 @@ function MobileNav(props: mobileProps) {
     },
     {
       name: "Play & Practice",
-      href: "/play-practice",
+      href: "/play",
       icon: "/icons/sidebar-playground-practice-icon.png",
       iconActive: "/icons/sidebar-playground-practice-icon-active.png",
       children: [

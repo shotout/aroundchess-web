@@ -228,7 +228,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked })
       <div className="relative z-10 bg-white rounded-lg shadow-lg p-4 sm:max-w-md w-[90%]">
         <div className="flex items-center justify-between mb-4">
           <button
-            onClick={() => router.push("/play-practice")}
+            onClick={() => router.push("/play")}
             className="flex items-center"
           >
             <ChevronLeft className="h-6 w-6 text-black" />

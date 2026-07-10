@@ -48,7 +48,7 @@ export function AnalyzeGameHistory({
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
   const { startBackgroundPolling } = usePollingManager();
   const { startV3BackgroundPolling } = useV3PollingManager();
-  const { addJob: addV3Job } = useV3BackgroundAnalysisStore();
+  const { addJob: addV3Job, removeJob: removeV3Job } = useV3BackgroundAnalysisStore();
   const autoStartedRef = useRef(false);
 
   const depths = [
@@ -104,7 +104,10 @@ export function AnalyzeGameHistory({
     }
   };
 
-  const handleAnalyzeGame = async () => {
+  const handleAnalyzeGame = async (depthOverride?: number) => {
+    // depthOverride bypasses the depthChoosed state so callers (the autoStart
+    // effect) can force a depth in the same tick without a stale-closure read.
+    const effectiveDepth = depthOverride ?? depthChoosed;
     // Disable button immediately to prevent double-click
     setIsSubmitting(true);
 
@@ -130,11 +133,6 @@ export function AnalyzeGameHistory({
         setIsSubmitting(false); // Re-enable button on error
         return;
       }
-
-      toast.info(`Analysis Capacity Check`, {
-        description: `Available tokens: ${capacityCheck.data.availableTokens}, Active jobs: ${capacityCheck.data.activeJobs}`,
-        duration: 3000,
-      });
     } catch (error: any) {
       toast.error("Capacity Check Failed", {
         description: error.message || "Failed to check analysis capacity",
@@ -162,12 +160,7 @@ export function AnalyzeGameHistory({
       existing &&
       ["pending", "processing", "finalizing"].includes(existing.status)
     ) {
-      // If job already exists and is in progress, open ChooseAnalysisMode to show progress
-      toast.info("Analysis already in progress for this game.", {
-        description: `Current status: ${existing.status}`,
-        duration: 5000,
-      });
-
+      // Job already exists and is in progress — just show the progress dialog
       // Open ChooseAnalysisMode to view progress
       if (onAnalysisStarted) {
         onAnalysisStarted();
@@ -215,6 +208,11 @@ export function AnalyzeGameHistory({
       }
     }
 
+    // Fresh start: drop any stale v3 job so ProcessingAnalysisMode (opened at
+    // onAnalysisStarted) can't pick up an old completed result before the new
+    // short-analyze job replaces it.
+    removeV3Job(game.id);
+
     // Add job to store immediately to update UI (button changes to "View Analysis")
     const tempJobId = `temp-${Date.now()}`;
     addJob(
@@ -222,7 +220,7 @@ export function AnalyzeGameHistory({
       tempJobId,
       undefined, // statusUrl will be updated after API response
       game.pgn,
-      depthChoosed
+      effectiveDepth
     );
 
     try {
@@ -231,9 +229,9 @@ export function AnalyzeGameHistory({
         process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
       let endpoint = "";
 
-      if (depthChoosed === 12) {
+      if (effectiveDepth === 12) {
         endpoint = `${baseUrl}/v2/analyze/basic-analyze?t=${Date.now()}`;
-      } else if (depthChoosed === 16) {
+      } else if (effectiveDepth === 16) {
         endpoint = `${baseUrl}/v2/analyze/standard-analyze?t=${Date.now()}`;
       } else {
         endpoint = `${baseUrl}/v2/analyze/deep-analyze?t=${Date.now()}`;
@@ -245,7 +243,7 @@ export function AnalyzeGameHistory({
         {
           pgn: gameToAnalyze,
           username: game.username || "",
-          depth: depthChoosed,
+          depth: effectiveDepth,
         },
         {
           headers: {
@@ -286,26 +284,7 @@ export function AnalyzeGameHistory({
           setPgn(gameToAnalyze);
           setDataGamesImport(game);
           setDataAnalysis(data.result || data);
-          toast.success("Analysis complete!", {
-            description: "Using cached analysis result.",
-            duration: 5000,
-          });
           return;
-        }
-
-        if (["pending", "processing", "finalizing"].includes(data.status)) {
-          toast.info("Analysis already in progress for this game.", {
-            description: `Current progress: ${data.progress || 0}%`,
-            duration: 5000,
-          });
-        } else {
-          toast.success(
-            "Analysis started! You'll be notified when it's complete.",
-            {
-              description: "You can continue browsing while it runs.",
-              duration: 5000,
-            }
-          );
         }
 
         startBackgroundPolling(
@@ -318,10 +297,6 @@ export function AnalyzeGameHistory({
       } else if (res.status === 200 && data && !data.processingMode) {
         if (existing && ["pending", "processing"].includes(existing.status)) {
           onOpenChange(false);
-          toast.info("Analysis already in progress for this game.", {
-            description: "Please wait for the current analysis to complete.",
-            duration: 5000,
-          });
         } else {
           setPgn(gameToAnalyze);
           setDataGamesImport(game.pgn);
@@ -352,7 +327,7 @@ export function AnalyzeGameHistory({
         {
           pgn: gameToAnalyze,
           username: game.username || "",
-          depth: depthChoosed,
+          depth: effectiveDepth,
         },
         {
           headers: {
@@ -371,7 +346,7 @@ export function AnalyzeGameHistory({
             v3Data.jobId,
             v3Data.statusUrl,
             gameToAnalyze,
-            depthChoosed
+            effectiveDepth
           );
 
           // START POLLING IMMEDIATELY after getting statusUrl
@@ -405,9 +380,11 @@ export function AnalyzeGameHistory({
       if (autoStartedRef.current) return;
       autoStartedRef.current = true;
       try {
-        setDepthChoosed(depth);
-        setDepth(depth);
-        await handleAnalyzeGame();
+        // Auto-start always runs the Standard analysis (depth 12); passing it
+        // explicitly because the state setters won't apply within this tick.
+        setDepthChoosed(12);
+        setDepth(12);
+        await handleAnalyzeGame(12);
         // notify caller that auto-start completed so they can clear any local state
         try {
           onAutoStartComplete && onAutoStartComplete();
@@ -579,7 +556,8 @@ export function AnalyzeGameHistory({
           )}
 
           <button
-            onClick={handleAnalyzeGame}
+            // Wrapped so the click event isn't passed as depthOverride
+            onClick={() => handleAnalyzeGame()}
             disabled={isSubmitting}
             className={`btn-primary w-full text-[14px] --sm rounded-full py-[8px] my-4 ${
               isSubmitting ? "opacity-50 cursor-not-allowed" : ""
