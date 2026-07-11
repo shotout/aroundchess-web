@@ -41,3 +41,10 @@ next-env.d.ts
 
 #prisma
 prisma/migrations/*
+
+# raw Lottie source files (too large for GitHub; the app uses the .min.json copies)
+public/images/v2/days-streak/Day-Streak.json
+public/images/v2/days-streak/get-token.json
+public/images/v2/play-vs-ai/WON.json
+public/images/v2/play-vs-ai/LOSE.json
+public/images/v2/play-vs-ai/DRAW.json
