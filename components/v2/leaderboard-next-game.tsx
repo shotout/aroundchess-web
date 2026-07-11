@@ -2,24 +2,32 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
+import {
+  pickRecommendedOpponents,
+  type AiRosterOpponent,
+} from "@/components/v2/play-vs-ai-roster-data";
 
-type Opponent = { name: string; elo: number; img: string };
+interface LeaderboardNextGameProps {
+  userElo: number;
+}
 
-const OPPONENTS: Opponent[] = [
-  { name: "Lisa", elo: 450, img: "/images/v2/leaderboard/opponents/lisa.png" },
-  { name: "Andreas", elo: 500, img: "/images/v2/leaderboard/opponents/andreas.png" },
-  { name: "Pierre", elo: 550, img: "/images/v2/leaderboard/opponents/pierre.png" },
-  { name: "Amel", elo: 600, img: "/images/v2/leaderboard/opponents/amel.png" },
-];
-
-export function LeaderboardNextGame() {
+export function LeaderboardNextGame({ userElo }: LeaderboardNextGameProps) {
   const router = useRouter();
   const { setAIChoosed } = usePlayVSAIStore();
-  const [selected, setSelected] = useState(OPPONENTS[0]);
+
+  const opponents = useMemo(
+    () => pickRecommendedOpponents(userElo || 1200),
+    [userElo]
+  );
+
+  const [selectedId, setSelectedId] = useState<number | undefined>(opponents[0]?.id);
+  const selected: AiRosterOpponent | undefined =
+    opponents.find((o) => o.id === selectedId) ?? opponents[0];
 
   const handleStartGame = () => {
+    if (!selected) return;
     setAIChoosed({
       color: "white",
       difficulty: "recommended",
@@ -27,6 +35,8 @@ export function LeaderboardNextGame() {
     });
     router.push("/playground/play-vs-ai/playing");
   };
+
+  if (opponents.length === 0) return null;
 
   return (
     <div className="w-full sm:w-[70%] mx-auto bg-white rounded-[16px] border border-[#221AE9] shadow-sm px-[16px] sm:px-[24px] py-[16px] flex flex-col gap-[16px]">
@@ -45,13 +55,13 @@ export function LeaderboardNextGame() {
       </div>
 
       <div className="grid grid-cols-4 gap-[8px] sm:gap-[12px]">
-        {OPPONENTS.map((opponent) => {
-          const isSelected = selected.name === opponent.name;
+        {opponents.map((opponent) => {
+          const isSelected = selected?.id === opponent.id;
           return (
             <button
-              key={opponent.name}
+              key={opponent.id}
               type="button"
-              onClick={() => setSelected(opponent)}
+              onClick={() => setSelectedId(opponent.id)}
               className={`w-full flex flex-col sm:flex-row items-center gap-[6px] sm:gap-[10px] rounded-2xl py-[10px] px-[6px] sm:px-[12px] transition-colors ${
                 isSelected ? "bg-[#EEF0FF]" : "bg-transparent hover:bg-[#F9FAFB]"
               }`}

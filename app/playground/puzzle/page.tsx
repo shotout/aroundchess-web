@@ -8,6 +8,7 @@ import { PremiumSubscription } from "@/components/analysis/onboarding/PremiumSub
 import Navigation from "@/components/navigator/navigation";
 import { PuzzleGame } from "@/components/playground/puzzle/PuzzleGame";
 import PuzzleInitialize from "@/components/playground/puzzle/PuzzleInitialize";
+import { PracticePremiumGuard } from "@/components/v2/premium-lock-guard";
 import { useApiClient } from "@/functions/api-client";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -143,6 +144,7 @@ useEffect(() => {
   };
   return (
     <Navigation>
+      <PracticePremiumGuard />
       {showInitialization || !currentPuzzle ? (
         <PuzzleInitialize
           jsonPath="/puzzle/mate_puzzles.json"

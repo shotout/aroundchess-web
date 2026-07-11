@@ -50,7 +50,9 @@ export function LeaderboardPage() {
         if (!data?.success) return;
         if (data.data) setLeaderboard(data.data);
 
-        const list = data.data?.leaderboard ?? data.data?.players ?? data.data?.list ?? null;
+        const list =
+          data.data?.entries ?? data.data?.leaderboard ?? data.data?.players ?? data.data?.list ?? null;
+        const myRank = data.data?.my_rank ?? null;
         if (Array.isArray(list) && list.length > 0) {
           setLeaderboardEntries(
             list.map((item: any, i: number) => ({
@@ -58,7 +60,7 @@ export function LeaderboardPage() {
               username: item.username ?? item.name ?? "[Username]",
               score: item.score ?? item.elo ?? 0,
               rankChange: item.rank_change ?? item.rankChange ?? null,
-              isMe: item.is_me ?? item.isMe ?? false,
+              isMe: item.is_me ?? item.isMe ?? (myRank !== null && item.rank === myRank),
             }))
           );
         }
@@ -147,7 +149,7 @@ export function LeaderboardPage() {
                 isLoading={isLoading && (!leaderboardEntries || leaderboardEntries.length === 0)}
               />
 
-              <div className="pt-4"><LeaderboardNextGame /></div>
+              <div className="pt-4"><LeaderboardNextGame userElo={myElo} /></div>
             </div>
           </div>
         </Navigation>
