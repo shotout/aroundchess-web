@@ -580,7 +580,7 @@ function DemoAnalyzeCard() {
       if (!swiper) return;
       if (swiper.activeIndex >= DEMO_MISTAKES.length - 1) swiper.slideTo(0);
       else swiper.slideNext();
-    }, 4200);
+    }, 3000);
     return () => clearInterval(t);
   }, []);
 
@@ -593,6 +593,7 @@ function DemoAnalyzeCard() {
       <Swiper
         modules={[EffectCards, Pagination]}
         effect="cards"
+        autoHeight
         cardsEffect={{ slideShadows: false, rotate: true, perSlideRotate: 2, perSlideOffset: 8 }}
         onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
         onSwiper={(swiper) => {
@@ -685,7 +686,7 @@ function DemoAnalyzeCard() {
         ))}
       </Swiper>
 
-      <div className="relative z-10 -mt-[52px] flex items-center justify-center gap-[40px]">
+      <div className="relative z-10 mt-[8px] flex items-center justify-center gap-[40px]">
         <span className="w-[28px] h-[28px] flex justify-center items-center text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)]">
           <svg width="14" height="12" viewBox="0 0 16 14" fill="none">
             <path d="M15 7H0.899022" stroke="#E6F7FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -759,7 +760,15 @@ function FinaleCard({ onPrev, onDone }: { onPrev: () => void; onDone: () => void
 
 /* --------------------------------- tour --------------------------------- */
 
-export function PlaygroundTour({ autoStart = true }: { autoStart?: boolean }) {
+export function PlaygroundTour({
+  autoStart = true,
+  forceStart = false,
+}: {
+  autoStart?: boolean;
+  /** open immediately on mount — set by the gate when the lazy chunk was
+      loaded because of a manual trigger that already fired */
+  forceStart?: boolean;
+}) {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
@@ -802,6 +811,16 @@ export function PlaygroundTour({ autoStart = true }: { autoStart?: boolean }) {
     }, 700);
     return () => clearTimeout(t);
   }, [mounted, autoStart]);
+
+  // The gate mounts this chunk in response to a manual trigger that already
+  // fired — open right away instead of re-checking auto-start conditions.
+  useEffect(() => {
+    if (!mounted || !forceStart) return;
+    setIndex(0);
+    setOpen(true);
+    preloadLottie(WIN_LOTTIE);
+    preloadLottie(LOSE_LOTTIE);
+  }, [mounted, forceStart]);
 
   // Manual trigger hook (window event + console helper).
   useEffect(() => {

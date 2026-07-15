@@ -5,7 +5,7 @@ import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { PlayPage } from "@/components/v2/play-page";
 import AnalyzeGameFreePopup from "@/components/v2/analyze-game-free-popup";
 import { DayStreakLoginTrigger } from "@/components/v2/day-streak-login-trigger";
-import { PlaygroundTour } from "@/components/v2/playground-tour";
+import { PlaygroundTourGate } from "@/components/v2/playground-tour-gate";
 
 export default function PlayVSAI() {
   const [showAnalyzePopup, setShowAnalyzePopup] = useState(false);
@@ -25,7 +25,7 @@ export default function PlayVSAI() {
         onClose={() => setShowAnalyzePopup(false)}
       />
       <DayStreakLoginTrigger suppressed={showAnalyzePopup} />
-      <PlaygroundTour />
+      <PlaygroundTourGate />
       <PlayPage />
     </div>
   );
