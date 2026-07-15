@@ -5,7 +5,7 @@ import { LoadingStateProps } from "../types/default-pgn";
 
 const LoadingState: React.FC<LoadingStateProps> = ({
   setShowSetupPopup,
-  message = "Please enter your Chess.com username to load your games or try again.",
+  message = "Start a quiz to load your games or try again.",
 }) => {
   return (
     <div className="flex items-center justify-center h-screen w-full">

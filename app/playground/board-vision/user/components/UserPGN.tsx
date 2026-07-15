@@ -46,7 +46,6 @@ const UserPGN: React.FC = () => {
   } = userGame;
 
   const [showSetupPopup, setShowSetupPopup] = useState<boolean>(false);
-  const [openAccountConnected, setOpenAccountConnected] = useState<boolean>(false);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
 
   useEffect(() => {
@@ -73,8 +72,12 @@ const UserPGN: React.FC = () => {
     }
   }, [_hasHydrated]);
 
+  // Each position carries the player's name for its game (game history can mix
+  // chess.com, vs-AI and uploaded games); the store username is a fallback.
+  const effectiveUsername = currentPosition?.username || username;
+
   const getUserInfo = () => {
-    if (!currentPosition || !username)
+    if (!currentPosition || !effectiveUsername)
       return {
         isWhiteUser: false,
         userProfilePic: null,
@@ -83,9 +86,9 @@ const UserPGN: React.FC = () => {
       };
 
     const isWhiteUser =
-      currentPosition.white?.toLowerCase() === username.toLowerCase();
+      currentPosition.white?.toLowerCase() === effectiveUsername.toLowerCase();
     const isBlackUser =
-      currentPosition.black?.toLowerCase() === username.toLowerCase();
+      currentPosition.black?.toLowerCase() === effectiveUsername.toLowerCase();
 
     // If username matches neither player, you might want to handle this case
     if (!isWhiteUser && !isBlackUser) {
@@ -124,10 +127,6 @@ const UserPGN: React.FC = () => {
         <Popup
           isOpen={showSetupPopup}
           onClose={() => setShowSetupPopup(false)}
-          handleUsernameClicked={() => {
-            setOpenAccountConnected(true);
-            setShowSetupPopup(false);
-          }}
         />
       </>
     );
@@ -139,15 +138,11 @@ const UserPGN: React.FC = () => {
       <>
         <LoadingState
           setShowSetupPopup={setShowSetupPopup}
-          message="Please enter your Chess.com username to load your games."
+          message="Start a quiz to load your games."
         />
         <Popup
           isOpen={showSetupPopup}
           onClose={() => setShowSetupPopup(false)}
-          handleUsernameClicked={() => {
-            setOpenAccountConnected(true);
-            setShowSetupPopup(false);
-          }}
         />
       </>
     );
@@ -171,7 +166,7 @@ const UserPGN: React.FC = () => {
             highlightedSquares={highlightedSquares}
             arrows={arrows}
             leftPanelVariants={leftPanelVariants}
-            username={username}
+            username={effectiveUsername}
             userProfilePic={userProfilePic}
             opponentProfilePic={opponentProfilePic}
             opponentName={opponentName}
@@ -243,13 +238,9 @@ const UserPGN: React.FC = () => {
         </motion.div>
       </main>
 
-      <Popup 
-        isOpen={showSetupPopup} 
-        onClose={() => setShowSetupPopup(false)} 
-        handleUsernameClicked={() => {
-          setOpenAccountConnected(true);
-          setShowSetupPopup(false);
-        }}
+      <Popup
+        isOpen={showSetupPopup}
+        onClose={() => setShowSetupPopup(false)}
       />
     </>
   );

@@ -24,6 +24,14 @@ export interface Position {
   white: string;
   black: string;
   url: string;
+  /** The player's name in this game (matches the PGN White/Black header). */
+  username?: string;
+}
+
+/** A game fed into the Board Vision quiz: its PGN plus the player's name in it. */
+export interface QuizGame {
+  pgn: string;
+  username: string;
 }
 
 export interface GameQuestion {

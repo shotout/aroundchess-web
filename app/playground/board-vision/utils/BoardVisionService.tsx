@@ -7,9 +7,15 @@ export interface Position {
   white: string;
   black: string;
   url: string;
+  username?: string;
   whiteProfilePic?: string;
   blackProfilePic?: string;
   gameIndex?: number;
+}
+
+export interface QuizGame {
+  pgn: string;
+  username: string;
 }
 
 export interface PositionAnalysis {
@@ -125,6 +131,7 @@ export const ChessService = {
         white,
         black,
         url,
+        username,
         gameIndex,
         whiteProfilePic:
           whiteProfilePic || this.getProfilePicUrl({ username: white }),
@@ -139,17 +146,18 @@ export const ChessService = {
     }
   },
 
-  processMultipleGames(pgns: string[], username: string): Promise<Position[]> {
+  processMultipleGames(games: QuizGame[]): Promise<Position[]> {
     return new Promise(async (resolve, reject) => {
       try {
         const allPositions: Position[] = [];
         const opponents = new Set<string>();
 
-        for (let i = 0; i < pgns.length; i++) {
+        for (let i = 0; i < games.length; i++) {
+          const { pgn, username } = games[i];
           try {
             const chess = new Chess();
             try {
-              chess.loadPgn(pgns[i]);
+              chess.loadPgn(pgn);
             } catch (error) {
               console.error("Error loading PGN:", error);
               continue;
@@ -172,7 +180,7 @@ export const ChessService = {
             }
 
             const positions = await this.getUserGameFromPgn(
-              pgns[i],
+              pgn,
               username,
               i
             );
@@ -189,7 +197,7 @@ export const ChessService = {
         }
 
         console.log(
-          `Found ${opponents.size} unique opponents from ${pgns.length} games`
+          `Found ${opponents.size} unique opponents from ${games.length} games`
         );
 
         if (opponents.size >= 4 && allPositions.length >= 10) {

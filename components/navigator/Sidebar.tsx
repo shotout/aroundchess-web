@@ -9,6 +9,7 @@ import { FaChevronRight } from "react-icons/fa";
 
 import { cn } from "@/lib/utils";
 import InitialAvatar from "../avatar/InitialAvatar";
+import ProfileAvatarUpload from "@/components/v2/profile-avatar-upload";
 import { fadeInUp } from "@/utils/motion";
 
 import { useProfileStore } from "@/app/store/profile";
@@ -605,9 +606,14 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <InitialAvatar
-                name={profileShow?.name || username || "Anonymous"}
-                className="w-[40px] h-[40px]"
+              <ProfileAvatarUpload
+                className="w-[40px] h-[40px] rounded-full"
+                fallback={
+                  <InitialAvatar
+                    name={profileShow?.name || username || "Anonymous"}
+                    className="w-[40px] h-[40px]"
+                  />
+                }
               />
               <div className="overflow-hidden text-left">
                 <h4 className="font-medium text-[18px] truncate">
@@ -650,9 +656,14 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <InitialAvatar
-              name={profileShow?.name || username || "Anonymous"}
-              className="w-[40px] h-[40px]"
+            <ProfileAvatarUpload
+              className="w-[40px] h-[40px] rounded-full"
+              fallback={
+                <InitialAvatar
+                  name={profileShow?.name || username || "Anonymous"}
+                  className="w-[40px] h-[40px]"
+                />
+              }
             />
             <div className="overflow-hidden text-left">
               <h4 className="font-medium text-[18px] truncate">

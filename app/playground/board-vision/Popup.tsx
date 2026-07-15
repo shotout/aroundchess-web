@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, Check, X, Loader2 } from "lucide-react";
+import { ChevronLeft, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useBoardVisionStore } from "./utils/BoardvisionStore";
+import { QuizGame } from "./types/default-pgn";
 import {
   Dialog,
   DialogContent,
@@ -21,38 +22,30 @@ import {
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import axios from "axios";
-import { Chess } from "chess.js";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
-
-const endpoint = process.env.BASE_URL;
+import { gameHistoryApi } from "@/components/game-history/services/api";
+import { CACHE_EXPIRATION } from "@/components/game-history/hooks/useGameData";
 
 interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
-  handleUsernameClicked: (value: boolean) => void;
 }
 
-const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked }) => {
+const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
   const { sessionId } = useProfileStore();
-  const { username: globalUsername } = usePgnStore();
+  const {
+    username: globalUsername,
+    gamesData,
+    gamesLastFetched,
+  } = usePgnStore();
 
   const router = useRouter();
-  const {
-    username,
-    setUsername,
-    loadUserPositions,
-    loadDefaultPositions,
-    isLoading,
-    loadingError,
-  } = useBoardVisionStore();
+  const { loadUserPositions, loadDefaultPositions, isLoading, loadingError } =
+    useBoardVisionStore();
 
-  const [usernameInput, setUsernameInput] = useState("");
-  const [usernameStatus, setUsernameStatus] = useState("idle");
-  const [availableGames, setAvailableGames] = useState<any[]>([]);
-  const [selectedGames, setSelectedGames] = useState<string[]>([]);
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [gamesStatus, setGamesStatus] = useState("idle");
+  const [selectedGames, setSelectedGames] = useState<QuizGame[]>([]);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [gameCount, setGameCount] = useState("50");
 
@@ -60,106 +53,60 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked })
     ((i + 1) * 10).toString()
   );
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(usernameInput), 500);
-    return () => clearTimeout(timer);
-  }, [usernameInput]);
+  // Both the raw API shape and the UI-shaped cached Game carry pgn + username.
+  const toQuizGames = (items: any[]): QuizGame[] =>
+    items
+      .filter((g) => typeof g?.pgn === "string" && g.pgn.trim() !== "")
+      .map((g) => ({ pgn: g.pgn, username: g.username || globalUsername || "" }));
 
   useEffect(() => {
-    if (debouncedQuery && debouncedQuery.trim() !== "" && sessionId) {
-      setUsernameStatus("loading");
-      fetchUserGames();
-    } else if (!debouncedQuery || debouncedQuery.trim() === "") {
-      setUsernameStatus("idle");
-      setAvailableGames([]);
-      setSelectedGames([]);
+    if (!isOpen) return;
+    setShowErrorModal(false);
+    loadGames();
+  }, [isOpen, sessionId, gameCount]);
+
+  const loadGames = async () => {
+    const limit = parseInt(gameCount, 10);
+    const cached = Array.isArray(gamesData) ? toQuizGames(gamesData) : [];
+    const cacheFresh =
+      !!gamesLastFetched && Date.now() - gamesLastFetched < CACHE_EXPIRATION;
+
+    if (cacheFresh && cached.length >= limit) {
+      setSelectedGames(cached.slice(0, limit));
+      setGamesStatus("found");
+      return;
     }
-  }, [debouncedQuery, sessionId, gameCount]);
 
-  useEffect(() => {
-    if (isOpen) {
-      setShowErrorModal(false);
-
-      if (globalUsername && globalUsername.trim() !== "") {
-        setUsernameInput(globalUsername);
-        setDebouncedQuery("");
-      } else if (username && username.trim() !== "") {
-        // setUsernameInput(username);
-        // setDebouncedQuery("");
-      } else {
-        setUsernameInput("");
-        setDebouncedQuery("");
-        setUsernameStatus("idle");
-        setAvailableGames([]);
-        setSelectedGames([]);
-      }
+    if (!sessionId) {
+      setSelectedGames(cached.slice(0, limit));
+      setGamesStatus(cached.length > 0 ? "found" : "not-found");
+      return;
     }
-  }, [isOpen, globalUsername, username]);
 
-  const fetchUserGames = async () => {
+    setGamesStatus("loading");
     try {
-      const url = `${endpoint}/games/get-data/${debouncedQuery}?limit=${gameCount}`;
+      const res = await gameHistoryApi.getUserGames(sessionId, { limit });
+      const games = toQuizGames(res?.data || []);
 
-      const response = await axios.get(url, {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          authorization: `Bearer ${sessionId}`,
-        },
-      });
-
-      if (response.status === 200 && response.data.data?.length > 0) {
-        setUsernameStatus("found");
-        const games = response.data.data;
-        setAvailableGames(games);
-
-        const gamesReturned = games.length;
-
-        const gameDetails = games.map((game: any) => {
-          try {
-            const chess = new Chess();
-            chess.loadPgn(game.value);
-            const headers = chess.header();
-
-            return {
-              value: game.value,
-              opponent:
-                headers.White?.toLowerCase() === debouncedQuery.toLowerCase()
-                  ? headers.Black
-                  : headers.White,
-            };
-          } catch (error) {
-            console.error("Error parsing PGN:", error);
-            return { value: game.value, opponent: "Unknown" };
-          }
-        });
-
-        const uniqueOpponents = new Set(
-          gameDetails.map((g: any) => g.opponent)
-        );
-
-        setSelectedGames(games.map((game: any) => game.value));
+      if (games.length > 0) {
+        setSelectedGames(games.slice(0, limit));
+        setGamesStatus("found");
+      } else if (cached.length > 0) {
+        setSelectedGames(cached.slice(0, limit));
+        setGamesStatus("found");
       } else {
-        setUsernameStatus("not-found");
-        setAvailableGames([]);
         setSelectedGames([]);
+        setGamesStatus("not-found");
       }
     } catch (error) {
-      console.error("Error fetching user games:", error);
-      setUsernameStatus("not-found");
-      setAvailableGames([]);
-      setSelectedGames([]);
-    }
-  };
-
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setUsernameInput(newValue);
-
-    if (newValue.trim() === "") {
-      setUsernameStatus("idle");
-      setAvailableGames([]);
-      setSelectedGames([]);
+      console.error("Error fetching game history:", error);
+      if (cached.length > 0) {
+        setSelectedGames(cached.slice(0, limit));
+        setGamesStatus("found");
+      } else {
+        setSelectedGames([]);
+        setGamesStatus("not-found");
+      }
     }
   };
 
@@ -174,31 +121,26 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked })
   };
 
   const handleStartClick = async () => {
-    if (usernameInput.trim() === "") {
+    // No game history available — fall back to the default quiz.
+    if (gamesStatus !== "found" || selectedGames.length === 0) {
       handleDefaultPositionClick();
       return;
     }
 
     try {
-      if (usernameStatus === "found" && selectedGames.length > 0) {
-        setUsername(usernameInput);
+      await loadUserPositions(selectedGames);
 
-        try {
-          await loadUserPositions(selectedGames, usernameInput);
-
-          onClose();
-          router.push("/playground/board-vision/user");
-        } catch (error) {
-          console.error("Error loading user positions:", error);
-          setShowErrorModal(true);
-        }
-      } else if (usernameStatus === "found") {
+      const { userGame, loadingError: positionsError } =
+        useBoardVisionStore.getState();
+      if (positionsError || userGame.positions.length === 0) {
         setShowErrorModal(true);
-      } else {
-        setShowErrorModal(true);
+        return;
       }
+
+      onClose();
+      router.push("/playground/board-vision/user");
     } catch (error) {
-      console.error("Error in handleStartClick:", error);
+      console.error("Error loading user positions:", error);
       setShowErrorModal(true);
     }
   };
@@ -264,74 +206,32 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked })
         </div>
 
         <div className="space-y-3">
-          <div className="flex gap-[16px] mb-[20px] flex-col md:flex-row justify-between space-x-4">
-            <div className="w-full md:w-1/2">
-              <div className="flex items-center space-x-2">
-                <span className="text-blue-700">♞</span>
-                <span>Chess.com Username</span>
-              </div>
-              <div 
-                onClick={() => {
-                  console.log("Username clicked", usernameInput);
-                  if (!usernameInput) {
-                    handleUsernameClicked(true);
-                  }
-                }} 
-                className="flex flex-row items-center w-full p-3 bg-[#2E507708] rounded-lg shadow-sm cursor-pointer"
-              >
-                <input
-                  type="text"
-                  id="username"
-                  value={usernameInput}
-                  placeholder={
-                    usernameInput ? "" : "Enter your Chess.com Username"
-                  }
-                  onChange={handleUsernameChange}
-                  className="w-full bg-transparent h-[24px] focus:outline-none"
-                  readOnly
-                />
-                <div className="flex items-center">
-                  {usernameStatus === "loading" && (
-                    <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-                  )}
-                  {usernameStatus === "found" && (
-                    <div className="flex items-center text-green-500 whitespace-nowrap">
-                      <Check className="h-4 w-4 mr-1" />
-                      <span className="text-[14px] --xs">Found</span>
-                    </div>
-                  )}
-                  {usernameStatus === "not-found" && (
-                    <div className="flex items-center text-red-500 whitespace-nowrap">
-                      <X className="h-4 w-4 mr-1" />
-                      <span className="text-[14px] --xs">Not found</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="w-full md:w-1/2 !mx-0">
+          <div className="w-full mb-[20px]">
+            <div className="flex items-center gap-2 mb-1">
               <p className="block text-base sm:text-[14px] --sm text-black">
                 Ask Questions from my last...
               </p>
-
-              <Select
-                name="gameCount"
-                value={gameCount}
-                onValueChange={handleGameCountChange}
-              >
-                <SelectTrigger className="w-full h-[48px]">
-                  <SelectValue placeholder="Select number of games" />
-                </SelectTrigger>
-                <SelectContent>
-                  {gameCountOptions.map((count) => (
-                    <SelectItem key={count} value={count}>
-                      {count} Games
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {gamesStatus === "loading" && (
+                <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+              )}
             </div>
+
+            <Select
+              name="gameCount"
+              value={gameCount}
+              onValueChange={handleGameCountChange}
+            >
+              <SelectTrigger className="w-full h-[48px]">
+                <SelectValue placeholder="Select number of games" />
+              </SelectTrigger>
+              <SelectContent>
+                {gameCountOptions.map((count) => (
+                  <SelectItem key={count} value={count}>
+                    {count} Games
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mt-4">
@@ -348,11 +248,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked })
               variant="default"
               className="w-full py-2 rounded-full bg-blue-base btn-primary text-white"
               onClick={handleStartClick}
-              disabled={
-                isLoading ||
-                usernameStatus === "loading" ||
-                (usernameStatus === "found" && selectedGames.length === 0)
-              }
+              disabled={isLoading || gamesStatus === "loading"}
             >
               {isLoading ? (
                 <>
@@ -374,7 +270,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose, handleUsernameClicked })
               <DialogTitle>Error</DialogTitle>
               <DialogDescription>
                 {loadingError ||
-                  "There was an error loading the games. Please try another game or username."}
+                  "There was an error loading the games. Please try again."}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

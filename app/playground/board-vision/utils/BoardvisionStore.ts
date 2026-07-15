@@ -10,6 +10,7 @@ import {
   GameQuestion,
   Arrow,
   ArrowConfig,
+  QuizGame,
 } from "../types/default-pgn";
 
 // Helper function to detect if a move is a knight move (L-shaped)
@@ -78,7 +79,7 @@ interface BoardVisionState {
   getDefaultRandomQuestion: () => void;
   startDefaultGameAgain: () => void;
 
-  loadUserPositions: (pgns: string[], username: string) => Promise<void>;
+  loadUserPositions: (games: QuizGame[]) => Promise<void>;
   handleUserGameSelectAnswer: (answer: number) => void;
   handleUserGameNextQuestion: () => void;
   getUserRandomQuestion: () => void;
@@ -350,14 +351,11 @@ export const useBoardVisionStore = create<BoardVisionState>()(
         get().generateGameQuestion(defaultGame.positions[0], false);
       },
 
-      loadUserPositions: async (pgns, username) => {
+      loadUserPositions: async (games) => {
         set({ isLoading: true, loadingError: null });
 
         try {
-          const positions = await ChessService.processMultipleGames(
-            pgns,
-            username
-          );
+          const positions = await ChessService.processMultipleGames(games);
 
           const opponentCount = new Map<string, number>();
           positions.forEach((pos) => {
@@ -379,7 +377,7 @@ export const useBoardVisionStore = create<BoardVisionState>()(
           }
 
           set({
-            username,
+            username: games[0]?.username || get().username,
             userGame: {
               ...createInitialGameState(),
               positions: positions.map(({ gameIndex, ...rest }) => ({

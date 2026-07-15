@@ -4,17 +4,11 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Popup from "./Popup";
-import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
-import { usePgnStore } from "@/app/store/zustandStore";
 
 const Welcome: React.FC = () => {
   const route = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [showSetupPopup, setShowSetupPopup] = useState(false);
-
-  const { isLoading } = usePgnStore();
-
-  const [openAccountConnected, setOpenAccountConnected] = useState(false);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -88,21 +82,10 @@ const Welcome: React.FC = () => {
         </div>
       </div>
 
-      <Popup 
-        isOpen={showSetupPopup} 
-        onClose={() => setShowSetupPopup(false)} 
-        handleUsernameClicked={() => {
-          setOpenAccountConnected(true);
-          setShowSetupPopup(false);
-        }} />
-
-      {openAccountConnected && (
-        <ChessAccountSetup
-          isLoading={isLoading} 
-          open={openAccountConnected} 
-          setOpen={setOpenAccountConnected} 
-        />
-      )}
+      <Popup
+        isOpen={showSetupPopup}
+        onClose={() => setShowSetupPopup(false)}
+      />
     </main>
   );
 };

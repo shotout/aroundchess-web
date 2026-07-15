@@ -5,10 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { ChangePassword } from "@/components/modal/ChangePassword";
 import Navigation from "@/components/navigator/navigation";
-import MyAccount from "@/components/profile/MyAccount";
-import MyRemainingAnalysisTokens from "@/components/profile/MyRemainingAnalysisTokens";
-import MyRemainingPuzzle from "@/components/profile/MyRemainingPuzzle";
-import MySubscription from "@/components/profile/MySubscription";
+import ProfileAccountCard from "@/components/v2/profile-account-card";
+import ProfileTokensBar from "@/components/v2/profile-tokens-bar";
+import ProfileSubscription from "@/components/v2/profile-subscription";
 import { useSuccessSubscription } from "../store/successSubscription";
 import { useStatusPurchaseTokens } from "../store/statusPurchaseTokens";
 import DeleteAccount from "@/components/profile/DeleteAccount";
@@ -20,8 +19,6 @@ import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 import { trackCustomEvent, trackSubscription } from "../utils/facebookPixel";
 import { usePricingOffer } from "../store/pricingOffer";
-import MyStatistics from "@/components/profile/MyStatistics";
-import AccountNotConnected from "@/components/game-history/components/AccountNotConnected";
 function Profile() {
   const { paramsPayment } = usePricingOffer();
   const searchParams = useSearchParams();
@@ -30,7 +27,6 @@ function Profile() {
   const { setAlreadyFetchProfile, setAlreadyFetch } = useProfileStore();
   const { setOpen: setOpenSuccess } = useSuccessSubscription();
 
-  const { username } = usePgnStore();
   const [openAccountConnected, setOpenAccountConnected] = useState(false);
 
   const {
@@ -124,15 +120,13 @@ function Profile() {
                 isLoggingOut ? "pointer-events-none" : ""
               }`}
             >
-              <MyAccount onLogoutStart={() => setIsLoggingOut(true)} handleUsernameClicked={() => setOpenAccountConnected(true)} />
-              {!username ?
-                <AccountNotConnected onClick={() => { 
-                  setOpenAccountConnected(true);
-                }} />
-                : <MyStatistics />}
-              <MySubscription />
-              <MyRemainingAnalysisTokens />
-              <MyRemainingPuzzle />
+              <ProfileAccountCard
+                onLogoutStart={() => setIsLoggingOut(true)}
+                handleUsernameClicked={() => setOpenAccountConnected(true)}
+                onConnectClicked={() => setOpenAccountConnected(true)}
+              />
+              <ProfileSubscription />
+              <ProfileTokensBar />
               <DeleteAccount />
             </div>
           </div>
