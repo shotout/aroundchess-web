@@ -149,7 +149,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
   const movedLabel = isDown ? "Moved Down" : "Moved Up";
 
   return (
-    <div className="flex flex-col">
+    <div data-tour-anchor="play-top-bar" className="flex flex-col">
       {showEloModal && <EloModal onClose={() => setShowEloModal(false)} />}
 
       {/* Greeting row — mobile only */}

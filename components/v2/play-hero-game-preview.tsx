@@ -12,8 +12,8 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
   const elo = leaderboard?.my_elo ?? 0;
 
   return (
-    <div className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
-      <div className="hidden sm:flex sm:w-[70%] bg-white rounded-2xl shadow-lg border border-[#DEDEDE] p-3 sm:p-4 flex-col gap-2">
+    <div data-tour-anchor="playground-hero" className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
+      <div data-tour-anchor="board-preview" className="hidden sm:flex sm:w-[70%] bg-white rounded-2xl shadow-lg border border-[#DEDEDE] p-3 sm:p-4 flex-col gap-2">
         <Image
           src="/images/homepage/v2/homepage_board_asset_1.png"
           alt="Player preview"
@@ -55,7 +55,7 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
         </div>
       </div>
 
-      <div className="w-full sm:w-[40%] bg-white rounded-2xl shadow-lg border-2 border-[#7CC0F2] p-3 sm:p-4 flex flex-col">
+      <div data-tour-anchor="opponent-panel" className="w-full sm:w-[40%] bg-white rounded-2xl shadow-lg border-2 border-[#7CC0F2] p-3 sm:p-4 flex flex-col">
         <h1 className="sm:hidden text-center font-bold text-[28px] text-[#221AE9] mb-[8px]">
           Play VS AI
         </h1>
