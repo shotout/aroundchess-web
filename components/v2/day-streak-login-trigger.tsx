@@ -13,6 +13,13 @@ import {
 import { isPlaygroundTourDone } from "@/components/v2/playground-tour-gate";
 import { preloadLottie } from "@/components/v2/hooks/useLottieData";
 
+/** Feature flag for the automatic daily check-in modal. When false the
+ * component still fetches /streaks/status and keeps the streak store in sync
+ * (badges + post-game celebration detection depend on it), but never opens
+ * the modal on its own. Demo previews (?streakDemo=...) keep working.
+ * Flip back to true to re-enable the daily modal. */
+const DAILY_LOGIN_MODAL_ENABLED = false;
+
 export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
   const { sessionId, hydrated: profileHydrated } = useProfileStore();
   const hydrated = useStreakStore((s) => s.hydrated);
@@ -68,6 +75,7 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
         const currentStreak = res.data?.currentStreak ?? 0;
         store.setStatus(res.data);
         store.setLastSeenStreak(currentStreak);
+        if (!DAILY_LOGIN_MODAL_ENABLED) return;
         // New users see the playground tour first; the tour's finish opens
         // the (streak 0) modal itself, so don't also open it here.
         if (!isPlaygroundTourDone()) return;

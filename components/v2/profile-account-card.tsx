@@ -52,7 +52,6 @@ const KnightIcon = ({ className = "" }: { className?: string }) => (
  */
 const ProfileAccountCard = ({
   onLogoutStart,
-  handleUsernameClicked,
   onConnectClicked,
 }: ProfileAccountCardProps) => {
   const { logOut, isLoading, updateProfileUsername, checkUsernameAvailability } =
@@ -69,6 +68,7 @@ const ProfileAccountCard = ({
   const { username, clearAll, providerType } = usePgnStore();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [isUpdatingGameType, setIsUpdatingGameType] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const [form, setForm] = useState<any>({
     email: profile.email ?? "",
     defaultUsername: username,
@@ -131,9 +131,7 @@ const ProfileAccountCard = ({
   };
 
   // Debounced availability check while the user types a desired username
-  // (only when the account is not linked to Chess.com).
   useEffect(() => {
-    if (isConnected) return;
     const desired = (form.defaultUsername ?? "").trim();
     if (!desired || desired === (username ?? "")) {
       setUsernameStatus("idle");
@@ -157,10 +155,10 @@ const ProfileAccountCard = ({
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.defaultUsername, isConnected, username]);
+  }, [form.defaultUsername, username]);
 
   const canSaveUsername =
-    !isConnected && usernameStatus === "available" && !isSavingUsername;
+    usernameStatus === "available" && !isSavingUsername;
 
   const handleSaveUsername = async () => {
     const desired = (form.defaultUsername ?? "").trim();
@@ -313,12 +311,13 @@ const ProfileAccountCard = ({
       <div className="flex md:hidden flex-col gap-4 border-0 border-b border-b-[#E2E8F0] pb-4">
         <div className="flex flex-row items-center justify-between gap-3">
           <div className="flex flex-row items-center gap-3 min-w-0">
-            {profile?.imageUrl ? (
+            {profile?.imageUrl && !avatarFailed ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={profile.imageUrl}
                 alt="Profile picture"
                 className="w-[40px] h-[40px] rounded-full object-cover shrink-0"
+                onError={() => setAvatarFailed(true)}
               />
             ) : (
               <InitialAvatar
@@ -395,15 +394,14 @@ const ProfileAccountCard = ({
           </label>
           <div className="relative">
             <Input
-              readOnly={isConnected}
               id="username"
               name="defaultUsername"
               type="text"
               placeholder="Type here..."
               className={`w-full shadow-sm min-h-[44px] border px-[16px] py-[12px] ${
-                !isConnected && usernameStatus === "available"
+                usernameStatus === "available"
                   ? "bg-[#F4FBF7] border-[#1B8354] pr-[160px]"
-                  : !isConnected && usernameStatus === "unavailable"
+                  : usernameStatus === "unavailable"
                   ? "bg-[#FFF5F5] border-[#D92D20] pr-[140px]"
                   : `bg-[#FAFDFF] ${
                       (form.defaultUsername ?? "").length > 0
@@ -413,18 +411,13 @@ const ProfileAccountCard = ({
               }`}
               value={form.defaultUsername}
               onChange={handleOnChange}
-              onClick={() => {
-                if (isConnected && !form.defaultUsername) {
-                  handleUsernameClicked();
-                }
-              }}
             />
-            {!isConnected && usernameStatus === "checking" && (
+            {usernameStatus === "checking" && (
               <span className="absolute right-[12px] top-1/2 -translate-y-1/2">
                 <Loader2 className="w-4 h-4 animate-spin text-[#221AE9]" />
               </span>
             )}
-            {!isConnected && usernameStatus === "available" && (
+            {usernameStatus === "available" && (
               <span className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center gap-1">
                 <Image
                   src="/images/v2/profile/check 1.png"
@@ -438,7 +431,7 @@ const ProfileAccountCard = ({
                 </span>
               </span>
             )}
-            {!isConnected && usernameStatus === "unavailable" && (
+            {usernameStatus === "unavailable" && (
               <span className="absolute right-[12px] top-1/2 -translate-y-1/2 text-[12px] font-medium text-[#D92D20] whitespace-nowrap">
                 Username taken
               </span>

@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import type { OpponentSummary } from "@/app/store/playVsAiStats";
 import type { AiRosterOpponent } from "@/components/v2/play-vs-ai-roster-data";
+
+const FALLBACK_AVATAR = "/images/avatar.svg";
 
 interface PlayVsAiOpponentProfileCardProps {
   displayName: string;
@@ -24,6 +27,9 @@ export function PlayVsAiOpponentProfileCard({
 }: PlayVsAiOpponentProfileCardProps) {
   const router = useRouter();
   const { setAIChoosed } = usePlayVSAIStore();
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const resolvedAvatarSrc =
+    avatarFailed || !avatarSrc ? FALLBACK_AVATAR : avatarSrc;
 
   const handlePlayAgainst = () => {
     if (!rosterEntry) return;
@@ -54,17 +60,18 @@ export function PlayVsAiOpponentProfileCard({
                 {elo !== null && <span> · ELO {elo}</span>}
               </span>
             </div>
-            <div className="text-[13px] text-[#111827]">
+            <div className="text-[15px] text-[#111827] ">
               Games: {summary?.totalGames ?? 0} · Win: {summary?.wins ?? 0} ·
               Draw: {summary?.draws ?? 0} · Loss: {summary?.losses ?? 0}
             </div>
           </div>
           <Image
-            src={avatarSrc}
+            src={resolvedAvatarSrc}
             alt={displayName}
             width={56}
             height={56}
             className="w-[56px] h-[56px] rounded-full object-cover bg-[#F1F3F9] shrink-0"
+            onError={() => setAvatarFailed(true)}
           />
         </div>
 
@@ -95,11 +102,12 @@ export function PlayVsAiOpponentProfileCard({
       <div className="hidden p-[16px] md:p-[20px] md:flex flex-col items-center text-center gap-[14px]">
         {/* Avatar */}
         <Image
-          src={avatarSrc}
+          src={resolvedAvatarSrc}
           alt={displayName}
           width={96}
           height={96}
           className="w-[96px] h-[96px] rounded-full object-cover bg-[#F1F3F9]"
+          onError={() => setAvatarFailed(true)}
         />
 
         {/* ELO */}
@@ -108,7 +116,7 @@ export function PlayVsAiOpponentProfileCard({
         )}
 
         {/* Game stats */}
-        <div className="w-full rounded-[10px] bg-[#F1F3F9] px-[12px] py-[10px] flex flex-wrap items-center justify-center gap-x-[12px] gap-y-[4px] text-[13px] text-[#111827]">
+        <div className="w-full rounded-[10px] bg-[#E6F7FE] px-[12px] py-[10px] flex flex-wrap items-center justify-center gap-x-[12px] gap-y-[4px] text-[13px] text-[#111827]">
           <span>Games: {summary?.totalGames ?? 0}</span>
           <span>Win: {summary?.wins ?? 0}</span>
           <span>Draw: {summary?.draws ?? 0}</span>

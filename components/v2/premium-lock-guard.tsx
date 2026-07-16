@@ -54,7 +54,7 @@ export function PremiumLockGuard({ image, description }: PremiumLockGuardProps) 
 
         <button
           type="button"
-          onClick={() => router.push("/pricing")}
+          onClick={() => router.push("/profile")}
           className="mt-[20px] sm:mt-[36px] w-full rounded-full bg-[#221AE9] hover:bg-[#2d25ea] text-white font-semibold text-[14px] sm:text-[18px] py-[11px] sm:py-[16px] transition-colors"
         >
           Get Premium

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useProfileStore } from "@/app/store/profile";
+import { resetPlaygroundTourDone } from "@/components/v2/playground-tour-gate";
 
 const BASE_URL = process.env.BASE_URL;
 
@@ -52,6 +53,9 @@ export default function ChessKnowledgeOnboarding() {
       console.error("Failed to save chess level:", error);
     } finally {
       sessionStorage.setItem("showAnalyzePopup", "true");
+      // A brand-new account always gets the playground tour, even if this
+      // browser already completed it under another account.
+      resetPlaygroundTourDone();
       router.push("/playground/play-vs-ai");
     }
   };

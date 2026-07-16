@@ -277,11 +277,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             className="px-4 py-3 flex flex-col gap-2 border-b"
             variants={isMobile ? itemVariants : {}}
           >
-            <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center justify-between gap-2 min-w-0">
               <button
                 type="button"
                 onClick={() => openDayStreakStatusModal(currentStreak)}
-                className="flex items-center gap-2 shrink-0 cursor-pointer"
+                className="flex items-center gap-1.5 sm:gap-2 min-w-0 cursor-pointer"
                 aria-label="Show day streak"
               >
                 <Image
@@ -293,19 +293,19 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                   alt="streak"
                   width={40}
                   height={48}
-                  className="w-10 h-12 object-contain"
+                  className="w-8 h-10 sm:w-10 sm:h-12 object-contain shrink-0"
                 />
                 <div className="flex flex-col leading-tight text-left">
-                  <span className="font-bold text-sm text-[#2e3133]">{currentStreak} Day</span>
+                  <span className="font-bold text-[13px] sm:text-sm text-[#2e3133] whitespace-nowrap">{currentStreak} Day</span>
                   <span className="font-base text-xs text-[#2e3133]">Streak</span>
                 </div>
               </button>
               <Link
                 href="/play"
                 onClick={() => isMobile && onClose?.()}
-                className="flex items-center gap-1 px-5 py-2 bg-[#221AE9] text-white text-sm font-semibold rounded-full hover:bg-[#2d25ea] transition-colors whitespace-nowrap shrink-0"
+                className="flex items-center gap-1 px-3 sm:px-5 py-2 bg-[#221AE9] text-white text-[13px] sm:text-sm font-semibold rounded-full hover:bg-[#2d25ea] transition-colors whitespace-nowrap shrink-0"
               >
-                Play Now <FaChevronRight className="pl-2 text-sm" />
+                Play Now <FaChevronRight className="pl-1 sm:pl-2 text-sm" />
               </Link>
             </div>
             <Link

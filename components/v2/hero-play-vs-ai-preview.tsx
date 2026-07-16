@@ -10,29 +10,14 @@ import { AI_OPPONENT_ROSTER, AiRosterOpponent } from "./play-vs-ai-roster-data";
 
 type Opponent = { name: string; elo: number; img: string };
 
-const AVATAR_POOL = [
-  "lisa",
-  "andreas",
-  "pierre",
-  "amel",
-  "marco",
-  "marie",
-  "elena",
-  "viktor",
-  "lana",
-  "hans",
-  "igor",
-  "svetlana",
-];
-
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-const buildTier = (eloStart: number, eloStep: number): Opponent[] =>
-  AVATAR_POOL.map((file, i) => ({
-    name: capitalize(file),
-    elo: eloStart + i * eloStep,
-    img: `/play-vs-ai/${file}.png`,
-  }));
+// Difficulty tabs list the real roster bots inside the tier's ELO range,
+// with their true ELOs. Only the Recommended tab adapts to the user's ELO.
+const buildTier = (min: number, max: number): Opponent[] =>
+  AI_OPPONENT_ROSTER.filter((o) => o.elo >= min && o.elo <= max).map(
+    ({ name, elo, img }) => ({ name, elo, img })
+  );
 
 // Recommended opponents are picked from the existing AI roster around the
 // user's ELO rounded UP to the nearest 50 (629 -> 650): targets are
@@ -59,20 +44,10 @@ const buildRecommended = (roster: AiRosterOpponent[], userElo: number): Opponent
 };
 
 const opponentsByTab: Record<string, Opponent[]> = {
-  beginner: [
-    { name: "Marco", elo: 700, img: "/play-vs-ai/marco.png" },
-    { name: "Marie", elo: 750, img: "/play-vs-ai/marie.png" },
-    { name: "Elena", elo: 800, img: "/play-vs-ai/elena.png" },
-    { name: "Viktor", elo: 850, img: "/play-vs-ai/viktor.png" },
-    { name: "Lana", elo: 700, img: "/play-vs-ai/lana.png" },
-    { name: "Hans", elo: 700, img: "/play-vs-ai/hans.png" },
-    { name: "Igor", elo: 800, img: "/play-vs-ai/igor.png" },
-    { name: "Amel", elo: 800, img: "/play-vs-ai/amel.png" },
-    { name: "Svetlana", elo: 850, img: "/play-vs-ai/svetlana.png" },
-  ],
-  intermediate: buildTier(900, 40),
-  advanced: buildTier(1500, 40),
-  master: buildTier(2200, 40),
+  beginner: buildTier(250, 850),
+  intermediate: buildTier(900, 1350),
+  advanced: buildTier(1500, 1950),
+  master: buildTier(2200, 2700),
 };
 
 const tabs = [

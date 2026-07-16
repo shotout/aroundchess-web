@@ -28,6 +28,16 @@ export function isPlaygroundTourDone() {
   }
 }
 
+/** Clears the done flag so the tour auto-runs on the next playground visit.
+ * Called when a NEW account finishes sign-up onboarding: the flag is
+ * per-browser, so without this a fresh account in a browser that already
+ * saw the tour would silently skip it. */
+export function resetPlaygroundTourDone() {
+  try {
+    localStorage.removeItem(DONE_KEY);
+  } catch {}
+}
+
 // Import the replay trigger from here (not from playground-tour) so a
 // "Replay tutorial" button doesn't statically pull in the heavy chunk.
 export function startPlaygroundTour() {

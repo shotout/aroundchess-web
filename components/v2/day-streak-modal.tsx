@@ -52,12 +52,11 @@ export function DayStreakModal({
   onClose,
   staticFlame,
 }: DayStreakModalProps) {
-  // The flame animation only ignites from streak 3; days 1-2 show the unlit
-  // flame still instead. The reward variant plays the get-token animation.
-  // staticFlame forces the still image regardless of streak.
+  // Celebrations (first game of the day) always play the flame-ignition
+  // lottie; the reward variant plays the get-token animation. staticFlame
+  // (daily login / post-tutorial / badge clicks) forces the still image.
   const animated =
-    !staticFlame &&
-    (variant === "reward" || (variant === "celebration" && streak >= 3));
+    !staticFlame && (variant === "reward" || variant === "celebration");
   const animationData = useLottieData(
     !animated ? null : variant === "reward" ? REWARD_LOTTIE : CELEBRATION_LOTTIE
   );

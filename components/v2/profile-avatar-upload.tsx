@@ -33,12 +33,15 @@ const ProfileAvatarUpload = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const { uploadProfilePicture } = useApiClient();
   const { profile, setAlreadyFetch, setAlreadyFetchProfile } =
     useProfileStore();
   const { setCallFetch } = useProfileFetch();
 
-  const pictureUrl = preview || profile?.imageUrl || null;
+  const rawPictureUrl = preview || profile?.imageUrl || null;
+  // Treat a URL that failed to load as no picture so the fallback renders
+  const pictureUrl = rawPictureUrl === failedUrl ? null : rawPictureUrl;
 
   const openFileDialog = () => {
     if (!isUploading) inputRef.current?.click();
@@ -106,6 +109,7 @@ const ProfileAvatarUpload = ({
             src={pictureUrl}
             alt="Profile picture"
             className="w-full h-full object-cover"
+            onError={() => setFailedUrl(pictureUrl)}
           />
         ) : (
           fallback

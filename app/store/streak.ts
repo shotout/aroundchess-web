@@ -18,7 +18,7 @@ interface StreakState {
   setStatus: (status: any) => void;
   setLastLoginModalDate: (date: string) => void;
   setLastSeenStreak: (streak: number) => void;
-  setLastPlayDate: (date: string) => void;
+  setLastPlayDate: (date: string | null) => void;
   setHydrated: () => void;
 }
 
@@ -32,7 +32,28 @@ export const useStreakStore = create<StreakState>()(
       lastLoginModalDate: null,
       lastSeenStreak: 0,
       setStatus: (status) =>
-        set({ status, currentStreak: status?.currentStreak ?? 0 }),
+        set((state) => {
+          // The backend's hasPlayedToday is authoritative over the local
+          // first-game-of-the-day stamp: stamp today when it already counted
+          // a play (e.g. another device), and clear a stale stamp when it
+          // hasn't (e.g. reset backend data) so the next finished game
+          // retries record-play instead of skipping it.
+          const today = getLocalDateStamp();
+          let lastPlayDate = state.lastPlayDate;
+          if (status?.hasPlayedToday === true) {
+            lastPlayDate = today;
+          } else if (
+            status?.hasPlayedToday === false &&
+            lastPlayDate === today
+          ) {
+            lastPlayDate = null;
+          }
+          return {
+            status,
+            currentStreak: status?.currentStreak ?? 0,
+            lastPlayDate,
+          };
+        }),
       setLastLoginModalDate: (lastLoginModalDate) => set({ lastLoginModalDate }),
       setLastSeenStreak: (lastSeenStreak) => set({ lastSeenStreak }),
       lastPlayDate: null,

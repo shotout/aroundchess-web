@@ -26,6 +26,13 @@ interface ChessAccountSetupProps {
   setOpen?: (open: boolean) => void;
 }
 
+/** Feature flag for the "Analyze 5 games for free" promo (DialogAnalyzeFree)
+ * that chains after the Chess.com connect dialog closes or a username is
+ * submitted, and kicks off the legacy tutorial on close. Disabled for now —
+ * the connect dialog just closes without the promo, redirect, or tutorial.
+ * Flip back to true to restore the flow. */
+const ANALYZE_FREE_BANNER_ENABLED = false;
+
 const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
   open = false,
@@ -176,6 +183,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   };
 
   const handleOpenAnalyzeFree = () => {
+    if (!ANALYZE_FREE_BANNER_ENABLED) return;
     setShowAnalyzeFreeBanner(true);
   };
 

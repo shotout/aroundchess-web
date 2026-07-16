@@ -25,7 +25,9 @@ export default function PlayVSAI() {
         onClose={() => setShowAnalyzePopup(false)}
       />
       <DayStreakLoginTrigger suppressed={showAnalyzePopup} />
-      <PlaygroundTourGate />
+      {/* Mounted only once the analyze popup is closed so the tour's
+          auto-start never opens over it. */}
+      {!showAnalyzePopup && <PlaygroundTourGate />}
       <Suspense>
         <PlayPage />
       </Suspense>

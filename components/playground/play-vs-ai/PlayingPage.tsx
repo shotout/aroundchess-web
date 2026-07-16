@@ -364,7 +364,6 @@ export default function PlayingPage() {
     postVSAILogs,
     getTokenBalance,
     getLeaderboardData,
-    getStreakStatus,
     recordStreakPlay,
     postLeaderboardGameResult,
     isLoading,
@@ -2109,19 +2108,17 @@ export default function PlayingPage() {
       // the next game instead of silently losing the day.
       const today = getLocalDateStamp();
       if (useStreakStore.getState().lastPlayDate !== today) {
+        // record-play returns the full updated streak status, so it is the
+        // single source for the store sync and the celebration decision —
+        // no follow-up status fetch needed.
         recordStreakPlay()
           .then((res: any) => {
-            if (res?.success) {
-              useStreakStore.getState().setLastPlayDate(today);
-            }
-            return getStreakStatus();
-          })
-          .then((s: any) => {
-            if (!s?.success) return;
-            const newStreak = s.data?.currentStreak ?? 0;
+            if (!res?.success) return;
             const store = useStreakStore.getState();
+            store.setLastPlayDate(today);
+            const newStreak = res.data?.currentStreak ?? 0;
             const prev = store.lastSeenStreak;
-            store.setStatus(s.data);
+            store.setStatus(res.data);
             // Advance at detection time so a lost/unclosed celebration can
             // never re-fire on the next game (and syncs down after a reset).
             store.setLastSeenStreak(newStreak);

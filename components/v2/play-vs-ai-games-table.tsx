@@ -346,7 +346,7 @@ export function PlayVsAiGamesTable({
                   type="button"
                   onClick={() => setAnalyzeGameId(game.id)}
                   disabled={isBusy}
-                  className="h-[32px] md:min-h-[40px] md:min-w-[170px] px-[12px] md:px-[16px] rounded-full bg-red-600 hover:bg-red-700 text-white text-[12px] md:text-[14px] whitespace-nowrap shrink-0 flex items-center justify-center transition-colors duration-150 disabled:opacity-60"
+                  className="h-[32px] md:min-h-[40px] min-w-[140px] md:min-w-[170px] px-[12px] md:px-[16px] rounded-full bg-red-600 hover:bg-red-700 text-white text-[12px] md:text-[14px] whitespace-nowrap shrink-0 flex items-center justify-center transition-colors duration-150 disabled:opacity-60"
                   style={v2GlowStyle(220, 38, 38)}
                 >
                   {isBusy ? (
@@ -361,7 +361,7 @@ export function PlayVsAiGamesTable({
                   type="button"
                   onClick={() => handleSeeMistakes(game)}
                   disabled={isBusy}
-                  className="h-[32px] md:min-h-[40px] md:min-w-[170px] px-[12px] md:px-[16px] rounded-full bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:opacity-90 text-white text-[12px] md:text-[14px] whitespace-nowrap shrink-0 flex items-center justify-center transition-opacity duration-150 disabled:opacity-60"
+                  className="h-[32px] md:min-h-[40px] min-w-[140px] md:min-w-[170px] px-[12px] md:px-[16px] rounded-full bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:opacity-90 text-white text-[12px] md:text-[14px] whitespace-nowrap shrink-0 flex items-center justify-center transition-opacity duration-150 disabled:opacity-60"
                   style={v2GlowStyle(10, 216, 71)}
                 >
                   {isBusy ? (
@@ -376,7 +376,7 @@ export function PlayVsAiGamesTable({
                   type="button"
                   onClick={() => setAnalyzeGameId(game.id)}
                   disabled={isBusy}
-                  className="h-[32px] md:min-h-[40px] md:min-w-[170px] px-[12px] md:px-[16px] rounded-full bg-[#221AE9] hover:bg-[#1B14CC] text-white text-[12px] md:text-[14px] whitespace-nowrap shrink-0 flex items-center justify-center transition-colors duration-150 disabled:opacity-60"
+                  className="h-[32px] md:min-h-[40px] min-w-[140px] md:min-w-[170px] px-[12px] md:px-[16px] rounded-full bg-[#221AE9] hover:bg-[#1B14CC] text-white text-[12px] md:text-[14px] whitespace-nowrap shrink-0 flex items-center justify-center transition-colors duration-150 disabled:opacity-60"
                   style={v2GlowStyle(34, 26, 233)}
                 >
                   {isBusy ? (
