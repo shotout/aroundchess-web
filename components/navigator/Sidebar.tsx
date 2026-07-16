@@ -20,6 +20,7 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useTutorial } from "@/components/TutorialProvider";
 import { trackPaywallInteraction } from "@/functions/tracking";
 import { useApiClient } from "@/functions/api-client";
+import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -277,10 +278,15 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             variants={isMobile ? itemVariants : {}}
           >
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => openDayStreakStatusModal(currentStreak)}
+                className="flex items-center gap-2 shrink-0 cursor-pointer"
+                aria-label="Show day streak"
+              >
                 <Image
                   src={
-                    currentStreak >= 3
+                    currentStreak > 0
                       ? "/images/v2/sidebar/mode_heat_on.png"
                       : "/images/v2/sidebar/mode_heat.png"
                   }
@@ -289,11 +295,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                   height={48}
                   className="w-10 h-12 object-contain"
                 />
-                <div className="flex flex-col leading-tight">
+                <div className="flex flex-col leading-tight text-left">
                   <span className="font-bold text-sm text-[#2e3133]">{currentStreak} Day</span>
                   <span className="font-base text-xs text-[#2e3133]">Streak</span>
                 </div>
-              </div>
+              </button>
               <Link
                 href="/play"
                 onClick={() => isMobile && onClose?.()}

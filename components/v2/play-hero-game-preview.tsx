@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 import { HeroPlayVSAIPreview } from "./hero-play-vs-ai-preview";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
@@ -13,7 +15,7 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
 
   return (
     <div data-tour-anchor="playground-hero" className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
-      <div data-tour-anchor="board-preview" className="hidden sm:flex sm:w-[70%] bg-white rounded-2xl shadow-lg border border-[#DEDEDE] p-3 sm:p-4 flex-col gap-2">
+      <div data-tour-anchor="board-preview" className="hidden sm:flex sm:w-[70%] bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex-col gap-2">
         <Image
           src="/images/homepage/v2/homepage_board_asset_1.png"
           alt="Player preview"
@@ -52,10 +54,17 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
               ELO {elo}
             </span>
           </div>
+          <Link
+            href="/profile"
+            aria-label="Edit profile"
+            className="ml-auto w-8 h-8 rounded-full border border-[#81CFF3] text-blue-base flex items-center justify-center hover:bg-blue-base/5 transition-colors shrink-0"
+          >
+            <Pencil size={14} />
+          </Link>
         </div>
       </div>
 
-      <div data-tour-anchor="opponent-panel" className="w-full sm:w-[40%] bg-white rounded-2xl shadow-lg border-2 border-[#7CC0F2] p-3 sm:p-4 flex flex-col">
+      <div data-tour-anchor="opponent-panel" className="w-full sm:w-[40%] bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-3 sm:p-4 flex flex-col">
         <h1 className="sm:hidden text-center font-bold text-[28px] text-[#221AE9] mb-[8px]">
           Play VS AI
         </h1>

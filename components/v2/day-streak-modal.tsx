@@ -14,10 +14,19 @@ const TEXT_DELAY = 2.1;
 
 export type DayStreakVariant = "login" | "celebration" | "reward";
 
+/** Which static flame image to show instead of the celebration lottie:
+ * "off" = unlit flame (hasn't played today), "on" = lit flame (already
+ * played today). */
+export type DayStreakStaticFlame = "on" | "off";
+
 interface DayStreakModalProps {
   variant: DayStreakVariant;
   streak: number;
   onClose: () => void;
+  /** When set, the celebration renders the static flame image instead of
+   * playing the lottie — used for the daily login / post-tutorial modals
+   * where the streak didn't just advance. */
+  staticFlame?: DayStreakStaticFlame;
 }
 
 const IMAGES: Record<DayStreakVariant, string> = {
@@ -26,17 +35,29 @@ const IMAGES: Record<DayStreakVariant, string> = {
   reward: "/images/v2/days-streak/Free-token.png",
 };
 
+const FLAME_IMAGES: Record<DayStreakStaticFlame, string> = {
+  off: "/images/v2/days-streak/fire-off.png",
+  on: "/images/v2/days-streak/fire-on.png",
+};
+
 // Flame-ignition and token-reward animations (compressed copies of the
 // design exports — frames downscaled + recompressed). Fetched via the shared
 // cache so they never enter the JS bundle and repeat opens render instantly.
 export const CELEBRATION_LOTTIE = "/images/v2/days-streak/Day-Streak.min.json";
 export const REWARD_LOTTIE = "/images/v2/days-streak/get-token.min.json";
 
-export function DayStreakModal({ variant, streak, onClose }: DayStreakModalProps) {
+export function DayStreakModal({
+  variant,
+  streak,
+  onClose,
+  staticFlame,
+}: DayStreakModalProps) {
   // The flame animation only ignites from streak 3; days 1-2 show the unlit
   // flame still instead. The reward variant plays the get-token animation.
+  // staticFlame forces the still image regardless of streak.
   const animated =
-    variant === "reward" || (variant === "celebration" && streak >= 3);
+    !staticFlame &&
+    (variant === "reward" || (variant === "celebration" && streak >= 3));
   const animationData = useLottieData(
     !animated ? null : variant === "reward" ? REWARD_LOTTIE : CELEBRATION_LOTTIE
   );
@@ -49,7 +70,7 @@ export function DayStreakModal({ variant, streak, onClose }: DayStreakModalProps
     variant === "celebration" || variant === "reward" ? "Day Streak" : null;
   const subtitle =
     variant === "celebration" ? (
-      streak === 1 ? (
+      streak <= 1 ? (
         <>
           Start playing today — only 7 more days to claim your{" "}
           <span className="font-bold">Free Analysis Token</span>.
@@ -72,7 +93,14 @@ export function DayStreakModal({ variant, streak, onClose }: DayStreakModalProps
         for a <span className="font-bold">Free Analysis</span>.
       </>
     ) : null;
-  const cta = variant === "celebration" ? "Close" : "Play now";
+  // Static login-style shows: nudge to play while the flame is still off;
+  // once today's game is in ("on") — or right after a celebration — just close.
+  const cta =
+    variant === "celebration" && !staticFlame
+      ? "Close"
+      : staticFlame === "on"
+        ? "Close"
+        : "Play now";
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 p-4">
@@ -86,7 +114,7 @@ export function DayStreakModal({ variant, streak, onClose }: DayStreakModalProps
         </button>
 
         <div className="px-[16px] sm:px-[20px] pt-[16px] sm:pt-[40px] relative z-10">
-          <DayStreakChips streak={streak} />
+          <DayStreakChips streak={streak} highlightNext={staticFlame === "off"} />
         </div>
 
         <div
@@ -109,7 +137,13 @@ export function DayStreakModal({ variant, streak, onClose }: DayStreakModalProps
             )
           ) : (
             <Image
-              src={variant === "celebration" ? IMAGES.login : IMAGES[variant]}
+              src={
+                staticFlame
+                  ? FLAME_IMAGES[staticFlame]
+                  : variant === "celebration"
+                    ? IMAGES.login
+                    : IMAGES[variant]
+              }
               alt=""
               fill
               sizes="420px"

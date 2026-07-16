@@ -19,6 +19,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { useUserStore } from "@/app/training-plan/store";
 import { useApiClient } from "@/functions/api-client";
 import { usePlayPageStore } from "@/app/store/playPage";
+import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -290,19 +291,24 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         {/* Mobile: streak when signed in, logo otherwise */}
         <div className="xl:hidden">
           {isSignedIn ? (
-            <div className="flex items-center gap-[6px]">
+            <button
+              type="button"
+              onClick={() => openDayStreakStatusModal(streak)}
+              className="flex items-center gap-[6px] cursor-pointer"
+              aria-label="Show day streak"
+            >
               <Image
-                src={streak >= 3 ? "/images/v2/sidebar/mode_heat_on.png" : "/images/v2/sidebar/mode_heat.png"}
+                src={streak > 0 ? "/images/v2/sidebar/mode_heat_on.png" : "/images/v2/sidebar/mode_heat.png"}
                 alt="streak"
                 width={28}
                 height={34}
                 className="w-[28px] h-[34px] object-contain"
               />
-              <div className="flex flex-col leading-tight">
+              <div className="flex flex-col leading-tight text-left">
                 <span className="text-[13px] font-bold text-[#2e3133]">{streak} Day</span>
                 <span className="text-[13px] text-[#2e3133]">Streak</span>
               </div>
-            </div>
+            </button>
           ) : (
             <Link href="/" className="flex items-center gap-2">
               <Image

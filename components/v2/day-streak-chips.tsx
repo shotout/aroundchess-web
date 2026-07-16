@@ -19,7 +19,15 @@ function Dots({ active }: { active: boolean }) {
   );
 }
 
-export function DayStreakChips({ streak }: { streak: number }) {
+export function DayStreakChips({
+  streak,
+  highlightNext = false,
+}: {
+  streak: number;
+  /** Light up the day after the current streak as today's goal — used by
+   * the static (not-played-today) modal, e.g. Day 1 at streak 0. */
+  highlightNext?: boolean;
+}) {
   const cycleStart = Math.floor(Math.max(streak - 1, 0) / 7) * 7 + 1;
   const days = Array.from({ length: 6 }, (_, i) => cycleStart + i);
   const tokenAchieved = streak > 0 && streak % 7 === 0;
@@ -30,7 +38,7 @@ export function DayStreakChips({ streak }: { streak: number }) {
         <div key={day} className="contents">
           <div
             className={`flex-1 aspect-square min-w-0 rounded-[10px] flex flex-col items-center justify-center leading-none ${
-              day <= streak
+              day <= streak || (highlightNext && day === streak + 1)
                 ? "bg-[#221AE9] text-white"
                 : "bg-[#E5E7EB] text-[#6B7280]"
             }`}

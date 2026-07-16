@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
+import { usePlayPageStore } from "@/app/store/playPage";
+import { AI_OPPONENT_ROSTER, AiRosterOpponent } from "./play-vs-ai-roster-data";
 
 type Opponent = { name: string; elo: number; img: string };
 
@@ -32,13 +34,31 @@ const buildTier = (eloStart: number, eloStep: number): Opponent[] =>
     img: `/play-vs-ai/${file}.png`,
   }));
 
+// Recommended opponents are picked from the existing AI roster around the
+// user's ELO rounded UP to the nearest 50 (629 -> 650): targets are
+// rounded -50 / +0 / +50 / +100, each slot taking the nearest listed AI.
+const RECOMMENDED_ELO_OFFSETS = [-50, 0, 50, 100];
+const DEFAULT_USER_ELO = 300;
+
+const buildRecommended = (roster: AiRosterOpponent[], userElo: number): Opponent[] => {
+  const base = Math.ceil(userElo / 50) * 50;
+  const used = new Set<number>();
+  const picks = RECOMMENDED_ELO_OFFSETS.map((offset) => {
+    const target = base + offset;
+    let best: AiRosterOpponent | null = null;
+    for (const o of roster) {
+      if (used.has(o.id)) continue;
+      if (!best || Math.abs(o.elo - target) < Math.abs(best.elo - target)) best = o;
+    }
+    used.add(best!.id);
+    return best!;
+  });
+  return picks
+    .sort((a, b) => a.elo - b.elo)
+    .map(({ name, elo, img }) => ({ name, elo, img }));
+};
+
 const opponentsByTab: Record<string, Opponent[]> = {
-  recommended: [
-    { name: "Lisa", elo: 250, img: "/play-vs-ai/lisa.png" },
-    { name: "Andreas", elo: 260, img: "/play-vs-ai/andreas.png" },
-    { name: "Pierre", elo: 280, img: "/play-vs-ai/pierre.png" },
-    { name: "Amel", elo: 300, img: "/play-vs-ai/amel.png" },
-  ],
   beginner: [
     { name: "Marco", elo: 700, img: "/play-vs-ai/marco.png" },
     { name: "Marie", elo: 750, img: "/play-vs-ai/marie.png" },
@@ -83,15 +103,15 @@ function OpponentCard({
       <Image
         src={opponent.img}
         alt={opponent.name}
-        width={48}
-        height={48}
-        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
+        width={76}
+        height={76}
+        className="w-14 h-14 sm:w-[68px] sm:h-[68px] rounded-full object-cover"
       />
       <div className="text-center">
-        <div className={`text-[11px] sm:text-[12px] font-medium ${selected ? "text-blue-base" : "text-gray-900"}`}>
+        <div className={`text-[12px] sm:text-[14px] font-medium ${selected ? "text-blue-base" : "text-gray-900"}`}>
           {opponent.name}
         </div>
-        <div className="text-[9px] sm:text-[10px] text-gray-500">ELO {opponent.elo}</div>
+        <div className="text-[10px] sm:text-[12px] text-gray-500">ELO {opponent.elo}</div>
       </div>
     </button>
   );
@@ -100,12 +120,38 @@ function OpponentCard({
 export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }: { recommendedListHeightClass?: string }) {
   const router = useRouter();
   const { setAIChoosed } = usePlayVSAIStore();
+  const { leaderboard } = usePlayPageStore();
+  const userElo = leaderboard?.my_elo || DEFAULT_USER_ELO;
+
+  // Deterministic on first render (SSR-safe), shuffled after mount so ties
+  // between same-ELO bots resolve to a random pick.
+  const [rosterOrder, setRosterOrder] = useState<AiRosterOpponent[]>(AI_OPPONENT_ROSTER);
+  useEffect(() => {
+    setRosterOrder([...AI_OPPONENT_ROSTER].sort(() => Math.random() - 0.5));
+  }, []);
+
+  const recommendedOpponents = useMemo(
+    () => buildRecommended(rosterOrder, userElo),
+    [rosterOrder, userElo]
+  );
+
+  const opponentsFor = (key: string) =>
+    key === "recommended" ? recommendedOpponents : opponentsByTab[key] ?? recommendedOpponents;
 
   const [selectedColor, setSelectedColor] = useState<"white" | "black">("white");
   const [selectedTab, setSelectedTab] = useState("recommended");
-  const [selectedOpponent, setSelectedOpponent] = useState(opponentsByTab.recommended[0]);
+  const [selectedOpponent, setSelectedOpponent] = useState(() => buildRecommended(AI_OPPONENT_ROSTER, DEFAULT_USER_ELO)[0]);
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0 });
+
+  // Keep the selection valid when the recommended list changes (shuffle or ELO load).
+  useEffect(() => {
+    setSelectedOpponent((prev) => {
+      if (selectedTab !== "recommended") return prev;
+      const stillThere = recommendedOpponents.find((o) => o.name === prev.name && o.elo === prev.elo);
+      return stillThere ?? recommendedOpponents[0];
+    });
+  }, [recommendedOpponents, selectedTab]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     dragState.current.isDragging = true;
@@ -121,7 +167,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
 
   const stopDrag = () => { dragState.current.isDragging = false; };
 
-  const currentOpponents = opponentsByTab[selectedTab] ?? opponentsByTab.recommended;
+  const currentOpponents = opponentsFor(selectedTab);
 
   const handlePlayNow = () => {
     setAIChoosed({
@@ -138,7 +184,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         Choose Your Color
       </h2>
 
-      <div className="flex bg-gray-100 rounded-full p-1">
+      <div className="flex bg-gray-100 rounded-full p-1 max-sm:bg-white max-sm:shadow-[0_2px_10px_rgba(0,0,0,0.10)]">
         {(["white", "black"] as const).map((color) => (
           <button
             key={color}
@@ -146,8 +192,8 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
             onClick={() => setSelectedColor(color)}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-[13px] sm:text-sm font-medium transition-colors ${
               selectedColor === color
-                ? "bg-white shadow text-gray-900"
-                : "text-gray-500"
+                ? "bg-white shadow text-gray-900 max-sm:bg-[#DED9F8] max-sm:shadow-none"
+                : "text-gray-500 max-sm:text-gray-900"
             }`}
           >
             <Image
@@ -166,6 +212,9 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         ))}
       </div>
 
+      {/* On mobile this section renders as its own white shadow card (mockup);
+          on desktop the wrapper is invisible and keeps the same column gap. */}
+      <div className="flex flex-col gap-3 grow max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)] max-sm:p-3">
       <h2 className="text-base sm:text-lg font-semibold text-gray-900 text-center pt-1">
         Choose Your Opponent
       </h2>
@@ -186,7 +235,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
               type="button"
               onClick={() => {
                 setSelectedTab(tab.key);
-                setSelectedOpponent(opponentsByTab[tab.key][0]);
+                setSelectedOpponent(opponentsFor(tab.key)[0]);
               }}
               className={`flex-shrink-0 min-w-[110px] px-3 py-2 rounded-lg border text-center transition-colors ${
                 selectedTab === tab.key
@@ -211,7 +260,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
             const i = tabs.findIndex((t) => t.key === selectedTab);
             const next = tabs[(i + 1) % tabs.length];
             setSelectedTab(next.key);
-            setSelectedOpponent(opponentsByTab[next.key][0]);
+            setSelectedOpponent(opponentsFor(next.key)[0]);
             if (tabsScrollRef.current) {
               const tabWidth = tabsScrollRef.current.scrollWidth / tabs.length;
               tabsScrollRef.current.scrollTo({ left: (i + 1) * tabWidth, behavior: "smooth" });
@@ -224,20 +273,10 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         </button>
       </div>
 
-      {selectedTab !== "recommended" && (
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-gray-200" />
-          <span className="text-[12px] sm:text-sm text-gray-500">
-            {tabs.find((t) => t.key === selectedTab)?.label}
-          </span>
-          <div className="h-px flex-1 bg-gray-200" />
-        </div>
-      )}
-
       {selectedTab === "recommended" ? (
-        <div className={`${recommendedListHeightClass} overflow-y-auto space-y-2 pr-0.5`}>
+        <div className={`${recommendedListHeightClass} max-sm:h-auto grow mb-2 overflow-y-auto space-y-2 pr-0.5`}>
           <div className="grid grid-cols-4 gap-2">
-            {opponentsByTab.recommended.map((opponent) => (
+            {recommendedOpponents.map((opponent) => (
               <OpponentCard
                 key={`rec-${opponent.name}-${opponent.elo}`}
                 opponent={opponent}
@@ -246,6 +285,8 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
               />
             ))}
           </div>
+          {/* Other tiers below the recommended row — desktop only; mobile shows just the 4 picks */}
+          <div className="space-y-2 max-sm:hidden">
           {tabs.slice(1).map((tab) => (
             <div key={tab.key}>
               <div className="flex items-center gap-3 py-1">
@@ -265,29 +306,40 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
               </div>
             </div>
           ))}
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-2 h-[320px] overflow-y-auto">
-          {currentOpponents.map((opponent) => (
-            <OpponentCard
-              key={`${selectedTab}-${opponent.name}-${opponent.elo}`}
-              opponent={opponent}
-              selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
-              onClick={() => setSelectedOpponent(opponent)}
-            />
-          ))}
+        <div className={`${recommendedListHeightClass} max-sm:h-[280px] grow mb-2 overflow-y-auto pr-0.5`}>
+          <div className="flex items-center gap-3 pb-1">
+            <div className="h-px flex-1 bg-gray-200" />
+            <span className="text-[12px] sm:text-sm text-gray-500">
+              {tabs.find((t) => t.key === selectedTab)?.label}
+            </span>
+            <div className="h-px flex-1 bg-gray-200" />
+          </div>
+          <div className="grid grid-cols-4 gap-2 content-start">
+            {currentOpponents.map((opponent) => (
+              <OpponentCard
+                key={`${selectedTab}-${opponent.name}-${opponent.elo}`}
+                opponent={opponent}
+                selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
+                onClick={() => setSelectedOpponent(opponent)}
+              />
+            ))}
+          </div>
         </div>
       )}
+      </div>
 
       <button
         type="button"
         onClick={handlePlayNow}
         data-tutorial="play-vs-ai-step-2"
-        className="mt-auto w-full py-1 px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-xs sm:text-base"
+        className="mt-auto w-full py-1 px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-base"
       >
         Start Game
-        <span className="bg-white rounded-full w-5 h-5 sm:w-5 h-5  flex items-center justify-center flex-shrink-0">
-          <ChevronRight size={16} className="text-blue-base" />
+        <span className=" rounded-full w-5 h-5 sm:w-5 sm:h-5 py-4 flex items-center justify-center flex-shrink-0">
+          <ChevronRight size={19} className="text-white " />
         </span>
       </button>
     </div>

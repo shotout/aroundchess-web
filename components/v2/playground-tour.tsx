@@ -18,6 +18,8 @@ import { CustomChessArrows } from "@/components/game-history/components/CustomCh
 import { EloOdometer } from "@/components/v2/elo-odometer";
 import { preloadLottie, useLottieData } from "@/components/v2/hooks/useLottieData";
 import { pickRecommendedOpponents } from "@/components/v2/play-vs-ai-roster-data";
+import { openDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
+import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
 
 // Interactive remake of the playground tutorial video (tutorial.json).
 // Fully self-contained: renders in a portal above everything (win/lose
@@ -842,9 +844,23 @@ export function PlaygroundTour({
   const finish = () => {
     setOpen(false);
     setInterlude(false);
+    let firstCompletion = false;
     try {
+      firstCompletion = !localStorage.getItem(DONE_KEY);
       localStorage.setItem(DONE_KEY, "1");
     } catch {}
+    // First-ever tutorial close: greet the new user with their day-streak
+    // status (streak 0, unlit flame) — static image, no lottie. Replays
+    // (Escape, ?tour=playground, manual trigger) skip it.
+    if (firstCompletion) {
+      const streakStore = useStreakStore.getState();
+      openDayStreakModal({
+        variant: "celebration",
+        streak: streakStore.currentStreak,
+        staticFlame:
+          streakStore.lastPlayDate === getLocalDateStamp() ? "on" : "off",
+      });
+    }
   };
 
   const findBoardImage = () =>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { PlayHeroGamePreview } from "@/components/v2/play-hero-game-preview";
-import { PlayTopBar } from "@/components/v2/play-top-bar";
+import { PlayGreeting, PlayTopBar } from "@/components/v2/play-top-bar";
 import { PlayRecentGames } from "@/components/v2/play-recent-games";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
@@ -13,6 +14,11 @@ import { useApiClient } from "@/functions/api-client";
 
 export function PlayPage() {
   const { sessionId } = useProfileStore();
+  // Same preview convention as the leaderboard page: append ?previewModal=join
+  // (uncalibrated) or ?previewModal=inactive (frozen) to force the top-bar
+  // states without touching the account. Render-time override only — the real
+  // API data is still fetched and left untouched.
+  const previewModal = useSearchParams().get("previewModal");
   const { getStreakStatus, getLeaderboardData, getLeaderboardMe } = useApiClient();
   const {
     streak, setStreak,
@@ -48,20 +54,26 @@ export function PlayPage() {
     <div className="flex overflow-hidden bg-primary-white">
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
-          <div className="p-[10px] sm:p-[24px] flex flex-col gap-[20px] max-w-[1200px] min-[1600px]:max-w-[1400px] mx-auto w-full">
+          <div className="flex flex-col gap-[10px] max-w-[1080px] min-[1600px]:max-w-[1260px] mx-auto w-full pt-[10px] sm:pt-[24px]">
+            <div className="px-[10px] sm:px-0"><PlayGreeting /></div>
+            <div className="p-[10px] sm:p-[24px] flex flex-col gap-[20px] w-full sm:border-2 rounded-2xl sm:border-[#81CFF3]">
             <PlayTopBar
               streak={streak}
-              elo={leaderboard?.my_elo ?? 0}
+              elo={leaderboard?.my_elo || leaderboardMe?.elo || 0}
               rank={leaderboard?.my_rank ?? 0}
               movedUp={leaderboard?.moved_up ?? null}
-              canJoin={leaderboardMe?.can_join}
-              gamesRemaining={leaderboardMe?.games_remaining}
-              isInactive={leaderboardMe?.can_join !== false && leaderboardMe?.is_inactive === true}
+              canJoin={previewModal === "join" ? false : previewModal === "inactive" ? true : leaderboardMe?.can_join}
+              gamesRemaining={leaderboardMe?.games_remaining ?? (previewModal === "join" ? 3 : undefined)}
+              isInactive={
+                previewModal === "inactive" ||
+                (previewModal !== "join" && leaderboardMe?.can_join !== false && leaderboardMe?.is_inactive === true)
+              }
             />
 
-            <div className="bg-[#E6F7FE] p-3 sm:p-7 rounded-3xl"><PlayHeroGamePreview recommendedListHeightClass="h-[440px] min-[1600px]:h-[530px]" />
+            <div className="sm:bg-[#E6F7FE] p-0 sm:p-7 rounded-3xl"><PlayHeroGamePreview recommendedListHeightClass="h-[440px] min-[1600px]:h-[530px]" />
 
             <div className="pt-8"><PlayRecentGames games={recentGames} isLoading={false} /></div>
+            </div>
             </div>
           </div>
         </Navigation>

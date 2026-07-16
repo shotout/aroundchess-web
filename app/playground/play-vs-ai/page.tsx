@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { PlayPage } from "@/components/v2/play-page";
 import AnalyzeGameFreePopup from "@/components/v2/analyze-game-free-popup";
@@ -26,7 +26,9 @@ export default function PlayVSAI() {
       />
       <DayStreakLoginTrigger suppressed={showAnalyzePopup} />
       <PlaygroundTourGate />
-      <PlayPage />
+      <Suspense>
+        <PlayPage />
+      </Suspense>
     </div>
   );
 }

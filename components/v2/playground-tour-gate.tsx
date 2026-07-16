@@ -17,6 +17,17 @@ const LazyPlaygroundTour = dynamic(
 const DONE_KEY = "ac_playground_tour_done_v1";
 export const PLAYGROUND_TOUR_EVENT = "playground-tour:start";
 
+/** Whether this browser has completed (or dismissed) the playground tour.
+ * The day-streak login modal waits for this so it never opens over the tour
+ * — for new users the tour's finish shows the streak modal itself. */
+export function isPlaygroundTourDone() {
+  try {
+    return !!localStorage.getItem(DONE_KEY);
+  } catch {
+    return true;
+  }
+}
+
 // Import the replay trigger from here (not from playground-tour) so a
 // "Replay tutorial" button doesn't statically pull in the heavy chunk.
 export function startPlaygroundTour() {

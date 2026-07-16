@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import { MarchOfferBanner } from "../components/MarchOfferBanner";
 import { TutorialProvider } from "../components/TutorialProvider";
+import { DayStreakModalHost } from "../components/v2/day-streak-modal-host";
 import React, { Suspense } from "react";
 import Script from "next/script";
 import { useModalSetting } from "./store/cookiesSetting";
@@ -87,6 +88,7 @@ export default function RootLayout({
           <AuthProvider>
             <TutorialProvider>
               {children}
+              <DayStreakModalHost />
               <Toaster />
             </TutorialProvider>
           </AuthProvider>

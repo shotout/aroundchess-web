@@ -7,8 +7,10 @@ import { useApiClient } from "@/functions/api-client";
 import {
   CELEBRATION_LOTTIE,
   DayStreakModal,
+  DayStreakStaticFlame,
   DayStreakVariant,
 } from "@/components/v2/day-streak-modal";
+import { isPlaygroundTourDone } from "@/components/v2/playground-tour-gate";
 import { preloadLottie } from "@/components/v2/hooks/useLottieData";
 
 export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
@@ -17,6 +19,9 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
   const { getStreakStatus } = useApiClient();
   const [open, setOpen] = useState(false);
   const [variant, setVariant] = useState<DayStreakVariant>("login");
+  const [staticFlame, setStaticFlame] = useState<
+    DayStreakStaticFlame | undefined
+  >(undefined);
   const [streakToShow, setStreakToShow] = useState(0);
   const fetchedRef = useRef(false);
   const isDemoRef = useRef(false);
@@ -29,7 +34,8 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
 
   // Demo/testing hook: /playground/play-vs-ai?streakDemo=login&streak=2
   // (also celebration / reward) previews any variant without waiting for
-  // the real once-per-day and streak conditions.
+  // the real once-per-day and streak conditions. Add &flame=on|off to
+  // preview the static-image (no lottie) celebration variants.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -37,7 +43,9 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
     if (demo === "login" || demo === "celebration" || demo === "reward") {
       isDemoRef.current = true;
       const fallback = demo === "reward" ? 7 : demo === "celebration" ? 3 : 2;
+      const flame = params.get("flame");
       setVariant(demo);
+      setStaticFlame(flame === "on" || flame === "off" ? flame : undefined);
       setStreakToShow(parseInt(params.get("streak") ?? "", 10) || fallback);
       setOpen(true);
     }
@@ -60,7 +68,15 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
         const currentStreak = res.data?.currentStreak ?? 0;
         store.setStatus(res.data);
         store.setLastSeenStreak(currentStreak);
+        // New users see the playground tour first; the tour's finish opens
+        // the (streak 0) modal itself, so don't also open it here.
+        if (!isPlaygroundTourDone()) return;
         if (store.lastLoginModalDate !== getLocalDateStamp()) {
+          // Daily check-in is always the static image (no lottie): unlit
+          // flame until today's first game is played, lit after.
+          const playedToday = store.lastPlayDate === getLocalDateStamp();
+          setVariant("celebration");
+          setStaticFlame(playedToday ? "on" : "off");
           setStreakToShow(currentStreak);
           setOpen(true);
         }
@@ -68,6 +84,9 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
       .catch(() => {});
   }, [hydrated, profileHydrated, sessionId, getStreakStatus]);
 
+  // Stamp the once-per-day guard when the daily modal actually shows.
+  // (Hook-request shows — tutorial finish, badge clicks — are stamped by
+  // DayStreakModalHost in the root layout.)
   useEffect(() => {
     if (open && !suppressed && !isDemoRef.current) {
       useStreakStore.getState().setLastLoginModalDate(getLocalDateStamp());
@@ -80,6 +99,7 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
     <DayStreakModal
       variant={variant}
       streak={streakToShow}
+      staticFlame={staticFlame}
       onClose={() => setOpen(false)}
     />
   );
