@@ -14,8 +14,6 @@ import {
   feedbackVariants,
 } from "../shared/animationVariant";
 import BoardDisplay from "./components/BoardDisplay";
-import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
-import { usePgnStore } from "@/app/store/zustandStore";
 
 const DefaultPGN: React.FC = () => {
   const {
@@ -29,8 +27,6 @@ const DefaultPGN: React.FC = () => {
     startDefaultGameAgain,
   } = useBoardVisionStore();
 
-  const { isLoading } = usePgnStore();
-
   const {
     currentPosition,
     gameQuestion,
@@ -43,8 +39,6 @@ const DefaultPGN: React.FC = () => {
   } = defaultGame;
 
   const [showSetupPopup, setShowSetupPopup] = useState<boolean>(false);
-
-  const [openAccountConnected, setOpenAccountConnected] = useState(false);
 
   useEffect(() => {
     loadDefaultPositions();
@@ -142,20 +136,10 @@ const DefaultPGN: React.FC = () => {
         </motion.div>
       </main>
 
-      <Popup isOpen={showSetupPopup} 
-        onClose={() => setShowSetupPopup(false)} 
-        handleUsernameClicked={() => {
-          setShowSetupPopup(false);
-          setOpenAccountConnected(true);
-        }} />
-
-      {openAccountConnected && (
-        <ChessAccountSetup
-          isLoading={isLoading} 
-          open={openAccountConnected} 
-          setOpen={setOpenAccountConnected} 
-        />
-      )}
+      <Popup
+        isOpen={showSetupPopup}
+        onClose={() => setShowSetupPopup(false)}
+      />
     </>
   );
 };

@@ -4,10 +4,12 @@ import Navigation from "@/components/navigator/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowRight, FaFontAwesome } from "react-icons/fa";
+import { LearnPremiumGuard } from "@/components/v2/premium-lock-guard";
 
 export default function Handbook() {
     return (
         <div className="flex overflow-hidden bg-primary-white">
+              <LearnPremiumGuard />
               <div className="flex flex-col overflow-y-auto w-full">
                 <Navigation>
                     {/* <div className="w-full flex items-center bg-[url(/images/handbook/bg.jpg)] bg-cover bg-center min-h-[calc(100vh-56px)] xl:min-h-[calc(100vh-97px)] p-[16px] pt-[32px] md:pt-[16px]"> */}

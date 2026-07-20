@@ -26,6 +26,13 @@ interface ChessAccountSetupProps {
   setOpen?: (open: boolean) => void;
 }
 
+/** Feature flag for the "Analyze 5 games for free" promo (DialogAnalyzeFree)
+ * that chains after the Chess.com connect dialog closes or a username is
+ * submitted, and kicks off the legacy tutorial on close. Disabled for now —
+ * the connect dialog just closes without the promo, redirect, or tutorial.
+ * Flip back to true to restore the flow. */
+const ANALYZE_FREE_BANNER_ENABLED = false;
+
 const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
   open = false,
@@ -33,7 +40,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 }) => {
   const { setUsername, setIsOpenTutorial } = usePgnStore();
   const { setCallFetch } = useProfileFetch();
-  const { setToken, sessionId } = useProfileStore();
+  const { setToken, sessionId, profile } = useProfileStore();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
   const { getTokenBalance } = useApiClient();
   const { startTutorial, isTutorialPlay } = useTutorial();
@@ -133,13 +140,13 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
     // Show ChessAccountSetup for ALL users without username
     // Tutorial completion only affects whether we show tutorial AFTER they interact with the dialog
-    if (isSignedIn && !hasUsername) {
+    if (isSignedIn && !hasUsername && !profile?.onboard_elo) {
       setShowConnectDialog(true);
       setShowPremiumDialog(false);
     } else {
       setShowConnectDialog(false);
     }
-  }, [isSignedIn, hasUsername, checkComplete, isLoading]);
+  }, [isSignedIn, hasUsername, checkComplete, isLoading, profile]);
 
   const handleConnectSuccess = async (username: string) => {
     setShowConnectDialog(false);
@@ -176,6 +183,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   };
 
   const handleOpenAnalyzeFree = () => {
+    if (!ANALYZE_FREE_BANNER_ENABLED) return;
     setShowAnalyzeFreeBanner(true);
   };
 

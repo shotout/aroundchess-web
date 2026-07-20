@@ -313,7 +313,7 @@ const ForgotPasswordPage: NextPage = () => {
                 <p className="text-black/80 mt-1">
                   {isLoggedIn
                     ? "Enter your verification code to reset your password"
-                    : "Enter your email to receive a password reset code"}
+                    : "Simply enter your Email and get an OTP to reset your Password"}
                 </p>
               )}
               {emailSent && !tokenVerified && !resetComplete && (

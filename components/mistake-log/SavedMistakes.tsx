@@ -296,9 +296,16 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
       setV2AnalysisData(v2Analysis);
       setShortAnalysisData(v3Analysis);
 
-      if (v3Analysis?.success && v3Analysis.data) {
-        console.log("✅ [SavedMistakes - View Analysis] V3 Analysis found, opening ChooseAnalysisMode");
-        // Open ChooseAnalysisMode dialog with both v2 and v3 data
+      if (v3Analysis?.success && v3Analysis.data?.summary) {
+        console.log("✅ [SavedMistakes - View Analysis] V3 Analysis found, opening GameAnalysis directly");
+        // Skip ChooseAnalysisMode — show the mistakes result right away
+        setV3AnalysisResult({
+          ...v3Analysis.data,
+          analysisId: v3Analysis.data.analysisId || v3Analysis.data.id,
+        });
+        setGameAnalysisOpen(true);
+      } else if (v3Analysis?.success && v3Analysis.data) {
+        // v3 data without a summary — the choose dialog still handles this shape
         setIsChooseAnalysisModeOpen(true);
       } else {
         console.log("⚠️ [SavedMistakes - View Analysis] No v3 analysis found");

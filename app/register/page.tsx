@@ -173,7 +173,7 @@ function RegisterPage() {
 
         toast.success("Account verified and logged in successfully!");
         trackCustomEvent("CompleteRegistration", { email });
-        router.push("/my-game-history");
+        router.push("/chess-knowledge");
 
       } else if (data.token) {
         setSessionId(data.token);
@@ -181,7 +181,7 @@ function RegisterPage() {
         trackCustomEvent("CompleteRegistration", { email });
 
         toast.success("Account verified and logged in successfully!");
-        router.push("/my-game-history");
+        router.push("/chess-knowledge");
 
       } else {
         toast.error("No authentication token received");

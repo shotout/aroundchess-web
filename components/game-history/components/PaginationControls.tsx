@@ -17,6 +17,8 @@ interface PaginationControlsProps {
   totalPages: number;
   goToNextPage: () => void;
   goToPreviousPage: () => void;
+  /** "default" preserves the legacy look; "v2" opts into the revamped design. */
+  variant?: "default" | "v2";
 }
 
 const PaginationControls: React.FC<PaginationControlsProps> = ({
@@ -27,7 +29,9 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   totalPages,
   goToNextPage,
   goToPreviousPage,
+  variant = "default",
 }) => {
+  const isV2 = variant === "v2";
   const getPageNumbers = () => {
     const pageNumbers = [];
 
@@ -99,8 +103,12 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             size="sm"
             onClick={() => setCurrentPage(pageNum)}
             className={`h-8 w-8 p-0 flex items-center justify-center mx-1 ${
+              isV2 ? "rounded-lg" : ""
+            } ${
               currentPage === pageNum
-                ? "bg-blue-50 border border-blue-base text-blue-base rounded-md"
+                ? isV2
+                  ? "bg-[#EEF1FE] border border-[#221AE9] text-[#221AE9] rounded-lg"
+                  : "bg-blue-50 border border-blue-base text-blue-base rounded-md"
                 : "text-gray-600 hover:bg-gray-100 border"
             }`}
             aria-label={`Page ${pageNum}`}

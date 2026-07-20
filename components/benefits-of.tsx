@@ -4,44 +4,33 @@ import Image from "next/image";
 import { motion } from "@/utils/motion";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useProfileStore } from "@/app/store/profile";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const benefits = [
   {
-    image: "/images/homepage/real-time-analysis-icon.png",
-    title: "Real-time Analysis",
+    image: "/images/homepage/v2/icon_playground.png",
+    title: "Challenge Dozens of AI Opponents",
     description:
-      "Get instant feedback on every move, powered by Stockfish engine.",
+      "Choose from more than 70 AI opponents with unique ELO Score, matched to every skill level.",
   },
   {
-    image: "/images/homepage/personalized-training-icon.png",
-    title: "Personalized Training",
-    description:
-      "Set your chess goals and receive tailored training plans to achieve them.",
+    image: "/images/homepage/v2/icon_discover.png",
+    title: "Discover Mistakes. Improve. Repeat.",
+    description: "Review every game, spot mistakes, and improve with AI insights.",
   },
   {
-    image: "/images/homepage/rapid-improvement-icon.png",
-    title: "Rapid Improvement",
+    image: "/images/homepage/v2/icon_climb.png",
+    title: "Climb the Leaderboard",
     description:
-      "Track your progress and see your skills improve with data-driven insights.",
+      "Win matches, increase your ELO, and compete with players worldwide.",
   },
   {
-    image: "/images/homepage/time-management-icon.png",
-    title: "Time Management",
+    image: "/images/homepage/v2/icon_personalized.png",
+    title: "Personalized Training Rapid Improvement",
     description:
-      "Learn to manage your time effectively with specialized exercises.",
-  },
-  {
-    image: "/images/homepage/comprehensive-library-icon.png",
-    title: "Comprehensive Library",
-    description: "Access a vast library of annotated games and chess puzzles.",
-  },
-  {
-    image: "/images/homepage/goal-tracking-icon.png",
-    title: "Goal Tracking",
-    description:
-      "Set and monitor your chess improvement goals with detailed progress reports.",
+      "Learn from your mistakes and become a stronger player with every game.",
   },
 ];
 
@@ -62,11 +51,19 @@ export function BenefitsOf() {
     checkSession();
   }, [sessionId, isSignedIn]);
   
-  const handleAnalyze = () => {
-    // router.push("/analysis");
-    // router.push("/register");
+  const [activeCard, setActiveCard] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const el = scrollRef.current;
+    const index = Math.round(el.scrollLeft / (el.scrollWidth / benefits.length));
+    setActiveCard(Math.min(index, benefits.length - 1));
+  }, []);
+
+  const handlePlayNow = () => {
     if (isSignedIn) {
-      router.push("/my-game-history");
+      router.push("/playground/play-vs-ai");
     } else {
       router.push("/register");
     }
@@ -98,39 +95,120 @@ export function BenefitsOf() {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          {/* Grid Layout: 1 column on mobile, 3 columns on desktop */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-            {benefits.map((item, index) => {
-              return (
+          {/* Mobile: horizontal scroll */}
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="xl:hidden overflow-x-auto pb-2"
+          >
+            <div className="flex gap-4">
+              {benefits.map((item, index) => (
                 <div
                   key={index}
-                  className="flex flex-col border border-[#DEDEDE] rounded-lg p-4 sm:p-6 md:p-4 lg:p-6 h-full"
+                  className="w-[240px] flex-shrink-0 flex flex-col border border-[#DEDEDE] rounded-lg p-4"
                 >
                   <Image
-                    className="w-[32px] h-[32px] sm:w-[50px] sm:h-[48px] object-contain mb-4"
+                    className="w-[32px] h-[32px] object-contain mb-4"
                     src={item.image}
                     width={900}
                     height={900}
                     alt=""
                     priority
                   />
-                  <span className="text-black text-[14px] --sm md:text-md sm:text-left lg:text-[20px] font-medium mb-2">
+                  <span className="text-black text-[14px] font-medium mb-2">
                     {item.title}
                   </span>
-                  <span className="text-[#364152] text-[14px] --xs md:text-[14px] --sm lg:text-[18px] font-normal">
+                  <span className="text-[#364152] text-[14px] font-normal">
                     {item.description}
                   </span>
                 </div>
-              );
-            })}
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop: grid */}
+          <div className="hidden xl:grid grid-cols-4 gap-6">
+            {benefits.map((item, index) => (
+              <div
+                key={index}
+                className="flex flex-col border border-[#DEDEDE] rounded-lg p-4 sm:p-6 md:p-4 lg:p-6 h-full"
+              >
+                <Image
+                  className="w-[32px] h-[32px] sm:w-[50px] sm:h-[48px] object-contain mb-4"
+                  src={item.image}
+                  width={900}
+                  height={900}
+                  alt=""
+                  priority
+                />
+                <span className="text-black text-[14px] --sm md:text-md sm:text-left lg:text-[20px] font-medium mb-2">
+                  {item.title}
+                </span>
+                <span className="text-[#364152] text-[14px] --xs md:text-[14px] --sm lg:text-[18px] font-normal">
+                  {item.description}
+                </span>
+              </div>
+            ))}
           </div>
         </motion.div>
-        <div className="flex flex-col items-center justify-center pt-6">
-          <Button
-            onClick={handleAnalyze}
-            className="w-fill btn-primary rounded-full px-12 py-6 font-normal text-[14px] --sm sm:text-[20px] xl:min-w-[467px] mb-3"
+
+        {/* Mobile: pagination arrows + dots */}
+        <div className="xl:hidden flex flex-row items-center justify-center gap-2 pt-4">
+          <button
+            onClick={() => {
+              if (!scrollRef.current) return;
+              const cardWidth = scrollRef.current.scrollWidth / benefits.length;
+              const next = Math.max(activeCard - 1, 0);
+              scrollRef.current.scrollTo({ left: next * cardWidth, behavior: "smooth" });
+              setActiveCard(next);
+            }}
+            disabled={activeCard === 0}
+            className="p-2 transition-opacity hover:opacity-70 disabled:opacity-30"
+            aria-label="Previous card"
           >
-            Analyze your most recent Game now
+            <ChevronLeft size={28} color={activeCard !== 0 ? "#221AE9" : "#221AE950"} />
+          </button>
+
+          <div className="flex gap-1.5">
+            {benefits.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  if (!scrollRef.current) return;
+                  const cardWidth = scrollRef.current.scrollWidth / benefits.length;
+                  scrollRef.current.scrollTo({ left: i * cardWidth, behavior: "smooth" });
+                  setActiveCard(i);
+                }}
+                className={`h-3 rounded-full transition-all duration-200 ${
+                  i === activeCard ? "w-5 bg-[#221AE9]" : "w-3 bg-gray-300"
+                }`}
+                aria-label={`Go to card ${i + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => {
+              if (!scrollRef.current) return;
+              const cardWidth = scrollRef.current.scrollWidth / benefits.length;
+              const next = Math.min(activeCard + 1, benefits.length - 1);
+              scrollRef.current.scrollTo({ left: next * cardWidth, behavior: "smooth" });
+              setActiveCard(next);
+            }}
+            disabled={activeCard === benefits.length - 1}
+            className="p-2 transition-opacity hover:opacity-70 disabled:opacity-30"
+            aria-label="Next card"
+          >
+            <ChevronRight size={28} color={activeCard !== benefits.length - 1 ? "#221AE9" : "#221AE950"} />
+          </button>
+        </div>
+
+        <div className="flex flex-col items-center justify-center pt-4 xl:pt-6">
+          <Button
+            onClick={handlePlayNow}
+            className="w-full xl:w-fit btn-primary rounded-full px-12 py-1 sm:py-6 font-normal text-[14px] --sm sm:text-[20px] xl:min-w-[467px] mb-3"
+          >
+            Play Now
           </Button>
         </div>
       </div>

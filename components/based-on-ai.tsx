@@ -17,7 +17,7 @@ export function BasedOnAI() {
       <div className="container mx-auto px-4 md:px-6 lg:px-12">
         <div className="flex flex-col md:flex-row items-center gap-8 lg:gap-12">
           <motion.div
-            className="md:w-1/2 relative mt-8 lg:mt-0"
+            className="order-1 md:order-none md:w-1/2 relative mt-8 lg:mt-0"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -43,10 +43,10 @@ export function BasedOnAI() {
               Powerful Analysis - based on AI, fine-tuned by Humans
             </h2>
 
-            <h2 className="font-heading text-xl sm:text-[19px] lg:text-[40px] font-semibold mb-1 sm:mb-2 lg:mb-6 text-black text-center md:text-left">
+            <h2 className="font-heading text-xl sm:text-[19px] lg:text-[40px] font-semibold mb-1 sm:mb-2 lg:mb-6 text-black text-left md:text-left w-full">
               Powerful Analysis at Your Fingertips
             </h2>
-            <p className="text-base md:text-md lg:text-[20px] font-normal text-[#2e2e2e] mb-6 md:mb-4 lg:mb-8 text-center md:text-left">
+            <p className="text-base md:text-md lg:text-[20px] font-normal text-[#2e2e2e] mb-6 md:mb-4 lg:mb-8 text-left md:text-left">
               Our advanced chess engine provides deep insights into every move.
               Improve your game with real-time feedback and personalized
               recommendations.

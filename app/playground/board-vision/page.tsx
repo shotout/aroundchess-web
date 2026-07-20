@@ -4,6 +4,7 @@ import Navigation from "@/components/navigator/navigation";
 import React, { useEffect } from "react";
 import Welcome from "./Welcome";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { PracticePremiumGuard } from "@/components/v2/premium-lock-guard";
 
 const BoardVisionPage: React.FC = () => {
   useEffect(() => {
@@ -11,6 +12,7 @@ const BoardVisionPage: React.FC = () => {
   }, []);
   return (
     <div className="flex overflow-hidden bg-primary-white">
+      <PracticePremiumGuard />
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
           <div className="w-full  h-screen 2xl:h-[calc(100vh-97px)] flex justify-center items-center">

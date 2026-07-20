@@ -48,6 +48,9 @@ interface GamesListProps {
     goToPreviousPage: () => void;
   };
   recentlyImportedIds?: (string | number)[];
+  /** Presentation variant. "default" preserves the legacy look used by /my-statistics
+   * and other consumers. "v2" opts into the revamped Game History design. */
+  variant?: "default" | "v2";
 }
 
 interface LastAnalysisResponse {
@@ -113,6 +116,12 @@ const fetchLastAnalysisV3 = async (
 
 const DESKTOP_GRID_TEMPLATE = "0.5fr 1.5fr 1fr 1fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr";
 
+// Crisp white ring + a glow in the button's own color. Uses an inline style
+// (not a Tailwind class) so it can never be dropped by class-merging/purge.
+const v2GlowStyle = (r: number, g: number, b: number): React.CSSProperties => ({
+  boxShadow: `0 0 0 2px #ffffff, 0 0 10px 3px rgba(${r}, ${g}, ${b}, 0.6)`,
+});
+
 const GamesList: React.FC<GamesListProps> = ({
   games,
   currentGames,
@@ -121,7 +130,9 @@ const GamesList: React.FC<GamesListProps> = ({
   handleRetryFetch,
   paginationProps,
   recentlyImportedIds = [],
+  variant = "default",
 }) => {
+  const isV2 = variant === "v2";
   const router = useRouter();
   const { getJobByGameId, clearOldJobs, analysisJobs } =
     useBackgroundAnalysisStore();
@@ -539,13 +550,22 @@ const GamesList: React.FC<GamesListProps> = ({
             setV2AnalysisData(v2Analysis);
             setShortAnalysisData(v3Analysis);
 
-            if (v3Analysis?.success && v3Analysis.data) {
-              console.log("✅ [View Analysis] V3 Analysis found, opening ChooseAnalysisMode");
+            if (v3Analysis?.success && v3Analysis.data?.summary) {
+              console.log("✅ [View Analysis] V3 Analysis found, opening GameAnalysis directly");
               setDisabled(false);
 
-              // Open ChooseAnalysisMode dialog with both v2 and v3 data
-              setChooseAnalysisModeGameId(gameId);
+              // Skip ChooseAnalysisMode — show the mistakes result right away
+              setV3AnalysisResult({
+                ...v3Analysis.data,
+                analysisId: v3Analysis.data.analysisId || v3Analysis.data.id,
+              });
+              setGameAnalysisGameId(gameId);
 
+              markHasViewedAnalysisInStore(game.id);
+            } else if (v3Analysis?.success && v3Analysis.data) {
+              // v3 data without a summary — the choose dialog still handles this shape
+              setDisabled(false);
+              setChooseAnalysisModeGameId(gameId);
               markHasViewedAnalysisInStore(game.id);
             } else {
               console.log("⚠️ [View Analysis] No v3 analysis found in response");
@@ -558,7 +578,7 @@ const GamesList: React.FC<GamesListProps> = ({
                 markHasViewedAnalysisInStore(game.id);
               } else {
                 console.error("❌ [View Analysis] No analysis found for this game");
-                setOpenGameId(gameId);
+                setAutoStartGameId(gameId);
               }
             }
           } catch (error) {
@@ -571,7 +591,7 @@ const GamesList: React.FC<GamesListProps> = ({
               setShortAnalysisData({ data: job.result });
               setChooseAnalysisModeGameId(gameId);
             } else {
-              setOpenGameId(gameId);
+              setAutoStartGameId(gameId);
             }
           }
         },
@@ -591,8 +611,8 @@ const GamesList: React.FC<GamesListProps> = ({
             className:
               "border-2 text-[12px] 2xl:text-[14px] border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
             onClick: () => {
-              // Open ChooseAnalysisMode to view progress
-              setChooseAnalysisModeGameId(gameId);
+              // Analysis still running — show the loading dialog directly
+              setProcessingAnalysisModeGameId(gameId);
             },
           };
         case "failed":
@@ -604,7 +624,7 @@ const GamesList: React.FC<GamesListProps> = ({
             onClick: () => {
               trackCustomEvent("RetryAnalysis", gameId);
 
-              setOpenGameId(gameId);
+              setAutoStartGameId(gameId);
             },
           };
       }
@@ -616,7 +636,8 @@ const GamesList: React.FC<GamesListProps> = ({
       className:
         "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
       onClick: () => {
-        setOpenGameId(gameId);
+        // Skip the depth dialog — auto-run the Standard analysis headlessly
+        setAutoStartGameId(gameId);
         trackCustomEvent("StartAnalysis", gameId);
       },
     };
@@ -652,6 +673,67 @@ const GamesList: React.FC<GamesListProps> = ({
     const numMoves = typeof moves === "string" ? parseInt(moves) : moves;
 
     return numMoves;
+  };
+
+  // --- v2-only presentation helpers (no effect on the default variant) ---
+  const displaySource = (src: string) => {
+    if (!src) return "Unknown";
+    const map: Record<string, string> = {
+      chesscom: "Chess.com",
+      "chess.com": "Chess.com",
+      vs_ai: "Against AI",
+      ai: "Against AI",
+      "against ai": "Against AI",
+      pgn_upload: "Import",
+      "pgn upload": "Import",
+      "pdn upload": "Import",
+      import: "Import",
+    };
+    return map[src.toLowerCase().trim()] ?? src;
+  };
+
+  const renderEloChange = (elo: string | number | undefined | null) => {
+    const raw = Number(String(elo ?? "0").replace("+", ""));
+    if (!raw || Number.isNaN(raw)) {
+      return <span className="text-gray-400">—</span>;
+    }
+    const positive = raw > 0;
+    return (
+      <span
+        className={
+          positive
+            ? "text-green-600 font-semibold"
+            : "text-red-500 font-semibold"
+        }
+      >
+        {positive ? `+${raw}` : `${raw}`}
+      </span>
+    );
+  };
+
+  const getV2ButtonPresentation = (btn: { text: string }) => {
+    if (btn.text === "View Analysis") {
+      return {
+        label: "See Mistakes",
+        icon: <Eye className="h-4 w-4 mr-1" />,
+        className: "bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:opacity-90 text-white",
+        style: v2GlowStyle(10, 216, 71),
+      };
+    }
+    if (btn.text === "Retry") {
+      return {
+        label: "Retry",
+        icon: <AlertCircle className="h-4 w-4 mr-1" />,
+        className: "bg-red-600 hover:bg-red-700 text-white",
+        style: v2GlowStyle(220, 38, 38),
+      };
+    }
+    return {
+      label: "Analyze",
+      icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
+      className: "bg-[#221AE9] hover:bg-[#1B14CC] text-white",
+      style: v2GlowStyle(34, 26, 233),
+    };
   };
 
   if (isLoading && !isTutorialPlay) {
@@ -707,7 +789,13 @@ const GamesList: React.FC<GamesListProps> = ({
               setAutoStartGameId(null);
             }}
             onAnalysisStarted={() => {
-              setChooseAnalysisModeGameId(game.id);
+              // Tutorial keeps the legacy ChooseAnalysisMode step; real runs
+              // jump straight to the loading dialog.
+              if (isTutorialPlay) {
+                setChooseAnalysisModeGameId(game.id);
+              } else {
+                setProcessingAnalysisModeGameId(game.id);
+              }
             }}
             onShortAnalysisReceived={(data) => {
               console.log("📥 GameList received short-analysis data:", data);
@@ -756,7 +844,9 @@ const GamesList: React.FC<GamesListProps> = ({
       {!isMobile && (
         <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
           <div
-            className="grid bg-blue-100 py-3 text-[14px] --xs font-medium text-gray-700"
+            className={`grid py-3 text-[14px] --xs font-medium ${
+              isV2 ? "bg-[#EEF1FE] text-[#374151]" : "bg-blue-100 text-gray-700"
+            }`}
             style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
           >
             <div className="px-2 text-left invisible">#</div>
@@ -765,7 +855,7 @@ const GamesList: React.FC<GamesListProps> = ({
             <div className="px-2 text-left">Result</div>
             <div className="px-4 text-left">Opponent</div>
             <div className="px-2 text-left">Rating</div>
-            <div className="px-2 text-left">Game Type</div>
+            <div className="px-2 text-left">{isV2 ? "Elo Change" : "Game Type"}</div>
             <div className="px-2 text-left">Moves</div>
             <div className="px-4 text-left">Opening</div>
             <div className="px-2 text-left">Source</div>
@@ -776,7 +866,7 @@ const GamesList: React.FC<GamesListProps> = ({
             {/* Show real games for tutorial, DummyList is no longer needed */}
             {/* {true ? ( */}
             {isTutorialPlay ? (
-              <DummyGameList />
+              <DummyGameList variant={variant} />
             ) : (
               <>
                 {displayGames.map((game, idx) => {
@@ -827,7 +917,9 @@ const GamesList: React.FC<GamesListProps> = ({
                         </div>
 
                         <div className="flex items-center px-2 py-3 truncate">
-                          {game.timeClass || "Unknown Game Type"}
+                          {isV2
+                            ? renderEloChange(game.eloChange)
+                            : game.timeClass || "Unknown Game Type"}
                         </div>
 
                         <div className="flex items-center px-2 py-3">
@@ -839,28 +931,36 @@ const GamesList: React.FC<GamesListProps> = ({
                         </div>
 
                         <div className="flex items-center px-2 py-3">
-                          {game.source || "Unknown"}
+                          {isV2
+                            ? displaySource(game.source)
+                            : game.source || "Unknown"}
                         </div>
 
                         <div className="px-4 py-3 min-w-[144px] min-h-[40px]">
                           {(() => {
                             const btn = getAnalysisButtonContent(game.id, game);
+                            const v2 = isV2 ? getV2ButtonPresentation(btn) : null;
+                            const isBusy =
+                              (disabled && game.id == gameId) ||
+                              autoStartGameId === game.id;
                             return (
                               <button
-                                className={`${btn.className} h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
+                                className={`${v2 ? v2.className : btn.className} h-8 w-full ${
+                                  isV2 ? "rounded-full" : "rounded-3xl"
+                                } text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
+                                style={v2 ? v2.style : undefined}
                                 onClick={btn.onClick}
-                                disabled={disabled && game.id == gameId}
+                                disabled={isBusy}
                               >
-                                {disabled && game.id == gameId ? (
+                                {isBusy ? (
                                   <Loader2 className={`h-4 w-4 mr-1 animate-spin`} />
+                                ) : v2 ? (
+                                  v2.icon
                                 ) : (
                                   btn.icon
                                 )}
-                                <span className="hidden sm:block max-w-[90px]">
-                                  {btn.text}
-                                </span>
-                                <span className="block sm:hidden">
-                                  {btn.text}
+                                <span className="max-w-[90px]">
+                                  {v2 ? v2.label : btn.text}
                                 </span>
                               </button>
                             );
@@ -885,20 +985,26 @@ const GamesList: React.FC<GamesListProps> = ({
                   key={game.id}
                   gameData={game}
                   isNewlyImported={isNewlyImported(game.id)}
+                  variant={variant}
                 />
               ))}
           </div>
         </div>
       )}
 
-      {displayGames.length > 0 && !isTutorialPlay && <PaginationControls {...paginationProps} />}
+      {displayGames.length > 0 && !isTutorialPlay && <PaginationControls {...paginationProps} variant={variant} />}
     </div>
   );
 };
 
 export default GamesList;
 
-const DummyGameList = () => {
+const DummyGameList = ({
+  variant = "default",
+}: {
+  variant?: "default" | "v2";
+}) => {
+  const isV2 = variant === "v2";
   const dummyList = [
     {
       id: "d4c02ecd-7fd2-4aa0-b206-8deb3ef59473",
@@ -1113,9 +1219,23 @@ const DummyGameList = () => {
           </div>
           
           <div className="flex items-center px-2 py-3 truncate">
-            {game.timeClass || "Unknown Game Type"}
+            {isV2 ? (
+              <span
+                className={
+                  Number(game.eloChange) >= 0
+                    ? "text-green-600 font-semibold"
+                    : "text-red-500 font-semibold"
+                }
+              >
+                {Number(game.eloChange) > 0
+                  ? `+${game.eloChange}`
+                  : `${game.eloChange}`}
+              </span>
+            ) : (
+              game.timeClass || "Unknown Game Type"
+            )}
           </div>
-          
+
           <div className="flex items-center px-2 py-3">
             {displayMoves(game.moves)}
           </div>
@@ -1130,12 +1250,26 @@ const DummyGameList = () => {
           
           <div className="px-4 py-3 min-w-[144px] min-h-[40px]">
             {game.is_analysis ? (
-              <button type="button" className="border-2 lg:text-[12px] xxl:text-[14px] border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200 h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]">
+              <button
+                type="button"
+                className={`lg:text-[12px] xxl:text-[14px] bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white h-8 w-full ${
+                  isV2
+                    ? "rounded-full"
+                    : "rounded-3xl border-2 border-white shadow-sm ring-1 ring-green-200"
+                } text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
+                style={isV2 ? v2GlowStyle(10, 216, 71) : undefined}
+              >
                 <Eye className="h-4 w-4 mr-1" />
-                <span>View Analysis</span>
+                <span>{isV2 ? "See Mistakes" : "View Analysis"}</span>
               </button>
             ) : (
-              <button type="button" className="border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md h-8 w-full rounded-3xl text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]">
+              <button
+                type="button"
+                className={`bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white h-8 w-full ${
+                  isV2 ? "rounded-full" : "rounded-3xl border border-[#BDD0F9] shadow-md"
+                } text-[14px] --xs flex justify-center items-center transition-colors duration-150 py-2 min-h-[40px]`}
+                style={isV2 ? v2GlowStyle(34, 26, 233) : undefined}
+              >
                 <ChartNoAxesColumn className="h-4 w-4 mr-2" />
                 <span>Analyze</span>
               </button>

@@ -1,4 +1,5 @@
 import { useProfileStore } from "@/app/store/profile";
+import { usePlayPageStore } from "@/app/store/playPage";
 import { usePgnStore } from "@/app/store/zustandStore";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
 import { useTutorial } from "@/components/TutorialProvider";
@@ -9,7 +10,7 @@ interface WhitePlayerProps {
   statusGame: string;
   loserColor: string;
   myColor: string;
-  AIChoosed: { opponent: { img: string; name: string } };
+  AIChoosed: { opponent: { img: string; name: string; elo?: number } };
   capturedWhite: { capturedTheme: string }[];
   PieceChoosed: string;
 }
@@ -27,7 +28,10 @@ export const WhitePlayer = ({
   const isDraw = statusGame == "Draw";
   const isLoss = loserColor == "white";
   const { profile } = useProfileStore();
+  const { leaderboard } = usePlayPageStore();
   const { username } = usePgnStore();
+  const isWhiteUser = myColor == "white";
+  const whiteElo = isWhiteUser ? leaderboard?.my_elo : AIChoosed.opponent.elo;
   const [chessComAvatar, setChessComAvatar] = useState<string | null>(null);
 
   const { isTutorialPlay } = useTutorial();
@@ -105,21 +109,26 @@ export const WhitePlayer = ({
           />
         )}
 
-        <span
-          className={`text-[17.23px] font-medium ${
-            isWin
-              ? "text-[#00B427] "
-              : isDraw
-              ? "text-[#221AE9] "
-              : isLoss
-              ? "text-[#FD0000]  "
-              : "text-[#040404]"
-          }`}
-        >
-          {myColor == "white"
-            ? username
-            : AIChoosed.opponent.name.replace(/ .*/, "")}
-        </span>
+        <div className="flex flex-col leading-tight">
+          <span
+            className={`text-[17.23px] font-medium ${
+              isWin
+                ? "text-[#00B427] "
+                : isDraw
+                ? "text-[#221AE9] "
+                : isLoss
+                ? "text-[#FD0000]  "
+                : "text-[#040404]"
+            }`}
+          >
+            {myColor == "white"
+              ? username
+              : AIChoosed.opponent.name.replace(/ .*/, "")}
+          </span>
+          {!!whiteElo && (
+            <span className="text-[13px] text-[#6B7280]">ELO {whiteElo}</span>
+          )}
+        </div>
       </div>
       <div className="flex flex-row items-center ">
         {capturedWhite &&

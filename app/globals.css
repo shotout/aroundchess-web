@@ -349,6 +349,25 @@ p {
   display: none;
 }
 
+.leaderboard-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #221AE9 rgba(203, 213, 225, 0.5);
+}
+
+.leaderboard-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.leaderboard-scrollbar::-webkit-scrollbar-track {
+  background: rgba(203, 213, 225, 0.5);
+  border-radius: 999px;
+}
+
+.leaderboard-scrollbar::-webkit-scrollbar-thumb {
+  background: #221AE9;
+  border-radius: 999px;
+}
+
 .custom-datepicker input {
   height: 32px;
   border-radius: 8px;

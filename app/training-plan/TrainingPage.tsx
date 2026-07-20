@@ -21,6 +21,7 @@ import {
 } from "./components/SkeletonLoading";
 import { useChessProfile } from "@/components/analysis/onboarding/useChessProfile";
 import { useProfileStore } from "../store/profile";
+import { usePlayPageStore } from "../store/playPage";
 import { useGameTypeSync } from "./store/gameTypeSync";
 import { useTutorial } from "@/components/TutorialProvider";
 
@@ -39,8 +40,20 @@ const ChessProgressionUI: React.FC = () => {
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [showConnectAccount, setShowConnectAccount] = useState(false);
   const states = ["My Training Plan", "My Progress"];
-  const { GameHistoryOpenings } = useApiClient();
+  const { GameHistoryOpenings, getLeaderboardMe } = useApiClient();
   const { sessionId } = useProfileStore();
+  // ELO shown on the plan comes from the leaderboard (same source as the
+  // play page top bar), not the training-plan profile; the store keeps the
+  // last value so it doesn't flash 0 while refetching.
+  const { leaderboardMe, setLeaderboardMe } = usePlayPageStore();
+
+  useEffect(() => {
+    if (!sessionId) return;
+    getLeaderboardMe()
+      .then((res: any) => { if (res?.data) setLeaderboardMe(res.data); })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
 
   const {
     setOpeningPlayed,
@@ -210,7 +223,8 @@ const ChessProgressionUI: React.FC = () => {
 
   const displayUsername =
     username || userProfile?.username || storeUserProfile?.username || "";
-  const displayElo = userProfile?.elo || storeUserProfile?.elo || 0;
+  const displayElo =
+    leaderboardMe?.elo || userProfile?.elo || storeUserProfile?.elo || 0;
   const displayAvatar = userProfile?.avatar || storeUserProfile?.avatar || "";
 
   return (

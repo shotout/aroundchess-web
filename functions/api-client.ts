@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
 
-type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
+type RequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 interface RequestOptions {
   method: RequestMethod;
@@ -228,6 +228,39 @@ export function useApiClient() {
       path: `${process.env.BASE_URL}/profile`,
     });
   }, [apiRequest]);
+
+  const updateProfileUsername = useCallback(
+    (body: { username: string }) => {
+      return apiRequest({
+        method: "PATCH",
+        path: `/api/profile/username`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+
+  const checkUsernameAvailability = useCallback(
+    (username: string) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/profile/username/check`,
+        params: { username },
+      });
+    },
+    [apiRequest]
+  );
+
+  const uploadProfilePicture = useCallback(
+    (formData: FormData) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/profile/picture`,
+        body: formData,
+      });
+    },
+    [apiRequest]
+  );
 
   const analyze = useCallback(
     (body: any) => {
@@ -711,6 +744,50 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+
+  const getStreakStatus = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/v4/streaks/status`,
+    });
+  }, [apiRequest]);
+
+  const recordStreakPlay = useCallback(() => {
+    return apiRequest({
+      method: "POST",
+      path: `${process.env.BASE_URL}/v4/streaks/record-play`,
+    });
+  }, [apiRequest]);
+
+  const postLeaderboardGameResult = useCallback(
+    (body: { game_id: string; used_hint: boolean }) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/v4/leaderboard/game-result`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+
+  const getLeaderboardData = useCallback(
+    (params?: { page?: number; limit?: number }) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/v4/leaderboard`,
+        ...(params ? { params } : {}),
+      });
+    },
+    [apiRequest]
+  );
+
+  const getLeaderboardMe = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/v4/leaderboard/me`,
+    });
+  }, [apiRequest]);
+
   return {
     isLoading,
     error,
@@ -724,6 +801,9 @@ export function useApiClient() {
     getAnalyticGame,
     setUsername,
     profile,
+    updateProfileUsername,
+    checkUsernameAvailability,
+    uploadProfilePicture,
     analyze,
     startGame,
     resignGame,
@@ -772,5 +852,10 @@ export function useApiClient() {
     contactUs,
     GameHistoryOpenings,
     checkoutSessions,
+    getStreakStatus,
+    recordStreakPlay,
+    postLeaderboardGameResult,
+    getLeaderboardData,
+    getLeaderboardMe,
   };
 }

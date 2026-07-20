@@ -10,7 +10,7 @@ export const GrandmastersSection: React.FC = () => {
             {/* Content Section */}
             <div className="lg:col-span-2 space-y-6">
               {/* Header with Badge */}
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex flex-col items-start sm:flex-row sm:items-center gap-2 sm:gap-4 mb-6">
                 <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-[14px] --sm lg:text-lg">
                   <Image
                     src="/images/homepage/piece.png"

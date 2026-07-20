@@ -93,22 +93,25 @@ const DeleteAccount = () => {
     <div className="flex flex-col gap-4">
       <div className="flex flex-row items-center justify-between border-0 border-b-2 border-b-[#C0CED4] pb-1"></div>
 
-      {/* Info box with fixed background opacity */}
-      <div className="flex border border-blue-500 bg-blue-50 bg-opacity-8 rounded-md p-3 items-center gap-x-2">
-        <Info className="w-5 h-5 text-blue-500" />
-        <h1 className="text-[13px] text-gray-700">
-          Please note that account deletion is permanent and cannot be undone.
-          Once your account is deleted, all of your data, activity history,
-          preferences, and Tokens cannot be recovered. Please make sure you are
-          absolutely certain before proceeding.
-        </h1>
-      </div>
+      {/* Info bar with the Delete Account trigger on the right */}
+      <div className="flex flex-col md:flex-row border border-blue-500 bg-blue-50 bg-opacity-8 rounded-[12px] p-3 md:px-4 items-center gap-3">
+        <div className="flex items-center gap-x-2 flex-1">
+          <Info className="w-5 h-5 text-blue-500 flex-shrink-0" />
+          <h1 className="text-[13px] text-gray-700">
+            Please note that account deletion is{" "}
+            <strong>permanent and cannot be undone</strong>. Once your account
+            is deleted, all of your data, activity history, preferences, and
+            Tokens cannot be recovered. Please make sure you are absolutely
+            certain before proceeding.
+          </h1>
+        </div>
 
-      <div className="flex justify-center items-center">
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <button className="rounded-full border border-[#C01B1B] px-16 py-2 hover:bg-red-50 transition-colors">
-              <h1 className="text-[#C01B1B] font-medium">Delete Account</h1>
+            <button className="rounded-full border border-[#C01B1B] bg-white px-12 py-2 hover:bg-red-50 transition-colors w-full md:w-auto flex-shrink-0">
+              <h1 className="text-[#C01B1B] font-medium whitespace-nowrap">
+                Delete Account
+              </h1>
             </button>
           </DialogTrigger>
 

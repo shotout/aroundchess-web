@@ -94,8 +94,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
 
   const handleDashboard = () => {
-    // Redirect to game history instead of analysis page
-    router.push("/my-game-history");
+    router.push("/play");
   };
 
   const handleLogout = async () => {
@@ -384,7 +383,7 @@ function MobileNav(props: mobileProps) {
     },
     {
       name: "Play & Practice",
-      href: "/play-practice",
+      href: "/play",
       icon: "/icons/sidebar-playground-practice-icon.png",
       iconActive: "/icons/sidebar-playground-practice-icon-active.png",
       children: [

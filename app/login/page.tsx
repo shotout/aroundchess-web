@@ -148,18 +148,22 @@ useEffect(() => {
             
             const userUsername =
               profileData.data?.username || profileData.username;
+            const userOnboardElo =
+              profileData.data?.onboard_elo ?? profileData.onboard_elo;
 
             if (userUsername && userUsername.trim() !== "") {
-              router.push("/my-game-history");
+              router.push("/playground/play-vs-ai");
+            } else if (!userOnboardElo) {
+              router.push("/chess-knowledge");
             } else {
-              router.push("/my-game-history");
+              router.push("/playground/play-vs-ai");
             }
           } else {
-            router.push("/my-game-history");
+            router.push("/playground/play-vs-ai");
           }
         } catch (profileError) {
           console.error("Error fetching profile:", profileError);
-          router.push("/my-game-history");
+          router.push("/playground/play-vs-ai");
         }
       } else {
         toast.error("No authentication token received");

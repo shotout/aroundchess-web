@@ -12,14 +12,19 @@ const nextConfig = {
     missingSuspenseWithCSRBailout: false,                                                                                                                                                                    
   },                                                                                                                                                                                                         
                                                                                                                                                                                                              
-  async redirects() {                                                                                                                                                                                        
-    return [                                                                                                                                                                                                 
-      {                                                                                                                                                                                                      
-        source: '/api/newsletter/unsubscribe',                                                                                                                                                               
-        destination: 'https://ac-socialmedia.vercel.app/api/newsletter/unsubscribe',                                                                                                                         
-        permanent: false,                                                                                                                                                                                    
-      },                                                                                                                                                                                                     
-    ]                                                                                                                                                                                                        
+  async redirects() {
+    return [
+      {
+        source: '/api/newsletter/unsubscribe',
+        destination: 'https://ac-socialmedia.vercel.app/api/newsletter/unsubscribe',
+        permanent: false,
+      },
+      {
+        source: '/play-practice',
+        destination: '/play',
+        permanent: true,
+      },
+    ]
   },                                                                                                                                                                                                         
                                                                                                                                                                                                              
   async headers() {                                                                                                                                                                                          

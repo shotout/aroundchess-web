@@ -1,7 +1,7 @@
 "use client";
 
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
-import GameHistoryPage from "@/components/game-history/GameHistoryPage";
+import GameHistoryPage from "@/components/v2/game-history-page";
 import Navigation from "@/components/navigator/navigation";
 import { usePgnStore } from "../store/zustandStore";
 import { useEffect } from "react";

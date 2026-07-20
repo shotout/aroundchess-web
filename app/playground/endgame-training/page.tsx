@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import Navigation from "@/components/navigator/navigation";
 import EndgameTrainingPage from "./EndgameTrainingPage";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { PracticePremiumGuard } from "@/components/v2/premium-lock-guard";
 
 export default function Page() {
   useEffect(() => {
@@ -11,6 +12,7 @@ export default function Page() {
     }, []);
   return (
     <div className="flex overflow-hidden bg-primary-white">
+      <PracticePremiumGuard />
       <div className="flex flex-col overflow-y-auto w-full">
         <Navigation>
           <div className="w-full flex h-auto justify-center items-center">
