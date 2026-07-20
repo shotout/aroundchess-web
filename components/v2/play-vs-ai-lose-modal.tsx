@@ -41,7 +41,7 @@ export function PlayVsAiLoseModal({
           <X className="w-6 h-6 sm:w-7 sm:h-7" />
         </button>
 
-        <div className="w-[68%] sm:w-[90%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none">
+        <div className="w-[68%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none">
           {animationData && (
             <Lottie
               animationData={animationData}
@@ -52,13 +52,13 @@ export function PlayVsAiLoseModal({
           )}
         </div>
 
-        <div className="px-[20px] sm:px-[36px] pb-[20px] sm:pb-[28px]">
-          <h2 className="text-center font-bold text-[24px] sm:text-[30px] text-[#DC2626] mt-[8px] sm:mt-[12px] mb-[10px] sm:mb-[14px]">
+        <div className="px-[20px] sm:px-[36px] pb-[20px] sm:pb-[28px] sm:[@media(max-height:920px)]:pb-[18px]">
+          <h2 className="text-center font-bold text-[24px] sm:text-[30px] text-[#DC2626] mt-[8px] sm:mt-[12px] mb-[10px] sm:mb-[14px] sm:[@media(max-height:920px)]:mt-[4px] sm:[@media(max-height:920px)]:mb-[8px]">
             You Lost
           </h2>
 
           {/* ELO pill + loss badge */}
-          <div className="flex items-center justify-center gap-[8px] sm:gap-[10px] mb-[14px] sm:mb-[20px]">
+          <div className="flex items-center justify-center gap-[8px] sm:gap-[10px] mb-[14px] sm:mb-[20px] sm:[@media(max-height:920px)]:mb-[12px]">
             <div className="flex items-center justify-between gap-[10px] sm:gap-[16px] bg-[#DC2626] rounded-[10px] pl-[14px] pr-[12px] sm:pl-[20px] sm:pr-[16px] py-[8px] sm:py-[10px] flex-1 min-w-0 max-w-[300px]">
               <span className="text-white font-semibold text-[14px] sm:text-[17px] whitespace-nowrap">
                 Your Current ELO
@@ -98,13 +98,13 @@ export function PlayVsAiLoseModal({
           <p className="text-center font-bold text-[15px] sm:text-[17px] text-[#111827]">
             Tough game!
           </p>
-          <p className="text-center text-[13px] sm:text-[15px] text-[#111827] mb-[12px] sm:mb-[18px]">
+          <p className="text-center text-[13px] sm:text-[15px] text-[#111827] mb-[12px] sm:mb-[18px] sm:[@media(max-height:920px)]:mb-[12px]">
             Ready to bounce back and try again?
           </p>
 
           <button
             onClick={onStartGame}
-            className="w-full py-[12px] sm:py-[14px] rounded-full bg-[#221AE9] text-white font-semibold text-[15px] sm:text-[16px] hover:bg-[#2d25ea] transition-colors"
+            className="w-full py-[12px] sm:py-[14px] sm:[@media(max-height:920px)]:py-[12px] rounded-full bg-[#221AE9] text-white font-semibold text-[15px] sm:text-[16px] hover:bg-[#2d25ea] transition-colors"
           >
             Start Game
           </button>

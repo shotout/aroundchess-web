@@ -11,9 +11,10 @@ interface PlayVsAiTopStatsProps {
 
 function toOrdinal(n: number): string {
   if (n <= 0) return "—";
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  // Product rule: only the top three ranks get st/nd/rd — every other rank
+  // is plain "th" (4th, 21th, 10002th), per design.
+  const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
+  return n + suffix;
 }
 
 function StatItem({

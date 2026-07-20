@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { useProfileStore } from "@/app/store/profile";
+import { useHasPlayedToday } from "@/app/store/streak";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
 
@@ -20,9 +21,10 @@ interface PlayTopBarProps {
 
 function toOrdinal(n: number): string {
   if (n <= 0) return "—";
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  // Product rule: only the top three ranks get st/nd/rd — every other rank
+  // is plain "th" (4th, 21th, 10002th), per design.
+  const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
+  return n + suffix;
 }
 
 function StatItem({
@@ -168,7 +170,7 @@ export function PlayGreeting() {
       {/* Greeting row — mobile only */}
       <div className="sm:hidden flex items-center gap-[12px]">
         <span className="text-[16px] text-[#111827]">
-          Hello, <span className="font-bold">{username}</span>
+          Hello <span className="font-bold">{username},</span>
         </span>
         <Link
           href="/profile"
@@ -182,9 +184,19 @@ export function PlayGreeting() {
 
       {/* Greeting row — desktop only */}
       <div className="hidden sm:flex items-center justify-between">
-        <span className="text-[18px] text-[#111827]">
-          Hello, <span className="font-bold">{username}</span>
-        </span>
+        <div className="flex items-center gap-[12px]">
+          <span className="text-[18px] text-[#111827]">
+            Hello <span className="font-bold">{username},</span>
+          </span>
+          <Link
+            href="/profile"
+            aria-label="Edit profile"
+            className="flex items-center gap-[6px] border border-[#221AE9] text-[#221AE9] rounded-lg px-[14px] py-[5px] text-[14px] font-semibold hover:bg-[#221AE9]/5 transition-colors"
+          >
+            <Pencil size={14} />
+            Edit
+          </Link>
+        </div>
         <button
           onClick={() => setShowEloModal(true)}
           className="flex items-center gap-[6px] text-[#221AE9] font-medium text-[14px] hover:underline"
@@ -205,6 +217,9 @@ export function PlayGreeting() {
 
 export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining, isInactive }: PlayTopBarProps) {
   const [showEloModal, setShowEloModal] = useState(false);
+  // Flame lights up only when today's game is played — same rule as the
+  // streak status modal's on/off flame.
+  const hasPlayedToday = useHasPlayedToday();
 
   const isUp = movedUp !== null && movedUp > 0;
   const isDown = movedUp !== null && movedUp < 0;
@@ -296,7 +311,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
               aria-label="Show day streak"
             >
               <Image
-                src={streak > 0 ? "/images/v2/sidebar/mode_heat_on.png" : "/images/v2/sidebar/mode_heat.png"}
+                src={hasPlayedToday ? "/images/v2/sidebar/mode_heat_on.png" : "/images/v2/sidebar/mode_heat.png"}
                 alt="streak"
                 width={32}
                 height={38}

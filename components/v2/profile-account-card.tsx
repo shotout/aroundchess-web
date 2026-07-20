@@ -19,7 +19,7 @@ import { supabase } from "@/lib/supabase";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import ChangePasswordDialog from "@/components/profile/ChangePasswordDialog";
 import ProfileAvatarUpload from "@/components/v2/profile-avatar-upload";
-import InitialAvatar from "@/components/avatar/InitialAvatar";
+import { PieceAvatar, pieceAvatarColor } from "@/components/v2/piece-avatar";
 import { toast } from "sonner";
 import { ChessApiService } from "@/components/analysis/onboarding/store/APIService";
 import { usePlayerStatsStore } from "@/components/analysis/onboarding/store/usePlayerStatsStore";
@@ -262,6 +262,8 @@ const ProfileAccountCard = ({
   };
 
   const displayName = profile?.username || username || "";
+  // Seeds the pawn fallback's "random" background so it stays stable per user
+  const avatarSeed = displayName || profile?.email || "user";
   const selectedGameData = gameTypesData.find(
     (game) => game.game_type === selectedGameType
   );
@@ -280,13 +282,19 @@ const ProfileAccountCard = ({
             showEditBadge
             className="w-[80px] h-[80px] rounded-full border-2 border-[#221AE9] bg-[#E6F7FE]"
             fallback={
-              <Image
-                src="/icons/pawn-icon-alt-black.png"
-                alt="Profile avatar"
-                width={48}
-                height={48}
-                className="object-contain"
-              />
+              <div
+                className={`w-full h-full flex items-center justify-center ${pieceAvatarColor(
+                  avatarSeed
+                )}`}
+              >
+                <Image
+                  src="/images/v2/profile/pieces.png"
+                  alt="Profile avatar"
+                  width={34}
+                  height={44}
+                  className="w-[34px] h-[44px] object-contain"
+                />
+              </div>
             }
           />
           <div className="flex flex-col">
@@ -320,9 +328,10 @@ const ProfileAccountCard = ({
                 onError={() => setAvatarFailed(true)}
               />
             ) : (
-              <InitialAvatar
-                name={displayName || "Anonymous"}
-                className="w-[40px] h-[40px] shrink-0"
+              <PieceAvatar
+                seed={avatarSeed}
+                className="w-[40px] h-[40px]"
+                pieceClassName="w-[17px] h-[22px]"
               />
             )}
             <div className="flex flex-col min-w-0">
@@ -350,13 +359,19 @@ const ProfileAccountCard = ({
             showEditBadge
             className="w-[96px] h-[96px] rounded-full border-2 border-[#221AE9] bg-[#E6F7FE]"
             fallback={
-              <Image
-                src="/icons/pawn-icon-alt-black.png"
-                alt="Profile avatar"
-                width={56}
-                height={56}
-                className="object-contain"
-              />
+              <div
+                className={`w-full h-full flex items-center justify-center ${pieceAvatarColor(
+                  avatarSeed
+                )}`}
+              >
+                <Image
+                  src="/images/v2/profile/pieces.png"
+                  alt="Profile avatar"
+                  width={40}
+                  height={52}
+                  className="w-[40px] h-[52px] object-contain"
+                />
+              </div>
             }
           />
         </div>

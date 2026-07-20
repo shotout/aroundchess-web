@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { PieceAvatar } from "@/components/v2/piece-avatar";
 
 export interface LeaderboardEntry {
   rank: number;
@@ -9,26 +11,25 @@ export interface LeaderboardEntry {
   score: number;
   rankChange?: number | null;
   isMe?: boolean;
+  /** profile picture URL; users without one get the pawn fallback avatar */
+  avatarUrl?: string | null;
 }
 
 interface LeaderboardListProps {
   entries: LeaderboardEntry[];
   myRank: number;
   isLoading?: boolean;
+  /** Infinite scroll: whether more pages can be fetched. */
+  hasMore?: boolean;
+  /** Infinite scroll: a next page is currently being fetched. */
+  isLoadingMore?: boolean;
+  /** Infinite scroll: called when the user scrolls near the bottom. */
+  onLoadMore?: () => void;
 }
 
-const AVATAR_COLORS = [
-  "bg-[#F5A623]",
-  "bg-[#4FA3E3]",
-  "bg-[#E0507A]",
-  "bg-[#5B6CF0]",
-  "bg-[#2FAE60]",
-  "bg-[#B5651D]",
-  "bg-[#9CA3AF]",
-  "bg-[#374151]",
-  "bg-[#3B82F6]",
-  "bg-[#6B7280]",
-];
+// The signed-in user's own row when they have no picture — same trophy
+// avatar the play page uses for "You".
+const MY_FALLBACK_AVATAR = "/images/homepage/v2/homepage_board_asset_4.png";
 
 const RANK_BADGE_ICON: Record<number, string> = {
   1: "/images/v2/leaderboard/1.png",
@@ -36,16 +37,24 @@ const RANK_BADGE_ICON: Record<number, string> = {
   3: "/images/v2/leaderboard/3.png",
 };
 
-function UserAvatar({ index }: { index: number }) {
-  const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
-  return (
-    <div className={`w-[32px] h-[32px] rounded-full shrink-0 flex items-center justify-center ${color}`}>
-      <svg viewBox="0 0 24 24" fill="none" className="w-[16px] h-[16px]">
-        <circle cx="12" cy="8" r="4" fill="white" fillOpacity="0.9" />
-        <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="white" fillOpacity="0.9" />
-      </svg>
-    </div>
-  );
+function UserAvatar({ entry, index }: { entry: LeaderboardEntry; index: number }) {
+  const [failed, setFailed] = useState(false);
+  const src = entry.avatarUrl && !failed ? entry.avatarUrl : entry.isMe ? MY_FALLBACK_AVATAR : null;
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={entry.username}
+        className="w-[32px] h-[32px] rounded-full object-cover shrink-0"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+  // Placeholder "[Username]" rows all share one name — seed by row instead
+  // so the mock list still shows varied colors like the real one.
+  const seed = entry.username === "[Username]" ? `u${index}` : entry.username;
+  return <PieceAvatar seed={seed} className="w-[32px] h-[32px]" pieceClassName="w-[14px] h-[18px]" />;
 }
 
 function RankChange({ value }: { value?: number | null }) {
@@ -95,7 +104,7 @@ function Row({ entry, index }: { entry: LeaderboardEntry; index: number }) {
     >
       <RankChange value={entry.rankChange} />
       <RankBadge rank={entry.rank} />
-      <UserAvatar index={index} />
+      <UserAvatar entry={entry} index={index} />
       <span className="flex-1 min-w-0 truncate text-[13px] sm:text-[14px] font-semibold text-[#111827]">
         {entry.username}
       </span>
@@ -116,7 +125,37 @@ function SkeletonRow() {
   );
 }
 
-export function LeaderboardList({ entries, myRank, isLoading }: LeaderboardListProps) {
+export function LeaderboardList({
+  entries,
+  myRank,
+  isLoading,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
+}: LeaderboardListProps) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  // Keep the latest callback in a ref so the observer isn't re-created on
+  // every render (loadMore's identity changes with its deps).
+  const onLoadMoreRef = useRef(onLoadMore);
+  onLoadMoreRef.current = onLoadMore;
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (observed) => {
+        if (observed.some((e) => e.isIntersecting)) onLoadMoreRef.current?.();
+      },
+      // Start fetching one screen early so new rows are ready before the
+      // user reaches the bottom — keeps the scroll feeling seamless.
+      { root: scrollRef.current, rootMargin: "200px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore]);
+
   return (
     <div className="w-full sm:w-[70%] mx-auto bg-white sm:bg-white/40 rounded-[20px] shadow-xl p-3 sm:p-4">
       <div className="flex items-center justify-center gap-[8px] px-[4px] sm:px-[6px] pb-[10px]">
@@ -143,7 +182,10 @@ export function LeaderboardList({ entries, myRank, isLoading }: LeaderboardListP
         </span>
       </div>
 
-      <div className="leaderboard-scrollbar flex flex-col gap-0 sm:gap-[8px] mt-[10px] max-h-[420px] overflow-y-auto pl-[2px] pr-[10px] py-[2px]">
+      <div
+        ref={scrollRef}
+        className="leaderboard-scrollbar flex flex-col gap-0 sm:gap-[8px] mt-[10px] max-h-[420px] overflow-y-auto pl-[2px] pr-[10px] py-[2px]"
+      >
         {isLoading ? (
           <>
             <SkeletonRow />
@@ -153,7 +195,19 @@ export function LeaderboardList({ entries, myRank, isLoading }: LeaderboardListP
         ) : entries.length === 0 ? (
           <p className="text-[13px] text-[#6B7280] py-[32px] text-center">No leaderboard data yet.</p>
         ) : (
-          entries.map((entry, index) => <Row key={`${entry.rank}-${entry.username}`} entry={entry} index={index} />)
+          <>
+            {entries.map((entry, index) => (
+              <Row key={`${entry.rank}-${entry.username}`} entry={entry} index={index} />
+            ))}
+            {isLoadingMore && (
+              <>
+                <SkeletonRow />
+                <SkeletonRow />
+              </>
+            )}
+            {/* Invisible sentinel — scrolling it into view loads the next page. */}
+            {hasMore && <div ref={sentinelRef} className="h-px shrink-0" aria-hidden />}
+          </>
         )}
       </div>
     </div>

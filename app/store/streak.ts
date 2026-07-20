@@ -22,6 +22,12 @@ interface StreakState {
   setHydrated: () => void;
 }
 
+/** Whether today's game has already been played — drives the lit/unlit
+ * flame on the streak badges (sidebar, header, play top bar) so they match
+ * the status modal's on/off flame logic. */
+export const useHasPlayedToday = () =>
+  useStreakStore((s) => s.lastPlayDate === getLocalDateStamp());
+
 export const useStreakStore = create<StreakState>()(
   persist(
     (set) => ({

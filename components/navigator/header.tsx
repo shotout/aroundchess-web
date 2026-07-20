@@ -20,6 +20,7 @@ import { useUserStore } from "@/app/training-plan/store";
 import { useApiClient } from "@/functions/api-client";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
+import { useHasPlayedToday } from "@/app/store/streak";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -32,6 +33,9 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { token: tokenBalance, isMember, isMemberMonthly, sessionId, profile } = useProfileStore();
   const { streak, setStreak } = usePlayPageStore();
+  // Flame lights up only when today's game is played — same rule as the
+  // streak status modal's on/off flame.
+  const hasPlayedToday = useHasPlayedToday();
   // const { profile } = useUserStore();
   const { isLoading, getStreakStatus } = useApiClient();
 
@@ -298,7 +302,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
               aria-label="Show day streak"
             >
               <Image
-                src={streak > 0 ? "/images/v2/sidebar/mode_heat_on.png" : "/images/v2/sidebar/mode_heat.png"}
+                src={hasPlayedToday ? "/images/v2/sidebar/mode_heat_on.png" : "/images/v2/sidebar/mode_heat.png"}
                 alt="streak"
                 width={28}
                 height={34}

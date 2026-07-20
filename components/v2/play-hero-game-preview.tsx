@@ -1,17 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { useState } from "react";
 import { HeroPlayVSAIPreview } from "./hero-play-vs-ai-preview";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
+
+// Same fallback the leaderboard uses for the signed-in user's own row when
+// they have no profile picture.
+const MY_FALLBACK_AVATAR = "/images/homepage/v2/homepage_board_asset_4.png";
 
 export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommendedListHeightClass?: string }) {
   const { profile } = useProfileStore();
   const { leaderboard } = usePlayPageStore();
   const username = profile?.username || profile?.name || "User";
   const elo = leaderboard?.my_elo ?? 0;
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const avatarSrc =
+    profile?.imageUrl && !avatarFailed ? profile.imageUrl : MY_FALLBACK_AVATAR;
 
   return (
     <div data-tour-anchor="playground-hero" className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
@@ -39,12 +45,12 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
           className="w-full h-auto"
         />
         <div className="flex items-center justify-left gap-2 pt-2 sm:pt-2 border-t-2 mt-auto">
-          <Image
-            src="/images/homepage/v2/homepage_board_asset_4.png"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={avatarSrc}
             alt={username}
-            width={86}
-            height={88}
             className="w-[48px] h-[48px] rounded-full object-cover shrink-0"
+            onError={() => setAvatarFailed(true)}
           />
           <div className="flex flex-col leading-tight min-w-0">
             <span className="font-bold text-[clamp(14px,1.4vw,18px)] text-[#040404] truncate">
@@ -54,13 +60,6 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
               ELO {elo}
             </span>
           </div>
-          <Link
-            href="/profile"
-            aria-label="Edit profile"
-            className="ml-auto w-8 h-8 rounded-full border border-[#81CFF3] text-blue-base flex items-center justify-center hover:bg-blue-base/5 transition-colors shrink-0"
-          >
-            <Pencil size={14} />
-          </Link>
         </div>
       </div>
 

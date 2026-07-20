@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Navigation from "@/components/navigator/navigation";
 import { LeaderboardTopStats } from "@/components/v2/leaderboard-top-stats";
 import { LeaderboardList, type LeaderboardEntry } from "@/components/v2/leaderboard-list";
@@ -13,6 +13,10 @@ import { usePlayPageStore } from "@/app/store/playPage";
 import { useApiClient } from "@/functions/api-client";
 
 const PLACEHOLDER_SCORES = [2710, 2680, 2680, 2680, 2680, 2710, 2680, 2680, 2680, 2680];
+
+// Leaderboard rows are fetched in pages of this size and appended as the
+// user scrolls (infinite scroll) instead of loading the whole list at once.
+const PAGE_SIZE = 20;
 
 function buildPlaceholderEntries(myRank: number, myElo: number, myUsername: string): LeaderboardEntry[] {
   return PLACEHOLDER_SCORES.map((score, i) => {
@@ -41,28 +45,56 @@ export function LeaderboardPage() {
   } = usePlayPageStore();
   const [isLoading, setIsLoading] = useState(true);
   const [showJoinModal, setShowJoinModal] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const pageRef = useRef(1);
+  // Single-flight guard so a fast scroll can't fire overlapping page fetches.
+  const fetchingMoreRef = useRef(false);
+
+  const mapEntries = useCallback(
+    (list: any[], myRank: number | null, offset: number) =>
+      list.map((item: any, i: number) => {
+        const isMe =
+          item.is_me ?? item.isMe ?? (myRank !== null && item.rank === myRank);
+        return {
+          rank: item.rank ?? offset + i + 1,
+          username: item.username ?? item.name ?? "[Username]",
+          score: item.score ?? item.elo ?? 0,
+          rankChange: item.rank_change ?? item.rankChange ?? null,
+          isMe,
+          avatarUrl:
+            item.image_url ??
+            item.imageUrl ??
+            item.avatar_url ??
+            item.avatar ??
+            item.profile_picture ??
+            (isMe ? profile?.imageUrl ?? null : null),
+        };
+      }),
+    [profile?.imageUrl]
+  );
+
+  const extractList = (data: any): any[] | null => {
+    const list =
+      data?.entries ?? data?.leaderboard ?? data?.players ?? data?.list ?? null;
+    return Array.isArray(list) ? list : null;
+  };
 
   useEffect(() => {
     if (!sessionId) return;
 
-    getLeaderboardData()
+    getLeaderboardData({ page: 1, limit: PAGE_SIZE })
       .then((data: any) => {
         if (!data?.success) return;
         if (data.data) setLeaderboard(data.data);
 
-        const list =
-          data.data?.entries ?? data.data?.leaderboard ?? data.data?.players ?? data.data?.list ?? null;
+        const list = extractList(data.data);
         const myRank = data.data?.my_rank ?? null;
-        if (Array.isArray(list) && list.length > 0) {
-          setLeaderboardEntries(
-            list.map((item: any, i: number) => ({
-              rank: item.rank ?? i + 1,
-              username: item.username ?? item.name ?? "[Username]",
-              score: item.score ?? item.elo ?? 0,
-              rankChange: item.rank_change ?? item.rankChange ?? null,
-              isMe: item.is_me ?? item.isMe ?? (myRank !== null && item.rank === myRank),
-            }))
-          );
+        if (list && list.length > 0) {
+          setLeaderboardEntries(mapEntries(list, myRank, 0));
+          pageRef.current = 1;
+          // A short first page means there's nothing further to fetch.
+          setHasMore(list.length >= PAGE_SIZE);
         }
       })
       .catch(() => {})
@@ -71,7 +103,48 @@ export function LeaderboardPage() {
     getLeaderboardMe()
       .then((res: any) => { if (res?.data) setLeaderboardMe(res.data); })
       .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
+
+  const loadMore = useCallback(() => {
+    if (fetchingMoreRef.current || !hasMore || isLoading) return;
+    fetchingMoreRef.current = true;
+    setIsLoadingMore(true);
+
+    const nextPage = pageRef.current + 1;
+    getLeaderboardData({ page: nextPage, limit: PAGE_SIZE })
+      .then((data: any) => {
+        if (!data?.success) {
+          setHasMore(false);
+          return;
+        }
+        const list = extractList(data.data);
+        if (!list || list.length === 0) {
+          setHasMore(false);
+          return;
+        }
+        const current = usePlayPageStore.getState().leaderboardEntries ?? [];
+        const myRank = data.data?.my_rank ?? null;
+        const mapped = mapEntries(list, myRank, current.length);
+        // Dedupe by rank — also stops the scroll if the backend ignores the
+        // page param and keeps returning the same rows.
+        const seen = new Set(current.map((e) => e.rank));
+        const fresh = mapped.filter((e) => !seen.has(e.rank));
+        if (fresh.length === 0) {
+          setHasMore(false);
+          return;
+        }
+        setLeaderboardEntries([...current, ...fresh]);
+        pageRef.current = nextPage;
+        if (list.length < PAGE_SIZE) setHasMore(false);
+      })
+      .catch(() => {})
+      .finally(() => {
+        fetchingMoreRef.current = false;
+        setIsLoadingMore(false);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore, isLoading, mapEntries]);
 
   const username = profile?.username || profile?.name || "You";
   const myElo = leaderboard?.my_elo ?? 0;
@@ -147,6 +220,9 @@ export function LeaderboardPage() {
                 entries={displayedEntries}
                 myRank={myRank}
                 isLoading={isLoading && (!leaderboardEntries || leaderboardEntries.length === 0)}
+                hasMore={hasMore}
+                isLoadingMore={isLoadingMore}
+                onLoadMore={loadMore}
               />
 
               <div className="pt-4"><LeaderboardNextGame userElo={myElo} /></div>

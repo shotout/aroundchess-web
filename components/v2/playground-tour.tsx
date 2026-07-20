@@ -20,6 +20,7 @@ import { preloadLottie, useLottieData } from "@/components/v2/hooks/useLottieDat
 import { pickRecommendedOpponents } from "@/components/v2/play-vs-ai-roster-data";
 import { openDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
 import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
+import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 
 // Interactive remake of the playground tutorial video (tutorial.json).
 // Fully self-contained: renders in a portal above everything (win/lose
@@ -28,7 +29,7 @@ import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
 
 const WIN_LOTTIE = "/images/v2/play-vs-ai/WON.min.json";
 const LOSE_LOTTIE = "/images/v2/play-vs-ai/LOSE.min.json";
-const BOARD_IMG = "/images/homepage/v2/homepage_board_asset_2.png";
+const FINALE_IMG = "/images/v2/tutorial/chessboard.png";
 
 const DONE_KEY = "ac_playground_tour_done_v1";
 
@@ -233,7 +234,7 @@ function DemoWinCard() {
   const opponents = useMemo(() => pickRecommendedOpponents(400), []);
   return (
     <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden select-none pointer-events-none">
-      <div className="w-[64%] mx-auto aspect-[540/400] max-h-[24vh]">
+      <div className="w-[64%] mx-auto aspect-[540/400] max-h-[24vh] [@media(max-height:920px)]:max-h-[16vh]">
         {animationData && (
           <Lottie
             animationData={animationData}
@@ -318,7 +319,7 @@ function DemoLoseCard() {
   const animationData = useLottieData(LOSE_LOTTIE);
   return (
     <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden select-none pointer-events-none">
-      <div className="w-[72%] mx-auto aspect-[540/400] max-h-[26vh]">
+      <div className="w-[72%] mx-auto aspect-[540/400] max-h-[26vh] [@media(max-height:920px)]:max-h-[18vh]">
         {animationData && (
           <Lottie
             animationData={animationData}
@@ -370,23 +371,8 @@ function DemoLoseCard() {
   );
 }
 
-/* ------------------- scripted demo game (chess.js) ---------------------- */
-// Scholar's mate — short, dramatic, and ends in a win: the interlude plays it
-// on the page's board, and the analysis demo reviews it from the loser's side.
-const DEMO_GAME_MOVES = ["e4", "e5", "Qh5", "Nc6", "Bc4", "Nf6", "Qxf7#"];
-
-type DemoFrame = { fen: string; from: string | null; to: string | null };
-
-function buildDemoFrames(): DemoFrame[] {
-  const chess = new Chess();
-  const frames: DemoFrame[] = [{ fen: chess.fen(), from: null, to: null }];
-  for (const san of DEMO_GAME_MOVES) {
-    const mv = chess.move(san);
-    frames.push({ fen: chess.fen(), from: mv?.from ?? null, to: mv?.to ?? null });
-  }
-  return frames;
-}
-
+/* ---------------------- demo positions (chess.js) ----------------------- */
+// The analysis demo reviews a scholar's-mate loss from Black's side.
 function fenAfter(moves: string[]): string {
   const chess = new Chess();
   for (const san of moves) chess.move(san);
@@ -409,34 +395,91 @@ const arrow = (from: string, to: string, color: string) => ({
 const BAD_ARROW = "rgba(239, 68, 68, 0.5)";
 const GOOD_ARROW = "rgba(34, 197, 94, 0.5)";
 
-/* -------------------- gameplay interlude (step 2 -> 3) ------------------ */
-// Plays the scripted game directly over the page's static board image so the
-// chessboard "comes alive" before the You Won step, like in the video.
+/* -------------------- won-board interlude (step 2 -> 3) ----------------- */
+// Shows a decisive winning position on the spotlighted page board for a
+// moment before the You Won step — White's queen dominating with Black
+// reduced to bare pawns.
+
+const WON_FEN = "8/p7/5Q2/2p5/1p6/1P6/2P5/4K3 w - - 0 1";
+const INTERLUDE_HOLD_MS = 1000;
+
+// Captured rows matching WON_FEN: Black is down to three pawns, White gave up
+// both rooks, bishops, knights and six pawns on the way to the win.
+const CAPTURED_BLACK = ["bK", "bQ", "bB", "bB", "bN", "bN", "bR", "bR", "bP", "bP", "bP", "bP", "bP"];
+const CAPTURED_WHITE = ["wB", "wB", "wN", "wN", "wR", "wR", "wP", "wP", "wP", "wP", "wP", "wP"];
+
+// Win/lose player bars drawn over the preview card's own bars during the
+// interlude — same colors and captured-piece treatment as the real game's
+// BlackPlayer/WhitePlayer rows, with the pieces popping in one by one.
+function InterludeCaptureBar({ rect, variant }: { rect: Rect; variant: "lost" | "won" }) {
+  const { PieceChoosed } = useChessBoardThemeStore();
+  const lost = variant === "lost";
+  const icons = lost ? CAPTURED_BLACK : CAPTURED_WHITE;
+  const pieceH = Math.max(18, Math.min(34, Math.round(rect.height * 0.52)));
+  const avatarS = Math.max(28, Math.min(48, Math.round(rect.height * 0.72)));
+  return (
+    <div
+      className="fixed pointer-events-none"
+      style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
+    >
+      <div
+        className={`w-full h-full flex items-center justify-between gap-2 rounded-[8px] border px-[12px] ${
+          lost ? "border-[#FD0000] bg-[#FFDFDF]" : "border-[#00B427] bg-[#E9F8EC]"
+        }`}
+      >
+        <div className="flex items-center gap-[10px] min-w-0">
+          <Image
+            src={lost ? "/play-vs-ai/lisa.png" : "/images/homepage/v2/homepage_board_asset_4.png"}
+            alt={lost ? "Lisa" : "You"}
+            width={96}
+            height={96}
+            className="rounded-full object-cover shrink-0"
+            style={{ width: avatarS, height: avatarS }}
+          />
+          <div className="flex flex-col leading-tight min-w-0">
+            <span
+              className={`font-bold text-[14px] sm:text-[16px] truncate ${
+                lost ? "text-[#FD0000]" : "text-[#040404]"
+              }`}
+            >
+              {lost ? "Lisa" : "You"}
+            </span>
+            <span className="text-[11px] sm:text-[13px] text-[#6B7280]">
+              {lost ? "ELO 250" : "ELO 400"}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center shrink-0">
+          {icons.map((icon, i) => (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, scale: 0.4 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 + i * 0.03, duration: 0.18 }}
+              className={icon === icons[i + 1] ? "-mr-2" : ""}
+            >
+              <Image
+                src={`/pieces/${PieceChoosed}/${icon}.png`}
+                alt={icon}
+                width={40}
+                height={52}
+                className="object-contain inline-block"
+                style={{ width: "auto", height: pieceH }}
+              />
+            </motion.span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function InterludeBoard({ rect, onDone }: { rect: Rect; onDone: () => void }) {
-  const frames = useMemo(buildDemoFrames, []);
-  const [frame, setFrame] = useState(0);
-  const last = frames.length - 1;
-  const showHint = frame === last - 1; // green arrow before the winning move
-
   useEffect(() => {
-    const delay =
-      frame === 0 ? 900 : frame === last - 1 ? 1700 : frame === last ? 1600 : 850;
-    const t = setTimeout(() => {
-      if (frame >= last) onDone();
-      else setFrame((f) => f + 1);
-    }, delay);
+    const t = setTimeout(onDone, INTERLUDE_HOLD_MS);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frame, last]);
-
-  const current = frames[frame];
-  const squareStyles: Record<string, React.CSSProperties> = {};
-  if (current.from) squareStyles[current.from] = { background: "#F5F682" };
-  if (current.to)
-    squareStyles[current.to] = {
-      background: frame === last ? "rgba(239, 68, 68, 0.45)" : "#B9E67B",
-    };
+  }, []);
 
   return (
     <div
@@ -449,22 +492,15 @@ function InterludeBoard({ rect, onDone }: { rect: Rect; onDone: () => void }) {
           arePiecesDraggable={false}
           boardWidth={rect.width}
           orientation="white"
-          position={current.fen}
+          position={WON_FEN}
           onPromotionPieceSelect={() => false}
           promotionToSquare={null}
           showPromotionDialog={false}
-          customSquareStyles={squareStyles}
+          customSquareStyles={{}}
           customArrows={[]}
           areArrowsAllowed={false}
           customArrowColor=""
         />
-        {showHint && (
-          <CustomChessArrows
-            arrows={[arrow("h5", "f7", GOOD_ARROW)]}
-            boardSize={rect.width}
-            orientation="white"
-          />
-        )}
       </div>
     </div>
   );
@@ -569,21 +605,64 @@ function DemoSlideBoard({
   );
 }
 
+// Matches short viewports (14" laptops) so the demo cards can compact
+// themselves; 24"/27" screens never match and keep the original layout.
+function useShortViewport() {
+  const [short, setShort] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-height: 920px)");
+    const update = () => setShort(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return short;
+}
+
 // Mini replica of the real Game Analysis modal (GameAnalysis.tsx): same card
 // deck swipe (Swiper cards effect), same slide layout, auto-playing.
 function DemoAnalyzeCard() {
   const swiperRef = useRef<SwiperType>();
   const [activeIndex, setActiveIndex] = useState(0);
-  const BOARD_W = 225;
+  const shortViewport = useShortViewport();
+  const BOARD_W = shortViewport ? 190 : 225;
 
+  // Auto-advance staged as a fake finger drag: translate frames are fed to
+  // the swiper by hand (the cards effect rotates the top card exactly like a
+  // real drag), then slideNext() releases it with momentum. activeIndex only
+  // flips on release, same as a genuine swipe.
   useEffect(() => {
+    let raf = 0;
+    const DRAG_MS = 450;
+    const dragAway = (swiper: SwiperType) => {
+      const from = swiper.translate;
+      const dist = swiper.width * 0.5;
+      let t0: number | null = null;
+      // present at runtime, missing from swiper v12's public typings
+      (swiper as unknown as { setTransition(ms: number): void }).setTransition(0);
+      const step = (now: number) => {
+        if (swiper.destroyed) return;
+        if (t0 === null) t0 = now;
+        const p = Math.min(1, (now - t0) / DRAG_MS);
+        // easeInOutQuad: the "finger" starts gently, pulls, then slows
+        const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        swiper.setTranslate(from - dist * eased);
+        if (p < 1) raf = requestAnimationFrame(step);
+        else swiper.slideNext(340);
+      };
+      raf = requestAnimationFrame(step);
+    };
+
     const t = setInterval(() => {
       const swiper = swiperRef.current;
-      if (!swiper) return;
-      if (swiper.activeIndex >= DEMO_MISTAKES.length - 1) swiper.slideTo(0);
-      else swiper.slideNext();
+      if (!swiper || swiper.destroyed) return;
+      if (swiper.activeIndex >= DEMO_MISTAKES.length - 1) swiper.slideTo(0, 650);
+      else dragAway(swiper);
     }, 3000);
-    return () => clearInterval(t);
+    return () => {
+      clearInterval(t);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   return (
@@ -728,11 +807,11 @@ function FinaleCard({ onPrev, onDone }: { onPrev: () => void; onDone: () => void
         You&apos;re All Set!
       </div>
       <Image
-        src={BOARD_IMG}
+        src={FINALE_IMG}
         alt="Ready to play"
-        width={525}
-        height={525}
-        className="w-[64%] mx-auto h-auto rounded-[8px] mt-[6px]"
+        width={991}
+        height={640}
+        className="w-[80%] mx-auto h-auto rounded-[8px] mt-[6px]"
       />
       <p className="text-center font-bold text-[17px] text-[#111827] mt-[14px]">
         Everything&apos;s ready!
@@ -776,18 +855,40 @@ export function PlaygroundTour({
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null); // primary anchor (tooltip)
   const [spot, setSpot] = useState<Rect | null>(null); // spotlight union (hole)
-  // gameplay interlude between step 2 and step 3, played on the page's board
+  // won-board interlude between step 2 and step 3, shown on the page's board
   const [interlude, setInterlude] = useState(false);
   const [boardImgRect, setBoardImgRect] = useState<Rect | null>(null);
+  const [topBarRect, setTopBarRect] = useState<Rect | null>(null);
+  const [bottomBarRect, setBottomBarRect] = useState<Rect | null>(null);
   const [viewport, setViewport] = useState<Viewport>({ vw: 0, vh: 0 });
   const rectRef = useRef<Rect | null>(null);
   const spotRef = useRef<Rect | null>(null);
   const boardImgRef = useRef<Rect | null>(null);
+  const topBarRef = useRef<Rect | null>(null);
+  const bottomBarRef = useRef<Rect | null>(null);
+  // true when this open is the browser's first-ever tour run (drives the
+  // one-time day-streak greeting on close)
+  const firstRunRef = useRef(false);
 
   const step = interlude ? undefined : (STEPS[index] as TourStep | undefined); // undefined on finale/interlude
   const anchored = !!step?.anchors;
 
   useEffect(() => setMounted(true), []);
+
+  // Opens the tour. The seen flag is stamped immediately — not on finish —
+  // so a mid-tour refresh doesn't restart it: the tour auto-runs exactly once
+  // per new user (sign-up onboarding clears the flag), and replays happen
+  // only via ?tour=playground or the manual trigger.
+  const begin = () => {
+    try {
+      if (!localStorage.getItem(DONE_KEY)) firstRunRef.current = true;
+      localStorage.setItem(DONE_KEY, "1");
+    } catch {}
+    setIndex(0);
+    setOpen(true);
+    preloadLottie(WIN_LOTTIE);
+    preloadLottie(LOSE_LOTTIE);
+  };
 
   // Auto-start once per user; ?tour=playground forces a replay.
   useEffect(() => {
@@ -805,48 +906,38 @@ export function PlaygroundTour({
     } catch {
       return;
     }
-    const t = setTimeout(() => {
-      setIndex(0);
-      setOpen(true);
-      preloadLottie(WIN_LOTTIE);
-      preloadLottie(LOSE_LOTTIE);
-    }, 700);
+    const t = setTimeout(begin, 700);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, autoStart]);
 
   // The gate mounts this chunk in response to a manual trigger that already
   // fired — open right away instead of re-checking auto-start conditions.
   useEffect(() => {
     if (!mounted || !forceStart) return;
-    setIndex(0);
-    setOpen(true);
-    preloadLottie(WIN_LOTTIE);
-    preloadLottie(LOSE_LOTTIE);
+    begin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, forceStart]);
 
   // Manual trigger hook (window event + console helper).
   useEffect(() => {
     if (!mounted) return;
-    const start = () => {
-      setIndex(0);
-      setOpen(true);
-      preloadLottie(WIN_LOTTIE);
-      preloadLottie(LOSE_LOTTIE);
-    };
+    const start = () => begin();
     window.addEventListener(PLAYGROUND_TOUR_EVENT, start);
     window.__startPlaygroundTour = start;
     return () => {
       window.removeEventListener(PLAYGROUND_TOUR_EVENT, start);
       if (window.__startPlaygroundTour === start) delete window.__startPlaygroundTour;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted]);
 
   const finish = () => {
     setOpen(false);
     setInterlude(false);
-    let firstCompletion = false;
+    const firstCompletion = firstRunRef.current;
+    firstRunRef.current = false;
     try {
-      firstCompletion = !localStorage.getItem(DONE_KEY);
       localStorage.setItem(DONE_KEY, "1");
     } catch {}
     // First-ever tutorial close: greet the new user with their day-streak
@@ -978,7 +1069,8 @@ export function PlaygroundTour({
         spotRef.current = nextSpot;
         setSpot(nextSpot);
       }
-      // the inner board image, tracked for the interlude's live board overlay
+      // the inner board image and the two player bars, tracked for the
+      // interlude's won-board + capture-bar overlays
       const img = interlude
         ? document.querySelector<HTMLElement>(
             '[data-tour-anchor="board-preview"] img[alt="Chessboard preview"]'
@@ -988,6 +1080,26 @@ export function PlaygroundTour({
       if (!sameRect(nextImg, boardImgRef.current)) {
         boardImgRef.current = nextImg;
         setBoardImgRect(nextImg);
+      }
+      const topBar = interlude
+        ? document.querySelector<HTMLElement>(
+            '[data-tour-anchor="board-preview"] img[alt="Player preview"]'
+          )
+        : null;
+      const nextTop = topBar ? toRect(topBar.getBoundingClientRect()) : null;
+      if (!sameRect(nextTop, topBarRef.current)) {
+        topBarRef.current = nextTop;
+        setTopBarRect(nextTop);
+      }
+      const bottomBar = interlude
+        ? document.querySelector<HTMLElement>(
+            '[data-tour-anchor="board-preview"] > div'
+          )
+        : null;
+      const nextBottom = bottomBar ? toRect(bottomBar.getBoundingClientRect()) : null;
+      if (!sameRect(nextBottom, bottomBarRef.current)) {
+        bottomBarRef.current = nextBottom;
+        setBottomBarRect(nextBottom);
       }
       setViewport((v) =>
         v.vw === window.innerWidth && v.vh === window.innerHeight
@@ -1107,7 +1219,7 @@ export function PlaygroundTour({
               <TourTooltip
                 step={step}
                 index={index}
-                onSkip={next}
+                onSkip={finish}
                 onPrev={prev}
                 onNext={next}
                 caret={rect ? (mode === "below" ? "top" : "bottom") : undefined}
@@ -1123,26 +1235,33 @@ export function PlaygroundTour({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 180 }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
-            className="fixed inset-0 flex flex-col items-center justify-center p-4"
+            className="fixed inset-0 flex flex-col items-center overflow-y-auto overscroll-contain p-4"
           >
-            <TourTooltip
-              step={step}
-              index={index}
-              onSkip={next}
-              onPrev={prev}
-              onNext={next}
-              caret="bottom"
-            />
-            {/* the analyze demo keeps overflow visible so the swiper card
-                deck can rotate outside its own bounds, like the real modal */}
-            <div
-              className={`w-[min(400px,92vw)] mt-[14px] rounded-2xl ${
-                step.demo === "analyze" ? "" : "max-h-[62vh] overflow-y-auto"
-              }`}
-            >
-              {step.demo === "win" && <DemoWinCard />}
-              {step.demo === "lose" && <DemoLoseCard />}
-              {step.demo === "analyze" && <DemoAnalyzeCard />}
+            {/* m-auto centers the column when it fits (same as the old
+                justify-center) and top-aligns + scrolls when the viewport is
+                too short (14" laptops), instead of clipping both edges */}
+            <div className="m-auto flex flex-col items-center">
+              <TourTooltip
+                step={step}
+                index={index}
+                onSkip={finish}
+                onPrev={prev}
+                onNext={next}
+                caret="bottom"
+              />
+              {/* the analyze demo keeps overflow visible so the swiper card
+                  deck can rotate outside its own bounds, like the real modal */}
+              <div
+                className={`w-[min(400px,92vw)] mt-[14px] rounded-2xl ${
+                  step.demo === "analyze"
+                    ? ""
+                    : "max-h-[62vh] overflow-y-auto [@media(max-height:920px)]:max-h-none [@media(max-height:920px)]:overflow-y-visible"
+                }`}
+              >
+                {step.demo === "win" && <DemoWinCard />}
+                {step.demo === "lose" && <DemoLoseCard />}
+                {step.demo === "analyze" && <DemoAnalyzeCard />}
+              </div>
             </div>
           </motion.div>
         )}
@@ -1156,6 +1275,8 @@ export function PlaygroundTour({
             transition={{ duration: 0.3 }}
           >
             <InterludeBoard rect={boardImgRect} onDone={next} />
+            {topBarRect && <InterludeCaptureBar rect={topBarRect} variant="lost" />}
+            {bottomBarRect && <InterludeCaptureBar rect={bottomBarRect} variant="won" />}
           </motion.div>
         )}
 

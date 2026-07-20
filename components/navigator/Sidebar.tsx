@@ -8,12 +8,12 @@ import { motion } from "framer-motion";
 import { FaChevronRight } from "react-icons/fa";
 
 import { cn } from "@/lib/utils";
-import InitialAvatar from "../avatar/InitialAvatar";
+import { PieceAvatar } from "@/components/v2/piece-avatar";
 import ProfileAvatarUpload from "@/components/v2/profile-avatar-upload";
 import { fadeInUp } from "@/utils/motion";
 
 import { useProfileStore } from "@/app/store/profile";
-import { useStreakStore } from "@/app/store/streak";
+import { useHasPlayedToday, useStreakStore } from "@/app/store/streak";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePricingOffer } from "@/app/store/pricingOffer";
@@ -156,6 +156,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   // across navigations instead of flashing 0 while refetching; the login
   // trigger and post-game flow keep the store current.
   const currentStreak = useStreakStore((s) => s.currentStreak);
+  // Flame lights up only when today's game is played — same rule as the
+  // streak status modal's on/off flame.
+  const hasPlayedToday = useHasPlayedToday();
 
   useEffect(() => {
     if (sessionId) {
@@ -232,6 +235,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
   const isSubscribed = isMember || isMemberMonthly;
 
+  // Seeds the pawn fallback's "random" background — same recipe as the
+  // profile page so the same user gets the same color everywhere.
+  const avatarSeed =
+    profileShow?.username || username || profileShow?.email || "user";
+
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col z-10">
       {/* Logo */}
@@ -286,7 +294,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               >
                 <Image
                   src={
-                    currentStreak > 0
+                    hasPlayedToday
                       ? "/images/v2/sidebar/mode_heat_on.png"
                       : "/images/v2/sidebar/mode_heat.png"
                   }
@@ -303,9 +311,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               <Link
                 href="/play"
                 onClick={() => isMobile && onClose?.()}
-                className="flex items-center gap-1 px-3 sm:px-5 py-2 bg-[#221AE9] text-white text-[13px] sm:text-sm font-semibold rounded-full hover:bg-[#2d25ea] transition-colors whitespace-nowrap shrink-0"
+                className="flex items-center gap-1 px-3 sm:px-4 py-1.5 bg-[#221AE9] text-white text-[12px] sm:text-[13px] font-semibold rounded-full hover:bg-[#2d25ea] transition-colors whitespace-nowrap shrink-0"
               >
-                Play Now <FaChevronRight className="pl-1 sm:pl-2 text-sm" />
+                Play Now <FaChevronRight className="pl-1 sm:pl-1.5 text-xs" />
               </Link>
             </div>
             <Link
@@ -615,9 +623,10 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               <ProfileAvatarUpload
                 className="w-[40px] h-[40px] rounded-full"
                 fallback={
-                  <InitialAvatar
-                    name={profileShow?.name || username || "Anonymous"}
+                  <PieceAvatar
+                    seed={avatarSeed}
                     className="w-[40px] h-[40px]"
+                    pieceClassName="w-[17px] h-[22px]"
                   />
                 }
               />
@@ -665,9 +674,10 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             <ProfileAvatarUpload
               className="w-[40px] h-[40px] rounded-full"
               fallback={
-                <InitialAvatar
-                  name={profileShow?.name || username || "Anonymous"}
+                <PieceAvatar
+                  seed={avatarSeed}
                   className="w-[40px] h-[40px]"
+                  pieceClassName="w-[17px] h-[22px]"
                 />
               }
             />

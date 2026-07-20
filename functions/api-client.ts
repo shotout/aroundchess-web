@@ -770,12 +770,16 @@ export function useApiClient() {
     [apiRequest]
   );
 
-  const getLeaderboardData = useCallback(() => {
-    return apiRequest({
-      method: "GET",
-      path: `${process.env.BASE_URL}/v4/leaderboard`,
-    });
-  }, [apiRequest]);
+  const getLeaderboardData = useCallback(
+    (params?: { page?: number; limit?: number }) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/v4/leaderboard`,
+        ...(params ? { params } : {}),
+      });
+    },
+    [apiRequest]
+  );
 
   const getLeaderboardMe = useCallback(() => {
     return apiRequest({

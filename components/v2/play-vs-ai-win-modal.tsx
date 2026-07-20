@@ -64,7 +64,7 @@ export function PlayVsAiWinModal({
         {/* Celebration animation — the square Lottie is top-anchored so only
             the canvas' empty bottom strip gets cropped. Narrower on mobile so
             the whole modal fits the viewport without scrolling. */}
-        <div className="w-[68%] sm:w-[74%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none">
+        <div className="w-[68%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none">
           {animationData && (
             <Lottie
               animationData={animationData}
@@ -75,13 +75,13 @@ export function PlayVsAiWinModal({
           )}
         </div>
 
-        <div className="px-[20px] sm:px-[36px] pb-[20px] sm:pb-[28px]">
-          <h2 className="text-center font-bold text-[24px] sm:text-[30px] text-[#34C759] mt-[8px] sm:mt-[12px] mb-[10px] sm:mb-[14px]">
+        <div className="px-[20px] sm:px-[36px] pb-[20px] sm:pb-[28px] sm:[@media(max-height:920px)]:pb-[18px]">
+          <h2 className="text-center font-bold text-[24px] sm:text-[30px] text-[#34C759] mt-[8px] sm:mt-[12px] mb-[10px] sm:mb-[14px] sm:[@media(max-height:920px)]:mt-[4px] sm:[@media(max-height:920px)]:mb-[8px]">
             You Won
           </h2>
 
           {/* ELO pill + gain badge */}
-          <div className="flex items-center justify-center gap-[8px] sm:gap-[10px] mb-[14px] sm:mb-[20px]">
+          <div className="flex items-center justify-center gap-[8px] sm:gap-[10px] mb-[14px] sm:mb-[20px] sm:[@media(max-height:920px)]:mb-[12px]">
             <div className="flex items-center justify-between gap-[10px] sm:gap-[16px] bg-[#34C759] rounded-[10px] pl-[14px] pr-[12px] sm:pl-[20px] sm:pr-[16px] py-[8px] sm:py-[10px] flex-1 min-w-0 max-w-[300px]">
               <span className="text-white font-semibold text-[14px] sm:text-[17px] whitespace-nowrap">
                 Your Current ELO
@@ -121,12 +121,12 @@ export function PlayVsAiWinModal({
           <p className="text-center font-bold text-[15px] sm:text-[17px] text-[#111827]">
             That was a good call!
           </p>
-          <p className="text-center text-[13px] sm:text-[15px] text-[#111827] mb-[12px] sm:mb-[18px]">
+          <p className="text-center text-[13px] sm:text-[15px] text-[#111827] mb-[12px] sm:mb-[18px] sm:[@media(max-height:920px)]:mb-[10px]">
             Ready to face more challenging opponents?
           </p>
 
           {/* Challenge next opponents */}
-          <div className="rounded-[14px] border border-[#7CC0F2] p-[8px] sm:p-[10px] mb-[12px] sm:mb-[16px]">
+          <div className="rounded-[14px] border border-[#7CC0F2] p-[8px] sm:p-[10px] mb-[12px] sm:mb-[16px] sm:[@media(max-height:920px)]:mb-[10px]">
             <p className="text-center text-[12px] sm:text-[14px] font-medium text-[#111827] mb-[4px] sm:mb-[6px]">
               Challenge those Opponents next:
             </p>
@@ -174,7 +174,7 @@ export function PlayVsAiWinModal({
           <button
             onClick={() => selectedOpponent && onStartGame(selectedOpponent)}
             disabled={!selectedOpponent}
-            className="w-full py-[12px] sm:py-[14px] rounded-full bg-[#221AE9] text-white font-semibold text-[15px] sm:text-[16px] hover:bg-[#2d25ea] transition-colors disabled:opacity-50"
+            className="w-full py-[12px] sm:py-[14px] sm:[@media(max-height:920px)]:py-[12px] rounded-full bg-[#221AE9] text-white font-semibold text-[15px] sm:text-[16px] hover:bg-[#2d25ea] transition-colors disabled:opacity-50"
           >
             Start Game
           </button>

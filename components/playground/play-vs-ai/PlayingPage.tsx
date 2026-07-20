@@ -460,10 +460,17 @@ export default function PlayingPage() {
   const [showLoseModal, setShowLoseModal] = useState<boolean>(false);
   const [showDrawModal, setShowDrawModal] = useState<boolean>(false);
   // Day-streak celebration: armed when the streak increments after a game
-  // save, shown only once the win/loss end-modal has been shown and closed.
+  // save, shown only once the win/loss/draw end-modal has been shown and
+  // closed — and, for lost/drawn games that go into analysis, only after the
+  // analysis flow is done (see analysisFlowActive below).
   const [pendingCelebration, setPendingCelebration] = useState<number | null>(
     null
   );
+  // Whether the pending celebration is a reward (free-token) day. Driven by
+  // the backend's `isGem` flag on the current streak day rather than a fixed
+  // 7-day cycle, so configurable gem days show the reward modal correctly.
+  const [pendingCelebrationReward, setPendingCelebrationReward] =
+    useState<boolean>(false);
   const [endModalShown, setEndModalShown] = useState<boolean>(false);
   const [winElo, setWinElo] = useState<{
     oldElo: number;
@@ -1964,6 +1971,7 @@ export default function PlayingPage() {
     }
     const streakDemo = parseInt(params.get("streakDemo") ?? "", 10);
     if (streakDemo > 0) {
+      setPendingCelebrationReward(streakDemo % 7 === 0);
       setPendingCelebration(streakDemo);
       setEndModalShown(true);
     }
@@ -2124,6 +2132,18 @@ export default function PlayingPage() {
             store.setLastSeenStreak(newStreak);
             usePlayPageStore.getState().setStreak(newStreak);
             if (newStreak > prev) {
+              // A reward day is one the backend marks with `isGem` on the
+              // current streak day; fall back to the fixed 7-day cycle when
+              // no streakDays entry is provided.
+              const days = res.data?.streakDays;
+              const gemEntry = Array.isArray(days)
+                ? days.find((d: any) => Number(d?.day) === newStreak)
+                : null;
+              const isReward =
+                gemEntry && typeof gemEntry.isGem === "boolean"
+                  ? gemEntry.isGem === true
+                  : newStreak > 0 && newStreak % 7 === 0;
+              setPendingCelebrationReward(isReward);
               setPendingCelebration(newStreak);
             }
           })
@@ -2222,9 +2242,9 @@ export default function PlayingPage() {
   }, [showWinModal, showLoseModal, showDrawModal, gameEndOpen]);
 
   const handleCelebrationClose = () => {
-    const isReward =
-      pendingCelebration !== null && pendingCelebration % 7 === 0;
+    const isReward = pendingCelebration !== null && pendingCelebrationReward;
     setPendingCelebration(null);
+    setPendingCelebrationReward(false);
     setEndModalShown(false);
     if (isReward) {
       // The streak backend grants the analysis token; refresh the balance.
@@ -2770,6 +2790,19 @@ export default function PlayingPage() {
     };
   };
 
+  // Lost/drawn games can flow straight into analysis (the draw modal's
+  // "Discover Mistakes", the page's "Analyze now"): hold the streak
+  // celebration while that flow runs so it shows after the analysis is
+  // closed, not on top of it. Wins are exempt — their streak always shows
+  // right after the win modal closes (or a new game starts).
+  const analysisFlowActive =
+    statusGame !== "Win" &&
+    (autoStartAnalyze ||
+      isAnalyzeOpen ||
+      isChooseAnalysisModeOpen ||
+      processingAnalysisModeOpen ||
+      gameAnalysisOpen);
+
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white gap-4">
       {!isTutorialPlay && <GameEndStatus gameStatus={statusGame.toLowerCase()} />}
@@ -2818,9 +2851,10 @@ export default function PlayingPage() {
         !showLoseModal &&
         !showDrawModal &&
         !gameEndOpen &&
+        !analysisFlowActive &&
         !isTutorialPlay && (
           <DayStreakModal
-            variant={pendingCelebration % 7 === 0 ? "reward" : "celebration"}
+            variant={pendingCelebrationReward ? "reward" : "celebration"}
             streak={pendingCelebration}
             onClose={handleCelebrationClose}
           />
