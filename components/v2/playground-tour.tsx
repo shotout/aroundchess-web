@@ -31,7 +31,9 @@ const WIN_LOTTIE = "/images/v2/play-vs-ai/WON.min.json";
 const LOSE_LOTTIE = "/images/v2/play-vs-ai/LOSE.min.json";
 const FINALE_IMG = "/images/v2/tutorial/chessboard.png";
 
-const DONE_KEY = "ac_playground_tour_done_v1";
+// Set by sign-up onboarding (queuePlaygroundTour); the tour only auto-runs
+// while it's present and consumes it on start.
+const PENDING_KEY = "ac_playground_tour_pending_v1";
 
 // Programmatic trigger: call startPlaygroundTour() from any component (e.g.
 // a "Replay tutorial" button), or run __startPlaygroundTour() in the browser
@@ -234,13 +236,18 @@ function DemoWinCard() {
   const opponents = useMemo(() => pickRecommendedOpponents(400), []);
   return (
     <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden select-none pointer-events-none">
-      <div className="w-[64%] mx-auto aspect-[540/400] max-h-[24vh] [@media(max-height:920px)]:max-h-[16vh]">
+      {/* The lottie canvas has ~25% empty padding below the art; the outer
+          box is that much shorter and clips it, while the inner box keeps the
+          full 540/400 canvas scaled to the outer's height — so the art always
+          scales with the box (never cut on short screens) and the heading
+          sits right under it. */}
+      <div className="relative overflow-hidden w-[64%] mx-auto aspect-[540/300] max-h-[22vh] [@media(max-height:920px)]:max-h-[18vh]">
         {animationData && (
           <Lottie
             animationData={animationData}
             loop={false}
-            rendererSettings={{ preserveAspectRatio: "xMidYMin slice" }}
-            className="w-full h-full"
+            rendererSettings={{ preserveAspectRatio: "xMidYMin meet" }}
+            className="absolute top-0 left-0 w-full h-[133.33%]"
           />
         )}
       </div>
@@ -319,13 +326,14 @@ function DemoLoseCard() {
   const animationData = useLottieData(LOSE_LOTTIE);
   return (
     <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden select-none pointer-events-none">
-      <div className="w-[72%] mx-auto aspect-[540/400] max-h-[26vh] [@media(max-height:920px)]:max-h-[18vh]">
+      {/* same clip-the-padding treatment as the win card */}
+      <div className="relative overflow-hidden w-[72%] mx-auto aspect-[540/300] max-h-[24vh] [@media(max-height:920px)]:max-h-[18vh]">
         {animationData && (
           <Lottie
             animationData={animationData}
             loop={false}
-            rendererSettings={{ preserveAspectRatio: "xMidYMin slice" }}
-            className="w-full h-full"
+            rendererSettings={{ preserveAspectRatio: "xMidYMin meet" }}
+            className="absolute top-0 left-0 w-full h-[133.33%]"
           />
         )}
       </div>
@@ -429,7 +437,7 @@ function InterludeCaptureBar({ rect, variant }: { rect: Rect; variant: "lost" | 
       >
         <div className="flex items-center gap-[10px] min-w-0">
           <Image
-            src={lost ? "/play-vs-ai/lisa.png" : "/images/homepage/v2/homepage_board_asset_4.png"}
+            src={lost ? "/images/v2/AI avatar/Beginner/Number11.png" : "/images/homepage/v2/homepage_board_asset_4.png"}
             alt={lost ? "Lisa" : "You"}
             width={96}
             height={96}
@@ -875,14 +883,14 @@ export function PlaygroundTour({
 
   useEffect(() => setMounted(true), []);
 
-  // Opens the tour. The seen flag is stamped immediately — not on finish —
-  // so a mid-tour refresh doesn't restart it: the tour auto-runs exactly once
-  // per new user (sign-up onboarding clears the flag), and replays happen
+  // Opens the tour. The pending flag is consumed immediately — not on finish
+  // — so a mid-tour refresh doesn't restart it: the tour auto-runs exactly
+  // once per new user (sign-up onboarding queues it), and replays happen
   // only via ?tour=playground or the manual trigger.
   const begin = () => {
     try {
-      if (!localStorage.getItem(DONE_KEY)) firstRunRef.current = true;
-      localStorage.setItem(DONE_KEY, "1");
+      if (localStorage.getItem(PENDING_KEY)) firstRunRef.current = true;
+      localStorage.removeItem(PENDING_KEY);
     } catch {}
     setIndex(0);
     setOpen(true);
@@ -890,16 +898,16 @@ export function PlaygroundTour({
     preloadLottie(LOSE_LOTTIE);
   };
 
-  // Auto-start once per user; ?tour=playground forces a replay.
+  // Auto-start only when onboarding queued a run; ?tour=playground forces a replay.
   useEffect(() => {
     if (!mounted) return;
     let forced = false;
     try {
       forced = new URLSearchParams(window.location.search).get("tour") === "playground";
-      if (!forced && (!autoStart || localStorage.getItem(DONE_KEY))) {
+      if (!forced && (!autoStart || !localStorage.getItem(PENDING_KEY))) {
         // eslint-disable-next-line no-console
         console.info(
-          "[PlaygroundTour] not auto-playing (already seen). Replay with __startPlaygroundTour() or ?tour=playground"
+          "[PlaygroundTour] not auto-playing (no onboarding run queued). Replay with __startPlaygroundTour() or ?tour=playground"
         );
         return;
       }
@@ -938,7 +946,7 @@ export function PlaygroundTour({
     const firstCompletion = firstRunRef.current;
     firstRunRef.current = false;
     try {
-      localStorage.setItem(DONE_KEY, "1");
+      localStorage.removeItem(PENDING_KEY);
     } catch {}
     // First-ever tutorial close: greet the new user with their day-streak
     // status (streak 0, unlit flame) — static image, no lottie. Replays
@@ -1219,7 +1227,7 @@ export function PlaygroundTour({
               <TourTooltip
                 step={step}
                 index={index}
-                onSkip={finish}
+                onSkip={next}
                 onPrev={prev}
                 onNext={next}
                 caret={rect ? (mode === "below" ? "top" : "bottom") : undefined}
@@ -1244,7 +1252,7 @@ export function PlaygroundTour({
               <TourTooltip
                 step={step}
                 index={index}
-                onSkip={finish}
+                onSkip={next}
                 onPrev={prev}
                 onNext={next}
                 caret="bottom"

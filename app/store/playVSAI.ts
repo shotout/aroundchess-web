@@ -16,7 +16,7 @@ export const usePlayVSAIStore = create<PlayVSAIState>()(
           id: 0,
           name: "Thomas",
           elo: 250,
-          img: "/play-vs-ai/thomas.png",
+          img: "/images/v2/AI avatar/Beginner/Number10.png",
         },
       },
       setAIChoosed: (AIChoosed) => set({ AIChoosed }),

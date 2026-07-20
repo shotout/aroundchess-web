@@ -63,7 +63,7 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
         </div>
       </div>
 
-      <div data-tour-anchor="opponent-panel" className="w-full sm:w-[40%] bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-3 sm:p-4 flex flex-col">
+      <div data-tour-anchor="opponent-panel" className="w-full sm:w-[42%] bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-3 sm:p-4 flex flex-col">
         <h1 className="sm:hidden text-center font-bold text-[28px] text-[#221AE9] mb-[8px]">
           Play VS AI
         </h1>

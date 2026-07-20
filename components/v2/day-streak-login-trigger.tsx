@@ -10,7 +10,7 @@ import {
   DayStreakStaticFlame,
   DayStreakVariant,
 } from "@/components/v2/day-streak-modal";
-import { isPlaygroundTourDone } from "@/components/v2/playground-tour-gate";
+import { isPlaygroundTourPending } from "@/components/v2/playground-tour-gate";
 import { preloadLottie } from "@/components/v2/hooks/useLottieData";
 
 /** Feature flag for the automatic daily check-in modal. When false the
@@ -78,7 +78,7 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
         if (!DAILY_LOGIN_MODAL_ENABLED) return;
         // New users see the playground tour first; the tour's finish opens
         // the (streak 0) modal itself, so don't also open it here.
-        if (!isPlaygroundTourDone()) return;
+        if (isPlaygroundTourPending()) return;
         if (store.lastLoginModalDate !== getLocalDateStamp()) {
           // Daily check-in is always the static image (no lottie): unlit
           // flame until today's first game is played, lit after.

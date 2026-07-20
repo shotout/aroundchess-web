@@ -5,36 +5,35 @@ import { useEffect, useState } from "react";
 
 // Lightweight mount gate for the playground tour. The tour itself pulls in
 // chess.js, swiper, and the chessboard components, so it's loaded as a
-// separate chunk only when the tour will actually show: first visit, an
-// explicit ?tour=playground, or a manual trigger. Returning visitors never
-// download any of it.
+// separate chunk only when the tour will actually show: a queued run from
+// sign-up onboarding, an explicit ?tour=playground, or a manual trigger.
+// Everyone else never downloads any of it.
 
 const LazyPlaygroundTour = dynamic(
   () => import("@/components/v2/playground-tour"),
   { ssr: false }
 );
 
-const DONE_KEY = "ac_playground_tour_done_v1";
+const PENDING_KEY = "ac_playground_tour_pending_v1";
 export const PLAYGROUND_TOUR_EVENT = "playground-tour:start";
 
-/** Whether this browser has completed (or dismissed) the playground tour.
- * The day-streak login modal waits for this so it never opens over the tour
+/** Whether a tour run is queued for the next playground visit.
+ * The day-streak login modal checks this so it never opens over the tour
  * — for new users the tour's finish shows the streak modal itself. */
-export function isPlaygroundTourDone() {
+export function isPlaygroundTourPending() {
   try {
-    return !!localStorage.getItem(DONE_KEY);
+    return !!localStorage.getItem(PENDING_KEY);
   } catch {
-    return true;
+    return false;
   }
 }
 
-/** Clears the done flag so the tour auto-runs on the next playground visit.
- * Called when a NEW account finishes sign-up onboarding: the flag is
- * per-browser, so without this a fresh account in a browser that already
- * saw the tour would silently skip it. */
-export function resetPlaygroundTourDone() {
+/** Queues the tour to auto-run on the next playground visit. Called when a
+ * NEW account finishes sign-up onboarding — this is the only way the tour
+ * auto-plays; plain page loads never start it on their own. */
+export function queuePlaygroundTour() {
   try {
-    localStorage.removeItem(DONE_KEY);
+    localStorage.setItem(PENDING_KEY, "1");
   } catch {}
 }
 
@@ -56,14 +55,14 @@ export function PlaygroundTourGate({ autoStart = true }: { autoStart?: boolean }
     try {
       const forced =
         new URLSearchParams(window.location.search).get("tour") === "playground";
-      if (forced || (autoStart && !localStorage.getItem(DONE_KEY))) {
+      if (forced || (autoStart && !!localStorage.getItem(PENDING_KEY))) {
         setLoad(true);
         return;
       }
     } catch {
       return;
     }
-    // Already seen: stay unloaded, but keep the manual triggers working.
+    // No queued run: stay unloaded, but keep the manual triggers working.
     // Once the tour mounts it installs its own handlers over these.
     const start = () => {
       setManual(true);

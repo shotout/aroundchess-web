@@ -51,7 +51,7 @@ export function HeroGamePreview({ recommendedListHeightClass }: { recommendedLis
         </div>
       </div>
 
-      <div className="w-full sm:w-[40%] bg-white rounded-2xl shadow-lg border-2 border-[#7CC0F2] p-3 sm:p-4 flex flex-col">
+      <div className="w-full sm:w-[42%] bg-white rounded-2xl shadow-lg border-2 border-[#7CC0F2] p-3 sm:p-4 flex flex-col">
         <HeroPlayVSAIPreview recommendedListHeightClass={recommendedListHeightClass} />
       </div>
     </div>

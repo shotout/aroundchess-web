@@ -285,7 +285,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             className="px-4 py-3 flex flex-col gap-2 border-b"
             variants={isMobile ? itemVariants : {}}
           >
-            <div className="flex items-center justify-between gap-2 min-w-0">
+            {/* flex-wrap: on narrow sidebars the Play Now pill wraps under the
+                streak badge instead of overlapping it */}
+            <div className="flex items-center justify-between gap-2 min-w-0 flex-wrap">
               <button
                 type="button"
                 onClick={() => openDayStreakStatusModal(currentStreak)}

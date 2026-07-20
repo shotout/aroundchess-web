@@ -249,7 +249,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
       </div>
 
       {selectedTab === "recommended" ? (
-        <div className={`${recommendedListHeightClass} max-sm:h-auto grow mb-2 overflow-y-auto space-y-2 pr-0.5`}>
+        <div className={`${recommendedListHeightClass} max-sm:h-auto grow mb-2 overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}>
           <div className="grid grid-cols-4 gap-2">
             {recommendedOpponents.map((opponent) => (
               <OpponentCard
@@ -284,7 +284,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
           </div>
         </div>
       ) : (
-        <div className={`${recommendedListHeightClass} max-sm:h-[280px] grow mb-2 overflow-y-auto pr-0.5`}>
+        <div className={`${recommendedListHeightClass} max-sm:h-[280px] grow mb-2 overflow-y-auto overflow-x-hidden pr-0.5`}>
           <div className="flex items-center gap-3 pb-1">
             <div className="h-px flex-1 bg-gray-200" />
             <span className="text-[12px] sm:text-sm text-gray-500">
