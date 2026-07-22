@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
+import { getLocalDateStamp, isStreakBroken, useStreakStore } from "@/app/store/streak";
 import type {
   DayStreakStaticFlame,
   DayStreakVariant,
@@ -38,9 +38,18 @@ export function openDayStreakModal(request: DayStreakModalRequest) {
 /** Opens the modal with the user's current streak status — static flame,
  * lit only if today's game is already played. Used by the streak badges in
  * the sidebar, headers, and play top bar. Pass the badge's own streak value
- * so the modal always matches what the badge shows. */
+ * so the modal always matches what the badge shows. Shows the "Your Streak
+ * Broke!" variant instead when isStreakBroken(status) is true, so clicking
+ * the badge matches the auto-popped broken alert. */
 export function openDayStreakStatusModal(streak?: number) {
-  const { currentStreak, lastPlayDate } = useStreakStore.getState();
+  const { currentStreak, lastPlayDate, status } = useStreakStore.getState();
+  if (isStreakBroken(status)) {
+    openDayStreakModal({
+      variant: "broken",
+      streak: streak ?? currentStreak,
+    });
+    return;
+  }
   openDayStreakModal({
     variant: "celebration",
     streak: streak ?? currentStreak,

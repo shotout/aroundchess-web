@@ -5,11 +5,18 @@ import Image from "next/image";
 interface LeaderboardJoinModalProps {
   title: string;
   description: string;
+  image?: string;
   onBack: () => void;
   onPlayNow: () => void;
 }
 
-export function LeaderboardJoinModal({ title, description, onBack, onPlayNow }: LeaderboardJoinModalProps) {
+export function LeaderboardJoinModal({
+  title,
+  description,
+  image = "/images/v2/leaderboard/leaderboard_search.png",
+  onBack,
+  onPlayNow,
+}: LeaderboardJoinModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
@@ -20,7 +27,7 @@ export function LeaderboardJoinModal({ title, description, onBack, onPlayNow }: 
         onClick={(e) => e.stopPropagation()}
       >
         <Image
-          src="/images/v2/leaderboard/leaderboard_search.png"
+          src={image}
           alt=""
           width={140}
           height={116}

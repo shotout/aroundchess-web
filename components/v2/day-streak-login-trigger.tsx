@@ -40,19 +40,32 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
   }, []);
 
   // Demo/testing hook: /playground/play-vs-ai?streakDemo=login&streak=2
-  // (also celebration / reward) previews any variant without waiting for
-  // the real once-per-day and streak conditions. Add &flame=on|off to
-  // preview the static-image (no lottie) celebration variants.
+  // (also celebration / reward / broken) previews any variant without
+  // waiting for the real once-per-day and streak conditions. Add
+  // &flame=on|off to preview the static-image (no lottie) celebration
+  // variants.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const demo = params.get("streakDemo");
-    if (demo === "login" || demo === "celebration" || demo === "reward") {
+    if (
+      demo === "login" ||
+      demo === "celebration" ||
+      demo === "reward" ||
+      demo === "broken"
+    ) {
       isDemoRef.current = true;
-      const fallback = demo === "reward" ? 7 : demo === "celebration" ? 3 : 2;
+      const fallback =
+        demo === "reward" ? 7 : demo === "celebration" ? 3 : demo === "broken" ? 0 : 2;
       const flame = params.get("flame");
       setVariant(demo);
-      setStaticFlame(flame === "on" || flame === "off" ? flame : undefined);
+      setStaticFlame(
+        demo === "broken"
+          ? undefined
+          : flame === "on" || flame === "off"
+            ? flame
+            : undefined
+      );
       setStreakToShow(parseInt(params.get("streak") ?? "", 10) || fallback);
       setOpen(true);
     }

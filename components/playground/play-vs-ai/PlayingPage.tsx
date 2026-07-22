@@ -2820,6 +2820,8 @@ export default function PlayingPage() {
           oldElo={winElo?.oldElo ?? leaderboard?.my_elo ?? 0}
           newElo={winElo?.newElo ?? leaderboard?.my_elo ?? 0}
           delta={winElo?.delta ?? 0}
+          opponentName={AIChoosed?.opponent?.name}
+          opponentElo={AIChoosed?.opponent?.elo}
           onClose={() => setShowWinModal(false)}
           onStartGame={handleChallengeNext}
         />
@@ -2829,6 +2831,8 @@ export default function PlayingPage() {
           oldElo={loseElo?.oldElo ?? leaderboard?.my_elo ?? 0}
           newElo={loseElo?.newElo ?? leaderboard?.my_elo ?? 0}
           delta={loseElo?.delta ?? 0}
+          opponentName={AIChoosed?.opponent?.name}
+          opponentElo={AIChoosed?.opponent?.elo}
           onClose={() => setShowLoseModal(false)}
           onStartGame={handleLoseRematch}
         />
@@ -2838,6 +2842,8 @@ export default function PlayingPage() {
           oldElo={drawElo?.oldElo ?? leaderboard?.my_elo ?? 0}
           newElo={drawElo?.newElo ?? leaderboard?.my_elo ?? 0}
           delta={drawElo?.delta ?? 0}
+          opponentName={AIChoosed?.opponent?.name}
+          opponentElo={AIChoosed?.opponent?.elo}
           onClose={() => setShowDrawModal(false)}
           onDiscoverMistakes={() => {
             setShowDrawModal(false);

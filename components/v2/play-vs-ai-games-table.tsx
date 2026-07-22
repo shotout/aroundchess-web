@@ -333,9 +333,9 @@ export function PlayVsAiGamesTable({
               className="flex items-center justify-between gap-x-[8px] md:gap-x-[12px] py-[10px]"
             >
               {/* Date + result */}
-              <div className="flex items-center gap-[4px] md:gap-[6px] text-[12px] md:text-[14px] min-w-0">
+              <div className="flex flex-col gap-[2px] text-[12px] md:text-[14px] min-w-0">
                 <span className="text-[#9CA3AF] truncate min-w-0">
-                  {formatRowDate(game)} ·
+                  {formatRowDate(game)}
                 </span>
                 <ResultLabel game={game} />
               </div>
