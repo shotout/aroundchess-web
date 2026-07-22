@@ -17,6 +17,8 @@ interface PlayVsAiDrawModalProps {
   oldElo: number;
   newElo: number;
   delta: number;
+  opponentName?: string;
+  opponentElo?: number;
   onClose: () => void;
   onDiscoverMistakes: () => void;
 }
@@ -25,6 +27,8 @@ export function PlayVsAiDrawModal({
   oldElo,
   newElo,
   delta,
+  opponentName,
+  opponentElo,
   onClose,
   onDiscoverMistakes,
 }: PlayVsAiDrawModalProps) {
@@ -57,9 +61,15 @@ export function PlayVsAiDrawModal({
         </div>
 
         <div className="px-[20px] sm:px-[36px] pb-[20px] sm:pb-[28px] sm:[@media(max-height:920px)]:pb-[18px]">
-          <h2 className="text-center font-bold text-[24px] sm:text-[30px] text-[#221AE9] mt-[8px] sm:mt-[12px] mb-[10px] sm:mb-[14px] sm:[@media(max-height:920px)]:mt-[4px] sm:[@media(max-height:920px)]:mb-[8px]">
+          <h2 className="text-center font-bold text-[24px] sm:text-[30px] text-[#221AE9] mt-[8px] sm:mt-[12px] mb-[4px] sm:mb-[6px] sm:[@media(max-height:920px)]:mt-[4px] sm:[@media(max-height:920px)]:mb-[2px]">
             It&rsquo;s a Draw!
           </h2>
+
+          {opponentName && (
+            <p className="text-center text-[14px] sm:text-[17px] text-[#374151] mb-[10px] sm:mb-[14px] sm:[@media(max-height:920px)]:mb-[8px]">
+              Against {opponentName} (ELO {opponentElo})
+            </p>
+          )}
 
           {/* ELO pill + change badge */}
           <div className="flex items-center justify-center gap-[8px] sm:gap-[10px] mb-[14px] sm:mb-[20px] sm:[@media(max-height:920px)]:mb-[12px]">

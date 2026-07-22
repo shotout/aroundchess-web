@@ -12,7 +12,7 @@ import { useLottieData } from "@/components/v2/hooks/useLottieData";
 const NUMBER_DELAY = 1.8;
 const TEXT_DELAY = 2.1;
 
-export type DayStreakVariant = "login" | "celebration" | "reward";
+export type DayStreakVariant = "login" | "celebration" | "reward" | "broken";
 
 /** Which static flame image to show instead of the celebration lottie:
  * "off" = unlit flame (hasn't played today), "on" = lit flame (already
@@ -33,6 +33,7 @@ const IMAGES: Record<DayStreakVariant, string> = {
   login: "/images/v2/days-streak/fire-off.png",
   celebration: "/images/v2/days-streak/fire-on.png",
   reward: "/images/v2/days-streak/Free-token.png",
+  broken: "/images/v2/days-streak/break.png",
 };
 
 const FLAME_IMAGES: Record<DayStreakStaticFlame, string> = {
@@ -66,30 +67,39 @@ export function DayStreakModal({
   const textDelay = animated ? TEXT_DELAY : 0.4;
 
   const title =
-    variant === "celebration" || variant === "reward" ? "Day Streak" : null;
+    variant === "broken"
+      ? "Your Streak Broke!"
+      : variant === "celebration" || variant === "reward"
+        ? "Day Streak"
+        : null;
   const subtitle =
-    variant === "celebration" ? (
+    variant === "celebration" || variant === "broken" ? (
       streak <= 1 ? (
         <>
-          Start playing today — only 7 more days to claim your{" "}
-          <span className="font-bold">Free Analysis Token</span>.
+          Start playing today — only 7 more days
+          <br />
+          to claim your{" "}
+          <span className="font-bold">10 Free Analyses Tokens</span>.
         </>
       ) : streak === 2 ? (
         <>
-          Keep it up! Play Today - only 5 more days to get a{" "}
-          <span className="font-bold">Free Analysis Token</span>.
+          Keep it up! Play Today - only 5 more
+          <br />
+          days to get {" "}
+          <span className="font-bold">10 Free Analyses Tokens</span>.
         </>
       ) : (
         <>
-          Keep it up! Play {7 - (streak % 7)} more days to get a{" "}
-          <span className="font-bold">Free Analysis Token</span>.
+          Keep it up! Play {7 - (streak % 7)} more
+          <br />days to get a{" "}
+          <span className="font-bold">10 Free Analyses Tokens</span>.
         </>
       )
     ) : variant === "reward" ? (
       <>
-        You have received 1 Token
+        You have received 10 Tokens
         <br />
-        for a <span className="font-bold">Free Analysis</span>.
+        for a <span className="font-bold">Free Analyses</span>.
       </>
     ) : null;
   // Static login-style shows: nudge to play while the flame is still off;
@@ -113,12 +123,17 @@ export function DayStreakModal({
         </button>
 
         <div className="px-[16px] sm:px-[20px] pt-[16px] sm:pt-[40px] relative z-10">
-          <DayStreakChips streak={streak} highlightNext={staticFlame === "off"} />
+          <DayStreakChips
+            streak={streak}
+            highlightNext={staticFlame === "off" || variant === "broken"}
+          />
         </div>
 
         <div
           className={`relative w-full min-h-0 shrink ${
-            variant === "celebration" ? "aspect-[15/16]" : "aspect-[10/9]"
+            variant === "celebration" || variant === "broken"
+              ? "aspect-[15/16]"
+              : "aspect-[10/9]"
           }`}
         >
           {animated ? (
@@ -150,12 +165,14 @@ export function DayStreakModal({
               priority
             />
           )}
-          {variant === "celebration" && (
+          {(variant === "celebration" || variant === "broken") && (
             <motion.span
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: numberDelay, duration: 0.45 }}
-              className="absolute inset-x-0 top-[90px] bottom-0 z-10 flex items-center justify-center pointer-events-none text-white font-extrabold text-[48px] sm:text-[86px] leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
+              className={`absolute inset-x-0 ${
+                variant === "broken" ? "top-[200px]" : "top-[90px]"
+              } bottom-0 z-10 flex items-center justify-center pointer-events-none text-white font-extrabold text-[48px] sm:text-[86px] leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]`}
             >
               {streak}
             </motion.span>
@@ -165,14 +182,16 @@ export function DayStreakModal({
               {title}
             </h2>
           )}
-          {(variant === "celebration" || variant === "reward") && (
+          {(variant === "celebration" ||
+            variant === "reward" ||
+            variant === "broken") && (
             <motion.div
-              initial={variant === "celebration" ? { opacity: 0 } : false}
+              initial={variant === "reward" ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: textDelay, duration: 0.5 }}
               className="absolute inset-x-0 bottom-0 px-[24px] pb-[3px] pt-0 text-center bg-gradient-to-t from-[#0E1E4B] to-transparent"
             >
-              {variant === "celebration" && (
+              {(variant === "celebration" || variant === "broken") && (
                 <h2 className="text-white font-bold text-[22px] sm:text-[26px]">
                   {title}
                 </h2>

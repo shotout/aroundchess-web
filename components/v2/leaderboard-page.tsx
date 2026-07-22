@@ -47,6 +47,7 @@ export function LeaderboardPage() {
   const [showJoinModal, setShowJoinModal] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isJumping, setIsJumping] = useState(false);
   const pageRef = useRef(1);
   // Single-flight guard so a fast scroll can't fire overlapping page fetches.
   const fetchingMoreRef = useRef(false);
@@ -54,10 +55,21 @@ export function LeaderboardPage() {
   const mapEntries = useCallback(
     (list: any[], myRank: number | null, offset: number) =>
       list.map((item: any, i: number) => {
+        const rank = item.rank ?? offset + i + 1;
+        // Prefer the backend's own flag; otherwise identify "me" by id or
+        // username. Rank is only a last resort — my_rank can drift from where
+        // the row actually lands and highlight the wrong player.
+        const apiIsMe = item.is_me ?? item.isMe;
+        const myId = profile?.id;
+        const myUsername = profile?.username;
         const isMe =
-          item.is_me ?? item.isMe ?? (myRank !== null && item.rank === myRank);
+          typeof apiIsMe === "boolean"
+            ? apiIsMe
+            : (myId != null && (item.id === myId || item.user_id === myId)) ||
+              (!!myUsername && item.username === myUsername) ||
+              (myRank !== null && rank === myRank);
         return {
-          rank: item.rank ?? offset + i + 1,
+          rank,
           username: item.username ?? item.name ?? "[Username]",
           score: item.score ?? item.elo ?? 0,
           rankChange: item.rank_change ?? item.rankChange ?? null,
@@ -71,7 +83,7 @@ export function LeaderboardPage() {
             (isMe ? profile?.imageUrl ?? null : null),
         };
       }),
-    [profile?.imageUrl]
+    [profile?.imageUrl, profile?.id, profile?.username]
   );
 
   const extractList = (data: any): any[] | null => {
@@ -146,9 +158,88 @@ export function LeaderboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, isLoading, mapEntries]);
 
+  // "My Rank" jump. The list is paged, so a deep rank (e.g. 9996) is never in
+  // the first pages — fetch the page that contains the user (plus the one
+  // above it for context) and replace the list with that neighborhood so the
+  // list can center the highlighted row.
+  const jumpToMyRank = useCallback(async (): Promise<boolean> => {
+    const state = usePlayPageStore.getState();
+    const rank = state.leaderboard?.my_rank ?? 0;
+    if (!rank) return false;
+
+    // Already loaded — let the list scroll straight to it, no fetch needed.
+    if ((state.leaderboardEntries ?? []).some((e) => e.isMe || e.rank === rank)) {
+      return true;
+    }
+
+    setIsJumping(true);
+    try {
+      const targetPage = Math.max(1, Math.ceil(rank / PAGE_SIZE));
+      const startPage = Math.max(1, targetPage - 1);
+      const pages: number[] = [];
+      for (let p = startPage; p <= targetPage; p++) pages.push(p);
+
+      const results = await Promise.all(
+        pages.map((p) => getLeaderboardData({ page: p, limit: PAGE_SIZE }).catch(() => null))
+      );
+
+      const merged: ReturnType<typeof mapEntries> = [];
+      const seen = new Set<number>();
+      let lastPageFull = false;
+      for (const data of results) {
+        if (!data?.success) continue;
+        const list = extractList(data.data);
+        if (!list) continue;
+        lastPageFull = list.length >= PAGE_SIZE;
+        for (const entry of mapEntries(list, rank, 0)) {
+          if (!seen.has(entry.rank)) {
+            seen.add(entry.rank);
+            merged.push(entry);
+          }
+        }
+      }
+
+      // The user's own row must be in the fetched neighborhood — otherwise the
+      // page param was ignored or my_rank is stale, so bail rather than swap in
+      // rows we can't scroll to.
+      if (!merged.some((e) => e.isMe)) return false;
+
+      merged.sort((a, b) => a.rank - b.rank);
+      setLeaderboardEntries(merged);
+      pageRef.current = targetPage;
+      setHasMore(lastPageFull);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setIsJumping(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getLeaderboardData, mapEntries]);
+
+  // Scroll-to-top from a "jumped" neighborhood: reload the first page so the
+  // list starts at rank #1 again instead of the top of the loaded slice.
+  const resetToTop = useCallback(async (): Promise<boolean> => {
+    try {
+      const data = await getLeaderboardData({ page: 1, limit: PAGE_SIZE });
+      if (!data?.success) return false;
+      const list = extractList(data.data);
+      if (!list || list.length === 0) return false;
+      const rank = data.data?.my_rank ?? null;
+      setLeaderboardEntries(mapEntries(list, rank, 0));
+      pageRef.current = 1;
+      setHasMore(list.length >= PAGE_SIZE);
+      return true;
+    } catch {
+      return false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getLeaderboardData, mapEntries]);
+
   const username = profile?.username || profile?.name || "You";
   const myElo = leaderboard?.my_elo ?? 0;
   const myRank = leaderboard?.my_rank ?? 0;
+  const totalPlayers = leaderboard?.total ?? null;
 
   const displayedEntries = useMemo(
     () =>
@@ -158,25 +249,35 @@ export function LeaderboardPage() {
     [leaderboardEntries, myRank, myElo, username]
   );
 
-  const needsMoreGames =
-    previewModal === "join" || (previewModal !== "inactive" && leaderboardMe !== null && leaderboardMe.can_join === false);
   const isInactive =
     previewModal === "inactive" ||
-    (previewModal !== "join" && leaderboardMe !== null && leaderboardMe.can_join !== false && leaderboardMe.is_inactive === true);
+    (previewModal !== "join" &&
+      leaderboardMe !== null &&
+      leaderboardMe.can_join === false &&
+      leaderboardMe.is_inactive === true);
+  const needsMoreGames =
+    previewModal === "join" ||
+    (previewModal !== "inactive" &&
+      !isInactive &&
+      leaderboardMe !== null &&
+      leaderboardMe.can_join === false &&
+      (leaderboardMe.games_remaining ?? 0) <= 5);
 
-  const joinModalContent = needsMoreGames
+  const joinModalContent = isInactive
+    ? {
+        title: "Join the Leaderboard again!",
+        description:
+          "You haven't played in the past 7 days. Start playing again and be back in the game. Don't worry - your previous results are still there!",
+        image: "/images/v2/leaderboard/leaderboard_join_again.png",
+      }
+    : needsMoreGames
     ? {
         title: `Play ${leaderboardMe?.games_remaining ?? 3} more ${
           (leaderboardMe?.games_remaining ?? 3) === 1 ? "game" : "games"
         } to join the Leaderboard.`,
         description:
           "Your ELO score is still being calculated. Complete 5 games to unlock your rating and claim your spot on the leaderboard.",
-      }
-    : isInactive
-    ? {
-        title: "Join the Leaderboard again!",
-        description:
-          "You haven't played in the past 7 days. Start playing again and be back in the game. Don't worry - your previous results are still there!",
+        image: "/images/v2/leaderboard/leaderboard_search.png",
       }
     : null;
 
@@ -186,6 +287,7 @@ export function LeaderboardPage() {
         <LeaderboardJoinModal
           title={joinModalContent.title}
           description={joinModalContent.description}
+          image={joinModalContent.image}
           onBack={() => {
             setShowJoinModal(false);
             router.back();
@@ -219,10 +321,14 @@ export function LeaderboardPage() {
               <LeaderboardList
                 entries={displayedEntries}
                 myRank={myRank}
+                totalPlayers={totalPlayers}
                 isLoading={isLoading && (!leaderboardEntries || leaderboardEntries.length === 0)}
                 hasMore={hasMore}
                 isLoadingMore={isLoadingMore}
                 onLoadMore={loadMore}
+                onJumpToMyRank={jumpToMyRank}
+                isJumpingToMyRank={isJumping}
+                onResetToTop={resetToTop}
               />
 
               <div className="pt-4"><LeaderboardNextGame userElo={myElo} /></div>

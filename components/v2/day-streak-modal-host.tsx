@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
 import { DayStreakModal } from "@/components/v2/day-streak-modal";
 import { useDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
+import { useBrokenStreakModal } from "@/components/v2/hooks/useBrokenStreakModal";
 
 /** Renders day-streak modal requests opened via useDayStreakModal /
  * openDayStreakModal from anywhere in the app (streak badges, tutorial
@@ -11,6 +12,8 @@ import { useDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
 export function DayStreakModalHost() {
   const request = useDayStreakModal((s) => s.request);
   const close = useDayStreakModal((s) => s.close);
+
+  useBrokenStreakModal();
 
   // A static (login-style) show counts as today's streak check-in, so the
   // once-per-day login modal doesn't open again on the next page visit.

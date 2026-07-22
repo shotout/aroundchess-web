@@ -2,9 +2,9 @@ import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { usePgnStore } from "@/app/store/zustandStore";
 import InitialAvatar from "@/components/avatar/InitialAvatar";
+import { GamePlayerAvatar } from "@/components/v2/game-player-avatar";
 import { useTutorial } from "@/components/TutorialProvider";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 
 interface BlackPlayerProps {
   winnerColor: string;
@@ -33,22 +33,11 @@ export const BlackPlayer = ({
   const isWin = winnerColor == "black";
   const isDraw = statusGame == "Draw";
   const isLoss = loserColor == "black";
-  const [chessComAvatar, setChessComAvatar] = useState<string | null>(null);
+  // Same seed recipe as the sidebar so the fallback color is stable per user.
+  const avatarSeed = profile?.username || username || profile?.email || "user";
 
   const { isTutorialPlay } = useTutorial();
 
-  useEffect(() => {
-    if (myColor === "white" && username) {
-      fetch(`https://api.chess.com/pub/player/${username.toLowerCase()}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.avatar) {
-            setChessComAvatar(data.avatar);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [myColor, username]);
   return isTutorialPlay ? (
     <div className={`flex flex-row min-h-[80px] items-center justify-between rounded-[8px] border border-[#FD0000] bg-[rgb(253,0,0,.16)] px-[16px]`}>
       <div className="flex item-center gap-[10px] md:gap-[16px]">
@@ -76,19 +65,7 @@ export const BlackPlayer = ({
     >
       <div className="flex flex-row items-center gap-2">
         {myColor != "white" ? (
-          <>
-            {chessComAvatar && chessComAvatar.length > 0 ? (
-              <Image
-                src={chessComAvatar || ""}
-                alt="icon"
-                width={1000}
-                height={1000}
-                className="w-[48px] h-[48px] rounded-full object-contain"
-              />
-            ) : (
-              <InitialAvatar name={username} size="sm" />
-            )}
-          </>
+          <GamePlayerAvatar imageUrl={profile?.imageUrl} seed={avatarSeed} />
         ) : (
           <Image
             src={AIChoosed.opponent.img}

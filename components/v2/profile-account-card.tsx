@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Lock, LogOut, Mail, Info, User } from "lucide-react";
+import { Loader2, Lock, LogOut, Mail, Info, User, X } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
@@ -415,15 +415,15 @@ const ProfileAccountCard = ({
               placeholder="Type here..."
               className={`w-full shadow-sm min-h-[44px] border px-[16px] py-[12px] ${
                 usernameStatus === "available"
-                  ? "bg-[#F4FBF7] border-[#1B8354] pr-[160px]"
+                  ? "bg-[#F4FBF7] border-[#1B8354]"
                   : usernameStatus === "unavailable"
-                  ? "bg-[#FFF5F5] border-[#D92D20] pr-[140px]"
+                  ? "bg-[#FFF5F5] border-[#D92D20]"
                   : `bg-[#FAFDFF] ${
                       (form.defaultUsername ?? "").length > 0
                         ? "border-[#737c7f]"
                         : "border-[#C0CED4]"
-                    } ${usernameStatus === "checking" ? "pr-[44px]" : ""}`
-              }`}
+                    }`
+              } ${usernameStatus === "checking" ? "pr-[44px]" : ""}`}
               value={form.defaultUsername}
               onChange={handleOnChange}
             />
@@ -432,26 +432,29 @@ const ProfileAccountCard = ({
                 <Loader2 className="w-4 h-4 animate-spin text-[#221AE9]" />
               </span>
             )}
-            {usernameStatus === "available" && (
-              <span className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center gap-1">
-                <Image
-                  src="/images/v2/profile/check 1.png"
-                  alt=""
-                  width={16}
-                  height={16}
-                  className="w-4 h-4 object-contain"
-                />
-                <span className="text-[12px] font-medium text-[#1B8354] whitespace-nowrap">
-                  Username available
-                </span>
-              </span>
-            )}
-            {usernameStatus === "unavailable" && (
-              <span className="absolute right-[12px] top-1/2 -translate-y-1/2 text-[12px] font-medium text-[#D92D20] whitespace-nowrap">
-                Username taken
-              </span>
-            )}
           </div>
+
+          {/* Availability status — below the field per design */}
+          {usernameStatus === "available" && (
+            <span className="flex items-center gap-1 text-[12px] font-medium text-[#1B8354]">
+              <Image
+                src="/images/v2/profile/check 1.png"
+                alt=""
+                width={16}
+                height={16}
+                className="w-4 h-4 object-contain shrink-0"
+              />
+              Username available
+            </span>
+          )}
+          {usernameStatus === "unavailable" && (
+            <span className="flex items-center gap-1 text-[12px] font-medium text-[#D92D20]">
+              <span className="flex items-center justify-center w-4 h-4 rounded-full bg-[#D92D20] shrink-0">
+                <X className="w-3 h-3 text-white" strokeWidth={3} />
+              </span>
+              Username is already taken
+            </span>
+          )}
         </div>
 
         <div className="space-y-2 w-full">

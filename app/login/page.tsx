@@ -150,10 +150,18 @@ useEffect(() => {
               profileData.data?.username || profileData.username;
             const userOnboardElo =
               profileData.data?.onboard_elo ?? profileData.onboard_elo;
+            // Prefer the explicit chess.com connection flag; fall back to the
+            // legacy "has a username" heuristic while the backend field rolls out.
+            const userIsChesscomConnected =
+              profileData.data?.is_chesscom_connected ??
+              profileData.is_chesscom_connected ??
+              Boolean(userUsername && userUsername.trim() !== "");
 
-            if (userUsername && userUsername.trim() !== "") {
+            if (userIsChesscomConnected) {
+              // Connected → skip onboarding entirely, ignoring onboard_elo.
               router.push("/playground/play-vs-ai");
             } else if (!userOnboardElo) {
+              // Not connected and no level set yet → show the knowledge screen.
               router.push("/chess-knowledge");
             } else {
               router.push("/playground/play-vs-ai");

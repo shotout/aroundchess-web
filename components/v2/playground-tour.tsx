@@ -252,9 +252,12 @@ function DemoWinCard() {
         )}
       </div>
       <div className="px-[20px] pb-[16px]">
-        <h2 className="text-center font-bold text-[22px] text-[#34C759] mt-[4px] mb-[10px]">
+        <h2 className="text-center font-bold text-[22px] text-[#34C759] mt-[4px] mb-[2px]">
           You Won
         </h2>
+        <p className="text-center text-[13px] text-[#374151] mb-[10px]">
+          Against Lisa (ELO 250)
+        </p>
         <div className="flex items-center justify-center gap-[8px] mb-[12px]">
           <div className="flex items-center justify-between gap-[12px] bg-[#34C759] rounded-[10px] px-[14px] py-[7px] flex-1 min-w-0 max-w-[280px]">
             <span className="text-white font-semibold text-[13px] whitespace-nowrap">
@@ -338,9 +341,12 @@ function DemoLoseCard() {
         )}
       </div>
       <div className="px-[20px] pb-[18px]">
-        <h2 className="text-center font-bold text-[22px] text-[#DC2626] mt-[4px] mb-[10px]">
+        <h2 className="text-center font-bold text-[22px] text-[#DC2626] mt-[4px] mb-[2px]">
           You Lost
         </h2>
+        <p className="text-center text-[13px] text-[#374151] mb-[10px]">
+          Against Lisa (ELO 250)
+        </p>
         <div className="flex items-center justify-center gap-[8px] mb-[12px]">
           <div className="flex items-center justify-between gap-[12px] bg-[#DC2626] rounded-[10px] px-[14px] py-[7px] flex-1 min-w-0 max-w-[280px]">
             <span className="text-white font-semibold text-[13px] whitespace-nowrap">
