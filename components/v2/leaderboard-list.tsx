@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PieceAvatar } from "@/components/v2/piece-avatar";
+import { formatNumber } from "@/components/v2/format-number";
 
 export interface LeaderboardEntry {
   rank: number;
@@ -55,7 +56,7 @@ const RANK_BADGE_ICON: Record<number, string> = {
 function ordinalParts(n: number): { value: string; suffix: string } {
   if (n <= 0) return { value: "—", suffix: "" };
   const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
-  return { value: String(n), suffix };
+  return { value: formatNumber(n), suffix };
 }
 
 function UserAvatar({ entry, index }: { entry: LeaderboardEntry; index: number }) {
@@ -94,27 +95,34 @@ function RankChange({ value }: { value?: number | null }) {
         height={12}
         className="w-[16px] h-[16px] object-contain"
       />
-      {Math.abs(value)}
+      {formatNumber(Math.abs(value))}
     </span>
   );
 }
 
+// Rank column. Fixed width so every avatar lines up in the same vertical column
+// no matter how many digits the rank has. Content is right-aligned, so the rank
+// always sits a consistent gap from the avatar; a longer rank grows leftward
+// into the empty space instead of pushing the avatar over.
+const RANK_WIDTH = "w-[56px]";
+
 function RankBadge({ rank }: { rank: number }) {
   const icon = RANK_BADGE_ICON[rank];
-  if (icon) {
-    return (
-      <Image
-        src={icon}
-        alt={`#${rank}`}
-        width={24}
-        height={24}
-        className="w-[24px] h-[24px] object-contain shrink-0"
-      />
-    );
-  }
   return (
-    <span className="flex items-center justify-center h-[24px] leading-none text-[13px] font-semibold text-[#6B7280] w-[24px] shrink-0">
-      #{rank}
+    <span className={`flex items-center justify-end h-[24px] shrink-0 ${RANK_WIDTH}`}>
+      {icon ? (
+        <Image
+          src={icon}
+          alt={`#${formatNumber(rank)}`}
+          width={24}
+          height={24}
+          className="w-[24px] h-[24px] object-contain"
+        />
+      ) : (
+        <span className="leading-none text-[13px] font-semibold text-[#6B7280] whitespace-nowrap">
+          #{formatNumber(rank)}
+        </span>
+      )}
     </span>
   );
 }
@@ -132,8 +140,8 @@ function Row({
     <div
       ref={innerRef}
       id={entry.isMe ? "my-rank" : undefined}
-      className={`flex items-center gap-[10px] px-[14px] sm:px-[18px] py-[10px] border-b border-[#F3F4F6] last:border-b-0 sm:border-b-0 sm:rounded-[12px] sm:shadow-sm ${
-        entry.isMe ? "bg-[#E6F7FE] border-l-[3px] border-l-[#221AE9]" : "bg-white"
+      className={`flex items-center gap-[10px] px-[14px] sm:px-[18px] py-[10px] border-b border-[#F3F4F6] last:border-b-0 sm:border-b-0 sm:rounded-[12px] sm:shadow-sm border-l-[3px] ${
+        entry.isMe ? "bg-[#E6F7FE] border-l-[#221AE9]" : "bg-white border-l-transparent"
       }`}
     >
       <RankChange value={entry.rankChange} />
@@ -142,7 +150,7 @@ function Row({
       <span className="flex-1 min-w-0 truncate text-[13px] sm:text-[14px] font-semibold text-[#111827]">
         {entry.username}
       </span>
-      <span className="text-[13px] sm:text-[14px] font-bold text-[#111827] shrink-0">{entry.score}</span>
+      <span className="text-[13px] sm:text-[14px] font-bold text-[#111827] shrink-0">{formatNumber(entry.score)}</span>
     </div>
   );
 }
@@ -151,7 +159,7 @@ function SkeletonRow() {
   return (
     <div className="flex items-center gap-[10px] px-[18px] py-[10px] border-b border-[#F3F4F6] shadow-md sm:border-b-0 sm:rounded-[12px] bg-white sm:shadow-sm">
       <span className={RANK_CHANGE_WIDTH} />
-      <span className="w-[24px] h-[16px] bg-gray-200 rounded animate-pulse" />
+      <span className={`${RANK_WIDTH} h-[16px] bg-gray-200 rounded animate-pulse`} />
       <div className="w-[32px] h-[32px] rounded-full bg-gray-200 animate-pulse shrink-0" />
       <div className="flex-1 h-[13px] bg-gray-200 rounded animate-pulse" />
       <div className="w-[40px] h-[13px] bg-gray-200 rounded animate-pulse" />
@@ -304,9 +312,9 @@ export function LeaderboardList({
         </button>
       </div>
 
-      <div className="flex items-center gap-[10px] px-[14px] sm:px-[18px] py-[10px] rounded-[12px] bg-[#221AE9]">
+      <div className="flex items-center gap-[10px] px-[14px] sm:px-[18px] py-[10px] rounded-[12px] bg-[#221AE9] border-l-[3px] border-l-transparent">
         <span className={`${RANK_CHANGE_WIDTH} shrink-0`} />
-        <span className="w-[24px] shrink-0" />
+        <span className={`${RANK_WIDTH} shrink-0`} />
         <span className="flex-1 text-md sm:text-xl font-bold text-white">Player</span>
         <span
           className="flex items-center gap-[4px] text-md sm:text-xl font-bold text-white"

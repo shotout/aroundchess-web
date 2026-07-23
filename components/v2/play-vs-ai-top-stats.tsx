@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
+import { formatNumber } from "@/components/v2/format-number";
 
 interface PlayVsAiTopStatsProps {
   elo: number;
@@ -14,7 +15,7 @@ function toOrdinal(n: number): string {
   // Product rule: only the top three ranks get st/nd/rd — every other rank
   // is plain "th" (4th, 21th, 10002th), per design.
   const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
-  return n + suffix;
+  return formatNumber(n) + suffix;
 }
 
 function StatItem({
@@ -91,7 +92,7 @@ export function PlayVsAiTopStats({ elo, rank, movedUp }: PlayVsAiTopStatsProps) 
               className="w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] object-contain"
             />
             <span className={`text-[14px] sm:text-[25px] font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
-              {movedUpAbs}
+              {formatNumber(movedUpAbs)}
             </span>
           </span>
         ) : (
