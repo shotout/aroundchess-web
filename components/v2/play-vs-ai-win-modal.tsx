@@ -186,7 +186,7 @@ export function PlayVsAiWinModal({
             disabled={!selectedOpponent}
             className="w-full py-[12px] sm:py-[14px] sm:[@media(max-height:920px)]:py-[12px] rounded-full bg-[#221AE9] text-white font-semibold text-[15px] sm:text-[16px] hover:bg-[#2d25ea] transition-colors disabled:opacity-50"
           >
-            Start Game
+            Start new Game
           </button>
         </div>
       </div>

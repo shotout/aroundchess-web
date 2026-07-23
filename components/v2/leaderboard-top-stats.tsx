@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
+import { formatNumber } from "@/components/v2/format-number";
 
 interface LeaderboardTopStatsProps {
   elo: number;
@@ -14,7 +15,7 @@ function toOrdinal(n: number): string {
   // Product rule: only the top three ranks get st/nd/rd — every other rank
   // is plain "th" (4th, 21th, 10002th), per design.
   const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
-  return n + suffix;
+  return formatNumber(n) + suffix;
 }
 
 function StatCard({
@@ -111,7 +112,7 @@ export function LeaderboardTopStats({ elo, rank, movedUp }: LeaderboardTopStatsP
                 className="w-[11px] h-[11px] object-contain"
               />
               <span className={`text-[15px] font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
-                {movedUpAbs}
+                {formatNumber(movedUpAbs)}
               </span>
             </div>
           ) : (
@@ -146,7 +147,7 @@ export function LeaderboardTopStats({ elo, rank, movedUp }: LeaderboardTopStatsP
                   className="w-[14px] h-[14px] object-contain"
                 />
                 <span className={`text-[18px] sm:text-[20px] font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
-                  {movedUpAbs}
+                  {formatNumber(movedUpAbs)}
                 </span>
               </div>
             ) : (
