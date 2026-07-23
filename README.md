@@ -13,4 +13,3 @@ A comprehensive chess training and analysis platform that acts as your personal 
 - Comprehensive chess strategy guides
 - Real-time performance tracking
 - AI-driven chess coaching
-- 
