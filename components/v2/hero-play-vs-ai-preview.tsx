@@ -43,6 +43,35 @@ const buildRecommended = (roster: AiRosterOpponent[], userElo: number): Opponent
     .map(({ name, elo, img }) => ({ name, elo, img }));
 };
 
+// Default Recommended list for visitors with no ELO yet (not logged in): a
+// fixed beginner spread of 250 / 400 / 500 / 600, one bot per step.
+const DEFAULT_RECOMMENDED_ELOS = [250, 400, 500, 600];
+
+const buildDefaultRecommended = (roster: AiRosterOpponent[]): Opponent[] => {
+  const used = new Set<number>();
+  const picks = DEFAULT_RECOMMENDED_ELOS.map((target) => {
+    let best: AiRosterOpponent | null = null;
+    for (const o of roster) {
+      if (used.has(o.id)) continue;
+      const exact = o.elo === target;
+      const bestExact = best?.elo === target;
+      if (
+        !best ||
+        (exact && !bestExact) ||
+        (exact === bestExact &&
+          Math.abs(o.elo - target) < Math.abs((best as AiRosterOpponent).elo - target))
+      ) {
+        best = o;
+      }
+    }
+    used.add(best!.id);
+    return best!;
+  });
+  return picks
+    .sort((a, b) => a.elo - b.elo)
+    .map(({ name, elo, img }) => ({ name, elo, img }));
+};
+
 const opponentsByTab: Record<string, Opponent[]> = {
   beginner: buildTier(250, 850),
   intermediate: buildTier(900, 1350),
@@ -96,6 +125,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   const router = useRouter();
   const { setAIChoosed, setSelectedOpponent: setStoreOpponent } = usePlayVSAIStore();
   const { leaderboard } = usePlayPageStore();
+  const hasUserElo = !!leaderboard?.my_elo;
   const userElo = leaderboard?.my_elo || DEFAULT_USER_ELO;
 
   // Deterministic on first render (SSR-safe), shuffled after mount so ties
@@ -106,8 +136,11 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   }, []);
 
   const recommendedOpponents = useMemo(
-    () => buildRecommended(rosterOrder, userElo),
-    [rosterOrder, userElo]
+    () =>
+      hasUserElo
+        ? buildRecommended(rosterOrder, userElo)
+        : buildDefaultRecommended(rosterOrder),
+    [rosterOrder, userElo, hasUserElo]
   );
 
   const opponentsFor = (key: string) =>
@@ -118,6 +151,30 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   const [selectedOpponent, setSelectedOpponent] = useState(() => buildRecommended(AI_OPPONENT_ROSTER, DEFAULT_USER_ELO)[0]);
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0 });
+
+  // Scroll-spy for the Recommended tab's combined list: as the user scrolls
+  // past each tier's section, the matching tab highlights (without switching
+  // the rendered content — selectedTab is unchanged).
+  const listRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [activeSection, setActiveSection] = useState("recommended");
+
+  const handleListScroll = () => {
+    const container = listRef.current;
+    if (!container) return;
+    const contTop = container.getBoundingClientRect().top;
+    const keys = ["recommended", ...tabs.slice(1).map((t) => t.key)];
+    let current = "recommended";
+    for (const key of keys) {
+      const el = sectionRefs.current[key];
+      if (!el) continue;
+      // A section counts as "current" once its top has scrolled up to near
+      // the container's top edge.
+      if (el.getBoundingClientRect().top - contTop <= 48) current = key;
+    }
+    setActiveSection(current);
+  };
 
   // Mirror the live selection into the shared store so the opponent bar over
   // the board preview (a sibling component) tracks whoever is highlighted here.
@@ -149,6 +206,26 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   const stopDrag = () => { dragState.current.isDragging = false; };
 
   const currentOpponents = opponentsFor(selectedTab);
+  // On the Recommended tab the highlight follows the scrolled-to section;
+  // on a single-tier tab it just follows the selected tab.
+  const highlightKey = selectedTab === "recommended" ? activeSection : selectedTab;
+
+  // Keep the highlighted tab in view: scroll the (horizontally scrollable) tab
+  // bar so the active tab is revealed as scroll-spy moves the highlight.
+  useEffect(() => {
+    const container = tabsScrollRef.current;
+    const el = tabRefs.current[highlightKey];
+    if (!container || !el) return;
+    const elLeft = el.offsetLeft;
+    const elRight = elLeft + el.offsetWidth;
+    const viewLeft = container.scrollLeft;
+    const viewRight = viewLeft + container.clientWidth;
+    if (elLeft < viewLeft) {
+      container.scrollTo({ left: Math.max(0, elLeft - 8), behavior: "smooth" });
+    } else if (elRight > viewRight) {
+      container.scrollTo({ left: elRight - container.clientWidth + 8, behavior: "smooth" });
+    }
+  }, [highlightKey]);
 
   const handlePlayNow = () => {
     setAIChoosed({
@@ -214,12 +291,16 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
             <button
               key={tab.key}
               type="button"
+              ref={(el) => {
+                tabRefs.current[tab.key] = el;
+              }}
               onClick={() => {
                 setSelectedTab(tab.key);
+                setActiveSection(tab.key);
                 setSelectedOpponent(opponentsFor(tab.key)[0]);
               }}
               className={`flex-shrink-0 min-w-[110px] px-3 py-2 rounded-lg border text-center transition-colors ${
-                selectedTab === tab.key
+                highlightKey === tab.key
                   ? "border-blue-base text-blue-base"
                   : "border-gray-200 text-gray-700"
               }`}
@@ -255,8 +336,17 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
       </div>
 
       {selectedTab === "recommended" ? (
-        <div className={`${recommendedListHeightClass} max-sm:h-auto grow mb-2 overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}>
-          <div className="grid grid-cols-4 gap-2">
+        <div
+          ref={listRef}
+          onScroll={handleListScroll}
+          className={`${recommendedListHeightClass} max-sm:h-auto grow mb-2 overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}
+        >
+          <div
+            ref={(el) => {
+              sectionRefs.current["recommended"] = el;
+            }}
+            className="grid grid-cols-4 gap-2"
+          >
             {recommendedOpponents.map((opponent) => (
               <OpponentCard
                 key={`rec-${opponent.name}-${opponent.elo}`}
@@ -269,7 +359,12 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
           {/* Other tiers below the recommended row — desktop only; mobile shows just the 4 picks */}
           <div className="space-y-2 max-sm:hidden">
           {tabs.slice(1).map((tab) => (
-            <div key={tab.key}>
+            <div
+              key={tab.key}
+              ref={(el) => {
+                sectionRefs.current[tab.key] = el;
+              }}
+            >
               <div className="flex items-center gap-3 py-1">
                 <div className="h-px flex-1 bg-gray-200" />
                 <span className="text-[12px] sm:text-sm text-gray-500">{tab.label}</span>

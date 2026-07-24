@@ -106,10 +106,10 @@ export function PlayVsAiLoseModal({
           </div>
 
           <p className="text-center font-bold text-[15px] sm:text-[17px] text-[#111827]">
-            Tough game!
+            That was close!
           </p>
           <p className="text-center text-[13px] sm:text-[15px] text-[#111827] mb-[12px] sm:mb-[18px] sm:[@media(max-height:920px)]:mb-[12px]">
-            Ready to bounce back and try again?
+            Discover your biggest mistakes now to see how to win next time!
           </p>
 
           <button

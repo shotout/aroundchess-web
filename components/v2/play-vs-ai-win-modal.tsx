@@ -136,7 +136,7 @@ export function PlayVsAiWinModal({
           </p>
 
           {/* Challenge next opponents */}
-          <div className="rounded-[14px] border border-[#7CC0F2] p-[8px] sm:p-[10px] mb-[12px] sm:mb-[16px] sm:[@media(max-height:920px)]:mb-[10px]">
+          <div className="rounded-[14px] border border-[#7CC0F2] p-[8px] sm:p-[10px] mb-[10px] sm:mb-[10px] sm:[@media(max-height:920px)]:mb-[8px]">
             <p className="text-center text-[12px] sm:text-[14px] font-medium text-[#111827] mb-[4px] sm:mb-[6px]">
               Challenge those Opponents next:
             </p>
@@ -157,9 +157,9 @@ export function PlayVsAiWinModal({
                     <Image
                       src={opponent.img}
                       alt={opponent.name}
-                      width={56}
-                      height={56}
-                      className="w-[34px] h-[34px] sm:w-[40px] sm:h-[40px] rounded-full object-cover"
+                      width={84}
+                      height={84}
+                      className="w-[56px] h-[56px] sm:w-[72px] sm:h-[72px] rounded-full object-cover"
                     />
                     <span
                       className={`text-[12px] sm:text-[13px] font-semibold truncate max-w-full ${

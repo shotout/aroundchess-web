@@ -684,20 +684,13 @@ function RegisterPage() {
                   </div>
                 </form>
 
-                <div className="mt-6 grid grid-cols-2 gap-3">
+                <div className="mt-3">
                   <button
                     onClick={resendVerificationCode}
-                    className="h-12 bg-white/40 hover:bg-white/60 text-blue-600 font-medium rounded-md transition-colors"
+                    className="w-full h-12 bg-white/40 hover:bg-white/60 text-blue-600 font-semibold rounded-full transition-colors"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Sending..." : "Resend code"}
-                  </button>
-
-                  <button
-                    onClick={() => setEmailSent(false)}
-                    className="h-12 bg-white/40 hover:bg-white/60 text-black font-medium rounded-md transition-colors"
-                  >
-                    Change email
+                    {isLoading ? "Sending..." : "Resend Code"}
                   </button>
                 </div>
               </div>

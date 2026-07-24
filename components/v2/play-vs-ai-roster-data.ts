@@ -165,5 +165,18 @@ export function pickRecommendedOpponents(userElo: number): AiRosterOpponent[] {
   take(above[0]);
   take(above[1]);
 
+  // Backfill to a full row of 4 so the modal never shows a short list at the
+  // ladder extremes (e.g. bottom ELO has no "below" opponent, top ELO has no
+  // "above"). Pull the remaining nearest opponents by ELO distance.
+  if (picked.length < 4) {
+    const nearest = AI_OPPONENT_ROSTER.filter((o) => !usedIds.has(o.id)).sort(
+      (a, b) => Math.abs(a.elo - userElo) - Math.abs(b.elo - userElo)
+    );
+    for (const candidate of nearest) {
+      if (picked.length >= 4) break;
+      take(candidate);
+    }
+  }
+
   return picked;
 }

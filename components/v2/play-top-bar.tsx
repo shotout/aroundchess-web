@@ -28,15 +28,25 @@ function toOrdinal(n: number): string {
   return formatNumber(n) + suffix;
 }
 
+// Tooltip copy for each stat (shared between the desktop and mobile bars).
+const ELO_INFO =
+  "Your ELO score reflects your current playing strength. It updates after each rated game based on your results and your opponents' ratings.";
+const RANK_INFO =
+  "Your Rank is your position on the leaderboard based on your ELO score.";
+const MOVED_INFO =
+  "The number of positions you gained or lost on the leaderboard since yesterday.";
+
 function StatItem({
   icon,
   label,
   infoText,
+  infoAlign = "right",
   children,
 }: {
   icon: string;
   label: string;
   infoText?: string;
+  infoAlign?: "left" | "right" | "center";
   children: React.ReactNode;
 }) {
   return (
@@ -44,7 +54,7 @@ function StatItem({
       <Image src={icon} alt="" width={22} height={22} className="w-[22px] h-[22px] object-contain shrink-0" />
       <span className="text-[11px] sm:text-[12px] text-[#6B7280] whitespace-nowrap">{label}</span>
       {infoText ? (
-        <InfoTooltip text={infoText} size={14} />
+        <InfoTooltip text={infoText} size={14} align={infoAlign} />
       ) : (
         <Image src="/images/v2/play/information.png" alt="info" width={14} height={14} className="w-[14px] h-[14px] object-contain shrink-0" />
       )}
@@ -57,11 +67,13 @@ function MobileStatItem({
   icon,
   label,
   infoText,
+  infoAlign = "right",
   children,
 }: {
   icon: string;
   label: string;
   infoText?: string;
+  infoAlign?: "left" | "right" | "center";
   children: React.ReactNode;
 }) {
   return (
@@ -70,7 +82,7 @@ function MobileStatItem({
         <Image src={icon} alt="" width={18} height={18} className="w-[18px] h-[18px] object-contain shrink-0" />
         <span className="text-[11px] text-[#6B7280] whitespace-nowrap">{label}</span>
         {infoText ? (
-          <InfoTooltip text={infoText} size={12} />
+          <InfoTooltip text={infoText} size={12} align={infoAlign} />
         ) : (
           <Image src="/images/v2/play/information.png" alt="info" width={12} height={12} className="w-[12px] h-[12px] object-contain shrink-0" />
         )}
@@ -99,7 +111,7 @@ function StatsCover({ gamesRemaining, grey }: { gamesRemaining?: number; grey?: 
       )}
       {text && (
         <span
-          className={`relative px-4 text-center text-[12px] sm:text-[14px] font-semibold ${
+          className={`relative px-4 text-center text-[10px] sm:text-[12px] font-semibold ${
             grey ? "text-[#6B7280]" : "text-[#7ED2EC]"
           }`}
         >
@@ -254,11 +266,11 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
         <div className="relative flex items-start justify-between mb-[14px] bg-white p-2 rounded-xl">
           {isInactive && <StatsCover gamesRemaining={gamesRemaining} />}
           {canJoin === false && !isInactive && <StatsCover grey gamesRemaining={gamesRemaining} />}
-          <MobileStatItem icon="/images/v2/play/elo.png" label="Your ELO">
+          <MobileStatItem icon="/images/v2/play/elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left">
             <span className="text-[20px] font-bold text-[#111827]">{elo || "—"}</span>
           </MobileStatItem>
 
-          <MobileStatItem icon="/images/v2/play/rank.png" label="Your Rank">
+          <MobileStatItem icon="/images/v2/play/rank.png" label="Your Rank" infoText={RANK_INFO} infoAlign="center">
             <span className="text-[20px] font-bold text-[#111827]">
               {rank > 0 && rank < 10 ? `0${toOrdinal(rank)}` : toOrdinal(rank)}
             </span>
@@ -267,7 +279,8 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
           <MobileStatItem
             icon="/images/v2/play/rank_move.png"
             label={movedLabel}
-            infoText="The number of positions you gained or lost on the leaderboard since yesterday."
+            infoText={MOVED_INFO}
+            infoAlign="right"
           >
             {isUp || isDown ? (
               <div className="flex items-center gap-[4px]">
@@ -330,18 +343,19 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
             {isInactive && <StatsCover gamesRemaining={gamesRemaining} />}
             {canJoin === false && !isInactive && <StatsCover grey gamesRemaining={gamesRemaining} />}
             <div className="flex flex-wrap items-center justify-center gap-x-[16px] xl:gap-x-[30px] gap-y-[6px]">
-              <StatItem icon="/images/v2/play/elo.png" label="Your ELO">
+              <StatItem icon="/images/v2/play/elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left">
                 <span className="text-xl font-bold text-[#111827]">{elo || "—"}</span>
               </StatItem>
 
-              <StatItem icon="/images/v2/play/rank.png" label="Your Rank">
+              <StatItem icon="/images/v2/play/rank.png" label="Your Rank" infoText={RANK_INFO} infoAlign="left">
                 <span className="text-xl font-bold text-[#111827]">{toOrdinal(rank)}</span>
               </StatItem>
 
               <StatItem
                 icon="/images/v2/play/rank_move.png"
                 label={movedLabel}
-                infoText="The number of positions you gained or lost on the leaderboard since yesterday."
+                infoText={MOVED_INFO}
+                infoAlign="right"
               >
                 {isUp || isDown ? (
                   <div className="flex items-center gap-[4px]">

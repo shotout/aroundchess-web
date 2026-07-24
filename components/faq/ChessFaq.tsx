@@ -1,10 +1,36 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { useApiClient } from "@/functions/api-client";
 import { searchFAQs } from "./search";
 import ChessFAQSkeleton from "./ChessFaqSkeleton";
+
+// Preferred display order for FAQ questions (matched by keyword), so the list
+// renders in the approved design order regardless of the API's own ordering.
+// Questions that match none of these keep their original order, after the rest.
+const QUESTION_ORDER = [
+  // General Questions
+  "ai analysis",
+  "training programs",
+  "track my progress",
+  "suitable for players",
+  "opening preparation",
+  // Pricing, Tokens and Subscriptions
+  "pricing model",
+  "difference between the token",
+  "free package",
+  "unused analysis tokens",
+];
+
+function orderQuestions(questions: any[]): any[] {
+  const rank = (q: any) => {
+    const text = (q?.question || "").toLowerCase();
+    const i = QUESTION_ORDER.findIndex((kw) => text.includes(kw));
+    return i === -1 ? QUESTION_ORDER.length : i;
+  };
+  return [...questions].sort((a, b) => rank(a) - rank(b));
+}
 
 export default function ChessFAQ() {
   const { getFAQ, isLoading } = useApiClient();
@@ -12,7 +38,7 @@ export default function ChessFAQ() {
   const [query, setQuery] = useState<string>("");
   const [data, setData] = useState<any[]>([]);
   const [question, setQuestion] = useState<any[]>([]);
-  const [openQuestion, setOpenQuestion] = useState<number>(0);
+  const [openItems, setOpenItems] = useState<Set<number>>(new Set());
   const [widthContainer, setWidthContainer] = useState<number>(700);
   const [mounted, setMounted] = useState<boolean>(true);
   const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -53,9 +79,28 @@ export default function ChessFAQ() {
       .finally(() => {});
   };
 
-  const toggleQuestion = (index: any) => {
-    setOpenQuestion(openQuestion === index ? null : index);
+  // Multiple items can be open at once — items start collapsed and each toggle
+  // just flips whether that one index is open.
+  const toggleQuestion = (index: number) => {
+    setOpenItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
   };
+
+  // Reset to "all collapsed" whenever the visible question set changes
+  // (switching tabs or running a search).
+  useEffect(() => {
+    setOpenItems(new Set());
+  }, [question]);
+
+  // Render questions in the approved design order (see QUESTION_ORDER).
+  const orderedQuestions = useMemo(() => orderQuestions(question), [question]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -170,29 +215,21 @@ export default function ChessFAQ() {
         ))}
       </div>
 
-      <div className="md:hidden flex flex-row mx-[16px] gap-2">
+      <div className="md:hidden flex flex-row mx-[16px] border-b border-gray-200">
         {filteredData.map((tab, index) => (
           <button
             key={tab.id}
-            className={`relative flex flex-col items-center justify-center px-[12px] h-[42px] rounded-[12px] overflow-hidden ${
-              tab.label.includes("General") ? "w-[40%]" : "w-[60%]"
-            } ${
+            className={`flex-1 flex items-center justify-center text-center px-[8px] py-[10px] text-[13px] leading-tight border-b-2 -mb-px transition-colors ${
               activeTab === tab.label
-                ? "text-[#221AE9] border border-[#221AE9] bg-blue-50"
-                : "bg-white border border-gray-300"
+                ? "text-[#221AE9] font-bold border-[#221AE9]"
+                : "text-gray-600 font-medium border-transparent"
             }`}
             onClick={() => {
               setQuestion(tab.questions);
               setActiveTab(tab.label);
             }}
           >
-
-            {/* Mobile text wrapper */}
-            <div className="flex flex-col items-start">
-              <span className="block text-[11px] font-medium text-start">
-                {tab.label}
-              </span>
-            </div>
+            {tab.label}
           </button>
         ))}
       </div>
@@ -202,9 +239,9 @@ export default function ChessFAQ() {
       </h2>
 
       <div className="space-y-3 mx-4 mb-[32px] z-[2]">
-        {question != null &&
-          question.length > 0 &&
-          question.map((faq: any, index: number) => (
+        {orderedQuestions != null &&
+          orderedQuestions.length > 0 &&
+          orderedQuestions.map((faq: any, index: number) => (
             <div key={index} className="bg-white rounded-md shadow">
               <button
                 onClick={() => toggleQuestion(index)}
@@ -213,15 +250,15 @@ export default function ChessFAQ() {
                 <span className="font-semibold text-[14px] -- md:text-[16px]">
                   {faq.question}
                 </span>
-                {openQuestion === index ? (
+                {openItems.has(index) ? (
                   <ChevronUp size={20} />
                 ) : (
                   <ChevronDown size={20} />
                 )}
               </button>
 
-              {openQuestion === index && (
-                <div className="px-[20px] py-[5px] md:py-[10px] border-t bg-[#F2FBFE]">
+              {openItems.has(index) && (
+                <div className="faq-answer px-[20px] py-[5px] md:py-[10px] border-t bg-[#F2FBFE]">
                   {Array.isArray(faq.answer) && faq.answer.length > 0 ? (
                     <div className="space-y-1">
                       {faq.answer.map((line: any, i: number) => (

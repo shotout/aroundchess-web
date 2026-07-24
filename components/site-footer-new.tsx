@@ -143,36 +143,20 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                     href="/play"
                     className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
-                    Play & Practice
+                    Play
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/my-game-history"
+                    href="/leaderboard"
                     className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
-                    Analyze Games
+                    Leaderboard
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/training"
-                    className="hover:text-gray-900 hover:underline text-[#364152]"
-                  >
-                    Training
-                  </Link>
-                </li>
-                {/* <li>
-                  <Link
-                    href="/opening-theory"
-                    className="hover:text-gray-900 hover:underline text-[#364152]"
-                  >
-                    Learning
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/playground/play-vs-ai"
+                    href="/practice"
                     className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
                     Practice
@@ -180,20 +164,12 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 </li>
                 <li>
                   <Link
-                    href="/analysis"
+                    href="/learn"
                     className="hover:text-gray-900 hover:underline text-[#364152]"
                   >
-                    Game Analysis
+                    Learn
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/playground/puzzle"
-                    className="hover:text-gray-900 hover:underline text-[#364152]"
-                  >
-                    Playground
-                  </Link>
-                </li> */}
               </ul>
             </div>
             <div>
