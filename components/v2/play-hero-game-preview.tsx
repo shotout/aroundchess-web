@@ -5,6 +5,7 @@ import { HeroPlayVSAIPreview } from "./hero-play-vs-ai-preview";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { GamePlayerAvatar } from "@/components/v2/game-player-avatar";
+import { AiOpponentPreviewBar } from "@/components/v2/ai-opponent-preview-bar";
 
 export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommendedListHeightClass?: string }) {
   const { profile } = useProfileStore();
@@ -17,13 +18,7 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
   return (
     <div data-tour-anchor="playground-hero" className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
       <div data-tour-anchor="board-preview" className="hidden sm:flex sm:w-[70%] bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex-col gap-2">
-        <Image
-          src="/images/homepage/v2/homepage_board_asset_1.png"
-          alt="Player preview"
-          width={525}
-          height={52}
-          className="w-full h-auto"
-        />
+        <AiOpponentPreviewBar />
         <Image
           src="/images/homepage/v2/homepage_board_asset_2.png"
           alt="Chessboard preview"
@@ -39,7 +34,7 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
           height={36}
           className="w-full h-auto"
         />
-        <div className="flex items-center justify-left gap-2 pt-2 sm:pt-2 border-t-2 mt-auto">
+        <div data-preview-bar="player" className="flex items-center justify-left gap-2 pt-2 sm:pt-2 border-t-2 mt-auto">
           <GamePlayerAvatar imageUrl={profile?.imageUrl} seed={avatarSeed} />
           <div className="flex flex-col leading-tight min-w-0">
             <span className="font-bold text-[clamp(14px,1.4vw,18px)] text-[#040404] truncate">

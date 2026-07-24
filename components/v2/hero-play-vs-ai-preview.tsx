@@ -94,7 +94,7 @@ function OpponentCard({
 
 export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }: { recommendedListHeightClass?: string }) {
   const router = useRouter();
-  const { setAIChoosed } = usePlayVSAIStore();
+  const { setAIChoosed, setSelectedOpponent: setStoreOpponent } = usePlayVSAIStore();
   const { leaderboard } = usePlayPageStore();
   const userElo = leaderboard?.my_elo || DEFAULT_USER_ELO;
 
@@ -118,6 +118,12 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   const [selectedOpponent, setSelectedOpponent] = useState(() => buildRecommended(AI_OPPONENT_ROSTER, DEFAULT_USER_ELO)[0]);
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0 });
+
+  // Mirror the live selection into the shared store so the opponent bar over
+  // the board preview (a sibling component) tracks whoever is highlighted here.
+  useEffect(() => {
+    setStoreOpponent(selectedOpponent);
+  }, [selectedOpponent, setStoreOpponent]);
 
   // Keep the selection valid when the recommended list changes (shuffle or ELO load).
   useEffect(() => {

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Lottie from "lottie-react";
-import { Bookmark, Settings } from "lucide-react";
+import { ArrowLeft, Bookmark, RotateCw, Settings, Trophy } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -19,6 +19,7 @@ import { EloOdometer } from "@/components/v2/elo-odometer";
 import { preloadLottie, useLottieData } from "@/components/v2/hooks/useLottieData";
 import { pickRecommendedOpponents } from "@/components/v2/play-vs-ai-roster-data";
 import { openDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
+import { setPlaygroundTourActive } from "@/components/v2/playground-tour-active";
 import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 
@@ -520,6 +521,106 @@ function InterludeBoard({ rect, onDone }: { rect: Rect; onDone: () => void }) {
   );
 }
 
+// Mock move list shown over the opponent panel during the interlude so the
+// right column reads like the real vs-AI game screen (Movement Details + a
+// won-game banner). Purely decorative — a plausible white checkmate.
+const INTERLUDE_MOVES: [string, string][] = [
+  ["e4", "e5"],
+  ["Bc4", "Nc6"],
+  ["Qh5", "g6"],
+  ["Qf3", "Nf6"],
+  ["d3", "Bc5"],
+  ["Qb3", "Qe7"],
+  ["Ng5", "Nd8"],
+  ["Bxf7+", "Nxf7"],
+  ["Nxf7", "Qxf7"],
+  ["Qxf7#", ""],
+];
+
+function InterludeMoveList({ rect }: { rect: Rect }) {
+  return (
+    <div
+      className="fixed pointer-events-none"
+      style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
+    >
+      <div className="w-full h-full bg-white rounded-2xl border-2 border-[#81CFF3] shadow-lg p-3 sm:p-4 flex flex-col overflow-hidden">
+        {/* header */}
+        <div className="flex items-center gap-3 rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-3 mb-3 shrink-0">
+          <ArrowLeft size={20} className="text-black" />
+          <div className="flex items-center gap-2">
+            <Image
+              src="/images/play-vs-ai/icon-play-vs-ai.png"
+              alt="You vs AI"
+              width={22}
+              height={21}
+              className="w-[20px] h-[19px] object-contain"
+            />
+            <span className="font-semibold text-[16px]">You vs AI</span>
+          </div>
+        </div>
+
+        {/* tabs */}
+        <div className="grid grid-cols-2 gap-2 rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 mb-3 shrink-0">
+          <div className="flex items-center justify-center py-2 rounded-[6px] bg-white shadow-md border border-[#DEDEDE]">
+            <span className="text-[14px] font-semibold text-[#221AE9]">Current Game</span>
+          </div>
+          <div className="flex items-center justify-center py-2 rounded-[6px]">
+            <span className="text-[14px] font-semibold text-black">Past Games</span>
+          </div>
+        </div>
+
+        {/* movement details */}
+        <div className="flex-1 min-h-0 rounded-[16px] border border-[#DEDEDE] p-3 flex flex-col overflow-hidden">
+          <span className="font-semibold text-center text-[14px] mb-2 shrink-0">
+            Movement Details
+          </span>
+          <div className="overflow-y-auto min-h-0">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-[#D7E3FB]">
+                  <th className="p-1.5 border border-[#BDD0F9] font-normal text-[12px]">#</th>
+                  <th className="p-1.5 border border-[#BDD0F9] font-normal text-[12px]">You (White)</th>
+                  <th className="p-1.5 border border-[#BDD0F9] font-normal text-[12px]">Computer (Black)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {INTERLUDE_MOVES.map(([white, black], i) => (
+                  <tr key={i} className="text-center">
+                    <td className="p-1.5 border border-[#BDD0F9] text-[12px]">{i + 1}</td>
+                    <td className="p-1.5 border border-[#BDD0F9] text-[12px]">{white}</td>
+                    <td className="p-1.5 border border-[#BDD0F9] text-[12px]">{black}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex justify-center gap-3 mt-3 shrink-0">
+            <div className="rounded-[4px] w-1/2 h-[32px] flex items-center justify-center bg-[rgba(34,26,233,0.2)] border border-[#221AE9]">
+              <ArrowLeft size={18} className="text-black" />
+            </div>
+            <div className="rounded-[4px] w-1/2 h-[32px] flex items-center justify-center bg-[rgba(34,26,233,0.2)] border border-[#221AE9]">
+              <RotateCw size={18} className="text-black" />
+            </div>
+          </div>
+        </div>
+
+        {/* won-game banner + analyze */}
+        <div className="mt-3 flex flex-col gap-2 shrink-0">
+          <div className="flex items-center gap-2 rounded-[8px] px-3 py-2 bg-gradient-to-r from-[#34C759] to-[#2FB350] text-white">
+            <Trophy size={16} className="shrink-0" />
+            <span className="text-[13px] font-semibold">
+              Congratulations! You have won this Game!
+            </span>
+          </div>
+          <div className="w-full py-2 rounded-full bg-[#34C759] text-white font-semibold text-[13px] text-center">
+            Analyze Now
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ----------------- analysis demo (mirrors GameAnalysis) ----------------- */
 
 const DEMO_MISTAKES = [
@@ -565,33 +666,20 @@ const DEMO_MISTAKES = [
 // played while the red (bad) and green (better) arrows stay visible.
 function DemoSlideBoard({
   mistake,
-  active,
   boardWidth,
 }: {
   mistake: (typeof DEMO_MISTAKES)[number];
-  active: boolean;
   boardWidth: number;
 }) {
-  const [fen, setFen] = useState(mistake.fen);
-  const [squareStyles, setSquareStyles] = useState<Record<string, React.CSSProperties>>({});
+  // Static position with the bad-move (red) and better-move (green) arrows.
+  // The pieces never move — only the arrows illustrate the mistake.
   const [badFromTo, setBadFromTo] = useState<[string, string] | null>(null);
 
   useEffect(() => {
-    setFen(mistake.fen);
-    setSquareStyles({});
     const chess = new Chess(mistake.fen);
     const preview = chess.move(mistake.badMove);
-    if (preview) setBadFromTo([preview.from, preview.to]);
-    if (!active || !preview) return;
-    const t = setTimeout(() => {
-      setFen(chess.fen());
-      setSquareStyles({
-        [preview.from]: { background: "#F5F682" },
-        [preview.to]: { background: "rgba(239, 68, 68, 0.35)" },
-      });
-    }, 1000);
-    return () => clearTimeout(t);
-  }, [mistake, active]);
+    setBadFromTo(preview ? [preview.from, preview.to] : null);
+  }, [mistake]);
 
   const arrows = [
     ...(badFromTo ? [arrow(badFromTo[0], badFromTo[1], BAD_ARROW)] : []),
@@ -605,11 +693,11 @@ function DemoSlideBoard({
         arePiecesDraggable={false}
         boardWidth={boardWidth}
         orientation="black"
-        position={fen}
+        position={mistake.fen}
         onPromotionPieceSelect={() => false}
         promotionToSquare={null}
         showPromotionDialog={false}
-        customSquareStyles={squareStyles}
+        customSquareStyles={{}}
         customArrows={[]}
         areArrowsAllowed={false}
         customArrowColor=""
@@ -713,11 +801,7 @@ function DemoAnalyzeCard() {
                   />
                   <Settings size={16} className="text-[#221AE9]" />
                 </div>
-                <DemoSlideBoard
-                  mistake={mistake}
-                  active={index === activeIndex}
-                  boardWidth={BOARD_W}
-                />
+                <DemoSlideBoard mistake={mistake} boardWidth={BOARD_W} />
               </div>
 
               <div className="w-full border border-[#221AE9] rounded-[8px]">
@@ -874,12 +958,16 @@ export function PlaygroundTour({
   const [boardImgRect, setBoardImgRect] = useState<Rect | null>(null);
   const [topBarRect, setTopBarRect] = useState<Rect | null>(null);
   const [bottomBarRect, setBottomBarRect] = useState<Rect | null>(null);
+  // the opponent panel on the right, covered by a mock move list during the
+  // interlude so the whole hero reads like a finished vs-AI game
+  const [panelRect, setPanelRect] = useState<Rect | null>(null);
   const [viewport, setViewport] = useState<Viewport>({ vw: 0, vh: 0 });
   const rectRef = useRef<Rect | null>(null);
   const spotRef = useRef<Rect | null>(null);
   const boardImgRef = useRef<Rect | null>(null);
   const topBarRef = useRef<Rect | null>(null);
   const bottomBarRef = useRef<Rect | null>(null);
+  const panelRef = useRef<Rect | null>(null);
   // true when this open is the browser's first-ever tour run (drives the
   // one-time day-streak greeting on close)
   const firstRunRef = useRef(false);
@@ -888,6 +976,11 @@ export function PlaygroundTour({
   const anchored = !!step?.anchors;
 
   useEffect(() => setMounted(true), []);
+
+  // Never leave the "tour on screen" flag stuck true if the tour unmounts
+  // (navigation) without finish() running — otherwise queued modals would
+  // stay suppressed forever.
+  useEffect(() => () => setPlaygroundTourActive(false), []);
 
   // Opens the tour. The pending flag is consumed immediately — not on finish
   // — so a mid-tour refresh doesn't restart it: the tour auto-runs exactly
@@ -900,6 +993,7 @@ export function PlaygroundTour({
     } catch {}
     setIndex(0);
     setOpen(true);
+    setPlaygroundTourActive(true);
     preloadLottie(WIN_LOTTIE);
     preloadLottie(LOSE_LOTTIE);
   };
@@ -949,6 +1043,7 @@ export function PlaygroundTour({
   const finish = () => {
     setOpen(false);
     setInterlude(false);
+    setPlaygroundTourActive(false);
     const firstCompletion = firstRunRef.current;
     firstRunRef.current = false;
     try {
@@ -1033,18 +1128,19 @@ export function PlaygroundTour({
     const range = list.scrollHeight - list.clientHeight;
     let raf = 0;
     let start: number | null = null;
-    const CYCLE_MS = 9000; // down and back up
+    const SWEEP_MS = 4500; // single downward sweep, then stop at the end
     const tick = (now: number) => {
       if (start === null) start = now + 900; // brief pause before moving
-      const t = Math.max(0, now - start) % CYCLE_MS;
-      // eased there-and-back sweep: 0 -> 1 -> 0
-      const phase = (1 - Math.cos((t / CYCLE_MS) * Math.PI * 2)) / 2;
+      const p = Math.min(1, Math.max(0, now - start) / SWEEP_MS);
+      // easeInOut one-way sweep: 0 -> 1 (no return trip)
+      const phase = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
       list.scrollTop = phase * range;
       if (tabs) {
         const tabsRange = tabs.scrollWidth - tabs.clientWidth;
         if (tabsRange > 0) tabs.scrollLeft = phase * tabsRange;
       }
-      raf = requestAnimationFrame(tick);
+      // Stop once the bottom of the list is reached — stay there.
+      if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => {
@@ -1097,7 +1193,7 @@ export function PlaygroundTour({
       }
       const topBar = interlude
         ? document.querySelector<HTMLElement>(
-            '[data-tour-anchor="board-preview"] img[alt="Player preview"]'
+            '[data-tour-anchor="board-preview"] [data-preview-bar="opponent"]'
           )
         : null;
       const nextTop = topBar ? toRect(topBar.getBoundingClientRect()) : null;
@@ -1107,13 +1203,23 @@ export function PlaygroundTour({
       }
       const bottomBar = interlude
         ? document.querySelector<HTMLElement>(
-            '[data-tour-anchor="board-preview"] > div'
+            '[data-tour-anchor="board-preview"] [data-preview-bar="player"]'
           )
         : null;
       const nextBottom = bottomBar ? toRect(bottomBar.getBoundingClientRect()) : null;
       if (!sameRect(nextBottom, bottomBarRef.current)) {
         bottomBarRef.current = nextBottom;
         setBottomBarRect(nextBottom);
+      }
+      const panel = interlude
+        ? document.querySelector<HTMLElement>(
+            '[data-tour-anchor="opponent-panel"]'
+          )
+        : null;
+      const nextPanel = panel ? toRect(panel.getBoundingClientRect()) : null;
+      if (!sameRect(nextPanel, panelRef.current)) {
+        panelRef.current = nextPanel;
+        setPanelRect(nextPanel);
       }
       setViewport((v) =>
         v.vw === window.innerWidth && v.vh === window.innerHeight
@@ -1145,8 +1251,11 @@ export function PlaygroundTour({
   // when a step has no anchor so the 200vmax shadow dims the whole screen.
   const PAD = 8;
   const spotRect = spot ?? rect;
+  // The step 2 -> 3 interlude no longer spotlights the board: it plays with a
+  // plain dim backdrop (no cutout, no ring) so nothing jumps to the board.
+  const showSpotlight = anchored && !!spotRect;
   const hole: Rect =
-    (anchored || interlude) && spotRect
+    showSpotlight && spotRect
       ? {
           top: spotRect.top - PAD,
           left: spotRect.left - PAD,
@@ -1191,22 +1300,25 @@ export function PlaygroundTour({
 
   return createPortal(
     <div className="fixed inset-0 z-[700] overscroll-contain" role="dialog" aria-modal="true" aria-label="Playground tutorial">
-      {/* Spotlight (the huge shadow doubles as the backdrop) */}
-      <div
-        className="fixed pointer-events-none"
-        style={{
-          top: hole.top,
-          left: hole.left,
-          width: hole.width,
-          height: hole.height,
-          borderRadius: 18,
-          boxShadow:
-            (anchored || interlude) && spotRect
+      {/* Spotlight (the huge shadow doubles as the backdrop). The step 2 -> 3
+          interlude shows the live page layout instead, with no dim and no
+          highlight, so the backdrop is skipped entirely during it. */}
+      {!interlude && (
+        <div
+          className="fixed pointer-events-none"
+          style={{
+            top: hole.top,
+            left: hole.left,
+            width: hole.width,
+            height: hole.height,
+            borderRadius: 18,
+            boxShadow: showSpotlight
               ? "0 0 0 2px rgba(124,192,242,0.95), 0 0 0 200vmax rgba(9,14,40,0.62)"
               : "0 0 0 200vmax rgba(9,14,40,0.62)",
-          transition: "all 350ms cubic-bezier(0.4, 0, 0.2, 1)",
-        }}
-      />
+            transition: "all 350ms cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+        />
+      )}
 
       <AnimatePresence mode="wait">
         {step && anchored && (
@@ -1291,6 +1403,7 @@ export function PlaygroundTour({
             <InterludeBoard rect={boardImgRect} onDone={next} />
             {topBarRect && <InterludeCaptureBar rect={topBarRect} variant="lost" />}
             {bottomBarRect && <InterludeCaptureBar rect={bottomBarRect} variant="won" />}
+            {panelRect && <InterludeMoveList rect={panelRect} />}
           </motion.div>
         )}
 

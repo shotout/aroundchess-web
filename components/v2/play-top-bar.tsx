@@ -8,6 +8,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { useHasPlayedToday } from "@/app/store/streak";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
+import { formatNumber } from "@/components/v2/format-number";
 
 interface PlayTopBarProps {
   streak: number;
@@ -24,7 +25,7 @@ function toOrdinal(n: number): string {
   // Product rule: only the top three ranks get st/nd/rd — every other rank
   // is plain "th" (4th, 21th, 10002th), per design.
   const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
-  return n + suffix;
+  return formatNumber(n) + suffix;
 }
 
 function StatItem({
@@ -278,7 +279,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                   className="w-[16px] h-[16px] object-contain"
                 />
                 <span className={`text-[20px] font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
-                  {movedUpAbs}
+                  {formatNumber(movedUpAbs)}
                 </span>
               </div>
             ) : (
@@ -318,7 +319,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                 className="w-[32px] h-[38px] object-contain"
               />
               <div className="flex flex-col leading-tight text-left">
-                <span className="text-[15px] font-bold text-[#2e3133]">{streak} Day</span>
+                <span className="text-[15px] font-bold text-[#2e3133]">{formatNumber(streak)} Day</span>
                 <span className="text-[15px] font-base text-[#2e3133]">Streak</span>
               </div>
             </button>
@@ -352,7 +353,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                       className="w-[16px] h-[16px] object-contain"
                     />
                     <span className={`text-xl font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
-                      {movedUpAbs}
+                      {formatNumber(movedUpAbs)}
                     </span>
                   </div>
                 ) : (

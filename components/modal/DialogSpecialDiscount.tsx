@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "components/ui/dialog";
 import { usePricingOffer } from "@/app/store/pricingOffer";
+import { usePlaygroundTourActive } from "@/components/v2/playground-tour-active";
 
 interface Props {}
 
@@ -21,6 +22,10 @@ export const DialogSpecialDiscount: React.FC<Props> = () => {
     setOpen: setOpenPricing,
     setTabType,
   } = usePricingOffer();
+  // Queue behind the playground tutorial: the offer stays armed (openOffer)
+  // but the dialog only actually opens once the tour is off screen, so the
+  // two never overlap on a first login that also ran out of analyses.
+  const tourActive = usePlaygroundTourActive();
 
   useEffect(() => {
     // only run on client
@@ -36,7 +41,7 @@ export const DialogSpecialDiscount: React.FC<Props> = () => {
     console.log("close offer")
   };
   return (
-    <Dialog open={openOffer}>
+    <Dialog open={openOffer && !tourActive}>
       <DialogPortal>
         <DialogContent
           className={`pt-10 pb-12 px-4 bg-white flex flex-col justify-center items-center shadow-none overflow-hidden max-w-[92%] sm:max-w-[720px]`}

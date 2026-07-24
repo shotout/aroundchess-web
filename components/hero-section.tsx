@@ -83,44 +83,26 @@ export function HeroSection() {
             />
           </motion.div>
 
+          {/* The home hero always shows the pre-login chessboard preview, even
+              for signed-in users (only the navbar reflects the session). */}
           <motion.div
-            className={
-              !isSignedIn
-                ? "w-full text-center flex flex-col items-center"
-                : ""}
+            className="w-full text-center flex flex-col items-center"
             variants={fadeInUp}
           >
-            {!isSignedIn ? (
-              <div className="w-full">
-                <div className="sm:p-0">
-                  <h1 className="text-[18px] text-black sm:text-[clamp(22px,2.8vw,40px)] tracking-wide leading-[140%] text-center sm:whitespace-nowrap pt-2 ">
-                    <span className="block sm:inline">Challenge <strong className="text-[#221AE9] font-bold">AI Opponents</strong>.</span>
-                    <span className="block sm:inline"> Improve Every Game.</span>
-                  </h1>
-                </div>
-
-                <HeroSubtitle />
-
-                <div className="w-full max-w-[900px] mx-auto">
-                  <HeroGamePreview />
-                </div>
+            <div className="w-full">
+              <div className="sm:p-0">
+                <h1 className="text-[18px] text-black sm:text-[clamp(22px,2.8vw,40px)] tracking-wide leading-[140%] text-center sm:whitespace-nowrap pt-2 ">
+                  <span className="block sm:inline">Challenge <strong className="text-[#221AE9] font-bold">AI Opponents</strong>.</span>
+                  <span className="block sm:inline"> Improve Every Game.</span>
+                </h1>
               </div>
-            ) : (
-              <>
-                <div className="mb-[16px] sm:mb-[32px] sm:p-0">
-                  <h1 className="text-[18px] text-black sm:text-[36px] tracking-wide leading-[140%]">
-                    Understand your <strong className="text-primary font-semibold">Chess</strong> Game with our <strong className="font-bold">Advanced Game Analysis</strong>
-                  </h1>
-                  <p className="mt-1 sm:mt-2 text-[14px] --xs sm:text-[17.3px] text-black sm:text-black leading-[140%] font-light mx-auto lg:mx-0">
-                    Experience an in-depth analysis of every move with our
-                    cutting-edge tools and AI-driven insights - simply by looking up
-                    your Chess.com account.
-                  </p>
-                </div>
 
-                <WelcomeBack />
-              </>
-            )}
+              <HeroSubtitle />
+
+              <div className="w-full max-w-[900px] mx-auto">
+                <HeroGamePreview />
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       </div>
