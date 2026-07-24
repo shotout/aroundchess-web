@@ -1,10 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Lottie from "lottie-react";
 import { ArrowLeft, Bookmark, RotateCw, Settings, Trophy } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Chess } from "chess.js";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -15,9 +14,9 @@ import "swiper/css/effect-cards";
 import "swiper/css/pagination";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import { CustomChessArrows } from "@/components/game-history/components/CustomChessArrows";
-import { EloOdometer } from "@/components/v2/elo-odometer";
-import { preloadLottie, useLottieData } from "@/components/v2/hooks/useLottieData";
-import { pickRecommendedOpponents } from "@/components/v2/play-vs-ai-roster-data";
+import { preloadLottie } from "@/components/v2/hooks/useLottieData";
+import { WinModalCard } from "@/components/v2/play-vs-ai-win-modal";
+import { LoseModalCard } from "@/components/v2/play-vs-ai-lose-modal";
 import { openDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
 import { setPlaygroundTourActive } from "@/components/v2/playground-tour-active";
 import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
@@ -228,159 +227,66 @@ function TourTooltip({
   );
 }
 
-/* ------------------------- demo (mock) modals --------------------------- */
-// Non-interactive replicas of the real win/lose/analysis screens, so the
-// tour can show them without touching any live game state.
+/* ------------------------- demo result cards ---------------------------- */
+// The tour reuses the real win/lose modal cards (WinModalCard / LoseModalCard,
+// variant="tour"). Those render at the modal's full proportions — including
+// the celebration animation at its natural aspect, so it's never cropped
+// short. This wrapper measures the card and, only when the viewport is too
+// short to show it at full size, scales the whole card down uniformly so it
+// stays fully in view under the tour tooltip (animation included).
+function ScaleToFit({
+  children,
+  reserve = 210,
+  referenceHeight,
+  onMeasure,
+}: {
+  children: React.ReactNode;
+  /** px kept clear for the tooltip + gaps above the card */
+  reserve?: number;
+  /**
+   * When set, the scale is computed from this height instead of the card's
+   * own — used so the win and lose demo cards share one scale factor and
+   * therefore render at exactly the same width. The box still sizes to the
+   * card's own scaled height.
+   */
+  referenceHeight?: number;
+  /** reports this card's natural (untransformed) height once measured */
+  onMeasure?: (height: number) => void;
+}) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [boxHeight, setBoxHeight] = useState<number | undefined>(undefined);
 
-function DemoWinCard() {
-  const animationData = useLottieData(WIN_LOTTIE);
-  const opponents = useMemo(() => pickRecommendedOpponents(400), []);
-  return (
-    <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden select-none pointer-events-none">
-      {/* The lottie canvas has ~25% empty padding below the art; the outer
-          box is that much shorter and clips it, while the inner box keeps the
-          full 540/400 canvas scaled to the outer's height — so the art always
-          scales with the box (never cut on short screens) and the heading
-          sits right under it. */}
-      <div className="relative overflow-hidden w-[64%] mx-auto aspect-[540/300] max-h-[22vh] [@media(max-height:920px)]:max-h-[18vh]">
-        {animationData && (
-          <Lottie
-            animationData={animationData}
-            loop={false}
-            rendererSettings={{ preserveAspectRatio: "xMidYMin meet" }}
-            className="absolute top-0 left-0 w-full h-[133.33%]"
-          />
-        )}
-      </div>
-      <div className="px-[20px] pb-[16px]">
-        <h2 className="text-center font-bold text-[22px] text-[#34C759] mt-[4px] mb-[2px]">
-          You Won
-        </h2>
-        <p className="text-center text-[13px] text-[#374151] mb-[10px]">
-          Against Lisa (ELO 250)
-        </p>
-        <div className="flex items-center justify-center gap-[8px] mb-[12px]">
-          <div className="flex items-center justify-between gap-[12px] bg-[#34C759] rounded-[10px] px-[14px] py-[7px] flex-1 min-w-0 max-w-[280px]">
-            <span className="text-white font-semibold text-[13px] whitespace-nowrap">
-              Your Current ELO
-            </span>
-            <span className="flex items-center gap-[6px]">
-              <svg viewBox="0 0 20 20" fill="none" className="w-[15px] h-[15px] shrink-0">
-                <path d="M10 2L17 10H13V15H7V10H3L10 2Z" fill="white" />
-                <rect x="7" y="16.5" width="6" height="1.8" rx="0.9" fill="white" />
-              </svg>
-              <span className="text-white font-bold text-[20px] leading-none pt-[2px]">
-                <EloOdometer from={375} to={400} delay={0.4} duration={1.4} />
-              </span>
-            </span>
-          </div>
-          <motion.span
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.8, duration: 0.35 }}
-            className="text-[#34C759] font-bold text-[18px] shrink-0"
-          >
-            +25
-          </motion.span>
-        </div>
-        <p className="text-center font-bold text-[13px] text-[#111827]">
-          That was a good call!
-        </p>
-        <p className="text-center text-[12px] text-[#111827] mb-[10px]">
-          Ready to face more challenging opponents?
-        </p>
-        <div className="rounded-[12px] border border-[#7CC0F2] p-[8px] mb-[10px]">
-          <p className="text-center text-[11px] font-medium text-[#111827] mb-[4px]">
-            Challenge those Opponents next:
-          </p>
-          <div className="grid grid-cols-4 gap-[4px]">
-            {opponents.map((opponent, i) => (
-              <div
-                key={opponent.id}
-                className={`flex flex-col items-center gap-[2px] p-[4px] rounded-[10px] border ${
-                  i === 0 ? "border-[#7CC0F2] bg-[#E6F7FE]" : "border-transparent"
-                }`}
-              >
-                <Image
-                  src={opponent.img}
-                  alt={opponent.name}
-                  width={40}
-                  height={40}
-                  className="w-[30px] h-[30px] rounded-full object-cover"
-                />
-                <span className={`text-[11px] font-semibold truncate max-w-full ${i === 0 ? "text-[#221AE9]" : "text-[#111827]"}`}>
-                  {opponent.name}
-                </span>
-                <span className={`text-[10px] whitespace-nowrap ${i === 0 ? "text-[#221AE9]" : "text-[#6B7280]"}`}>
-                  ELO {opponent.elo}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="w-full py-[10px] rounded-full bg-[#221AE9] text-white font-semibold text-[13px] text-center">
-          Start Game
-        </div>
-      </div>
-    </div>
-  );
-}
+  useEffect(() => {
+    const el = innerRef.current;
+    if (!el) return;
+    const measure = () => {
+      const natural = el.offsetHeight; // untransformed layout height
+      if (!natural) return;
+      onMeasure?.(natural);
+      const basis = referenceHeight && referenceHeight > 0 ? referenceHeight : natural;
+      const avail = window.innerHeight - reserve;
+      const next = Math.min(1, avail / basis);
+      setScale(next);
+      setBoxHeight(natural * next);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [reserve, referenceHeight, onMeasure]);
 
-function DemoLoseCard() {
-  const animationData = useLottieData(LOSE_LOTTIE);
   return (
-    <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden select-none pointer-events-none">
-      {/* same clip-the-padding treatment as the win card */}
-      <div className="relative overflow-hidden w-[72%] mx-auto aspect-[540/300] max-h-[24vh] [@media(max-height:920px)]:max-h-[18vh]">
-        {animationData && (
-          <Lottie
-            animationData={animationData}
-            loop={false}
-            rendererSettings={{ preserveAspectRatio: "xMidYMin meet" }}
-            className="absolute top-0 left-0 w-full h-[133.33%]"
-          />
-        )}
-      </div>
-      <div className="px-[20px] pb-[18px]">
-        <h2 className="text-center font-bold text-[22px] text-[#DC2626] mt-[4px] mb-[2px]">
-          You Lost
-        </h2>
-        <p className="text-center text-[13px] text-[#374151] mb-[10px]">
-          Against Lisa (ELO 250)
-        </p>
-        <div className="flex items-center justify-center gap-[8px] mb-[12px]">
-          <div className="flex items-center justify-between gap-[12px] bg-[#DC2626] rounded-[10px] px-[14px] py-[7px] flex-1 min-w-0 max-w-[280px]">
-            <span className="text-white font-semibold text-[13px] whitespace-nowrap">
-              Your Current ELO
-            </span>
-            <span className="flex items-center gap-[6px]">
-              <svg viewBox="0 0 20 20" fill="none" className="w-[15px] h-[15px] shrink-0">
-                <path d="M10 18L3 10H7V5H13V10H17L10 18Z" fill="white" />
-                <rect x="7" y="1.7" width="6" height="1.8" rx="0.9" fill="white" />
-              </svg>
-              <span className="text-white font-bold text-[20px] leading-none pt-[2px]">
-                <EloOdometer from={400} to={375} delay={0.4} duration={1.4} />
-              </span>
-            </span>
-          </div>
-          <motion.span
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.8, duration: 0.35 }}
-            className="text-[#DC2626] font-bold text-[18px] shrink-0"
-          >
-            -25
-          </motion.span>
-        </div>
-        <p className="text-center font-bold text-[13px] text-[#111827]">
-          That was close!
-        </p>
-        <p className="text-center text-[12px] text-[#111827] mb-[12px]">
-          Discover your biggest mistakes now to see how to win next time!
-        </p>
-        <div className="w-full py-[10px] rounded-full bg-[#221AE9] text-white font-semibold text-[13px] text-center">
-          Discover Mistakes
-        </div>
+    <div style={{ height: boxHeight, width: "100%" }}>
+      <div
+        ref={innerRef}
+        style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
+      >
+        {children}
       </div>
     </div>
   );
@@ -971,6 +877,12 @@ export function PlaygroundTour({
   // true when this open is the browser's first-ever tour run (drives the
   // one-time day-streak greeting on close)
   const firstRunRef = useRef(false);
+  // Natural height of the (taller) win demo card, measured on step 3, so the
+  // lose card on step 4 can scale by the same factor and match its width.
+  const winCardHeightRef = useRef(0);
+  const reportWinCardHeight = useRef((h: number) => {
+    winCardHeightRef.current = h;
+  }).current;
 
   const step = interlude ? undefined : (STEPS[index] as TourStep | undefined); // undefined on finale/interlude
   const anchored = !!step?.anchors;
@@ -1065,7 +977,7 @@ export function PlaygroundTour({
 
   const findBoardImage = () =>
     document.querySelector<HTMLElement>(
-      '[data-tour-anchor="board-preview"] img[alt="Chessboard preview"]'
+      '[data-tour-anchor="board-preview"] [data-preview-board]'
     );
 
   const next = () => {
@@ -1183,7 +1095,7 @@ export function PlaygroundTour({
       // interlude's won-board + capture-bar overlays
       const img = interlude
         ? document.querySelector<HTMLElement>(
-            '[data-tour-anchor="board-preview"] img[alt="Chessboard preview"]'
+            '[data-tour-anchor="board-preview"] [data-preview-board]'
           )
         : null;
       const nextImg = img ? toRect(img.getBoundingClientRect()) : null;
@@ -1377,15 +1289,32 @@ export function PlaygroundTour({
               />
               {/* the analyze demo keeps overflow visible so the swiper card
                   deck can rotate outside its own bounds, like the real modal */}
-              <div
-                className={`w-[min(400px,92vw)] mt-[14px] rounded-2xl ${
-                  step.demo === "analyze"
-                    ? ""
-                    : "max-h-[62vh] overflow-y-auto [@media(max-height:920px)]:max-h-none [@media(max-height:920px)]:overflow-y-visible"
-                }`}
-              >
-                {step.demo === "win" && <DemoWinCard />}
-                {step.demo === "lose" && <DemoLoseCard />}
+              <div className="w-[min(430px,92vw)] mt-[14px] rounded-2xl">
+
+                {step.demo === "win" && (
+                  <ScaleToFit onMeasure={reportWinCardHeight}>
+                    <WinModalCard
+                      variant="tour"
+                      oldElo={375}
+                      newElo={400}
+                      delta={25}
+                      opponentName="Lisa"
+                      opponentElo={250}
+                    />
+                  </ScaleToFit>
+                )}
+                {step.demo === "lose" && (
+                  <ScaleToFit referenceHeight={winCardHeightRef.current || undefined}>
+                    <LoseModalCard
+                      variant="tour"
+                      oldElo={400}
+                      newElo={375}
+                      delta={-25}
+                      opponentName="Lisa"
+                      opponentElo={250}
+                    />
+                  </ScaleToFit>
+                )}
                 {step.demo === "analyze" && <DemoAnalyzeCard />}
               </div>
             </div>

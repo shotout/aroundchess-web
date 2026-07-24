@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 interface InfoTooltipProps {
-  text: string;
+  text: ReactNode;
   size?: number;
   align?: "left" | "right" | "center";
   /** Icon shown for the trigger; defaults to the neutral info glyph. */

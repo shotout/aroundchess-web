@@ -123,7 +123,7 @@ function OpponentCard({
 
 export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }: { recommendedListHeightClass?: string }) {
   const router = useRouter();
-  const { setAIChoosed, setSelectedOpponent: setStoreOpponent } = usePlayVSAIStore();
+  const { setAIChoosed, setSelectedOpponent: setStoreOpponent, setSelectedColor: setStoreColor } = usePlayVSAIStore();
   const { leaderboard } = usePlayPageStore();
   const hasUserElo = !!leaderboard?.my_elo;
   const userElo = leaderboard?.my_elo || DEFAULT_USER_ELO;
@@ -182,6 +182,11 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
     setStoreOpponent(selectedOpponent);
   }, [selectedOpponent, setStoreOpponent]);
 
+  // Mirror the chosen color so the board preview (sibling) can flip orientation.
+  useEffect(() => {
+    setStoreColor(selectedColor);
+  }, [selectedColor, setStoreColor]);
+
   // Keep the selection valid when the recommended list changes (shuffle or ELO load).
   useEffect(() => {
     setSelectedOpponent((prev) => {
@@ -237,7 +242,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   };
 
   return (
-    <div className="flex flex-col flex-1 gap-3">
+    <div className="flex flex-col flex-1 min-h-0 gap-3">
       <h2 className="text-base sm:text-lg font-semibold text-gray-900 text-center">
         Choose Your Color
       </h2>
@@ -272,7 +277,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
 
       {/* On mobile this section renders as its own white shadow card (mockup);
           on desktop the wrapper is invisible and keeps the same column gap. */}
-      <div className="flex flex-col gap-3 grow max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)] max-sm:p-3">
+      <div className="flex flex-col gap-3 grow min-h-0 max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)] max-sm:p-3">
       <h2 className="text-base sm:text-lg font-semibold text-gray-900 text-center pt-1">
         Choose Your Opponent
       </h2>

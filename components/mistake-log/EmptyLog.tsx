@@ -31,7 +31,7 @@ const EmptyLog: React.FC<emptyLogProps> = ({
       <div className="flex flex-col w-full justify-center items-center gap-2">
         <span className="font-semibold text-[18px] text-center leading-[140%] lg:text-[24px] text-[#121212]">
           {title ? title : (
-            <span>You have not saved <br className="lg:hidden" />any Mistakes yet.</span>
+            <span>You have not yet saved <br className="lg:hidden" />any Mistakes</span>
           )}
         </span>
         {/* <span className="font-meidum text-[18px] text-[#585858]">
@@ -41,10 +41,10 @@ const EmptyLog: React.FC<emptyLogProps> = ({
         </span> */}
       </div>
 
-      <div className="w-full">
+      <div className="w-full flex justify-center">
         <button
           onClick={handleAnalyze}
-          className="w-full px-5 py-2 btn-primary rounded-full"
+          className="w-full max-w-[500px] px-5 py-2 btn-primary rounded-full"
         >
           Analyze Games
         </button>

@@ -53,6 +53,11 @@ interface Props {
   v3Result?: any;
   isTutorialPlay?: boolean;
   playerColor?: "white" | "black";
+  /** When set, open directly on the critical mistake at this move number
+   *  (used by Saved Mistakes so "View Analysis" jumps to the saved move). */
+  initialMoveNumber?: number;
+  /** Optional move SAN to disambiguate when two mistakes share a move number. */
+  initialMove?: string;
 }
 
 export default function GameAnalysis({
@@ -60,7 +65,9 @@ export default function GameAnalysis({
     onOpenChange,
     v3Result,
     isTutorialPlay: isTutorialPlayProp,
-    playerColor
+    playerColor,
+    initialMoveNumber,
+    initialMove,
 }: Props) {
     const [activeIndex, setActiveIndex] = useState(0);
     const swiperRef = useRef<SwiperType>();
@@ -139,6 +146,30 @@ export default function GameAnalysis({
             setLocalMistakes(v3Result.summary.criticalMistakes);
         }
     }, [v3Result, isTutorialPlay]);
+
+    // Index of the mistake matching the requested move (Saved Mistakes deep-link).
+    const initialSlideIndex = useMemo(() => {
+        if (initialMoveNumber == null || localMistakes.length === 0) return -1;
+        const byNumberAndMove = localMistakes.findIndex(
+            (m: any) =>
+                Number(m?.moveNumber) === Number(initialMoveNumber) &&
+                (!initialMove || m?.move === initialMove)
+        );
+        if (byNumberAndMove !== -1) return byNumberAndMove;
+        return localMistakes.findIndex(
+            (m: any) => Number(m?.moveNumber) === Number(initialMoveNumber)
+        );
+    }, [localMistakes, initialMoveNumber, initialMove]);
+
+    // Jump the carousel to that mistake once the dialog is open and slides exist.
+    useEffect(() => {
+        if (!open || initialSlideIndex < 0) return;
+        const id = setTimeout(() => {
+            swiperRef.current?.slideTo(initialSlideIndex, 0);
+            setActiveIndex(initialSlideIndex);
+        }, 0);
+        return () => clearTimeout(id);
+    }, [open, initialSlideIndex]);
 
     // Handle save bookmark
     const handleSaveLog = async (index: number) => {

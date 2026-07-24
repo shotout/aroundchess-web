@@ -2,22 +2,69 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { HeroPlayVSAIPreview } from "./hero-play-vs-ai-preview";
 import { AiOpponentPreviewBar } from "@/components/v2/ai-opponent-preview-bar";
+import { usePlayVSAIStore } from "@/app/store/playVSAI";
+import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
+
+// Standard starting position for the (non-interactive) board preview.
+const START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 export function HeroGamePreview({ recommendedListHeightClass }: { recommendedListHeightClass?: string }) {
+  // Flip the preview board when "Black" is chosen in the color picker.
+  const selectedColor = usePlayVSAIStore((s) => s.selectedColor);
+  const boardWrapRef = useRef<HTMLDivElement>(null);
+  const [boardWidth, setBoardWidth] = useState(320);
+  useEffect(() => {
+    const el = boardWrapRef.current;
+    if (!el) return;
+    const update = () => {
+      if (el.clientWidth > 0) setBoardWidth(el.clientWidth);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Match the opponent panel's height to the board card so the AI list
+  // scrolls inside instead of stretching the whole column taller than the
+  // board. Measured on desktop; mobile keeps auto height.
+  const boardCardRef = useRef<HTMLDivElement>(null);
+  const [panelHeight, setPanelHeight] = useState<number | undefined>(undefined);
+  useEffect(() => {
+    const el = boardCardRef.current;
+    if (!el) return;
+    const update = () => {
+      const h = el.getBoundingClientRect().height;
+      if (h > 0) setPanelHeight(h);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
   return (
     <div className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
-      <div className="hidden sm:flex sm:w-[70%] bg-white rounded-2xl shadow-lg border border-[#DEDEDE] p-3 sm:p-4 flex-col gap-2">
+      <div ref={boardCardRef} className="hidden sm:flex sm:w-[70%] self-start bg-white rounded-2xl shadow-lg border border-[#DEDEDE] p-3 sm:p-4 flex-col gap-2">
         <AiOpponentPreviewBar />
-        <Image
-          src="/images/homepage/v2/homepage_board_asset_2.png"
-          alt="Chessboard preview"
-          width={1050}
-          height={1050}
-          className="w-full h-auto"
-          priority
-        />
+        <div ref={boardWrapRef} data-preview-board className="w-full">
+          <TwoDChessboard
+            position={START_FEN}
+            boardWidth={boardWidth}
+            orientation={selectedColor}
+            arePiecesDraggable={false}
+            arePiecesClickable={false}
+            areArrowsAllowed={false}
+            onPromotionPieceSelect={() => false}
+          />
+        </div>
         <Image
           src="/images/homepage/v2/homepage_board_asset_3.png"
           alt="Move legend"
@@ -25,7 +72,7 @@ export function HeroGamePreview({ recommendedListHeightClass }: { recommendedLis
           height={36}
           className="w-full h-auto"
         />
-        <div className="flex items-center justify-left gap-2 pt-2 sm:pt-2 border-t-2 mt-auto">
+        <div className="flex items-center justify-left gap-2 pt-2 sm:pt-2 border-t-2">
           <Image
             src="/images/homepage/v2/homepage_board_asset_4.png"
             alt=""
@@ -46,7 +93,10 @@ export function HeroGamePreview({ recommendedListHeightClass }: { recommendedLis
         </div>
       </div>
 
-      <div className="w-full sm:w-[42%] bg-white rounded-2xl shadow-lg border-2 border-[#7CC0F2] p-3 sm:p-4 flex flex-col">
+      <div
+        style={{ height: panelHeight }}
+        className="w-full sm:w-[42%] max-sm:!h-auto bg-white rounded-2xl shadow-lg border-2 border-[#7CC0F2] p-3 sm:p-4 flex flex-col"
+      >
         <HeroPlayVSAIPreview recommendedListHeightClass={recommendedListHeightClass} />
       </div>
     </div>

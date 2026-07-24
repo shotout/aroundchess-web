@@ -8,8 +8,27 @@ import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { PieceAvatar } from "@/components/v2/piece-avatar";
 import { findRosterOpponentByName } from "@/components/v2/play-vs-ai-roster-data";
 
-const ELO_UNRATED_INFO =
-  "You used a “Hint” or “Undo Move” in this game. As a result, no ELO points are gained or lost.";
+const ELO_UNRATED_INFO = (
+  <>
+    You used a “ 
+    <Image
+      src="/images/v2/play/hint move.png"
+      alt=""
+      width={10}
+      height={10}
+      className="inline-block align-[-2px] mx-[3px]"
+    />
+     Hint” or “ 
+    <Image
+      src="/images/v2/play/undo move.png"
+      alt=""
+      width={13}
+      height={13}
+      className="inline-block align-[-1px] mx-[3px]"
+    />
+    Undo Move” in this game. As a result, no ELO points are gained or lost.
+  </>
+);
 
 /** The opponent avatar: the matching AI roster face for vs-AI games, otherwise
  *  the seeded chess-piece placeholder (chess.com / imported games). */
@@ -64,7 +83,15 @@ function GameRow({ game }: { game: Game }) {
   const eloRaw = Number(String(game.eloChange ?? "0").replace("+", ""));
   const eloDisplay = eloRaw > 0 ? `+${eloRaw}` : `${eloRaw}`;
 
-  const isAI = game.source === "AI";
+  // Button reflects analysis state: analyzed → green "See Mistakes" (shows the
+  // result); not analyzed → blue "Analyze" (starts the analysis flow). The
+  // trigger from useGameHistoryAnalysis already branches on the same flag.
+  const analyzed = game.isAnalysis === true;
+  const btnLabel = analyzed ? "See Mistakes" : "Analyze";
+  const btnIcon = analyzed ? "/images/v2/play/Eye.png" : "/images/v2/play/bar-chart.png";
+  const btnColor = analyzed
+    ? "bg-gradient-to-b from-[#0AD847] to-[#018F34]"
+    : "bg-[#1B14CC]";
   // ELO wasn't rated (Hint/Undo used) — show the info icon + tooltip instead
   // of the up/down arrow. Undefined (older data) counts as processed.
   const eloProcessed = game.eloProcessed !== false;
@@ -84,7 +111,7 @@ function GameRow({ game }: { game: Game }) {
 
         {/* Meta */}
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] text-[#9CA3AF] leading-tight">
+          <div className="text-[11px] text-[#9CA3AF] leading-tight">
             {date}
             {time ? ` · ${time}` : ""}
             {" · "}
@@ -109,7 +136,7 @@ function GameRow({ game }: { game: Game }) {
                 )
               )}
             </span>
-          </p>
+          </div>
           <p className="text-lg font-bold text-[#111827] truncate">
             {game.opponent}
             {game.rating ? ` (${game.rating})` : ""}
@@ -124,17 +151,10 @@ function GameRow({ game }: { game: Game }) {
           type="button"
           onClick={trigger}
           disabled={busy}
-          className={`hidden sm:flex shrink-0 items-center justify-center gap-[5px] w-[250px] py-[12px] rounded-full text-sm sm:text-lg font-normal text-white transition-opacity hover:opacity-90 disabled:opacity-70 ${
-            isAI ? "bg-[#1B14CC]" : "bg-gradient-to-b from-[#0AD847] to-[#018F34]"
-          }`}
+          className={`hidden sm:flex shrink-0 items-center justify-center gap-[5px] w-[180px] py-[8px] rounded-full text-[13px] sm:text-[14px] font-normal text-white transition-opacity hover:opacity-90 disabled:opacity-70 ${btnColor}`}
         >
-          <Image
-            src={isAI ? "/images/v2/play/bar-chart.png" : "/images/v2/play/Eye.png"}
-            alt=""
-            width={16}
-            height={16}
-          />
-          {isAI ? "Analyze Mistakes" : "See Mistakes"}
+          <Image src={btnIcon} alt="" width={14} height={14} />
+          {btnLabel}
         </button>
       </div>
 
@@ -143,17 +163,10 @@ function GameRow({ game }: { game: Game }) {
         type="button"
         onClick={trigger}
         disabled={busy}
-        className={`sm:hidden mt-[10px] flex w-full items-center justify-center gap-[5px] py-[12px] rounded-full text-lg font-normal text-white transition-opacity hover:opacity-90 disabled:opacity-70 ${
-          isAI ? "bg-[#1B14CC]" : "bg-gradient-to-b from-[#0AD847] to-[#018F34]"
-        }`}
+        className={`sm:hidden mt-[10px] flex w-full items-center justify-center gap-[5px] py-[9px] rounded-full text-[14px] font-normal text-white transition-opacity hover:opacity-90 disabled:opacity-70 ${btnColor}`}
       >
-        <Image
-          src={isAI ? "/images/v2/play/bar-chart.png" : "/images/v2/play/Eye.png"}
-          alt=""
-          width={16}
-          height={16}
-        />
-        {isAI ? "Analyze Mistakes" : "See Mistakes"}
+        <Image src={btnIcon} alt="" width={14} height={14} />
+        {btnLabel}
       </button>
     </div>
   );

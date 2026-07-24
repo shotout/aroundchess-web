@@ -71,11 +71,14 @@ useEffect(() => {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      // The API wraps failures in a 200 response ({ success: false, message,
+      // statusCode }), so response.ok alone isn't enough — surface the real
+      // message ("Email Address not found", "Your password is incorrect", …).
+      if (!response.ok || data?.success === false) {
         throw new Error(data.message || "Login failed");
       }
 
-      if (data.data.access_token) {
+      if (data?.data?.access_token) {
         try {
           const statusResponse = await fetch(`${baseUrl}/profile/status`, {
             headers: {
@@ -178,11 +181,9 @@ useEffect(() => {
         setIsButtonLoading(false);
       }
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error("Your password is incorrect.");
-      } else {
-        toast.error("Failed to login");
-      }
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to login";
+      toast.error(errorMessage);
       setIsButtonLoading(false);
     }
   };

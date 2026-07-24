@@ -100,7 +100,7 @@ export function HeroSection() {
               <HeroSubtitle />
 
               <div className="w-full max-w-[900px] mx-auto">
-                <HeroGamePreview />
+                <HeroGamePreview recommendedListHeightClass="sm:flex-1 sm:min-h-0" />
               </div>
             </div>
           </motion.div>

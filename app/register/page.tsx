@@ -123,7 +123,10 @@ function RegisterPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      // The API wraps failures in a 200 response ({ success: false, message,
+      // statusCode: 409 }), so response.ok alone isn't enough — an
+      // already-registered email would otherwise slip through to the OTP step.
+      if (!response.ok || data?.success === false) {
         throw new Error(data.message || "Registration failed");
       }
 
@@ -162,7 +165,7 @@ function RegisterPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data.message || "Verification failed");
       }
 
@@ -211,7 +214,7 @@ function RegisterPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data.message || "Failed to resend code");
       }
 
