@@ -56,7 +56,7 @@ export default function Playing() {
             movedUp={leaderboard?.moved_up ?? null}
             canJoin={leaderboardMe?.can_join}
             gamesRemaining={leaderboardMe?.games_remaining}
-            isInactive={leaderboardMe?.can_join !== false && leaderboardMe?.is_inactive === true}
+            isInactive={leaderboardMe?.can_join === false && leaderboardMe?.is_inactive === true}
           />
           <PlayingPage />
         </div>

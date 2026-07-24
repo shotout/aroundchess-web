@@ -123,7 +123,10 @@ function RegisterPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      // The API wraps failures in a 200 response ({ success: false, message,
+      // statusCode: 409 }), so response.ok alone isn't enough — an
+      // already-registered email would otherwise slip through to the OTP step.
+      if (!response.ok || data?.success === false) {
         throw new Error(data.message || "Registration failed");
       }
 
@@ -162,7 +165,7 @@ function RegisterPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data.message || "Verification failed");
       }
 
@@ -211,7 +214,7 @@ function RegisterPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data.message || "Failed to resend code");
       }
 
@@ -684,20 +687,13 @@ function RegisterPage() {
                   </div>
                 </form>
 
-                <div className="mt-6 grid grid-cols-2 gap-3">
+                <div className="mt-3">
                   <button
                     onClick={resendVerificationCode}
-                    className="h-12 bg-white/40 hover:bg-white/60 text-blue-600 font-medium rounded-md transition-colors"
+                    className="w-full h-12 bg-white/40 hover:bg-white/60 text-blue-600 font-semibold rounded-full transition-colors"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Sending..." : "Resend code"}
-                  </button>
-
-                  <button
-                    onClick={() => setEmailSent(false)}
-                    className="h-12 bg-white/40 hover:bg-white/60 text-black font-medium rounded-md transition-colors"
-                  >
-                    Change email
+                    {isLoading ? "Sending..." : "Resend Code"}
                   </button>
                 </div>
               </div>

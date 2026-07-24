@@ -1,10 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Lottie from "lottie-react";
-import { Bookmark, Settings } from "lucide-react";
+import { ArrowLeft, Bookmark, RotateCw, Settings, Trophy } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Chess } from "chess.js";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -15,10 +14,11 @@ import "swiper/css/effect-cards";
 import "swiper/css/pagination";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import { CustomChessArrows } from "@/components/game-history/components/CustomChessArrows";
-import { EloOdometer } from "@/components/v2/elo-odometer";
-import { preloadLottie, useLottieData } from "@/components/v2/hooks/useLottieData";
-import { pickRecommendedOpponents } from "@/components/v2/play-vs-ai-roster-data";
+import { preloadLottie } from "@/components/v2/hooks/useLottieData";
+import { WinModalCard } from "@/components/v2/play-vs-ai-win-modal";
+import { LoseModalCard } from "@/components/v2/play-vs-ai-lose-modal";
 import { openDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
+import { setPlaygroundTourActive } from "@/components/v2/playground-tour-active";
 import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 
@@ -227,159 +227,66 @@ function TourTooltip({
   );
 }
 
-/* ------------------------- demo (mock) modals --------------------------- */
-// Non-interactive replicas of the real win/lose/analysis screens, so the
-// tour can show them without touching any live game state.
+/* ------------------------- demo result cards ---------------------------- */
+// The tour reuses the real win/lose modal cards (WinModalCard / LoseModalCard,
+// variant="tour"). Those render at the modal's full proportions — including
+// the celebration animation at its natural aspect, so it's never cropped
+// short. This wrapper measures the card and, only when the viewport is too
+// short to show it at full size, scales the whole card down uniformly so it
+// stays fully in view under the tour tooltip (animation included).
+function ScaleToFit({
+  children,
+  reserve = 210,
+  referenceHeight,
+  onMeasure,
+}: {
+  children: React.ReactNode;
+  /** px kept clear for the tooltip + gaps above the card */
+  reserve?: number;
+  /**
+   * When set, the scale is computed from this height instead of the card's
+   * own — used so the win and lose demo cards share one scale factor and
+   * therefore render at exactly the same width. The box still sizes to the
+   * card's own scaled height.
+   */
+  referenceHeight?: number;
+  /** reports this card's natural (untransformed) height once measured */
+  onMeasure?: (height: number) => void;
+}) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [boxHeight, setBoxHeight] = useState<number | undefined>(undefined);
 
-function DemoWinCard() {
-  const animationData = useLottieData(WIN_LOTTIE);
-  const opponents = useMemo(() => pickRecommendedOpponents(400), []);
-  return (
-    <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden select-none pointer-events-none">
-      {/* The lottie canvas has ~25% empty padding below the art; the outer
-          box is that much shorter and clips it, while the inner box keeps the
-          full 540/400 canvas scaled to the outer's height — so the art always
-          scales with the box (never cut on short screens) and the heading
-          sits right under it. */}
-      <div className="relative overflow-hidden w-[64%] mx-auto aspect-[540/300] max-h-[22vh] [@media(max-height:920px)]:max-h-[18vh]">
-        {animationData && (
-          <Lottie
-            animationData={animationData}
-            loop={false}
-            rendererSettings={{ preserveAspectRatio: "xMidYMin meet" }}
-            className="absolute top-0 left-0 w-full h-[133.33%]"
-          />
-        )}
-      </div>
-      <div className="px-[20px] pb-[16px]">
-        <h2 className="text-center font-bold text-[22px] text-[#34C759] mt-[4px] mb-[2px]">
-          You Won
-        </h2>
-        <p className="text-center text-[13px] text-[#374151] mb-[10px]">
-          Against Lisa (ELO 250)
-        </p>
-        <div className="flex items-center justify-center gap-[8px] mb-[12px]">
-          <div className="flex items-center justify-between gap-[12px] bg-[#34C759] rounded-[10px] px-[14px] py-[7px] flex-1 min-w-0 max-w-[280px]">
-            <span className="text-white font-semibold text-[13px] whitespace-nowrap">
-              Your Current ELO
-            </span>
-            <span className="flex items-center gap-[6px]">
-              <svg viewBox="0 0 20 20" fill="none" className="w-[15px] h-[15px] shrink-0">
-                <path d="M10 2L17 10H13V15H7V10H3L10 2Z" fill="white" />
-                <rect x="7" y="16.5" width="6" height="1.8" rx="0.9" fill="white" />
-              </svg>
-              <span className="text-white font-bold text-[20px] leading-none pt-[2px]">
-                <EloOdometer from={375} to={400} delay={0.4} duration={1.4} />
-              </span>
-            </span>
-          </div>
-          <motion.span
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.8, duration: 0.35 }}
-            className="text-[#34C759] font-bold text-[18px] shrink-0"
-          >
-            +25
-          </motion.span>
-        </div>
-        <p className="text-center font-bold text-[13px] text-[#111827]">
-          That was a good call!
-        </p>
-        <p className="text-center text-[12px] text-[#111827] mb-[10px]">
-          Ready to face more challenging opponents?
-        </p>
-        <div className="rounded-[12px] border border-[#7CC0F2] p-[8px] mb-[10px]">
-          <p className="text-center text-[11px] font-medium text-[#111827] mb-[4px]">
-            Challenge those Opponents next:
-          </p>
-          <div className="grid grid-cols-4 gap-[4px]">
-            {opponents.map((opponent, i) => (
-              <div
-                key={opponent.id}
-                className={`flex flex-col items-center gap-[2px] p-[4px] rounded-[10px] border ${
-                  i === 0 ? "border-[#7CC0F2] bg-[#E6F7FE]" : "border-transparent"
-                }`}
-              >
-                <Image
-                  src={opponent.img}
-                  alt={opponent.name}
-                  width={40}
-                  height={40}
-                  className="w-[30px] h-[30px] rounded-full object-cover"
-                />
-                <span className={`text-[11px] font-semibold truncate max-w-full ${i === 0 ? "text-[#221AE9]" : "text-[#111827]"}`}>
-                  {opponent.name}
-                </span>
-                <span className={`text-[10px] whitespace-nowrap ${i === 0 ? "text-[#221AE9]" : "text-[#6B7280]"}`}>
-                  ELO {opponent.elo}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="w-full py-[10px] rounded-full bg-[#221AE9] text-white font-semibold text-[13px] text-center">
-          Start Game
-        </div>
-      </div>
-    </div>
-  );
-}
+  useEffect(() => {
+    const el = innerRef.current;
+    if (!el) return;
+    const measure = () => {
+      const natural = el.offsetHeight; // untransformed layout height
+      if (!natural) return;
+      onMeasure?.(natural);
+      const basis = referenceHeight && referenceHeight > 0 ? referenceHeight : natural;
+      const avail = window.innerHeight - reserve;
+      const next = Math.min(1, avail / basis);
+      setScale(next);
+      setBoxHeight(natural * next);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [reserve, referenceHeight, onMeasure]);
 
-function DemoLoseCard() {
-  const animationData = useLottieData(LOSE_LOTTIE);
   return (
-    <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden select-none pointer-events-none">
-      {/* same clip-the-padding treatment as the win card */}
-      <div className="relative overflow-hidden w-[72%] mx-auto aspect-[540/300] max-h-[24vh] [@media(max-height:920px)]:max-h-[18vh]">
-        {animationData && (
-          <Lottie
-            animationData={animationData}
-            loop={false}
-            rendererSettings={{ preserveAspectRatio: "xMidYMin meet" }}
-            className="absolute top-0 left-0 w-full h-[133.33%]"
-          />
-        )}
-      </div>
-      <div className="px-[20px] pb-[18px]">
-        <h2 className="text-center font-bold text-[22px] text-[#DC2626] mt-[4px] mb-[2px]">
-          You Lost
-        </h2>
-        <p className="text-center text-[13px] text-[#374151] mb-[10px]">
-          Against Lisa (ELO 250)
-        </p>
-        <div className="flex items-center justify-center gap-[8px] mb-[12px]">
-          <div className="flex items-center justify-between gap-[12px] bg-[#DC2626] rounded-[10px] px-[14px] py-[7px] flex-1 min-w-0 max-w-[280px]">
-            <span className="text-white font-semibold text-[13px] whitespace-nowrap">
-              Your Current ELO
-            </span>
-            <span className="flex items-center gap-[6px]">
-              <svg viewBox="0 0 20 20" fill="none" className="w-[15px] h-[15px] shrink-0">
-                <path d="M10 18L3 10H7V5H13V10H17L10 18Z" fill="white" />
-                <rect x="7" y="1.7" width="6" height="1.8" rx="0.9" fill="white" />
-              </svg>
-              <span className="text-white font-bold text-[20px] leading-none pt-[2px]">
-                <EloOdometer from={400} to={375} delay={0.4} duration={1.4} />
-              </span>
-            </span>
-          </div>
-          <motion.span
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.8, duration: 0.35 }}
-            className="text-[#DC2626] font-bold text-[18px] shrink-0"
-          >
-            -25
-          </motion.span>
-        </div>
-        <p className="text-center font-bold text-[13px] text-[#111827]">
-          That was close!
-        </p>
-        <p className="text-center text-[12px] text-[#111827] mb-[12px]">
-          Discover your biggest mistakes now to see how to win next time!
-        </p>
-        <div className="w-full py-[10px] rounded-full bg-[#221AE9] text-white font-semibold text-[13px] text-center">
-          Discover Mistakes
-        </div>
+    <div style={{ height: boxHeight, width: "100%" }}>
+      <div
+        ref={innerRef}
+        style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
+      >
+        {children}
       </div>
     </div>
   );
@@ -520,6 +427,106 @@ function InterludeBoard({ rect, onDone }: { rect: Rect; onDone: () => void }) {
   );
 }
 
+// Mock move list shown over the opponent panel during the interlude so the
+// right column reads like the real vs-AI game screen (Movement Details + a
+// won-game banner). Purely decorative — a plausible white checkmate.
+const INTERLUDE_MOVES: [string, string][] = [
+  ["e4", "e5"],
+  ["Bc4", "Nc6"],
+  ["Qh5", "g6"],
+  ["Qf3", "Nf6"],
+  ["d3", "Bc5"],
+  ["Qb3", "Qe7"],
+  ["Ng5", "Nd8"],
+  ["Bxf7+", "Nxf7"],
+  ["Nxf7", "Qxf7"],
+  ["Qxf7#", ""],
+];
+
+function InterludeMoveList({ rect }: { rect: Rect }) {
+  return (
+    <div
+      className="fixed pointer-events-none"
+      style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
+    >
+      <div className="w-full h-full bg-white rounded-2xl border-2 border-[#81CFF3] shadow-lg p-3 sm:p-4 flex flex-col overflow-hidden">
+        {/* header */}
+        <div className="flex items-center gap-3 rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-3 mb-3 shrink-0">
+          <ArrowLeft size={20} className="text-black" />
+          <div className="flex items-center gap-2">
+            <Image
+              src="/images/play-vs-ai/icon-play-vs-ai.png"
+              alt="You vs AI"
+              width={22}
+              height={21}
+              className="w-[20px] h-[19px] object-contain"
+            />
+            <span className="font-semibold text-[16px]">You vs AI</span>
+          </div>
+        </div>
+
+        {/* tabs */}
+        <div className="grid grid-cols-2 gap-2 rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 mb-3 shrink-0">
+          <div className="flex items-center justify-center py-2 rounded-[6px] bg-white shadow-md border border-[#DEDEDE]">
+            <span className="text-[14px] font-semibold text-[#221AE9]">Current Game</span>
+          </div>
+          <div className="flex items-center justify-center py-2 rounded-[6px]">
+            <span className="text-[14px] font-semibold text-black">Past Games</span>
+          </div>
+        </div>
+
+        {/* movement details */}
+        <div className="flex-1 min-h-0 rounded-[16px] border border-[#DEDEDE] p-3 flex flex-col overflow-hidden">
+          <span className="font-semibold text-center text-[14px] mb-2 shrink-0">
+            Movement Details
+          </span>
+          <div className="overflow-y-auto min-h-0">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-[#D7E3FB]">
+                  <th className="p-1.5 border border-[#BDD0F9] font-normal text-[12px]">#</th>
+                  <th className="p-1.5 border border-[#BDD0F9] font-normal text-[12px]">You (White)</th>
+                  <th className="p-1.5 border border-[#BDD0F9] font-normal text-[12px]">Computer (Black)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {INTERLUDE_MOVES.map(([white, black], i) => (
+                  <tr key={i} className="text-center">
+                    <td className="p-1.5 border border-[#BDD0F9] text-[12px]">{i + 1}</td>
+                    <td className="p-1.5 border border-[#BDD0F9] text-[12px]">{white}</td>
+                    <td className="p-1.5 border border-[#BDD0F9] text-[12px]">{black}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex justify-center gap-3 mt-3 shrink-0">
+            <div className="rounded-[4px] w-1/2 h-[32px] flex items-center justify-center bg-[rgba(34,26,233,0.2)] border border-[#221AE9]">
+              <ArrowLeft size={18} className="text-black" />
+            </div>
+            <div className="rounded-[4px] w-1/2 h-[32px] flex items-center justify-center bg-[rgba(34,26,233,0.2)] border border-[#221AE9]">
+              <RotateCw size={18} className="text-black" />
+            </div>
+          </div>
+        </div>
+
+        {/* won-game banner + analyze */}
+        <div className="mt-3 flex flex-col gap-2 shrink-0">
+          <div className="flex items-center gap-2 rounded-[8px] px-3 py-2 bg-gradient-to-r from-[#34C759] to-[#2FB350] text-white">
+            <Trophy size={16} className="shrink-0" />
+            <span className="text-[13px] font-semibold">
+              Congratulations! You have won this Game!
+            </span>
+          </div>
+          <div className="w-full py-2 rounded-full bg-[#34C759] text-white font-semibold text-[13px] text-center">
+            Analyze Now
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ----------------- analysis demo (mirrors GameAnalysis) ----------------- */
 
 const DEMO_MISTAKES = [
@@ -565,33 +572,20 @@ const DEMO_MISTAKES = [
 // played while the red (bad) and green (better) arrows stay visible.
 function DemoSlideBoard({
   mistake,
-  active,
   boardWidth,
 }: {
   mistake: (typeof DEMO_MISTAKES)[number];
-  active: boolean;
   boardWidth: number;
 }) {
-  const [fen, setFen] = useState(mistake.fen);
-  const [squareStyles, setSquareStyles] = useState<Record<string, React.CSSProperties>>({});
+  // Static position with the bad-move (red) and better-move (green) arrows.
+  // The pieces never move — only the arrows illustrate the mistake.
   const [badFromTo, setBadFromTo] = useState<[string, string] | null>(null);
 
   useEffect(() => {
-    setFen(mistake.fen);
-    setSquareStyles({});
     const chess = new Chess(mistake.fen);
     const preview = chess.move(mistake.badMove);
-    if (preview) setBadFromTo([preview.from, preview.to]);
-    if (!active || !preview) return;
-    const t = setTimeout(() => {
-      setFen(chess.fen());
-      setSquareStyles({
-        [preview.from]: { background: "#F5F682" },
-        [preview.to]: { background: "rgba(239, 68, 68, 0.35)" },
-      });
-    }, 1000);
-    return () => clearTimeout(t);
-  }, [mistake, active]);
+    setBadFromTo(preview ? [preview.from, preview.to] : null);
+  }, [mistake]);
 
   const arrows = [
     ...(badFromTo ? [arrow(badFromTo[0], badFromTo[1], BAD_ARROW)] : []),
@@ -605,11 +599,11 @@ function DemoSlideBoard({
         arePiecesDraggable={false}
         boardWidth={boardWidth}
         orientation="black"
-        position={fen}
+        position={mistake.fen}
         onPromotionPieceSelect={() => false}
         promotionToSquare={null}
         showPromotionDialog={false}
-        customSquareStyles={squareStyles}
+        customSquareStyles={{}}
         customArrows={[]}
         areArrowsAllowed={false}
         customArrowColor=""
@@ -713,11 +707,7 @@ function DemoAnalyzeCard() {
                   />
                   <Settings size={16} className="text-[#221AE9]" />
                 </div>
-                <DemoSlideBoard
-                  mistake={mistake}
-                  active={index === activeIndex}
-                  boardWidth={BOARD_W}
-                />
+                <DemoSlideBoard mistake={mistake} boardWidth={BOARD_W} />
               </div>
 
               <div className="w-full border border-[#221AE9] rounded-[8px]">
@@ -874,20 +864,35 @@ export function PlaygroundTour({
   const [boardImgRect, setBoardImgRect] = useState<Rect | null>(null);
   const [topBarRect, setTopBarRect] = useState<Rect | null>(null);
   const [bottomBarRect, setBottomBarRect] = useState<Rect | null>(null);
+  // the opponent panel on the right, covered by a mock move list during the
+  // interlude so the whole hero reads like a finished vs-AI game
+  const [panelRect, setPanelRect] = useState<Rect | null>(null);
   const [viewport, setViewport] = useState<Viewport>({ vw: 0, vh: 0 });
   const rectRef = useRef<Rect | null>(null);
   const spotRef = useRef<Rect | null>(null);
   const boardImgRef = useRef<Rect | null>(null);
   const topBarRef = useRef<Rect | null>(null);
   const bottomBarRef = useRef<Rect | null>(null);
+  const panelRef = useRef<Rect | null>(null);
   // true when this open is the browser's first-ever tour run (drives the
   // one-time day-streak greeting on close)
   const firstRunRef = useRef(false);
+  // Natural height of the (taller) win demo card, measured on step 3, so the
+  // lose card on step 4 can scale by the same factor and match its width.
+  const winCardHeightRef = useRef(0);
+  const reportWinCardHeight = useRef((h: number) => {
+    winCardHeightRef.current = h;
+  }).current;
 
   const step = interlude ? undefined : (STEPS[index] as TourStep | undefined); // undefined on finale/interlude
   const anchored = !!step?.anchors;
 
   useEffect(() => setMounted(true), []);
+
+  // Never leave the "tour on screen" flag stuck true if the tour unmounts
+  // (navigation) without finish() running — otherwise queued modals would
+  // stay suppressed forever.
+  useEffect(() => () => setPlaygroundTourActive(false), []);
 
   // Opens the tour. The pending flag is consumed immediately — not on finish
   // — so a mid-tour refresh doesn't restart it: the tour auto-runs exactly
@@ -900,6 +905,7 @@ export function PlaygroundTour({
     } catch {}
     setIndex(0);
     setOpen(true);
+    setPlaygroundTourActive(true);
     preloadLottie(WIN_LOTTIE);
     preloadLottie(LOSE_LOTTIE);
   };
@@ -949,6 +955,7 @@ export function PlaygroundTour({
   const finish = () => {
     setOpen(false);
     setInterlude(false);
+    setPlaygroundTourActive(false);
     const firstCompletion = firstRunRef.current;
     firstRunRef.current = false;
     try {
@@ -970,7 +977,7 @@ export function PlaygroundTour({
 
   const findBoardImage = () =>
     document.querySelector<HTMLElement>(
-      '[data-tour-anchor="board-preview"] img[alt="Chessboard preview"]'
+      '[data-tour-anchor="board-preview"] [data-preview-board]'
     );
 
   const next = () => {
@@ -1033,18 +1040,19 @@ export function PlaygroundTour({
     const range = list.scrollHeight - list.clientHeight;
     let raf = 0;
     let start: number | null = null;
-    const CYCLE_MS = 9000; // down and back up
+    const SWEEP_MS = 4500; // single downward sweep, then stop at the end
     const tick = (now: number) => {
       if (start === null) start = now + 900; // brief pause before moving
-      const t = Math.max(0, now - start) % CYCLE_MS;
-      // eased there-and-back sweep: 0 -> 1 -> 0
-      const phase = (1 - Math.cos((t / CYCLE_MS) * Math.PI * 2)) / 2;
+      const p = Math.min(1, Math.max(0, now - start) / SWEEP_MS);
+      // easeInOut one-way sweep: 0 -> 1 (no return trip)
+      const phase = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
       list.scrollTop = phase * range;
       if (tabs) {
         const tabsRange = tabs.scrollWidth - tabs.clientWidth;
         if (tabsRange > 0) tabs.scrollLeft = phase * tabsRange;
       }
-      raf = requestAnimationFrame(tick);
+      // Stop once the bottom of the list is reached — stay there.
+      if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => {
@@ -1087,7 +1095,7 @@ export function PlaygroundTour({
       // interlude's won-board + capture-bar overlays
       const img = interlude
         ? document.querySelector<HTMLElement>(
-            '[data-tour-anchor="board-preview"] img[alt="Chessboard preview"]'
+            '[data-tour-anchor="board-preview"] [data-preview-board]'
           )
         : null;
       const nextImg = img ? toRect(img.getBoundingClientRect()) : null;
@@ -1097,7 +1105,7 @@ export function PlaygroundTour({
       }
       const topBar = interlude
         ? document.querySelector<HTMLElement>(
-            '[data-tour-anchor="board-preview"] img[alt="Player preview"]'
+            '[data-tour-anchor="board-preview"] [data-preview-bar="opponent"]'
           )
         : null;
       const nextTop = topBar ? toRect(topBar.getBoundingClientRect()) : null;
@@ -1107,13 +1115,23 @@ export function PlaygroundTour({
       }
       const bottomBar = interlude
         ? document.querySelector<HTMLElement>(
-            '[data-tour-anchor="board-preview"] > div'
+            '[data-tour-anchor="board-preview"] [data-preview-bar="player"]'
           )
         : null;
       const nextBottom = bottomBar ? toRect(bottomBar.getBoundingClientRect()) : null;
       if (!sameRect(nextBottom, bottomBarRef.current)) {
         bottomBarRef.current = nextBottom;
         setBottomBarRect(nextBottom);
+      }
+      const panel = interlude
+        ? document.querySelector<HTMLElement>(
+            '[data-tour-anchor="opponent-panel"]'
+          )
+        : null;
+      const nextPanel = panel ? toRect(panel.getBoundingClientRect()) : null;
+      if (!sameRect(nextPanel, panelRef.current)) {
+        panelRef.current = nextPanel;
+        setPanelRect(nextPanel);
       }
       setViewport((v) =>
         v.vw === window.innerWidth && v.vh === window.innerHeight
@@ -1145,8 +1163,11 @@ export function PlaygroundTour({
   // when a step has no anchor so the 200vmax shadow dims the whole screen.
   const PAD = 8;
   const spotRect = spot ?? rect;
+  // The step 2 -> 3 interlude no longer spotlights the board: it plays with a
+  // plain dim backdrop (no cutout, no ring) so nothing jumps to the board.
+  const showSpotlight = anchored && !!spotRect;
   const hole: Rect =
-    (anchored || interlude) && spotRect
+    showSpotlight && spotRect
       ? {
           top: spotRect.top - PAD,
           left: spotRect.left - PAD,
@@ -1191,22 +1212,25 @@ export function PlaygroundTour({
 
   return createPortal(
     <div className="fixed inset-0 z-[700] overscroll-contain" role="dialog" aria-modal="true" aria-label="Playground tutorial">
-      {/* Spotlight (the huge shadow doubles as the backdrop) */}
-      <div
-        className="fixed pointer-events-none"
-        style={{
-          top: hole.top,
-          left: hole.left,
-          width: hole.width,
-          height: hole.height,
-          borderRadius: 18,
-          boxShadow:
-            (anchored || interlude) && spotRect
+      {/* Spotlight (the huge shadow doubles as the backdrop). The step 2 -> 3
+          interlude shows the live page layout instead, with no dim and no
+          highlight, so the backdrop is skipped entirely during it. */}
+      {!interlude && (
+        <div
+          className="fixed pointer-events-none"
+          style={{
+            top: hole.top,
+            left: hole.left,
+            width: hole.width,
+            height: hole.height,
+            borderRadius: 18,
+            boxShadow: showSpotlight
               ? "0 0 0 2px rgba(124,192,242,0.95), 0 0 0 200vmax rgba(9,14,40,0.62)"
               : "0 0 0 200vmax rgba(9,14,40,0.62)",
-          transition: "all 350ms cubic-bezier(0.4, 0, 0.2, 1)",
-        }}
-      />
+            transition: "all 350ms cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+        />
+      )}
 
       <AnimatePresence mode="wait">
         {step && anchored && (
@@ -1265,15 +1289,32 @@ export function PlaygroundTour({
               />
               {/* the analyze demo keeps overflow visible so the swiper card
                   deck can rotate outside its own bounds, like the real modal */}
-              <div
-                className={`w-[min(400px,92vw)] mt-[14px] rounded-2xl ${
-                  step.demo === "analyze"
-                    ? ""
-                    : "max-h-[62vh] overflow-y-auto [@media(max-height:920px)]:max-h-none [@media(max-height:920px)]:overflow-y-visible"
-                }`}
-              >
-                {step.demo === "win" && <DemoWinCard />}
-                {step.demo === "lose" && <DemoLoseCard />}
+              <div className="w-[min(430px,92vw)] mt-[14px] rounded-2xl">
+
+                {step.demo === "win" && (
+                  <ScaleToFit onMeasure={reportWinCardHeight}>
+                    <WinModalCard
+                      variant="tour"
+                      oldElo={375}
+                      newElo={400}
+                      delta={25}
+                      opponentName="Lisa"
+                      opponentElo={250}
+                    />
+                  </ScaleToFit>
+                )}
+                {step.demo === "lose" && (
+                  <ScaleToFit referenceHeight={winCardHeightRef.current || undefined}>
+                    <LoseModalCard
+                      variant="tour"
+                      oldElo={400}
+                      newElo={375}
+                      delta={-25}
+                      opponentName="Lisa"
+                      opponentElo={250}
+                    />
+                  </ScaleToFit>
+                )}
                 {step.demo === "analyze" && <DemoAnalyzeCard />}
               </div>
             </div>
@@ -1291,6 +1332,7 @@ export function PlaygroundTour({
             <InterludeBoard rect={boardImgRect} onDone={next} />
             {topBarRect && <InterludeCaptureBar rect={topBarRect} variant="lost" />}
             {bottomBarRect && <InterludeCaptureBar rect={bottomBarRect} variant="won" />}
+            {panelRect && <InterludeMoveList rect={panelRect} />}
           </motion.div>
         )}
 

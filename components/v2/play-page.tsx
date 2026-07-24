@@ -51,7 +51,11 @@ export function PlayPage() {
       .catch(() => {});
 
     gameHistoryApi
-      .getUserGames(sessionId, { limit: 5, page: 1 })
+      .getUserGames(sessionId, {
+        sources: ["chesscom", "vs_ai", "pgn_upload"],
+        limit: 5,
+        page: 1,
+      })
       .then((res) => {
         if (res?.data) setRecentGames(transformApiDataToComponentFormat(Array.isArray(res.data) ? res.data.slice(0, 5) : []));
       })
@@ -70,15 +74,18 @@ export function PlayPage() {
               elo={leaderboard?.my_elo || leaderboardMe?.elo || 0}
               rank={leaderboard?.my_rank ?? 0}
               movedUp={leaderboard?.moved_up ?? null}
-              canJoin={previewModal === "join" ? false : previewModal === "inactive" ? true : leaderboardMe?.can_join}
+              canJoin={previewModal === "join" ? false : previewModal === "inactive" ? false : leaderboardMe?.can_join}
               gamesRemaining={leaderboardMe?.games_remaining ?? (previewModal === "join" ? 3 : undefined)}
               isInactive={
-                previewModal === "inactive" ||
-                (previewModal !== "join" && leaderboardMe?.can_join !== false && leaderboardMe?.is_inactive === true)
+                previewModal === "inactive"
+                  ? true
+                  : previewModal === "join"
+                    ? false
+                    : leaderboardMe?.can_join === false && leaderboardMe?.is_inactive === true
               }
             />
 
-            <div className="sm:bg-[#E6F7FE] p-0 sm:p-7 rounded-3xl"><PlayHeroGamePreview recommendedListHeightClass="h-[440px] min-[1600px]:h-[530px]" />
+            <div className="sm:bg-[#E6F7FE] p-0 sm:p-7 rounded-3xl"><PlayHeroGamePreview recommendedListHeightClass="sm:flex-1 sm:min-h-0" />
 
             <div className="pt-8"><PlayRecentGames games={recentGames} isLoading={false} /></div>
             </div>

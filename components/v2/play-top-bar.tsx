@@ -8,6 +8,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { useHasPlayedToday } from "@/app/store/streak";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
+import { formatNumber } from "@/components/v2/format-number";
 
 interface PlayTopBarProps {
   streak: number;
@@ -24,26 +25,44 @@ function toOrdinal(n: number): string {
   // Product rule: only the top three ranks get st/nd/rd — every other rank
   // is plain "th" (4th, 21th, 10002th), per design.
   const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
-  return n + suffix;
+  return formatNumber(n) + suffix;
 }
+
+// Tooltip copy for each stat (shared between the desktop and mobile bars).
+const ELO_INFO =
+  "Your ELO score reflects your current playing strength. It updates after each rated game based on your results and your opponents' ratings.";
+const RANK_INFO =
+  "Your Rank is your position on the leaderboard based on your ELO score.";
+const MOVED_INFO =
+  "The number of positions you gained or lost on the leaderboard since yesterday.";
 
 function StatItem({
   icon,
   label,
   infoText,
+  infoAlign = "right",
+  muted,
   children,
 }: {
   icon: string;
   label: string;
   infoText?: string;
+  infoAlign?: "left" | "right" | "center";
+  muted?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex items-center gap-[6px]">
-      <Image src={icon} alt="" width={22} height={22} className="w-[22px] h-[22px] object-contain shrink-0" />
+      <Image
+        src={icon}
+        alt=""
+        width={22}
+        height={22}
+        className={`w-[22px] h-[22px] object-contain shrink-0 ${muted ? "grayscale opacity-70" : ""}`}
+      />
       <span className="text-[11px] sm:text-[12px] text-[#6B7280] whitespace-nowrap">{label}</span>
       {infoText ? (
-        <InfoTooltip text={infoText} size={14} />
+        <InfoTooltip text={infoText} size={14} align={infoAlign} />
       ) : (
         <Image src="/images/v2/play/information.png" alt="info" width={14} height={14} className="w-[14px] h-[14px] object-contain shrink-0" />
       )}
@@ -56,20 +75,30 @@ function MobileStatItem({
   icon,
   label,
   infoText,
+  infoAlign = "right",
+  muted,
   children,
 }: {
   icon: string;
   label: string;
   infoText?: string;
+  infoAlign?: "left" | "right" | "center";
+  muted?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-[4px]">
       <div className="flex items-center gap-[4px]">
-        <Image src={icon} alt="" width={18} height={18} className="w-[18px] h-[18px] object-contain shrink-0" />
+        <Image
+          src={icon}
+          alt=""
+          width={18}
+          height={18}
+          className={`w-[18px] h-[18px] object-contain shrink-0 ${muted ? "grayscale opacity-70" : ""}`}
+        />
         <span className="text-[11px] text-[#6B7280] whitespace-nowrap">{label}</span>
         {infoText ? (
-          <InfoTooltip text={infoText} size={12} />
+          <InfoTooltip text={infoText} size={12} align={infoAlign} />
         ) : (
           <Image src="/images/v2/play/information.png" alt="info" width={12} height={12} className="w-[12px] h-[12px] object-contain shrink-0" />
         )}
@@ -79,29 +108,20 @@ function MobileStatItem({
   );
 }
 
-/** Covers the ELO/rank stats. Default = frozen blue (inactive 7+ days);
- *  grey = uncalibrated player who can't join the leaderboard yet. */
-function StatsCover({ gamesRemaining, grey }: { gamesRemaining?: number; grey?: boolean }) {
+/** Frozen blue cover over the ELO/rank stats for an inactive (frozen) player.
+ *  The uncalibrated ("join") state is no longer a cover — it greys the stats
+ *  block and shows "Calibrating…" for the ELO instead. */
+function StatsCover({ gamesRemaining }: { gamesRemaining?: number }) {
   const text =
     gamesRemaining && gamesRemaining > 0
       ? `${gamesRemaining} more ${gamesRemaining === 1 ? "game" : "games"} to join the Leaderboard.`
       : null;
 
   return (
-    <div
-      className={`absolute inset-0 z-10 rounded-xl overflow-hidden flex items-center justify-center ${
-        grey ? "bg-[#E5E7EB]/95" : "bg-[#C9EFFB]/95"
-      }`}
-    >
-      {!grey && (
-        <div className="absolute inset-0 bg-[repeating-linear-gradient(115deg,transparent_0px,transparent_70px,rgba(255,255,255,0.55)_70px,rgba(255,255,255,0.55)_110px)]" />
-      )}
+    <div className="absolute inset-0 z-10 rounded-xl overflow-hidden flex items-center justify-center bg-[#C9EFFB]/95">
+      <div className="absolute inset-0 bg-[repeating-linear-gradient(115deg,transparent_0px,transparent_70px,rgba(255,255,255,0.55)_70px,rgba(255,255,255,0.55)_110px)]" />
       {text && (
-        <span
-          className={`relative px-4 text-center text-[12px] sm:text-[14px] font-semibold ${
-            grey ? "text-[#6B7280]" : "text-[#7ED2EC]"
-          }`}
-        >
+        <span className="relative px-4 text-center text-[10px] sm:text-[12px] font-semibold text-[#7ED2EC]">
           {text}
         </span>
       )}
@@ -226,6 +246,20 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
   const movedUpAbs = movedUp !== null ? Math.abs(movedUp) : 0;
   const movedLabel = isDown ? "Moved Down" : "Moved Up";
 
+  // Two mutually-exclusive stats covers (see StatsCover), matching the
+  // leaderboard page's convention:
+  //  • freeze (blue): player is frozen after inactivity — can_join === false
+  //    && is_inactive === true (passed in as isInactive).
+  //  • join (grey): uncalibrated player who still needs games to join —
+  //    can_join === false && games remaining > 0, and is not frozen.
+  const showFreezeCover = isInactive === true;
+  const showJoinCover =
+    canJoin === false && !showFreezeCover && (gamesRemaining ?? 0) > 0;
+  const leaderboardNote =
+    gamesRemaining && gamesRemaining > 0
+      ? `${gamesRemaining} more ${gamesRemaining === 1 ? "game" : "games"} to join the Leaderboard.`
+      : null;
+
   return (
     <div data-tour-anchor="play-top-bar" className="flex flex-col">
       {showEloModal && <EloModal onClose={() => setShowEloModal(false)} />}
@@ -250,41 +284,57 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
         </div>
 
         {/* Stats row */}
-        <div className="relative flex items-start justify-between mb-[14px] bg-white p-2 rounded-xl">
-          {isInactive && <StatsCover gamesRemaining={gamesRemaining} />}
-          {canJoin === false && !isInactive && <StatsCover grey gamesRemaining={gamesRemaining} />}
-          <MobileStatItem icon="/images/v2/play/elo.png" label="Your ELO">
-            <span className="text-[20px] font-bold text-[#111827]">{elo || "—"}</span>
-          </MobileStatItem>
+        <div
+          className={`relative mb-[14px] p-2 rounded-xl ${
+            showJoinCover ? "bg-[#E5E7EB]" : "bg-white"
+          }`}
+        >
+          {showFreezeCover && <StatsCover gamesRemaining={gamesRemaining} />}
+          <div className="flex items-start justify-between">
+            <MobileStatItem icon="/images/v2/play/elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left" muted={showJoinCover}>
+              {showJoinCover ? (
+                <span className="text-[12px] font-semibold text-[#6B7280] whitespace-nowrap">Calibrating…</span>
+              ) : (
+                <span className="text-[20px] font-bold text-[#111827]">{elo || "—"}</span>
+              )}
+            </MobileStatItem>
 
-          <MobileStatItem icon="/images/v2/play/rank.png" label="Your Rank">
-            <span className="text-[20px] font-bold text-[#111827]">
-              {rank > 0 && rank < 10 ? `0${toOrdinal(rank)}` : toOrdinal(rank)}
-            </span>
-          </MobileStatItem>
+            <MobileStatItem icon="/images/v2/play/rank.png" label="Your Rank" infoText={RANK_INFO} infoAlign="center" muted={showJoinCover}>
+              <span className={`text-[20px] font-bold ${showJoinCover ? "text-[#6B7280]" : "text-[#111827]"}`}>
+                {rank > 0 && rank < 10 ? `0${toOrdinal(rank)}` : toOrdinal(rank)}
+              </span>
+            </MobileStatItem>
 
-          <MobileStatItem
-            icon="/images/v2/play/rank_move.png"
-            label={movedLabel}
-            infoText="The number of positions you gained or lost on the leaderboard since yesterday."
-          >
-            {isUp || isDown ? (
-              <div className="flex items-center gap-[4px]">
-                <Image
-                  src={isUp ? "/images/v2/play/up.png" : "/images/v2/play/down.png"}
-                  alt=""
-                  width={16}
-                  height={16}
-                  className="w-[16px] h-[16px] object-contain"
-                />
-                <span className={`text-[20px] font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
-                  {movedUpAbs}
-                </span>
-              </div>
-            ) : (
-              <span className="text-[20px] font-bold text-[#9CA3AF]">—</span>
-            )}
-          </MobileStatItem>
+            <MobileStatItem
+              icon="/images/v2/play/rank_move.png"
+              label={movedLabel}
+              infoText={MOVED_INFO}
+              infoAlign="right"
+              muted={showJoinCover}
+            >
+              {isUp || isDown ? (
+                <div className="flex items-center gap-[4px]">
+                  <Image
+                    src={isUp ? "/images/v2/play/up.png" : "/images/v2/play/down.png"}
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="w-[16px] h-[16px] object-contain"
+                  />
+                  <span className={`text-[20px] font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
+                    {formatNumber(movedUpAbs)}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-[20px] font-bold text-[#9CA3AF]">—</span>
+              )}
+            </MobileStatItem>
+          </div>
+          {showJoinCover && leaderboardNote && (
+            <p className="mt-[8px] text-center text-[11px] font-medium text-[#6B7280]">
+              {leaderboardNote}
+            </p>
+          )}
         </div>
 
         {/* What is an ELO Score — bottom of mobile card */}
@@ -318,29 +368,38 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                 className="w-[32px] h-[38px] object-contain"
               />
               <div className="flex flex-col leading-tight text-left">
-                <span className="text-[15px] font-bold text-[#2e3133]">{streak} Day</span>
+                <span className="text-[15px] font-bold text-[#2e3133]">{formatNumber(streak)} Day</span>
                 <span className="text-[15px] font-base text-[#2e3133]">Streak</span>
               </div>
             </button>
           </div>
 
           {/* Stats — centered */}
-          <div className="relative flex-1 min-w-[300px] flex flex-col items-center gap-[6px] bg-white rounded-md p-2">
-            {isInactive && <StatsCover gamesRemaining={gamesRemaining} />}
-            {canJoin === false && !isInactive && <StatsCover grey gamesRemaining={gamesRemaining} />}
+          <div
+            className={`relative flex-1 min-w-[300px] flex flex-col items-center gap-[6px] rounded-md p-2 ${
+              showJoinCover ? "bg-[#E5E7EB]" : "bg-white"
+            }`}
+          >
+            {showFreezeCover && <StatsCover gamesRemaining={gamesRemaining} />}
             <div className="flex flex-wrap items-center justify-center gap-x-[16px] xl:gap-x-[30px] gap-y-[6px]">
-              <StatItem icon="/images/v2/play/elo.png" label="Your ELO">
-                <span className="text-xl font-bold text-[#111827]">{elo || "—"}</span>
+              <StatItem icon="/images/v2/play/elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left" muted={showJoinCover}>
+                {showJoinCover ? (
+                  <span className="text-[13px] font-semibold text-[#6B7280] whitespace-nowrap">Calibrating…</span>
+                ) : (
+                  <span className="text-xl font-bold text-[#111827]">{elo || "—"}</span>
+                )}
               </StatItem>
 
-              <StatItem icon="/images/v2/play/rank.png" label="Your Rank">
-                <span className="text-xl font-bold text-[#111827]">{toOrdinal(rank)}</span>
+              <StatItem icon="/images/v2/play/rank.png" label="Your Rank" infoText={RANK_INFO} infoAlign="left" muted={showJoinCover}>
+                <span className={`text-xl font-bold ${showJoinCover ? "text-[#6B7280]" : "text-[#111827]"}`}>{toOrdinal(rank)}</span>
               </StatItem>
 
               <StatItem
                 icon="/images/v2/play/rank_move.png"
                 label={movedLabel}
-                infoText="The number of positions you gained or lost on the leaderboard since yesterday."
+                infoText={MOVED_INFO}
+                infoAlign="right"
+                muted={showJoinCover}
               >
                 {isUp || isDown ? (
                   <div className="flex items-center gap-[4px]">
@@ -352,7 +411,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                       className="w-[16px] h-[16px] object-contain"
                     />
                     <span className={`text-xl font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
-                      {movedUpAbs}
+                      {formatNumber(movedUpAbs)}
                     </span>
                   </div>
                 ) : (
@@ -360,6 +419,11 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                 )}
               </StatItem>
             </div>
+            {showJoinCover && leaderboardNote && (
+              <p className="text-center text-[12px] font-medium text-[#6B7280]">
+                {leaderboardNote}
+              </p>
+            )}
           </div>
 
           {/* Leaderboard */}

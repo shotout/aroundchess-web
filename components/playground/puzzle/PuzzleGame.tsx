@@ -29,7 +29,7 @@ import {
 } from "react-chessboard/dist/chessboard/types";
 import { playIncorrectMoveSound } from "../src/utils/playSound";
 import { playSound } from "@/utils/play-audio";
-import InitialAvatar from "@/components/avatar/InitialAvatar";
+import { GamePlayerAvatar } from "@/components/v2/game-player-avatar";
 import ReactCountryFlag from "react-country-flag";
 import { RelativeTooltip } from "../tooltip/RelativeTooltip";
 import { useRouter } from "next/navigation";
@@ -820,25 +820,12 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     return (
       <div className={`flex flex-row h-[60px] lg:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}>
         <div className="flex flex-row items-center gap-2">
-          <>
-            {chessComAvatar && chessComAvatar.length > 0 ? (
-              <Image
-                src={chessComAvatar || ""}
-                alt="icon"
-                width={1000}
-                height={1000}
-                className="w-[48px] h-[48px] rounded-full object-contain"
-              />
-            ) : (
-              <div className="flex items-center gap-[8px]">
-                <InitialAvatar
-                  name={username || "Anonymous"}
-                  className="w-[40px] h-[40px]"
-                />
-                <span className={`font-semibold`}>You</span>
-              </div>
-            )}
-          </>
+          {/* Same avatar treatment as the Play vs AI page (profile photo, else
+              the seeded chess-piece placeholder). */}
+          <GamePlayerAvatar
+            imageUrl={profile?.imageUrl || chessComAvatar}
+            seed={username || profile?.name || profile?.email || "user"}
+          />
           <span className={`text-[17.23px] font-medium text-[#040404]`}>
             {username}
           </span>

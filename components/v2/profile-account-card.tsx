@@ -87,6 +87,9 @@ const ProfileAccountCard = ({
   // Prefer the explicit flag from the profile response; fall back to the
   // legacy "has a username" heuristic while the backend field rolls out.
   const isConnected = profile?.isChessComConnected ?? Boolean(username);
+  // Once the Chess.com account is actually linked, the sync game type is fixed
+  // and can no longer be changed.
+  const chesscomLocked = profile?.isChessComConnected === true;
 
   const [usernameStatus, setUsernameStatus] = useState<
     "idle" | "checking" | "available" | "unavailable"
@@ -526,11 +529,11 @@ const ProfileAccountCard = ({
               <Select
                 value={selectedGameType || ""}
                 onValueChange={handleGameTypeChange}
-                disabled={isUpdatingGameType || gameTypesData.length === 0}
+                disabled={isUpdatingGameType || gameTypesData.length === 0 || chesscomLocked}
               >
                 <SelectTrigger
                   className={`w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px] ${
-                    isUpdatingGameType ? "opacity-50" : ""
+                    isUpdatingGameType || chesscomLocked ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
                   <SelectValue placeholder={profile.gameType}>

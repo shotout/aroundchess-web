@@ -72,34 +72,33 @@ export function DayStreakModal({
       : variant === "celebration" || variant === "reward"
         ? "Day Streak"
         : null;
+  // "Start playing today" vs "Keep it up" is driven by whether the flame is
+  // OFF (hasn't played today) — not by the streak count. A broken streak also
+  // needs the "start playing" nudge. Days left counts toward the 7-day reward.
+  const notPlayedToday = staticFlame === "off" || variant === "broken";
+  const daysLeft = 7 - (streak % 7);
   const subtitle =
     variant === "celebration" || variant === "broken" ? (
-      streak <= 1 ? (
+      notPlayedToday ? (
         <>
-          Start playing today — only 7 more days
+          Start playing today — only {daysLeft} more days
           <br />
           to claim your{" "}
-          <span className="font-bold">10 Free Analyses Tokens</span>.
-        </>
-      ) : streak === 2 ? (
-        <>
-          Keep it up! Play Today - only 5 more
-          <br />
-          days to get {" "}
-          <span className="font-bold">10 Free Analyses Tokens</span>.
+          <span className="font-bold">10 Free Analysis Tokens</span>.
         </>
       ) : (
         <>
-          Keep it up! Play {7 - (streak % 7)} more
-          <br />days to get a{" "}
-          <span className="font-bold">10 Free Analyses Tokens</span>.
+          Keep it up! Play Today - only {daysLeft} more
+          <br />
+          days to get {" "}
+          <span className="font-bold">10 Free Analysis Tokens</span>.
         </>
       )
     ) : variant === "reward" ? (
       <>
         You have received 10 Tokens
         <br />
-        for a <span className="font-bold">Free Analyses</span>.
+        for a <span className="font-bold">Free Analysis</span>.
       </>
     ) : null;
   // Static login-style shows: nudge to play while the flame is still off;

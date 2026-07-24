@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, X, Loader2 } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -168,14 +168,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       <div className="relative z-10 bg-white rounded-lg shadow-lg p-4 sm:max-w-md w-[90%]">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => router.push("/play")}
-            className="flex items-center"
-          >
-            <ChevronLeft className="h-6 w-6 text-black" />
-          </button>
-
+        <div className="flex items-center justify-end mb-4">
           <button
             className="rounded-full p-1 hover:bg-gray-100"
             onClick={onClose}

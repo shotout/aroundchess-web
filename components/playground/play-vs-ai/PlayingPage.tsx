@@ -2834,7 +2834,13 @@ export default function PlayingPage() {
           opponentName={AIChoosed?.opponent?.name}
           opponentElo={AIChoosed?.opponent?.elo}
           onClose={() => setShowLoseModal(false)}
-          onStartGame={handleLoseRematch}
+          onDiscoverMistakes={() => {
+            setShowLoseModal(false);
+            // Show the loading chess animation right away; the autoStart flow
+            // starts the analysis + polling that this dialog reads for progress.
+            if (!isTutorialPlay) setProcessingAnalysisModeOpen(true);
+            triggerAnalyzeGame();
+          }}
         />
       )}
       {showDrawModal && !isTutorialPlay && (

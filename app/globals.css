@@ -197,6 +197,13 @@ div {
 p {
   font-family: "AloeveraDisplay-Regular";
 }
+/* Bold in this app is a font-family swap (every face is font-weight:normal),
+   so raw <b>/<strong> from API-driven HTML (e.g. FAQ answers) wouldn't render
+   bold on their own. Map them to the Bold face where rich content is shown. */
+.faq-answer b,
+.faq-answer strong {
+  font-family: "AloeveraDisplay-Bold";
+}
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }

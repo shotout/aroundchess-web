@@ -8,7 +8,9 @@ import Popup from "./Popup";
 const Welcome: React.FC = () => {
   const route = useRouter();
   const [isMobile, setIsMobile] = useState(false);
-  const [showSetupPopup, setShowSetupPopup] = useState(false);
+  // Open the setup modal directly on entry (from the Board Vision menu) instead
+  // of first showing the landing card.
+  const [showSetupPopup, setShowSetupPopup] = useState(true);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -54,32 +56,36 @@ const Welcome: React.FC = () => {
           </div>
         )}
 
-        <div className="relative z-10 w-full h-full flex items-center justify-center">
-          <div className="absolute inset-0 flex items-center justify-center m-4">
-            <div className="w-full p-8 xl:max-w-[643px] 2xl:max-w-[700px] z-10 sm:mx-7 bg-white/70 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-64 border-2 border-[#fff] rounded-md flex flex-col gap-2 items-center justify-center">
-              <Image
-                src={"/board-vision/eye.png"}
-                alt="background"
-                width={1000}
-                height={1000}
-                className="w-[188px] xl:w-[376px] h-auto"
-              />
-              <span className="font-medium text-lg xl:text-xl">
-                Board Vision
-              </span>
-              <span className="font-normal text-md xl:mx-20 text-center">
-                Answer technical Chess Questions from positions of your previous
-                Games to improve your Board Vision.
-              </span>
-              <button
-                className="btn-primary w-full p-2 rounded-full"
-                onClick={handleStartClick}
-              >
-                Start Board Vision
-              </button>
+        {/* Landing card — hidden while the setup modal is open so only the
+            dimmed board shows behind it. */}
+        {!showSetupPopup && (
+          <div className="relative z-10 w-full h-full flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center m-4">
+              <div className="w-full p-8 xl:max-w-[643px] 2xl:max-w-[700px] z-10 sm:mx-7 bg-white/70 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-64 border-2 border-[#fff] rounded-md flex flex-col gap-2 items-center justify-center">
+                <Image
+                  src={"/board-vision/eye.png"}
+                  alt="background"
+                  width={1000}
+                  height={1000}
+                  className="w-[188px] xl:w-[376px] h-auto"
+                />
+                <span className="font-medium text-lg xl:text-xl">
+                  Board Vision
+                </span>
+                <span className="font-normal text-md xl:mx-20 text-center">
+                  Answer technical Chess Questions from positions of your previous
+                  Games to improve your Board Vision.
+                </span>
+                <button
+                  className="btn-primary w-full p-2 rounded-full"
+                  onClick={handleStartClick}
+                >
+                  Start Board Vision
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       <Popup
