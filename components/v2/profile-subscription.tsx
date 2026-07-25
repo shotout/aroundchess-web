@@ -11,11 +11,10 @@ import { useApiClient } from "@/functions/api-client";
 import { formatDateHistory } from "@/functions/format-date";
 import { trackPaywallInteraction } from "@/functions/tracking";
 import {
-  isMarchCampaignActive,
-  MARCH_OFFER_END_DATE_LABEL,
   MARCH_OFFER_MONTHLY_PRICE,
   MARCH_OFFER_YEARLY_PRICE,
 } from "@/constants/marchOffer";
+import { usePromoActive, usePromoEndDateLabel } from "@/hooks/usePromo";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -123,7 +122,8 @@ interface PremiumPlanCardProps {
   price: number;
   period: string;
   perAnalysis: string;
-  showOfferEnds: boolean;
+  /** Backend `promo_end` label; empty hides the "Offer ends" note. */
+  offerEndsLabel: string;
   isCurrentPlan: boolean;
   canPurchase: boolean;
   isLoadingPay: boolean;
@@ -145,7 +145,7 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   price,
   period,
   perAnalysis,
-  showOfferEnds,
+  offerEndsLabel,
   isCurrentPlan,
   canPurchase,
   isLoadingPay,
@@ -223,9 +223,9 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
         >
           {isLoadingPay ? <DotSpinner size={8} /> : "Get Premium"}
         </button>
-        {showOfferEnds && (
+        {offerEndsLabel && (
           <p className="mt-3 text-center text-[11px] lg:text-[13px] text-white">
-            Offer ends {MARCH_OFFER_END_DATE_LABEL}
+            Offer ends {offerEndsLabel}
           </p>
         )}
       </>
@@ -273,7 +273,8 @@ const ProfileSubscription = () => {
     new Date(profile?.discountInfo?.startDate).getTime() + 7 * 24 * 60 * 60 * 1000;
   const isPass = deadline - Date.now();
 
-  const marchActive = isMarchCampaignActive();
+  const marchActive = usePromoActive();
+  const promoEndLabel = usePromoEndDateLabel();
   const showMarchDiscount = marchActive && !isPremium;
   const hasLegacyMonthlyDiscount =
     !isMemberMonthly && profile?.discountInfo?.hasActiveDiscount && isPass > 0;
@@ -521,7 +522,7 @@ const ProfileSubscription = () => {
           price={monthlyPrice}
           period="month"
           perAnalysis={(monthlyPrice / 80).toFixed(2)}
-          showOfferEnds={showMarchDiscount}
+          offerEndsLabel={showMarchDiscount ? promoEndLabel : ""}
           isCurrentPlan={Boolean(isMemberMonthly)}
           canPurchase={!isPremium}
           isLoadingPay={isLoading && paySelected == "monthly"}
@@ -544,7 +545,7 @@ const ProfileSubscription = () => {
           price={yearlyPrice}
           period="year"
           perAnalysis={(yearlyPrice / 1000).toFixed(2)}
-          showOfferEnds={showMarchDiscount}
+          offerEndsLabel={showMarchDiscount ? promoEndLabel : ""}
           isCurrentPlan={Boolean(isMember)}
           canPurchase={!isPremium}
           isLoadingPay={isLoading && paySelected == "yearly"}

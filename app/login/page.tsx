@@ -13,9 +13,10 @@ import { useRouter } from "next/navigation";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import DotSpinner from "@/components/game-history/Spinner";
 import {
-  isMarchCampaignActive,
+  isPromoWindowActive,
   MARCH_OFFER_DIALOG_SESSION_KEY,
 } from "@/constants/marchOffer";
+import { ensurePromoAppSetting } from "@/functions/app-setting";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -142,7 +143,8 @@ useEffect(() => {
             setProfile(normalizedProfile);
             setProfileShow(profileData)
             try {
-              if (isMarchCampaignActive()) {
+              // Await the backend promo window in case it is still loading.
+              if (isPromoWindowActive(await ensurePromoAppSetting())) {
                 window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
               }
             } catch (error) {

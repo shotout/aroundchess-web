@@ -17,11 +17,8 @@ import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { trackPaywallInteraction } from "@/functions/tracking";
-import {
-  isMarchCampaignActive,
-  MARCH_OFFER_DISCOUNT_PERCENT,
-  MARCH_OFFER_END_DATE_LABEL,
-} from "@/constants/marchOffer";
+import { MARCH_OFFER_DISCOUNT_PERCENT } from "@/constants/marchOffer";
+import { usePromoActive, usePromoEndDateLabel } from "@/hooks/usePromo";
 import CountdownTimerDiscountMonthly from "@/components/CountdownTimer/CountdownTimerDiscountMonthly";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
@@ -180,7 +177,8 @@ export const PremiumSubsContent: React.FC<{
     7 * 24 * 60 * 60 * 1000;
   const isPass = deadline - Date.now();
 
-  const marchActive = isMarchCampaignActive();
+  const marchActive = usePromoActive();
+  const promoEndLabel = usePromoEndDateLabel();
   const showMarchDiscount = marchActive && !isMember && !isMemberMonthly;
   const marchMultiplier = (100 - MARCH_OFFER_DISCOUNT_PERCENT) / 100;
   const monthlyDiscounted = Math.round(9.99 * marchMultiplier * 100) / 100;
@@ -645,9 +643,9 @@ export const PremiumSubsContent: React.FC<{
                     "Get Premium"
                   )}
                 </button>
-                {showMarchDiscount && (
+                {showMarchDiscount && promoEndLabel && (
                   <p className="mt-1 text-center text-[12px] font-medium text-white/80">
-                    Offer ends {MARCH_OFFER_END_DATE_LABEL}
+                    Offer ends {promoEndLabel}
                   </p>
                 )}
               </>
@@ -768,9 +766,9 @@ export const PremiumSubsContent: React.FC<{
                 "Get Premium"
                 )}
               </button>
-              {showMarchDiscount && (
+              {showMarchDiscount && promoEndLabel && (
                 <p className="mt-1 text-center text-[12px] font-medium text-white/80">
-                  Offer ends {MARCH_OFFER_END_DATE_LABEL}
+                  Offer ends {promoEndLabel}
                 </p>
               )}
             </>
