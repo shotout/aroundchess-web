@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import { MarchOfferBanner } from "../components/MarchOfferBanner";
+import { AppSettingProvider } from "../components/v2/app-setting-provider";
 import { TutorialProvider } from "../components/TutorialProvider";
 import { DayStreakModalHost } from "../components/v2/day-streak-modal-host";
 import React, { Suspense } from "react";
@@ -40,6 +41,7 @@ export default function RootLayout({
           )}
         </head>
         <body>
+          <AppSettingProvider />
           <MarchOfferBanner />
           {setting.marketing && (
             <Script id="facebook-pixel" strategy="afterInteractive">

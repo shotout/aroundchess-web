@@ -1,7 +1,8 @@
 "use client";
 
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { isMarchCampaignActive, MARCH_OFFER_END_DATE_LABEL } from "@/constants/marchOffer";
+import { isMarchCampaignActive } from "@/constants/marchOffer";
+import { usePromoActive, usePromoEndDateLabel } from "@/hooks/usePromo";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -66,6 +67,8 @@ export function MarchOfferBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const bannerRef = useRef<HTMLDivElement | null>(null);
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
+  const isPromoActive = usePromoActive();
+  const promoEndLabel = usePromoEndDateLabel();
 
   const syncBannerHeight = useCallback(() => {
     if (!bannerRef.current || typeof document === "undefined") {
@@ -78,14 +81,16 @@ export function MarchOfferBanner() {
     );
   }, []);
 
+  // Re-runs once /v4/app_setting lands, and again whenever the backend flips the promo.
   useEffect(() => {
-    if (!isMarchCampaignActive() || readDismissedState()) {
+    if (!isPromoActive || readDismissedState()) {
+      setIsVisible(false);
       resetBannerHeight();
       return;
     }
 
     setIsVisible(true);
-  }, []);
+  }, [isPromoActive]);
 
   useEffect(() => {
     const handleReset = () => {
@@ -135,7 +140,7 @@ export function MarchOfferBanner() {
   }, [isVisible, syncBannerHeight]);
 
   useEffect(() => {
-    if (isVisible || !isMarchCampaignActive() || !readDismissedState()) {
+    if (isVisible || !isPromoActive || !readDismissedState()) {
       return;
     }
 
@@ -156,7 +161,7 @@ export function MarchOfferBanner() {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [isVisible, syncBannerHeight]);
+  }, [isVisible, isPromoActive, syncBannerHeight]);
 
   const handleOpenOffer = () => {
     setTabType("subscription");
@@ -246,11 +251,13 @@ export function MarchOfferBanner() {
               </div>
             </div>
 
-            <div className="absolute right-[3rem] top-1/2 hidden w-[126px] -translate-y-1/2 md:flex md:justify-center lg:w-[140px] xl:w-[154px] 2xl:w-[164px]">
-              <span className="pointer-events-none whitespace-nowrap text-center text-[9px] font-semibold leading-none tracking-[-0.01em] text-white/85 lg:text-[10px] xl:text-[11px]">
-                Offer ends {MARCH_OFFER_END_DATE_LABEL.replace(/\./g, "/")}
-              </span>
-            </div>
+            {promoEndLabel && (
+              <div className="absolute right-[3rem] top-1/2 hidden w-[126px] -translate-y-1/2 md:flex md:justify-center lg:w-[140px] xl:w-[154px] 2xl:w-[164px]">
+                <span className="pointer-events-none whitespace-nowrap text-center text-[9px] font-semibold leading-none tracking-[-0.01em] text-white/85 lg:text-[10px] xl:text-[11px]">
+                  Offer ends {promoEndLabel.replace(/\./g, "/")}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

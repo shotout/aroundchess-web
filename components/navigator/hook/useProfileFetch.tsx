@@ -3,9 +3,10 @@ import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useMarchOfferDialog } from "@/app/store/marchOfferDialog";
 import {
-  isMarchCampaignActive,
+  isPromoWindowActive,
   MARCH_OFFER_DIALOG_SESSION_KEY,
 } from "@/constants/marchOffer";
+import { ensurePromoAppSetting } from "@/functions/app-setting";
 import { useApiClient } from "@/functions/api-client";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -72,14 +73,16 @@ export const useProfileFetch = () => {
           setProfile(data);
           setUsername(data.username);
           profileData = data;
-          getTokenBalance({}).then((response) => {
+          getTokenBalance({}).then(async (response) => {
             if (response.data != null) {
               const data = response.data;
               setToken(data);
               const hasPendingMarchOffer =
                 typeof window !== "undefined" &&
                 window.sessionStorage.getItem(MARCH_OFFER_DIALOG_SESSION_KEY) === "true";
-              const marchCampaignActive = isMarchCampaignActive();
+              const marchCampaignActive = isPromoWindowActive(
+                await ensurePromoAppSetting()
+              );
               if (
                 data.balance == 0 &&
                 profileData.username.length > 0 &&

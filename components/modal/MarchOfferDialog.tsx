@@ -2,7 +2,7 @@
 
 import { useMarchOfferDialog } from "@/app/store/marchOfferDialog";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { MARCH_OFFER_END_DATE_LABEL } from "@/constants/marchOffer";
+import { usePromoEndDateLabel } from "@/hooks/usePromo";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { useEffect } from "react";
@@ -12,6 +12,7 @@ const DESKTOP_MAIN_BANNER_SRC =
 
 export function MarchOfferDialog() {
   const { open, setOpen } = useMarchOfferDialog();
+  const promoEndLabel = usePromoEndDateLabel();
   const {
     setOpen: setOpenPricingOffer,
     setTabType,
@@ -97,9 +98,11 @@ export function MarchOfferDialog() {
             Get Offer
           </button>
 
-          <p className="mt-3 text-center text-[13px] font-medium text-[#5E7389] md:text-[15px]">
-            Offer ends {MARCH_OFFER_END_DATE_LABEL}
-          </p>
+          {promoEndLabel && (
+            <p className="mt-3 text-center text-[13px] font-medium text-[#5E7389] md:text-[15px]">
+              Offer ends {promoEndLabel}
+            </p>
+          )}
         </div>
       </div>
     </div>

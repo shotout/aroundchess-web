@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { useProfileStore } from "../../store/profile";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import {
-  isMarchCampaignActive,
+  isPromoWindowActive,
   MARCH_OFFER_DIALOG_SESSION_KEY,
 } from "@/constants/marchOffer";
+import { ensurePromoAppSetting } from "@/functions/app-setting";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -166,7 +167,8 @@ export default function SSOCallbackPage() {
               setProfile(normalizedProfile);
               setProfileShow(profileData)
               try {
-                if (isMarchCampaignActive()) {
+                // Await the backend promo window in case it is still loading.
+                if (isPromoWindowActive(await ensurePromoAppSetting())) {
                   window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
                 }
               } catch (error) {
