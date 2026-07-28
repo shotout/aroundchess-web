@@ -39,6 +39,13 @@ interface LeaderboardListProps {
    * the user is viewing a jumped-to neighborhood. Resolves true on success.
    */
   onResetToTop?: () => Promise<boolean> | void;
+  /**
+   * Increments once the initial page fetch has settled. Entering the page
+   * auto-jumps to the user's own row when this ticks — keyed on the fetch
+   * rather than on `isLoading`, which is already false on first render when
+   * the store rehydrated a previous session's rows.
+   */
+  autoJumpNonce?: number;
 }
 
 // The signed-in user's own row when they have no picture — same trophy
@@ -80,20 +87,22 @@ function UserAvatar({ entry, index }: { entry: LeaderboardEntry; index: number }
 }
 
 // Fixed column so ranks line up across rows and multi-digit changes (↑10)
-// don't spill onto the rank badge.
-const RANK_CHANGE_WIDTH = "w-[40px]";
+// don't spill onto the rank badge. It is reserved even on rows with no change,
+// so on mobile it stays as narrow as the smaller arrow type allows — every px
+// here is dead space on the left edge of every unchanged row.
+const RANK_CHANGE_WIDTH = "w-[22px] sm:w-[40px]";
 
 function RankChange({ value }: { value?: number | null }) {
   if (!value) return <span className={`${RANK_CHANGE_WIDTH} h-[24px] shrink-0`} />;
   const isUp = value > 0;
   return (
-    <span className={`flex items-center justify-start h-[24px] leading-none gap-[1px] text-md font-semibold ${RANK_CHANGE_WIDTH} shrink-0 ${isUp ? "text-green-600" : "text-red-500"}`}>
+    <span className={`flex items-center justify-start h-[24px] leading-none gap-0 sm:gap-[1px] text-[10px] sm:text-md font-semibold ${RANK_CHANGE_WIDTH} shrink-0 ${isUp ? "text-green-600" : "text-red-500"}`}>
       <Image
         src={isUp ? "/images/v2/leaderboard/ArrowUp.png" : "/images/v2/leaderboard/ArrowDown.png"}
         alt=""
         width={12}
         height={12}
-        className="w-[16px] h-[16px] object-contain"
+        className="w-[9px] h-[9px] sm:w-[16px] sm:h-[16px] object-contain"
       />
       {formatNumber(Math.abs(value))}
     </span>
@@ -104,7 +113,7 @@ function RankChange({ value }: { value?: number | null }) {
 // no matter how many digits the rank has. Content is right-aligned, so the rank
 // always sits a consistent gap from the avatar; a longer rank grows leftward
 // into the empty space instead of pushing the avatar over.
-const RANK_WIDTH = "w-[56px]";
+const RANK_WIDTH = "w-[44px] sm:w-[56px]";
 
 function RankBadge({ rank }: { rank: number }) {
   const icon = RANK_BADGE_ICON[rank];
@@ -119,7 +128,7 @@ function RankBadge({ rank }: { rank: number }) {
           className="w-[24px] h-[24px] object-contain"
         />
       ) : (
-        <span className="leading-none text-[13px] font-semibold text-[#6B7280] whitespace-nowrap">
+        <span className="leading-none text-[12px] sm:text-[13px] font-semibold text-[#6B7280] whitespace-nowrap">
           #{formatNumber(rank)}
         </span>
       )}
@@ -140,7 +149,7 @@ function Row({
     <div
       ref={innerRef}
       id={entry.isMe ? "my-rank" : undefined}
-      className={`flex items-center gap-[10px] px-[14px] sm:px-[18px] py-[10px] border-b border-[#F3F4F6] last:border-b-0 sm:border-b-0 sm:rounded-[12px] sm:shadow-sm border-l-[3px] ${
+      className={`flex items-center gap-[4px] sm:gap-[10px] px-[2px] sm:px-[18px] py-[10px] border-b border-[#F3F4F6] last:border-b-0 sm:border-b-0 sm:rounded-[12px] sm:shadow-sm border-l-[3px] ${
         entry.isMe ? "bg-[#E6F7FE] border-l-[#221AE9]" : "bg-white border-l-transparent"
       }`}
     >
@@ -157,7 +166,7 @@ function Row({
 
 function SkeletonRow() {
   return (
-    <div className="flex items-center gap-[10px] px-[18px] py-[10px] border-b border-[#F3F4F6] shadow-md sm:border-b-0 sm:rounded-[12px] bg-white sm:shadow-sm">
+    <div className="flex items-center gap-[4px] sm:gap-[10px] px-[2px] sm:px-[18px] py-[10px] border-b border-[#F3F4F6] shadow-md sm:border-b-0 sm:rounded-[12px] bg-white sm:shadow-sm">
       <span className={RANK_CHANGE_WIDTH} />
       <span className={`${RANK_WIDTH} h-[16px] bg-gray-200 rounded animate-pulse`} />
       <div className="w-[32px] h-[32px] rounded-full bg-gray-200 animate-pulse shrink-0" />
@@ -178,6 +187,7 @@ export function LeaderboardList({
   onJumpToMyRank,
   isJumpingToMyRank,
   onResetToTop,
+  autoJumpNonce = 0,
 }: LeaderboardListProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -246,6 +256,19 @@ export function LeaderboardList({
     setPendingScrollToMe(false);
   }, [entries, pendingScrollToMe, scrollToMyRank]);
 
+  // Opening the page should land the user on their own row without making them
+  // press "My Rank" — run that same jump once the initial fetch has settled.
+  // Waiting on the nonce (not on `isLoading`) matters: with rehydrated entries
+  // the list renders immediately, and jumping against those stale rows was
+  // being undone the moment fresh page-1 data replaced them.
+  const autoJumpedForRef = useRef(0);
+  useEffect(() => {
+    if (autoJumpNonce === 0 || autoJumpedForRef.current === autoJumpNonce) return;
+    if (entries.length === 0 || myRank <= 0) return;
+    autoJumpedForRef.current = autoJumpNonce;
+    handleMyRankClick();
+  }, [autoJumpNonce, entries, myRank, handleMyRankClick]);
+
   // Once the scroll-to-top reload restarts the list at rank #1, snap up.
   useEffect(() => {
     if (!pendingScrollTop || (entries[0]?.rank ?? 1) !== 1) return;
@@ -265,7 +288,10 @@ export function LeaderboardList({
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
-    if (!sentinel || !hasMore) return;
+    // Hold off while a jump is landing: centering the user's row near the end
+    // of a fetched neighborhood puts the sentinel in view and would append the
+    // next page mid-scroll, shifting the row we just aimed at.
+    if (!sentinel || !hasMore || pendingScrollToMe || isJumpingToMyRank) return;
 
     const observer = new IntersectionObserver(
       (observed) => {
@@ -277,12 +303,12 @@ export function LeaderboardList({
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore]);
+  }, [hasMore, pendingScrollToMe, isJumpingToMyRank]);
 
   const rankOrdinal = ordinalParts(myRank);
 
   return (
-    <div className="w-full sm:w-[70%] mx-auto bg-white sm:bg-white/40 rounded-[20px] shadow-xl p-3 sm:p-4">
+    <div className="w-full sm:w-[70%] mx-auto bg-white sm:bg-white/40 rounded-[20px] shadow-xl p-2 sm:p-4">
       <div className="flex items-center justify-between gap-[8px] px-[4px] sm:px-[10px] pb-[12px]">
         <div className="flex flex-col leading-tight min-w-0">
           <span className="text-[15px] sm:text-xl font-extrabold text-[#111827]">
@@ -312,7 +338,7 @@ export function LeaderboardList({
         </button>
       </div>
 
-      <div className="flex items-center gap-[10px] px-[14px] sm:px-[18px] py-[10px] rounded-[12px] bg-[#221AE9] border-l-[3px] border-l-transparent">
+      <div className="flex items-center gap-[4px] sm:gap-[10px] px-[2px] sm:px-[18px] py-[10px] rounded-[12px] bg-[#221AE9] border-l-[3px] border-l-transparent">
         <span className={`${RANK_CHANGE_WIDTH} shrink-0`} />
         <span className={`${RANK_WIDTH} shrink-0`} />
         <span className="flex-1 text-md sm:text-xl font-bold text-white">Player</span>
@@ -327,7 +353,7 @@ export function LeaderboardList({
       <div className="relative">
         <div
           ref={scrollRef}
-          className="leaderboard-scrollbar flex flex-col gap-0 sm:gap-[8px] mt-[10px] max-h-[420px] overflow-y-auto pl-[2px] pr-[10px] py-[2px]"
+          className="leaderboard-scrollbar flex flex-col gap-0 sm:gap-[8px] mt-[10px] max-h-[420px] overflow-y-auto pl-[2px] pr-[2px] sm:pr-[10px] py-[2px]"
         >
           {isLoading ? (
             <>

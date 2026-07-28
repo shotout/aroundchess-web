@@ -104,7 +104,7 @@ const CurrentPackageBox = ({ note }: { note?: string }) => (
       height={40}
       className="object-contain shrink-0"
     />
-    <p className="text-[13px] font-medium text-black">
+    <p className="text-[12px] font-medium text-black">
       You are on this Package.{note ? ` ${note}` : ""}
     </p>
   </div>
@@ -195,8 +195,14 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
     <div className="mt-4 text-center">
       {hasDiscount ? (
         <div className="flex flex-wrap items-end justify-center gap-1 lg:gap-2">
-          <span className="relative text-[12px] lg:text-[15px] text-white/70 line-through decoration-red-500 decoration-2">
+          <span className="relative text-[12px] lg:text-[15px] text-white/70">
             ${fullPrice.toFixed(2)}
+            {/* Diagonal strike running up-right to down-left. text-decoration
+                can only draw a horizontal rule, so this is a rotated bar. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute left-[-2px] right-[-2px] top-1/2 h-[2px] -translate-y-1/2 -rotate-12 rounded-full bg-red-500"
+            />
           </span>
           <span className="text-[18px] lg:text-[22px] font-bold leading-none">
             ${price.toFixed(2)}
@@ -246,11 +252,22 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   </div>
 );
 
+interface SubscriptionPlansProps {
+  /** The "My Subscription" section heading — profile page only. */
+  showTitle?: boolean;
+  /** Paywall analytics bucket for the Get Premium clicks. */
+  source?: "user_settings" | "pricing_dialog";
+}
+
 /**
- * Revamped "My Subscription" section for the /profile page.
- * The pricing dialog elsewhere still uses PremiumSubsContent — kept separate on purpose.
+ * Revamped plan picker: feature tiles, the Free/Monthly/Yearly cards and the
+ * Chess Club note. Rendered on /profile and inside the pricing dialog's
+ * "Go Unlimited with a Subscription" tab, so both stay on the same design.
  */
-const ProfileSubscription = () => {
+export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
+  showTitle = false,
+  source = "user_settings",
+}) => {
   const {
     allMembershipPackages,
     activeMembership,
@@ -339,7 +356,7 @@ const ProfileSubscription = () => {
     trackPaywallInteraction(sessionId, {
       buttonName: "get_premium",
       planType: type,
-      source: "user_settings",
+      source,
     });
 
     if (sessionId.length == 0) {
@@ -422,9 +439,11 @@ const ProfileSubscription = () => {
   return (
     <div className="flex flex-col gap-4">
       {/* Centered plain title on mobile, left-aligned with divider on desktop */}
-      <div className="flex flex-row items-center justify-center md:justify-between border-0 border-b-0 md:border-b-2 border-b-[#C0CED4] pb-1">
-        <span className="text-[18px] font-semibold">My Subscription</span>
-      </div>
+      {showTitle && (
+        <div className="flex flex-row items-center justify-center md:justify-between border-0 border-b-0 md:border-b-2 border-b-[#C0CED4] pb-1">
+          <span className="text-[18px] font-semibold">My Subscription</span>
+        </div>
+      )}
 
       <div className="text-center">
         <p className="text-[14px] text-black mb-3">
@@ -433,11 +452,15 @@ const ProfileSubscription = () => {
         </p>
 
         <div className="flex justify-center">
-          <div className="grid grid-cols-3 w-full gap-3 pb-1 md:w-auto md:flex md:overflow-visible md:flex-wrap md:justify-center">
+          {/* Mobile: one horizontally scrollable row (mockup). md+: wrapped rows. */}
+          <div
+            className="flex w-full min-w-0 gap-3 overflow-x-auto pb-2 md:w-auto md:min-w-min md:overflow-visible md:flex-wrap md:justify-center md:pb-1"
+            style={{ scrollbarWidth: "none" }}
+          >
             {FEATURE_TILES.map((tile) => (
               <div
                 key={tile.bottom}
-                className="bg-[#EDECFD] border border-[#221AE9] rounded-[8px] flex flex-col justify-center items-center gap-2 w-full min-w-0 md:min-w-[110px] md:w-[110px] h-[110px] px-1 shrink-0"
+                className="bg-[#EDECFD] border border-[#221AE9] rounded-[8px] flex flex-col justify-center items-center gap-2 w-[104px] md:min-w-[110px] md:w-[110px] h-[110px] px-1 shrink-0"
               >
                 <Image
                   alt={`${tile.top} ${tile.bottom}`}
@@ -479,12 +502,15 @@ const ProfileSubscription = () => {
               <h3 className="text-[20px] font-semibold text-black leading-[130%]">
                 Free Package
               </h3>
-              <div className="text-[22px] font-bold text-black">$0</div>
+              {/* The mockup's mobile card is title-only — price is desktop-only. */}
+              <div className="hidden lg:block text-[22px] font-bold text-black">
+                $0
+              </div>
             </div>
           </div>
 
           <p className="text-[14px] text-gray-700 mb-4">
-            Our Basic Package for free limited Access!
+            Our free package with limited Access
           </p>
 
           <div className="space-y-2">
@@ -596,5 +622,8 @@ const ProfileSubscription = () => {
     </div>
   );
 };
+
+/** "My Subscription" section on /profile. */
+const ProfileSubscription = () => <SubscriptionPlans showTitle source="user_settings" />;
 
 export default ProfileSubscription;

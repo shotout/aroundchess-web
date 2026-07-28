@@ -235,7 +235,9 @@ const ChessProgressionUI: React.FC = () => {
         setOpen={setShowConnectAccount}
       />
 
-      <div className="lg:flex items-center hidden">
+      {/* Below xl the header bar carries the page title, so only show the
+          in-page heading once that disappears. */}
+      <div className="xl:flex items-center hidden">
         <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">
           My Training Plan <sub className="text-[14px] --xs text-gray-500 font-normal lg:text-[18px]">({displayUsername})</sub>
         </h1>

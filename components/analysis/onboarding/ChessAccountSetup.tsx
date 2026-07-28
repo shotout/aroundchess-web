@@ -140,7 +140,9 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
     // Show ChessAccountSetup for ALL users without username
     // Tutorial completion only affects whether we show tutorial AFTER they interact with the dialog
-    if (isSignedIn && !hasUsername && !profile?.onboard_elo) {
+    // onboardElo: the profile response is camelCased (see useEffectiveElo).
+    const hasOnboardElo = Boolean(profile?.onboardElo ?? profile?.onboard_elo);
+    if (isSignedIn && !hasUsername && !hasOnboardElo) {
       setShowConnectDialog(true);
       setShowPremiumDialog(false);
     } else {

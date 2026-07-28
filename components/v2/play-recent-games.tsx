@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import { Game } from "@/components/game-history/types/GameHistoryTypes";
 import { useGameHistoryAnalysis } from "@/components/v2/hooks/useGameHistoryAnalysis";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
@@ -87,7 +89,7 @@ function GameRow({ game }: { game: Game }) {
   // result); not analyzed → blue "Analyze" (starts the analysis flow). The
   // trigger from useGameHistoryAnalysis already branches on the same flag.
   const analyzed = game.isAnalysis === true;
-  const btnLabel = analyzed ? "See Mistakes" : "Analyze";
+  const btnLabel = analyzed ? "See Mistakes" : "Analyze Mistakes";
   const btnIcon = analyzed ? "/images/v2/play/Eye.png" : "/images/v2/play/bar-chart.png";
   const btnColor = analyzed
     ? "bg-gradient-to-b from-[#0AD847] to-[#018F34]"
@@ -186,17 +188,80 @@ function SkeletonRow() {
   );
 }
 
+/** Nothing played yet: point the user at the opponent picker above, and offer a
+ *  one-tap game against whoever is currently highlighted there. */
+function EmptyState() {
+  const router = useRouter();
+  const { setAIChoosed, selectedOpponent, selectedColor, AIChoosed } = usePlayVSAIStore();
+
+  // "Play Now" starts straight away against the opponent highlighted in the
+  // picker above (mirrored into the store by HeroPlayVSAIPreview) — no detour
+  // through the setup screen. Falls back to the last stored choice.
+  const handlePlayNow = () => {
+    const opponent = selectedOpponent ?? AIChoosed?.opponent;
+    if (opponent) {
+      setAIChoosed({
+        color: selectedColor,
+        difficulty: "recommended",
+        opponent,
+      });
+    }
+    router.push("/playground/play-vs-ai/playing");
+  };
+
+  return (
+    <div className="flex flex-col items-center text-center gap-[12px] py-[20px]">
+      <Image
+        src="/images/v2/play-vs-ai/no-data.png"
+        alt=""
+        width={180}
+        height={180}
+        className="w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] object-contain"
+      />
+      <div>
+        <h3 className="font-bold text-lg sm:text-xl text-[#111827]">
+          You have not played any Games yet
+        </h3>
+        <p className="mt-[4px] text-[14px] sm:text-[15px] text-[#6B7280] leading-[140%]">
+          Choose your opponent above or click the button below to challenge our
+          recommended opponent.
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={handlePlayNow}
+        className="w-full max-w-[420px] py-[10px] rounded-full border border-[#221AE9] text-[15px] font-semibold text-[#221AE9] transition-colors hover:bg-[#221AE9]/5"
+      >
+        Play Now
+      </button>
+    </div>
+  );
+}
+
 export function PlayRecentGames({ games, isLoading }: PlayRecentGamesProps) {
+  // With no games there is nothing to see on the history page — the link stays
+  // visible for layout, but greyed out and inert.
+  const hasGames = games.length > 0;
+
   return (
     <div className="bg-white rounded-[16px] border border-[#E5E7EB] px-[20px] py-[16px]">
       <div className="flex items-center justify-between mb-[4px]">
         <h2 className="font-bold text-xl text-[#111827]">Recent Games</h2>
-        <Link
-          href="/my-game-history"
-          className="text-lg font-bold text-[#221AE9] flex items-center gap-[4px] hover:underline"
-        >
-          See all <span className=" text-2xl font-normal">›</span>
-        </Link>
+        {hasGames || isLoading ? (
+          <Link
+            href="/my-game-history"
+            className="text-lg font-bold text-[#221AE9] flex items-center gap-[4px] hover:underline"
+          >
+            See all <span className=" text-2xl font-normal">›</span>
+          </Link>
+        ) : (
+          <span
+            aria-disabled="true"
+            className="text-lg font-bold text-[#9CA3AF] flex items-center gap-[4px] cursor-default select-none"
+          >
+            See all <span className=" text-2xl font-normal">›</span>
+          </span>
+        )}
       </div>
 
       {isLoading ? (
@@ -205,10 +270,8 @@ export function PlayRecentGames({ games, isLoading }: PlayRecentGamesProps) {
           <SkeletonRow />
           <SkeletonRow />
         </div>
-      ) : games.length === 0 ? (
-        <p className="text-[13px] text-[#6B7280] py-[32px] text-center">
-          No recent games yet. Start playing!
-        </p>
+      ) : !hasGames ? (
+        <EmptyState />
       ) : (
         <div>
           {games.map((game) => (

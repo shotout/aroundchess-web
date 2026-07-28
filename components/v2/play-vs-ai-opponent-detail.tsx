@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import type { OpponentSummary } from "@/app/store/playVsAiStats";
 import { PlayVsAiOpponentGamesPanel } from "@/components/v2/play-vs-ai-opponent-games-panel";
@@ -17,7 +17,6 @@ export function PlayVsAiOpponentDetail({
   opponentsPlayed,
 }: PlayVsAiOpponentDetailProps) {
   const router = useRouter();
-  const pathname = usePathname();
 
   const summary = opponentsPlayed.find(
     (o) => o.opponentUsername.toLowerCase() === opponentUsername.toLowerCase()
@@ -32,7 +31,7 @@ export function PlayVsAiOpponentDetail({
     <div className="flex flex-col gap-[16px]">
       <button
         type="button"
-        onClick={() => router.push(pathname)}
+        onClick={() => router.back()}
         className="flex items-center gap-[4px] text-[14px] font-semibold text-[#111827] w-fit"
       >
         <ChevronLeft className="w-[18px] h-[18px]" />

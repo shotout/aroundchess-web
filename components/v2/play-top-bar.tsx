@@ -112,16 +112,20 @@ function MobileStatItem({
  *  The uncalibrated ("join") state is no longer a cover — it greys the stats
  *  block and shows "Calibrating…" for the ELO instead. */
 function StatsCover({ gamesRemaining }: { gamesRemaining?: number }) {
+  // A frozen player already qualified once, so "join the Leaderboard" is the
+  // wrong nudge — they need to play again to reappear.
   const text =
     gamesRemaining && gamesRemaining > 0
       ? `${gamesRemaining} more ${gamesRemaining === 1 ? "game" : "games"} to join the Leaderboard.`
-      : null;
+      : "Play a game to appear on the leaderboard again.";
 
   return (
-    <div className="absolute inset-0 z-10 rounded-xl overflow-hidden flex items-center justify-center bg-[#C9EFFB]/95">
+    /* Semi-transparent so the frozen ELO/rank stay legible underneath, with the
+       note pinned to the bottom of the block (design). */
+    <div className="absolute inset-0 z-10 rounded-xl overflow-hidden flex items-end justify-center bg-[#C9EFFB]/80">
       <div className="absolute inset-0 bg-[repeating-linear-gradient(115deg,transparent_0px,transparent_70px,rgba(255,255,255,0.55)_70px,rgba(255,255,255,0.55)_110px)]" />
       {text && (
-        <span className="relative px-4 text-center text-[10px] sm:text-[12px] font-semibold text-[#7ED2EC]">
+        <span className="relative px-4 pb-[6px] text-center text-[10px] sm:text-[12px] font-semibold text-[#111827]/50">
           {text}
         </span>
       )}
@@ -287,7 +291,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
         <div
           className={`relative mb-[14px] p-2 rounded-xl ${
             showJoinCover ? "bg-[#E5E7EB]" : "bg-white"
-          }`}
+          } ${showFreezeCover ? "pb-[26px]" : ""}`}
         >
           {showFreezeCover && <StatsCover gamesRemaining={gamesRemaining} />}
           <div className="flex items-start justify-between">
@@ -378,7 +382,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
           <div
             className={`relative flex-1 min-w-[300px] flex flex-col items-center gap-[6px] rounded-md p-2 ${
               showJoinCover ? "bg-[#E5E7EB]" : "bg-white"
-            }`}
+            } ${showFreezeCover ? "pb-[24px]" : ""}`}
           >
             {showFreezeCover && <StatsCover gamesRemaining={gamesRemaining} />}
             <div className="flex flex-wrap items-center justify-center gap-x-[16px] xl:gap-x-[30px] gap-y-[6px]">

@@ -239,9 +239,11 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
               onGetPremium={handleGetPremium}
             />
             <div className="flex justify-center">
+              {/* Full width on mobile for a comfortable tap target; on desktop
+                  it stays a centered pill instead of spanning the panel. */}
               <Button
                 onClick={handleStartPuzzle}
-                className="btn-primary rounded-full py-1.5 sm:py-2 px-4 sm:px-6 w-full text-[14px]"
+                className="btn-primary rounded-full py-1.5 sm:py-2 px-4 sm:px-6 w-full sm:w-[260px] text-[14px]"
               >
                 Start Puzzles
               </Button>

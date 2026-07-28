@@ -252,7 +252,7 @@ export const ChessConnectDialog = ({
       return (
         <div className="flex items-center gap-x-2 text-[#186027]">
           <CheckCircle2 className="w-4 h-4 text-white" fill="#186027" />
-          <h1>Username Found</h1>
+          <h1>Username found</h1>
         </div>
       );
     }
@@ -309,25 +309,25 @@ export const ChessConnectDialog = ({
 
           <div className="w-full p-4 md:p-6">
             <div className="flex flex-col gap-y-1">
-              <h2 className="text-2xl font-bold text-center">
-                Welcome on Board!
+              <h2 className="text-[20px] md:text-2xl font-bold text-center">
+                Connect your Chess.com Account
               </h2>
               <p className="text-center text-[14px] --xs md:text-base text-black">
-                Enter your Chess.com Username and find your <br />
-                previously played Games right away.
+                Enter your Chess.com Username to analyze your Chess.com Games on
+                AroundChess. Understand your Mistakes easily!
               </p>
-              <div className="text-blue-base border border-blue-base bg-blue-base/5 flex gap-x-2 items-center p-2 rounded-md">
-                <AlertCircle className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" />
-                <h1 className="text-[14px] --10px md:text-[14px]">
-                  Enter the Chess.com Username that you would like to connect to
-                  your AroundChess Account (Once you save it, it cannot be
-                  changed)
-                </h1>
+              <div className="mt-2 text-blue-base border border-blue-base bg-blue-base/5 flex gap-x-2 items-center px-2 py-[6px] rounded-md">
+                <Info className="w-4 h-4 flex-shrink-0" />
+                <p className="min-w-0 text-[12px] md:text-[14px] leading-snug">
+                  Once saved, this cannot be changed
+                </p>
               </div>
             </div>
 
             <div className="mt-4 space-y-4">
-              <div className="flex items-center gap-x-2">
+              {/* Field labels are dropped on mobile (mockup) — the placeholders
+                  already say what each field is. */}
+              <div className="hidden sm:flex items-center gap-x-2">
                 <Image
                   src={"/my-game-history/knight.png"}
                   width={18}
@@ -353,7 +353,7 @@ export const ChessConnectDialog = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-x-2">
+              <div className="hidden sm:flex items-center gap-x-2">
                 <p className="text-[14px] text-left text-gray-700">Game Type</p>
               </div>
 
@@ -385,7 +385,7 @@ export const ChessConnectDialog = ({
                 </SelectContent>
               </Select>
 
-              <div className="flex items-center gap-x-2 text-blue-base">
+              <div className="hidden sm:flex items-center gap-x-2 text-blue-base">
                 <Info className="w-4 h-4 flex-shrink-0 text-blue-base" />
                 <p className="text-[14px]">You can still change the Game type later in the Profile Settings</p>
               </div>

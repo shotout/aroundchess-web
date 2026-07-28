@@ -14,11 +14,49 @@ interface ImportDialogButtonProps {
   onSuccess?: () => void;
 }
 
+/**
+ * Pasted PGNs are often JSON-encoded — wrapped in quotes, with \" escapes and
+ * literal two-character \n sequences instead of real newlines (that's what you
+ * get copying one out of an API response or a JSON export). The import endpoint
+ * rejects that, and the White/Black header regexes below never match it, so
+ * decode it back into a real PGN first. Untouched for normal input.
+ */
+const normalizePgn = (raw: string): string => {
+  const text = raw.trim();
+  if (!text) return "";
+
+  if (text.startsWith('"') && text.endsWith('"')) {
+    try {
+      const parsed = JSON.parse(text);
+      if (typeof parsed === "string") return parsed.trim();
+    } catch {
+      // not valid JSON — fall through to the manual unescape
+    }
+  }
+
+  // No real line breaks but escaped ones present: unescape by hand.
+  if (!text.includes("\n") && /\\r?\\n/.test(text)) {
+    return text
+      .replace(/^"|"$/g, "")
+      .replace(/\\r\\n|\\n|\\r/g, "\n")
+      .replace(/\\t/g, "\t")
+      .replace(/\\"/g, '"')
+      .trim();
+  }
+
+  return text;
+};
+
 const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   onSuccess,
 }) => {
   const { sessionId } = useProfileStore();
-  const { addOtherImportedGame, username } = usePgnStore();
+  const {
+    addOtherImportedGame,
+    username,
+    setIsFromAnalyzeDifferentGame,
+    setActiveUser,
+  } = usePgnStore();
   const { handleForceRefresh } = useGames({ sources: ["vs_ai", "pgn_upload"] });
 
   const { isTutorialPlay } = useTutorial();
@@ -204,10 +242,9 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
         setIsUploading(false);
         toast.success("Game imported successfully!");
         handleForceRefresh();
-        setTimeout(() => {
-          resetDialog();
-          if (onSuccess) onSuccess();
-        }, 2000);
+        // The success view stays open until the user picks "Back to Game
+        // History" or "Analyze Game" — it used to self-close after 2s, which
+        // dismissed the dialog before anything could be clicked.
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Import failed";
         setError(msg);
@@ -228,7 +265,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
   const handleAnalyzeButtonClick = useCallback(async () => {
     if (!isConfirmationMode) return;
-    const content = activeTab === "paste" ? pgnText : fileContent;
+    const content = normalizePgn(activeTab === "paste" ? pgnText : fileContent);
     const storedUsername =
       typeof username === "string" ? username.trim() : "";
 
@@ -262,7 +299,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   ]);
 
   const handleConfirmUsername = useCallback(async () => {
-    const content = activeTab === "paste" ? pgnText : fileContent;
+    const content = normalizePgn(activeTab === "paste" ? pgnText : fileContent);
     if (!selectedUsername) {
       setUsernameError("Please choose a username to continue.");
       return;
@@ -289,7 +326,41 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   const handleCancelConfirmation = useCallback(() => {
     setIsSubmitted(false);
     setIsConfirmationMode(false);
+    // otherwise a failed import's message stays pinned under the textarea
+    setError(null);
   }, []);
+
+  // Success view — "Back to Game History" just closes; "Analyze Game" hands off
+  // to the same auto-start flow AnalyzeDifferentGame uses, so the freshly
+  // imported (newest, therefore first) game starts analysing straight away
+  // instead of dropping the user back on the list.
+  const handleBackToHistory = useCallback(() => {
+    resetDialog();
+    if (onSuccess) onSuccess();
+  }, [resetDialog, onSuccess]);
+
+  const handleAnalyzeImportedGame = useCallback(() => {
+    setActiveUser("other");
+    setIsFromAnalyzeDifferentGame(true);
+    resetDialog();
+    if (onSuccess) onSuccess();
+  }, [
+    setActiveUser,
+    setIsFromAnalyzeDifferentGame,
+    resetDialog,
+    onSuccess,
+  ]);
+
+  const formatFileSize = (bytes: number) =>
+    bytes >= 1024 * 1024
+      ? `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+      : `${(bytes / 1024).toFixed(1)} KB`;
+
+  // Nothing to submit yet: the paste tab needs text, the upload tab's button is
+  // the file picker itself so it stays live.
+  const canSubmit =
+    activeTab === "paste" ? pgnText.trim().length > 0 : true;
+  const submitDisabled = isUploading || isLoading || !canSubmit;
 
   const getSuccessViewProps = () => {
     if (isConfirmationMode) {
@@ -307,8 +378,8 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       };
     } else {
       return {
-        resetDialog,
-        handleAnalyzeButtonClick,
+        resetDialog: handleBackToHistory,
+        handleAnalyzeButtonClick: handleAnalyzeImportedGame,
         isLoading,
         error,
         title: "Your Import was successful!",
@@ -357,25 +428,27 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center p-4">
-              <div className="w-6"></div>
+              <div className="w-8"></div>
+              {/* the success screen is image-led in the design — no header */}
               <h2 className="text-xl font-semibold text-center flex-1">
-                Import a Game
+                {isOperationCompleted ? "" : "Import a Game"}
               </h2>
               <button
                 type="button"
                 onClick={resetDialog}
-                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close"
+                className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 text-[#111827] hover:bg-gray-50"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="px-6 py-4">
+            <div className="px-6 pb-4">
               {isSubmitted ? (
                 <SuccessView {...getSuccessViewProps()} />
               ) : (
                 <>
-                  <p className="text-[14px] --sm text-center max-w-2xl mx-auto text-gray-700 mb-6">
+                  <p className="text-[15px] text-center max-w-2xl mx-auto text-gray-700 mb-6">
                     Upload your previous Game's{" "}
                     <span className="font-bold">PGN</span> for a detailed
                     analysis. You can either paste your{" "}
@@ -407,7 +480,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                     </button>
                   </Card>
 
-                  <div className="mt-5 h-[200px]">
+                  <div className="mt-5 h-[240px] sm:h-[200px]">
                     {activeTab === "paste" && (
                       <div className="h-full border-2 border-dashed border-gray-100 rounded-lg bg-gray-50 p-2">
                         <textarea
@@ -421,11 +494,17 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
                     {activeTab === "upload" && !fileName && (
                       <div
-                        className={`h-full border-2 border-dashed ${
-                          dragActive
-                            ? "border-blue-base bg-blue-base/10"
-                            : "border-blue-base bg-blue-base/5"
-                        } rounded-lg flex flex-col items-center justify-center`}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => fileInputRef.current?.click()}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            fileInputRef.current?.click();
+                          }
+                        }}
+                        className={`h-full border-2 border-dashed border-blue-base rounded-lg flex flex-col items-center justify-center gap-[10px] cursor-pointer ${
+                          dragActive ? "bg-blue-base/10" : "bg-[#EEEDFB]"
+                        }`}
                         onDragEnter={handleDrag}
                         onDragLeave={handleDrag}
                         onDragOver={handleDrag}
@@ -438,47 +517,34 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                           accept=".pgn"
                           onChange={handleFileInput}
                         />
-                        <div className="text-center flex flex-col items-center justify-center">
-                          <Image
-                            width={64}
-                            height={64}
-                            alt=""
-                            src={"/my-game-history/upload.png"}
-                          />
-                          <p className="text-gray-700 mb-1">
-                            <span className="underline">
-                              Drag & drop or click
-                            </span>
-                          </p>
-                          <p className="text-gray-700">
-                            to{" "}
-                            <span
-                              className="text-blue-base font-medium cursor-pointer underline"
-                              onClick={() => fileInputRef.current?.click()}
-                            >
-                              select
-                            </span>{" "}
-                            a file
-                          </p>
-                        </div>
+                        <Image
+                          width={48}
+                          height={48}
+                          alt=""
+                          src={"/my-game-history/upload.png"}
+                          className="w-[48px] h-[48px] object-contain"
+                        />
+                        <span className="text-blue-base font-medium text-[16px] underline">
+                          Click to select a file
+                        </span>
                       </div>
                     )}
 
                     {activeTab === "upload" && fileName && (
-                      <div className="h-full border-2 border-dashed border-blue-base bg-blue-base/5 rounded-lg p-4 flex flex-col justify-center items-center">
+                      <div className="h-full border-2 border-dashed border-blue-base bg-[#EEEDFB] rounded-lg p-4 flex flex-col justify-center items-center">
                         {isUploading ? (
                           <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto">
                             <div className="flex w-full h-auto items-center bg-primary-white border shadow-md p-4 rounded-md">
-                              <div className="flex items-center flex-1">
-                                <div className="bg-blue-100 rounded-md p-3 mr-3">
+                              <div className="flex items-center flex-1 min-w-0">
+                                <div className="bg-blue-100 rounded-md p-3 mr-3 shrink-0">
                                   <h1 className="text-blue-500 font-bold text-lg">
                                     PGN
                                   </h1>
                                 </div>
-                                <div className="flex flex-col">
-                                  <div className="text-gray-800">{fileName}</div>
+                                <div className="flex flex-col min-w-0">
+                                  <div className="text-gray-800 truncate">{fileName}</div>
                                   <div className="text-gray-500 text-[14px] --sm">
-                                    {(fileSize / 1024).toFixed(1)} KB
+                                    {formatFileSize(fileSize)}
                                   </div>
                                 </div>
                               </div>
@@ -526,24 +592,30 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-center w-full">
-                            <div className="bg-blue-100 rounded-md p-4 mr-3">
-                              <div className="text-blue-500 font-bold text-lg">
-                                PGN
+                          /* white card: blue file row + full-width Delete File */
+                          <div className="w-full bg-white rounded-xl shadow-[0_2px_10px_rgba(17,24,39,0.08)] p-[10px]">
+                            <div className="flex items-center gap-[12px] bg-[#E6F4FD] rounded-lg p-[10px] min-w-0">
+                              <div className="bg-[#7FC5EA] rounded-md px-[12px] py-[10px] shrink-0">
+                                <div className="text-white font-bold text-[16px] leading-none">
+                                  PGN
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex-1">
-                              <div className="text-gray-800">{fileName}</div>
-                              <div className="text-gray-500 text-[14px] --sm">
-                                {(fileSize / 1024).toFixed(1)} KB
+                              <div className="flex-1 min-w-0">
+                                <div className="font-bold text-[16px] text-[#111827] truncate">
+                                  {fileName}
+                                </div>
+                                <div className="text-[#6B7280] text-[14px]">
+                                  {formatFileSize(fileSize)}
+                                </div>
                               </div>
                             </div>
                             <button
                               type="button"
-                              className="text-red-500 hover:text-red-700"
+                              className="mt-[10px] w-full flex items-center justify-center gap-[8px] rounded-lg border border-[#F5A9A9] bg-[#FDE9E9] text-[#E23B3B] font-medium text-[15px] py-[9px] hover:bg-[#fbdcdc] transition-colors"
                               onClick={handleRemoveFile}
                             >
-                              <Trash className="h-5 w-5" />
+                              <Trash className="h-[18px] w-[18px] shrink-0" />
+                              Delete File
                             </button>
                           </div>
                         )}
@@ -556,7 +628,7 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                   )}
 
                   {activeTab === "upload" && (
-                    <div className="flex justify-between mt-2 text-[14px] --sm">
+                    <div className="flex justify-between mt-3 text-[15px]">
                       <span>
                         Supported Format: <span className="font-bold">PGN</span>
                       </span>
@@ -568,19 +640,16 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
 
                   <button
                     type="button"
-                    className={`w-full mt-5 py-4 rounded-3xl flex items-center justify-center ${
-                      (activeTab === "paste" && pgnText.trim()) ||
-                      (activeTab === "upload" && fileName && !isUploading)
-                        ? "btn-primary text-white"
-                        : isUploading || isLoading
+                    className={`w-full mt-5 py-4 rounded-3xl flex items-center justify-center font-semibold ${
+                      submitDisabled
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "btn-primary text-white"
                     }`}
                     onClick={handleButtonClick}
-                    disabled={isUploading || isLoading}
+                    disabled={submitDisabled}
                   >
                     {activeTab === "upload" && !fileName
-                      ? "Select File"
+                      ? "Select file"
                       : isUploading
                       ? "Uploading..."
                       : isLoading
@@ -705,19 +774,18 @@ const SuccessView: React.FC<SuccessViewProps> = ({
 }) => {
   return (
     <div className="flex flex-col items-center">
-      <div className="relative">
-        <Image
-          src={"/my-game-history/pawn.png"}
-          width={200}
-          height={200}
-          alt=""
-        />
-      </div>
+      <Image
+        src={"/my-game-history/pawn.png"}
+        width={200}
+        height={200}
+        alt=""
+        className="w-[150px] sm:w-[200px] h-auto object-contain"
+      />
 
-      <h3 className="text-xl font-semibold text-gray-800 mb-1">
+      <h3 className="text-[19px] sm:text-xl font-bold text-gray-800 mb-1 text-center">
         {title}
       </h3>
-      <p className="text-gray-600 text-center mb-6">{description}</p>
+      <p className="text-gray-600 text-[15px] text-center mb-6">{description}</p>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
 

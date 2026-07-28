@@ -21,7 +21,6 @@ import { CustomChessArrows } from "./CustomChessArrows";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import type { Swiper as SwiperType } from 'swiper';
-import Link from "next/link";
 import { Bookmark } from "lucide-react";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import { useApiClient } from "@/functions/api-client";
@@ -833,20 +832,18 @@ const AnalysisHelpfulSlide = (
 const AnalysisEmptyState = ({ handleClose }: { handleClose: () => void }) => {
     return (
         <>
-            <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[590px] flex flex-col justify-center items-center border-[#221AE9] rounded-[8px] p-[16px] xxl:p-[32px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
-                <Image src="/images/analysis/icon_empty-state.svg" alt="bg" width={160} height={165} className="w-[150px] h-[150px] xxl:w-[160px] xxl:h-[165px] object-contain mb-[16px]" />
-                <div className="relative mb-[24px]">
-                    <h3 className="text-[15px] xxl:text-[16px] font-semibold mb-[8px]">No critical mistakes were detected in this game  — your play stayed solid throughout.</h3>
-                    <p className="text-[14px] xxl:text-[15px] text-[#333]">Keep reviewing your games like this; maintaining a game with no serious errors is already excellent training. Check the Chess Master Analysis for an in-depth analysis.</p>
+            <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[590px] flex flex-col justify-center items-center border-[#7CC0F2] rounded-[8px] p-[16px] xxl:p-[32px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25)] overflow-hidden">
+                <Image src="/images/v2/game_history/background-empty-mistakes.png" alt="" aria-hidden width={722} height={858} className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" />
+
+                <div className="relative z-10 flex flex-col items-center text-center">
+                    <Image src="/images/v2/game_history/no-mistakes-icon.png" alt="" aria-hidden width={167} height={162} className="w-[130px] h-[126px] sm:w-[150px] sm:h-[146px] xxl:w-[167px] xxl:h-[162px] object-contain mb-[16px]" />
+                    <h3 className="text-[15px] xxl:text-[16px] font-semibold mb-[8px]">No critical mistakes were detected in this game – your play stayed solid throughout.</h3>
+                    <p className="text-[14px] xxl:text-[15px] text-[#333]">Keep reviewing your games like this; maintaining a game with no serious errors is already excellent training.</p>
+
+                    <button onClick={handleClose} type="button" className="btn-primary mt-[32px] xxl:mt-[40px] w-[160px] sm:w-[70%] sm:max-w-[400px] h-[42px] xxl:h-[48px] rounded-full bg-primary px-6 py-2 text-[14px] --sm font-medium text-white">
+                        Close
+                    </button>
                 </div>
-
-                <Link href="/analysis" className="flex items-center justify-center btn-primary w-full h-[42px] xxl:h-[48px] rounded-full bg-primary py-2 px-6 text-[14px] --sm font-medium text-white mb-[16px]">
-                    Visit Chess Master Analysis
-                </Link>
-
-                <button onClick={handleClose} type="button" className="btn-secondary w-full h-[42px] xxl:h-[48px] rounded-full border border-gray-300 px-6 py-2 text-[14px] --sm font-medium text-gray-700 ">
-                    Close
-                </button>
             </div>
 
             <div className="text-center text-[14px] font-medium text-[#121212] mt-4">

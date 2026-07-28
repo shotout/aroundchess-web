@@ -313,7 +313,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
               <Link
                 href="/play"
                 onClick={() => isMobile && onClose?.()}
-                className="flex items-center gap-1 px-3 sm:px-4 py-1.5 bg-[#221AE9] text-white text-[12px] sm:text-[13px] font-semibold rounded-full hover:bg-[#2d25ea] transition-colors whitespace-nowrap shrink-0"
+                className="flex items-center gap-1 px-3 pt-2 sm:px-4 py-1.5 bg-[#221AE9] text-white text-[12px] sm:text-[13px] font-semibold rounded-full hover:bg-[#2d25ea] transition-colors whitespace-nowrap shrink-0"
               >
                 Play Now <FaChevronRight className="pl-1 sm:pl-1.5 text-xs" />
               </Link>

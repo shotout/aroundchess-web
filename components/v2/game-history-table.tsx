@@ -189,8 +189,9 @@ export function GameHistoryTable() {
               <div className="h-[32px] flex items-center justify-between lg:justify-start gap-[16px]">
                 {[
                   { id: "games-chessdotcom", value: "chesscom", label: "Chess.com" },
-                  { id: "games-youvsai", value: "vs_ai", label: "You vs AI" },
-                  { id: "games-pgnupload", value: "pgn_upload", label: "PGN Upload" },
+                  // Labels only — the `value` sent to the API is unchanged.
+                  { id: "games-youvsai", value: "vs_ai", label: "Against AI" },
+                  { id: "games-pgnupload", value: "pgn_upload", label: "Import" },
                 ].map((opt) => (
                   <div key={opt.id} className="flex items-center gap-[8px]">
                     <label

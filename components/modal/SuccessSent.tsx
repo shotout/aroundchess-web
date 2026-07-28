@@ -1,7 +1,7 @@
 "use client";
 
 import { useSuccessSent } from "@/app/store/successSent";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -28,6 +28,8 @@ export function SuccessSent() {
         }}
         className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-[#E3F3FF] border border-[#C0CED4] max-h-[95%] overflow-y-hidden"
       >
+        {/* Radix requires an accessible name on every DialogContent */}
+        <DialogTitle className="sr-only">Message sent</DialogTitle>
         <div className="flex flex-col justify-center items-center">
           <div className="flex flex-row items-center justify-center gap-3">
             <Image

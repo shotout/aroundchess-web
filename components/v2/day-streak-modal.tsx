@@ -7,25 +7,17 @@ import { motion } from "framer-motion";
 import { DayStreakChips } from "@/components/v2/day-streak-chips";
 import { useLottieData } from "@/components/v2/hooks/useLottieData";
 
-// The flame ignites at ~1.3s and is fully lit by ~2s; the streak number and
-// text wait for it so the animation shows unobscured first.
 const NUMBER_DELAY = 1.8;
 const TEXT_DELAY = 2.1;
 
 export type DayStreakVariant = "login" | "celebration" | "reward" | "broken";
 
-/** Which static flame image to show instead of the celebration lottie:
- * "off" = unlit flame (hasn't played today), "on" = lit flame (already
- * played today). */
 export type DayStreakStaticFlame = "on" | "off";
 
 interface DayStreakModalProps {
   variant: DayStreakVariant;
   streak: number;
   onClose: () => void;
-  /** When set, the celebration renders the static flame image instead of
-   * playing the lottie — used for the daily login / post-tutorial modals
-   * where the streak didn't just advance. */
   staticFlame?: DayStreakStaticFlame;
 }
 
@@ -41,9 +33,6 @@ const FLAME_IMAGES: Record<DayStreakStaticFlame, string> = {
   on: "/images/v2/days-streak/fire-on.png",
 };
 
-// Flame-ignition and token-reward animations (compressed copies of the
-// design exports — frames downscaled + recompressed). Fetched via the shared
-// cache so they never enter the JS bundle and repeat opens render instantly.
 export const CELEBRATION_LOTTIE = "/images/v2/days-streak/Day-Streak.min.json";
 export const REWARD_LOTTIE = "/images/v2/days-streak/get-token.min.json";
 
@@ -53,16 +42,11 @@ export function DayStreakModal({
   onClose,
   staticFlame,
 }: DayStreakModalProps) {
-  // Celebrations (first game of the day) always play the flame-ignition
-  // lottie; the reward variant plays the get-token animation. staticFlame
-  // (daily login / post-tutorial / badge clicks) forces the still image.
   const animated =
     !staticFlame && (variant === "reward" || variant === "celebration");
   const animationData = useLottieData(
     !animated ? null : variant === "reward" ? REWARD_LOTTIE : CELEBRATION_LOTTIE
   );
-  // The ignition delays only make sense while the flame lottie plays; over a
-  // static image the number and text can appear right away.
   const numberDelay = animated ? NUMBER_DELAY : 0.2;
   const textDelay = animated ? TEXT_DELAY : 0.4;
 
@@ -72,25 +56,23 @@ export function DayStreakModal({
       : variant === "celebration" || variant === "reward"
         ? "Day Streak"
         : null;
-  // "Start playing today" vs "Keep it up" is driven by whether the flame is
-  // OFF (hasn't played today) — not by the streak count. A broken streak also
-  // needs the "start playing" nudge. Days left counts toward the 7-day reward.
+ 
   const notPlayedToday = staticFlame === "off" || variant === "broken";
   const daysLeft = 7 - (streak % 7);
   const subtitle =
     variant === "celebration" || variant === "broken" ? (
       notPlayedToday ? (
         <>
-          Start playing today — only {daysLeft} more days
+          Start playing today – only {daysLeft} more days
           <br />
           to claim your{" "}
           <span className="font-bold">10 Free Analysis Tokens</span>.
         </>
       ) : (
         <>
-          Keep it up! Play Today - only {daysLeft} more
+          Keep it up! Play Today – only {daysLeft} more
           <br />
-          days to get {" "}
+          days to get{" "}
           <span className="font-bold">10 Free Analysis Tokens</span>.
         </>
       )
@@ -98,7 +80,7 @@ export function DayStreakModal({
       <>
         You have received 10 Tokens
         <br />
-        for a <span className="font-bold">Free Analysis</span>.
+        for <span className="font-bold">Free Analysis</span>.
       </>
     ) : null;
   // Static login-style shows: nudge to play while the flame is still off;
@@ -116,12 +98,14 @@ export function DayStreakModal({
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-[14px] right-[14px] z-20 text-white/80 hover:text-white"
+          className="absolute top-[12px] right-[14px] z-20 text-white/90 hover:text-white"
         >
           <X className="w-6 h-6" />
         </button>
 
-        <div className="px-[16px] sm:px-[20px] pt-[16px] sm:pt-[40px] relative z-10">
+        {/* The close button gets its own row above the chips (design) — with
+            less top padding the last chip sits under it and swallows it. */}
+        <div className="px-[16px] sm:px-[20px] pt-[46px] sm:pt-[40px] relative z-10">
           <DayStreakChips
             streak={streak}
             highlightNext={staticFlame === "off" || variant === "broken"}

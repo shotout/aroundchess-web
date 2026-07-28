@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
+  ArrowLeft,
   BarChart2,
   Menu,
   InfoIcon,
@@ -26,8 +27,28 @@ interface HeaderProps {
   onSidebarToggle: () => void;
 }
 
+/**
+ * Sub-pages that swap the mobile header's streak badge + centred logo for a
+ * back arrow and the page title ("← Analyze Games ([username]) ☰").
+ * Returns null on routes that keep the default header.
+ */
+function mobilePageHeader(
+  pathname: string | null
+): { title: string; showUsername?: boolean } | null {
+  if (!pathname) return null;
+  if (pathname === "/my-game-history" || pathname === "/saved-mistakes")
+    return { title: "Analyze Games", showUsername: true };
+  if (pathname === "/training-plan")
+    return { title: "Training Plan", showUsername: true };
+  if (pathname === "/training") return { title: "Learn" };
+  if (pathname.startsWith("/playground/puzzle")) return { title: "Puzzles" };
+  if (pathname === "/premium") return { title: "Become a Chess Master" };
+  return null;
+}
+
 const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const [isDesktop, setIsDesktop] = useState(false);
 
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
@@ -42,6 +63,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const isSignedIn = sessionId.length > 0;
   const isGuestMode = !isSignedIn;
   const isEndgameTraining = pathname?.includes("endgame-training");
+  const pageHeader = mobilePageHeader(pathname);
 
   useEffect(() => {
     if (!isSignedIn) return;
@@ -299,9 +321,18 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           isGuestMode ? "xl:w-full xl:justify-center" : ""
         } items-center h-[70px] lg:h-[100px]`}
       >
-        {/* Mobile: streak when signed in, logo otherwise */}
+        {/* Mobile: back arrow on sub-pages, else streak when signed in / logo when not */}
         <div className="xl:hidden">
-          {isSignedIn ? (
+          {pageHeader ? (
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="text-[#111827] p-[2px]"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="h-6 w-6" strokeWidth={2.5} />
+            </button>
+          ) : isSignedIn ? (
             <button
               type="button"
               onClick={() => openDayStreakStatusModal(streak)}
@@ -334,44 +365,38 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           )}
         </div>
 
-        {/* Mobile: logo centered when streak is shown in the left slot */}
-        {isSignedIn && (
-          <div className="xl:hidden absolute left-1/2 -translate-x-1/2">
-            <Link href="/" className="flex items-center gap-2">
-              <Image
-                src="/icons/logo.png"
-                alt="logo"
-                className="max-w-20 h-28 object-contain"
-                quality={100}
-                width={90}
-                height={90}
-              />
-            </Link>
+        {/* Mobile centre slot: page title on sub-pages, otherwise the logo
+            (only when the streak badge is holding the left slot) */}
+        {pageHeader ? (
+          <div className="xl:hidden absolute left-1/2 -translate-x-1/2 flex items-baseline justify-center gap-[4px] max-w-[62%]">
+            <span className="text-[17px] font-bold text-[#111827] truncate">
+              {pageHeader.title}
+            </span>
+            {pageHeader.showUsername && (
+              <span className="text-[13px] text-gray-500 truncate">
+                ({profile?.username || "User"})
+              </span>
+            )}
           </div>
+        ) : (
+          isSignedIn && (
+            <div className="xl:hidden absolute left-1/2 -translate-x-1/2">
+              <Link href="/" className="flex items-center gap-2">
+                <Image
+                  src="/icons/logo.png"
+                  alt="logo"
+                  className="max-w-20 h-28 object-contain"
+                  quality={100}
+                  width={90}
+                  height={90}
+                />
+              </Link>
+            </div>
+          )
         )}
 
         <NavigationTabs />
       </div>
-
-      {pathname === "/training-plan" && !isDesktop && (
-        <div className="flex justify-center items-center flex-col">
-          <h1 className="sm:hidden text-[14px] --xs font-semibold">
-            {pathname
-              .replace("/", "")
-              .replace("-", " ")
-              .replace(/\b\w/g, (l) => l.toUpperCase())}
-          </h1>
-          <p className="sm:hidden text-[14px] --10px text-gray-500">
-            ({profile?.username || "User"})
-          </p>
-        </div>
-      )}
-
-      {pathname?.includes("endgame-training") && !isDesktop && (
-        <div className="flex justify-center items-center flex-col">
-          <h1 className="sm:hidden text-lg font-semibold">Endgame Training</h1>
-        </div>
-      )}
 
       {!isDesktop && (
         <div className="flex items-center space-x-3">

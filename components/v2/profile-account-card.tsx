@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Lock, LogOut, Mail, Info, User, X } from "lucide-react";
+import { Loader2, Lock, LogOut, Mail, User, X } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ import { ChessApiService } from "@/components/analysis/onboarding/store/APIServi
 import { usePlayerStatsStore } from "@/components/analysis/onboarding/store/usePlayerStatsStore";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
+import { usechangePassword } from "@/app/store/changePassword";
 
 interface ProfileAccountCardProps {
   handleUsernameClicked: () => void;
@@ -65,6 +66,11 @@ const ProfileAccountCard = ({
   } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const router = useRouter();
+  const {
+    setOpen: setChangePasswordOpen,
+    setStep: setChangePasswordStep,
+    reset: resetChangePassword,
+  } = usechangePassword();
   const { username, clearAll, providerType } = usePgnStore();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [isUpdatingGameType, setIsUpdatingGameType] = useState(false);
@@ -182,8 +188,13 @@ const ProfileAccountCard = ({
     }
   };
 
+  // Opens the in-page flow (modal -> OTP page -> modal) instead of sending the
+  // user off to /forgot-password. reset() first so an abandoned run can't drop
+  // them straight onto the "new password" step with a stale token.
   const handleChangePassword = () => {
-    router.push("/forgot-password");
+    resetChangePassword();
+    setChangePasswordStep("email");
+    setChangePasswordOpen(true);
   };
 
   useEffect(() => {
@@ -515,12 +526,15 @@ const ProfileAccountCard = ({
 
           <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
             <div className="w-full">
+              {/* Disabled rather than readOnly: a readOnly input still takes
+                  focus, so it drew a focus ring and read as editable even
+                  though the linked chess.com name can't be changed here. */}
               <Input
-                readOnly={true}
+                disabled
                 id="chesscom-username"
                 name="chesscomUsername"
                 type="text"
-                className="w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px]"
+                className="w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px] disabled:opacity-100 disabled:cursor-not-allowed"
                 value={username}
                 onChange={() => {}}
               />
@@ -553,13 +567,6 @@ const ProfileAccountCard = ({
                   ))}
                 </SelectContent>
               </Select>
-              <div className="flex items-center gap-x-1 text-blue-base mt-1">
-                <Info className="w-3 h-3 flex-shrink-0 -mt-0.5" />
-                <p className="text-[12px]">
-                  Changing your Game Type will affect the Game History and
-                  Training Plan
-                </p>
-              </div>
             </div>
           </div>
         </>

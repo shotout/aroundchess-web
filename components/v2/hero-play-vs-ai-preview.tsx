@@ -7,6 +7,7 @@ import { ChevronRight } from "lucide-react";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { AI_OPPONENT_ROSTER, AiRosterOpponent } from "./play-vs-ai-roster-data";
+import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 
 type Opponent = { name: string; elo: number; img: string };
 
@@ -124,9 +125,12 @@ function OpponentCard({
 export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }: { recommendedListHeightClass?: string }) {
   const router = useRouter();
   const { setAIChoosed, setSelectedOpponent: setStoreOpponent, setSelectedColor: setStoreColor } = usePlayVSAIStore();
-  const { leaderboard } = usePlayPageStore();
-  const hasUserElo = !!leaderboard?.my_elo;
-  const userElo = leaderboard?.my_elo || DEFAULT_USER_ELO;
+  // Leaderboard ELO once they have played, otherwise the level they picked in
+  // onboarding — so Recommended matches a new user's self-assessment instead
+  // of falling back to the beginner spread.
+  const effectiveElo = useEffectiveElo();
+  const hasUserElo = effectiveElo > 0;
+  const userElo = effectiveElo || DEFAULT_USER_ELO;
 
   // Deterministic on first render (SSR-safe), shuffled after mount so ties
   // between same-ELO bots resolve to a random pick.
@@ -277,7 +281,10 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
 
       {/* On mobile this section renders as its own white shadow card (mockup);
           on desktop the wrapper is invisible and keeps the same column gap. */}
-      <div className="flex flex-col gap-3 grow min-h-0 max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)] max-sm:p-3">
+      <div
+        data-tour-anchor="opponent-list"
+        className="flex flex-col gap-3 grow min-h-0 max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)] max-sm:p-3"
+      >
       <h2 className="text-base sm:text-lg font-semibold text-gray-900 text-center pt-1">
         Choose Your Opponent
       </h2>
@@ -344,7 +351,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         <div
           ref={listRef}
           onScroll={handleListScroll}
-          className={`${recommendedListHeightClass} max-sm:h-auto grow mb-2 overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}
+          className={`${recommendedListHeightClass} max-sm:h-[248px] grow mb-2 overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}
         >
           <div
             ref={(el) => {
@@ -361,8 +368,10 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
               />
             ))}
           </div>
-          {/* Other tiers below the recommended row — desktop only; mobile shows just the 4 picks */}
-          <div className="space-y-2 max-sm:hidden">
+          {/* Other tiers below the recommended row. Mobile keeps them too, so
+              the list is two rows deep and scrolls (the tour's step-2 sweep
+              needs something to scroll through). */}
+          <div className="space-y-2">
           {tabs.slice(1).map((tab) => (
             <div
               key={tab.key}
@@ -416,6 +425,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         type="button"
         onClick={handlePlayNow}
         data-tutorial="play-vs-ai-step-2"
+        data-tour-anchor="start-game"
         className="mt-auto w-full py-1 px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-base"
       >
         Start Game
