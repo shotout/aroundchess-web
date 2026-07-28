@@ -15,6 +15,7 @@ import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
 import { supabase } from "@/lib/supabase";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import CacheUtil from "@/app/training-plan/api/cacheUtils";
 import DotSpinner from "../game-history/Spinner";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 import { toast } from "sonner";
@@ -161,11 +162,12 @@ const MyAccount = ({ onLogoutStart, handleUsernameClicked }: MyAccountProps) => 
       .then(() => {})
       .finally(() => {
         clearAll();
+        // Training-plan data is cached per account in localStorage; leaving it
+        // behind serves this user's progress to whoever logs in next.
+        CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
         localStorage.removeItem("background-analysis-storage");
-        localStorage.removeItem("training_schedule");
-        localStorage.removeItem("training_topics");
         localStorage.removeItem("pgn-local-storage");
         setPersistedCookie("token", "", 365);
         window.location.href = "/login";

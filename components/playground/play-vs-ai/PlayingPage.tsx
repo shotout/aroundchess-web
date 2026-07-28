@@ -21,6 +21,7 @@ import DotSpinner from "@/components/game-history/Spinner";
 import { GameEndStatus } from "@/components/modal/GameEndStatus";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiClient } from "@/functions/api-client";
+import { invalidateRatingCaches } from "@/app/training-plan/store";
 import { changeNamePiece } from "@/functions/change-name-piece";
 import { formatDatePgn, formatTimePgn } from "@/functions/format-date";
 import { useStockfishAnalysis } from "@/utils/stockfish-utils";
@@ -2101,6 +2102,9 @@ export default function PlayingPage() {
       setAnalysisPgn(game.pgn());
     }
     handleForceRefresh();
+    // The finished game moves the player's ELO, so the training plan's cached
+    // rating and progress are now stale.
+    invalidateRatingCaches();
     setIsSaved(true);
     setIsSaving(false);
     loadLogs();

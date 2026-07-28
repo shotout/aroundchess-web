@@ -25,6 +25,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useApiClient } from "@/functions/api-client";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import CacheUtil from "@/app/training-plan/api/cacheUtils";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import InitialAvatar from "./avatar/InitialAvatar";
@@ -108,11 +109,12 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
       .then(() => {})
       .finally(() => {
         clearAll();
+        // Training-plan data is cached per account in localStorage; leaving it
+        // behind serves this user's progress to whoever logs in next.
+        CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
         localStorage.removeItem("background-analysis-storage");
-        localStorage.removeItem("training_schedule");
-        localStorage.removeItem("training_topics");
         localStorage.removeItem("pgn-local-storage");
         setPersistedCookie("token", "", 365);
         window.location.href = "/login";

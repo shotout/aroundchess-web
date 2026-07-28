@@ -183,6 +183,8 @@ export const useTrainingPlanStore = create<TrainingPlanState>()(
     fetchTopics: async (sessionId: string) => {
       const state = get();
       const gameType = state.currentGameType;
+      CacheUtil.setUserScope(sessionId);
+
       const cacheKey = getGameTypeCacheKey(CACHE_KEYS.TRAINING_TOPICS, gameType);
       const fetchKey = `fetchTopics_${sessionId}_${gameType || 'default'}`;
 
@@ -468,6 +470,8 @@ export const useScheduleStore = create<ScheduleState>()(
     fetchSchedule: async (sessionId: string) => {
       if (!sessionId) return;
 
+      CacheUtil.setUserScope(sessionId);
+
       const state = get();
       const gameType = state.currentGameType;
       const cacheKey = getGameTypeCacheKey(CACHE_KEYS.TRAINING_SCHEDULE, gameType);
@@ -576,6 +580,8 @@ export const useUserStore = create<UserState>()(
 
     fetchUserProfile: async (sessionId: string) => {
       if (!sessionId) return;
+
+      CacheUtil.setUserScope(sessionId);
 
       const state = get();
       const gameType = state.currentGameType;
@@ -743,6 +749,8 @@ export const useProgressStore = create<ProgressState>()(
     fetchProgressData: async (sessionId: string, month?: string) => {
       if (!sessionId) return;
 
+      CacheUtil.setUserScope(sessionId);
+
       const selectedMonth = month || get().currentMonth;
       const state = get();
       const gameType = state.currentGameType;
@@ -811,3 +819,23 @@ export const useProgressStore = create<ProgressState>()(
     },
   }))
 );
+
+/**
+ * Drops every cached view of the player's rating after a rated game finishes.
+ * Progress and the user profile both carry an ELO with a one-hour TTL, so
+ * without this the training plan keeps showing the pre-game rating.
+ */
+export const invalidateRatingCaches = (): void => {
+  CacheUtil.clearAllProgress();
+
+  const gameType =
+    useUserStore.getState().currentGameType ??
+    useProgressStore.getState().currentGameType;
+
+  CacheUtil.clearItem(CACHE_KEYS.USER_PROFILE);
+  CacheUtil.clearItem(getGameTypeCacheKey(CACHE_KEYS.USER_PROFILE, gameType));
+
+  // The stores hold the same stale data in memory for client-side navigations.
+  useProgressStore.setState({ progressData: null });
+  useUserStore.setState({ profile: null });
+};

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useUserStore } from "../store";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
-import SkillProgressTrack from "./SkillProgressTrack";
+import SkillProgressTrack, { getLevelTitleForElo } from "./SkillProgressTrack";
 import CustomInfoTooltip from "./CustomTooltip";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
@@ -32,20 +32,17 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   }, []);
 
   const combinedProfile = useMemo(() => {
-    if (profile) {
-      return {
-        username: profile.username || userProfile?.username || "User",
-        currentElo: profile.elo || userProfile?.currentElo || 0,
-        level: profile.level || userProfile?.level || null,
-        targetElo: profile.targetElo || userProfile?.targetElo || 0,
-      };
-    }
+    // TrainingPage already resolves the ELO across its sources (leaderboard
+    // first) and hands the result down, so the prop wins here — reading the
+    // store first would silently switch sources once it gets populated.
+    const currentElo = userProfile?.currentElo || profile?.elo || 0;
 
     return {
-      username: userProfile?.username || "User",
-      currentElo: userProfile?.currentElo || 0,
-      level: userProfile?.level || null,
-      targetElo: userProfile?.targetElo || 0,
+      username: userProfile?.username || profile?.username || "User",
+      currentElo,
+      level:
+        profile?.level || userProfile?.level || getLevelTitleForElo(currentElo),
+      targetElo: userProfile?.targetElo || profile?.targetElo || 0,
     };
   }, [profile, userProfile]);
 
@@ -93,8 +90,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               </div>
             )}
             <div className="text-base font-semibold">
-              {combinedProfile.username} • {combinedProfile.level || "Beginner"}{" "}
-              • ELO {combinedProfile.currentElo}
+              {combinedProfile.username} • {combinedProfile.level} • ELO{" "}
+              {combinedProfile.currentElo}
             </div>
           </div>
 

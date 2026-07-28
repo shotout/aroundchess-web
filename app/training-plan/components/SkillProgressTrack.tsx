@@ -68,6 +68,23 @@ const DEFAULT_SKILL_LEVELS = [
   },
 ];
 
+/**
+ * Highest tier the rating has reached, using the same table the track renders
+ * so the label next to the ELO can never disagree with the bar beside it.
+ */
+export const getLevelTitleForElo = (
+  currentElo: number,
+  skillLevels: { title: string; elo: number }[] = DEFAULT_SKILL_LEVELS
+): string => {
+  const boundedElo = Math.max(0, currentElo || 0);
+  const reached = [...skillLevels]
+    .sort((a, b) => a.elo - b.elo)
+    .filter((level) => boundedElo >= level.elo)
+    .pop();
+
+  return reached?.title ?? skillLevels[0].title;
+};
+
 const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   currentElo,
   skillLevels = DEFAULT_SKILL_LEVELS,
