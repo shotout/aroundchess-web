@@ -5,6 +5,7 @@ import { useLoadingAPI } from "@/app/store/loadingApi";
 import { useProfileStore } from "@/app/store/profile";
 import { supabase } from "@/lib/supabase";
 import { usePgnStore } from "@/app/store/zustandStore";
+import CacheUtil from "@/app/training-plan/api/cacheUtils";
 import { useRouter } from "next/navigation";
 import {
   clearSession,
@@ -46,11 +47,12 @@ export function useApiClient() {
       .catch(() => {})
       .finally(() => {
         clearAll();
+        // Training-plan data is cached per account in localStorage; leaving it
+        // behind serves this user's progress to whoever logs in next.
+        CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
         localStorage.removeItem("background-analysis-storage");
-        localStorage.removeItem("training_schedule");
-        localStorage.removeItem("training_topics");
         localStorage.removeItem("pgn-local-storage");
         clearSession();
       });

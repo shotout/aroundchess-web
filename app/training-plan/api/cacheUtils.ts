@@ -21,6 +21,26 @@ export const getProgressCacheKey = (month: string, gameType?: string | null) =>
 const CACHE_EXPIRATION = 60 * 60 * 1000;
 const CACHE_VERSION = "1.0.0";
 
+/**
+ * Every cached entry is namespaced by the account that fetched it. Without this
+ * the keys are global to the browser, so a second account logging in on the
+ * same machine reads the previous account's training-plan data.
+ */
+const SCOPE_PREFIX = "tp";
+const SCOPE_STORAGE_KEY = "tp_cache_scope";
+const ANON_SCOPE = "anon";
+
+/** Non-reversible so the bearer token never lands in a localStorage key. */
+const hashScope = (raw: string): string => {
+  let hash = 5381;
+  for (let i = 0; i < raw.length; i++) {
+    hash = ((hash << 5) + hash + raw.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(36);
+};
+
+let userScope: string = ANON_SCOPE;
+
 class CacheManager {
   private isValidCacheItem = (cacheItem: CacheItem): boolean => {
     const now = Date.now();
@@ -36,6 +56,33 @@ class CacheManager {
     return true;
   };
 
+  /** Namespaces a logical key so callers can keep passing plain CACHE_KEYS. */
+  private scoped = (key: string): string =>
+    `${SCOPE_PREFIX}:${userScope}:${key}`;
+
+  /**
+   * Binds the cache to an account. Call this before any read, passing the
+   * active sessionId (or null when signed out). Switching owners drops every
+   * entry the previous owner left behind rather than serving it to the new one.
+   */
+  setUserScope = (sessionId?: string | null): void => {
+    const next = sessionId ? hashScope(sessionId) : ANON_SCOPE;
+
+    if (!this.isStorageAvailable()) {
+      userScope = next;
+      return;
+    }
+
+    if (localStorage.getItem(SCOPE_STORAGE_KEY) === next) {
+      userScope = next;
+      return;
+    }
+
+    this.clearAll();
+    userScope = next;
+    localStorage.setItem(SCOPE_STORAGE_KEY, next);
+  };
+
   setItem = (key: string, data: any): void => {
     try {
       const cacheItem: CacheItem = {
@@ -45,7 +92,7 @@ class CacheManager {
       };
 
       if (this.isStorageAvailable()) {
-        localStorage.setItem(key, JSON.stringify(cacheItem));
+        localStorage.setItem(this.scoped(key), JSON.stringify(cacheItem));
       }
     } catch (error) {
       console.error("Error setting cache item:", error);
@@ -58,7 +105,7 @@ class CacheManager {
         return null;
       }
 
-      const cachedItem = localStorage.getItem(key);
+      const cachedItem = localStorage.getItem(this.scoped(key));
       if (!cachedItem) return null;
 
       const parsedItem: CacheItem = JSON.parse(cachedItem);
@@ -79,13 +126,17 @@ class CacheManager {
   clearItem = (key: string): void => {
     try {
       if (this.isStorageAvailable()) {
-        localStorage.removeItem(key);
+        localStorage.removeItem(this.scoped(key));
       }
     } catch (error) {
       console.error("Error clearing cache item:", error);
     }
   };
 
+  /**
+   * Wipes cached training-plan data for every scope, not just the active one,
+   * and forgets the owner. Safe to call on logout.
+   */
   clearAll = (): void => {
     try {
       if (this.isStorageAvailable()) {
@@ -93,6 +144,8 @@ class CacheManager {
           this.clearItemsByPattern(key);
         });
         this.clearAllProgress();
+        localStorage.removeItem(SCOPE_STORAGE_KEY);
+        userScope = ANON_SCOPE;
       }
     } catch (error) {
       console.error("Error clearing all cache items:", error);
@@ -103,10 +156,9 @@ class CacheManager {
     try {
       if (this.isStorageAvailable()) {
         Object.values(CACHE_KEYS).forEach((baseKey) => {
-          const gameTypeKey = getGameTypeCacheKey(baseKey, gameType);
-          localStorage.removeItem(gameTypeKey);
+          this.clearItem(getGameTypeCacheKey(baseKey, gameType));
         });
-        
+
         this.clearProgressByGameType(gameType);
       }
     } catch (error) {
@@ -138,7 +190,7 @@ class CacheManager {
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith(CACHE_KEYS.PROGRESS_DATA) && key.includes(`_${gameType}`)) {
+      if (key && key.includes(CACHE_KEYS.PROGRESS_DATA) && key.includes(`_${gameType}`)) {
         keysToRemove.push(key);
       }
     }
@@ -159,7 +211,7 @@ class CacheManager {
         return false;
       }
 
-      const cachedItem = localStorage.getItem(key);
+      const cachedItem = localStorage.getItem(this.scoped(key));
       if (!cachedItem) return false;
 
       const parsedItem: CacheItem = JSON.parse(cachedItem);
@@ -182,7 +234,7 @@ class CacheManager {
 
       if (this.isStorageAvailable()) {
         Object.values(CACHE_KEYS).forEach((key) => {
-          if (localStorage.getItem(key)) {
+          if (localStorage.getItem(this.scoped(key))) {
             info.localStorageSize++;
           }
         });
@@ -216,7 +268,7 @@ class CacheManager {
 
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith(CACHE_KEYS.PROGRESS_DATA)) {
+        if (key && key.includes(CACHE_KEYS.PROGRESS_DATA)) {
           this.preloadCacheItem(key);
         }
       }
@@ -278,6 +330,14 @@ class CacheManager {
 export const CacheUtil = new CacheManager();
 
 if (typeof window !== "undefined") {
+  // Restore the owner recorded by the last session so a reload reads its own
+  // namespace instead of falling back to anon and re-fetching everything.
+  try {
+    userScope = localStorage.getItem(SCOPE_STORAGE_KEY) || ANON_SCOPE;
+  } catch {
+    userScope = ANON_SCOPE;
+  }
+
   CacheUtil.preloadCache();
 
   setInterval(() => {
