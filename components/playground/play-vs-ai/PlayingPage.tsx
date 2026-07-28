@@ -1329,11 +1329,23 @@ export default function PlayingPage() {
     }
 
     engine.getStockfishMove(game.fen(), AIChoosed.opponent.elo).then((pv) => {
-      const move = game.move({
-        from: pv.substring(0, 2),
-        to: pv.substring(2, 4),
-        promotion: pv.substring(4, 5),
-      });
+      // Guard the UCI parse: anything that isn't a square pair (a terminal
+      // position answers "(none)") would otherwise be sliced into nonsense
+      // like {from:"(n", to:"on"} and make chess.js throw.
+      if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(pv ?? "")) return;
+
+      let move;
+      try {
+        move = game.move({
+          from: pv.substring(0, 2),
+          to: pv.substring(2, 4),
+          promotion: pv.substring(4, 5) || undefined,
+        });
+      } catch {
+        // Position moved on under us (takeback, resign, rematch) — the
+        // engine's reply no longer applies, so just skip it.
+        return;
+      }
 
       if (move) {
         setMoveData(move);
@@ -1354,6 +1366,11 @@ export default function PlayingPage() {
         setRightClickedSquares({} as Record<string, CSSProperties>);
         setUserDrawnArrows([]);
       }
+    })
+    .catch((error) => {
+      // getStockfishMove rejects on timeout, worker error, or a finished
+      // position. None of these should surface as an unhandled rejection.
+      console.warn("Skipping AI move:", error);
     });
   };
 

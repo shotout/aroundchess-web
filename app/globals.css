@@ -458,3 +458,38 @@ p {
 div[data-radix-popper-content-wrapper=""] {
   background-color: transparent !important;
 }
+
+/* Zoom slider in the "Edit Profile Picture" crop dialog: filled blue track
+   left of the thumb, grey to the right, in both WebKit and Firefox. */
+.profile-zoom-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: #dde3e8;
+  outline: none;
+}
+.profile-zoom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #221ae9;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(34, 26, 233, 0.5);
+  cursor: pointer;
+}
+.profile-zoom-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #221ae9;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+}
+.profile-zoom-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: #221ae9;
+}

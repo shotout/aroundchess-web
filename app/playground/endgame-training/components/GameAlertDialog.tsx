@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { RotateCcw, X } from "lucide-react";
 import { Chess } from "chess.js";
 import Image from "next/image";
@@ -149,6 +149,8 @@ const GameAlertDialog = ({
     // Only show on md (tablet) and larger screens
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="p-2 max-w-[343px] hidden sm:block max-h-[140px] border-none shadow-none bg-transparent sm:rounded-lg [&>button]:hidden">
+        {/* Radix requires an accessible name on every DialogContent */}
+        <DialogTitle className="sr-only">Game alert</DialogTitle>
         <div
           className={`relative ${colorStyles.background} border-2 ${colorStyles.border} rounded-xl w-full mx-auto p-4`}
         >

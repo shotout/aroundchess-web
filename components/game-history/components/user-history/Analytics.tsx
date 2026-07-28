@@ -14,7 +14,7 @@ import OpeningStatistics from "./Analytics/OpeningStatistics";
 import KeyStatisticsSection from "./Analytics/KeyStatistics";
 import TimeControlPerformance from "./Analytics/TimeControlPerformance";
 import RecentAchievements from "./Analytics/RecentAchievement";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Image from "next/image";
 import { Info } from "lucide-react";
 import { Close } from "@radix-ui/react-dialog";
@@ -109,6 +109,8 @@ const MobileTooltip = ({
     return (
       <Dialog open={isVisible} onOpenChange={setIsVisible}>
         <DialogContent className="bg-[#E6F7FE] rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] max-h-[95%] overflow-y-hidden">
+          {/* Radix requires an accessible name on every DialogContent */}
+          <DialogTitle className="sr-only">Game analytics</DialogTitle>
           <DialogHeader className="flex flex-row justify-between items-center mb-2">
             <div className="flex flex-row gap-2 items-center">
               <Info className="h-[24] w-[24] text-gray-500 hover:text-gray-700" />

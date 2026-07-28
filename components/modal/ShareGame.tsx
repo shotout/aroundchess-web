@@ -1,7 +1,7 @@
 "use client";
 
 import { useShareGame } from "@/app/store/shareGame";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy } from "lucide-react";
 import Image from "next/image";
@@ -45,6 +45,8 @@ export function ShareGame() {
             }}
             className="rounded-lg hidden sm:block max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-white max-h-[95%] overflow-y-hidden"
           >
+            {/* Radix requires an accessible name on every DialogContent */}
+            <DialogTitle className="sr-only">Share this Game</DialogTitle>
             <DialogHeader className="flex items-center z-20">
               <span className="text-center font-medium text-[18px] w-2/3">
                 Share this Game

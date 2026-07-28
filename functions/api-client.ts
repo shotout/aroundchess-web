@@ -3,10 +3,14 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 import { useProfileStore } from "@/app/store/profile";
-import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { supabase } from "@/lib/supabase";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useRouter } from "next/navigation";
+import {
+  clearSession,
+  refreshAccessToken,
+  shouldRefreshBeforeRequest,
+} from "./refresh-token";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -18,6 +22,12 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
+// handleSignOut() calls the logout endpoint through apiRequest, so a 401 on
+// that call would re-enter sign-out forever. Module scope: the flag has to be
+// shared by every useApiClient() instance, and it is reset by the /login
+// navigation reloading the app.
+let isSigningOut = false;
+
 export function useApiClient() {
   const router = useRouter()
   const { setIsLoading, isLoading } = useLoadingAPI();
@@ -26,11 +36,14 @@ export function useApiClient() {
   const { clearAll } = useProfileStore();
   const { clearAll: clearPGN } = usePgnStore();
   const handleSignOut = async () => {
+    if (isSigningOut) return;
+    isSigningOut = true;
+
     clearAll();
     clearPGN();
 
     logOut({ sessionId })
-      .then(() => {})
+      .catch(() => {})
       .finally(() => {
         clearAll();
         localStorage.removeItem("sessionId");
@@ -39,7 +52,7 @@ export function useApiClient() {
         localStorage.removeItem("training_schedule");
         localStorage.removeItem("training_topics");
         localStorage.removeItem("pgn-local-storage");
-        setPersistedCookie("token", "", 0);
+        clearSession();
       });
       router.replace("/login")
     const { error } = await supabase.auth.signOut();
@@ -73,64 +86,87 @@ export function useApiClient() {
             const query = new URLSearchParams(params as any).toString();
             url += `?${query}`;
           }
-          let mewUrl = url?.includes("?")
-            ? url + "&t=" + Date.now()
-            : url + "?t=" + Date.now();
-          const response = await fetch(mewUrl, {
-            method,
-            headers: {
-              Accept: "*/*",
-              Authorization: `Bearer ${sessionId}`,
-              ...headers,
-              // Don't set Content-Type for FormData, let the browser set it with the boundary
-              ...(!body || !(body instanceof FormData)
-                ? { "Content-Type": "application/json" }
-                : {}),
-              // cache: "no-store",
-            },
-            body:
-              method !== "GET"
-                ? body instanceof FormData
-                  ? body
-                  : JSON.stringify(body)
-                : undefined,
-          });
+          // FormData bodies can only be consumed once, so the retry below has
+          // to rebuild the init object rather than reuse it.
+          const sendWith = (token: string) => {
+            const mewUrl = url?.includes("?")
+              ? url + "&t=" + Date.now()
+              : url + "?t=" + Date.now();
+            return fetch(mewUrl, {
+              method,
+              headers: {
+                Accept: "*/*",
+                Authorization: `Bearer ${token}`,
+                ...headers,
+                // Don't set Content-Type for FormData, let the browser set it with the boundary
+                ...(!body || !(body instanceof FormData)
+                  ? { "Content-Type": "application/json" }
+                  : {}),
+                // cache: "no-store",
+              },
+              body:
+                method !== "GET"
+                  ? body instanceof FormData
+                    ? body
+                    : JSON.stringify(body)
+                  : undefined,
+            });
+          };
+
+          // The access token only lives an hour, so renew it up front once it
+          // is nearly stale rather than letting the request fail first.
+          if (!path.includes("/auth/logout") && shouldRefreshBeforeRequest()) {
+            await refreshAccessToken();
+          }
+
+          // Read the token at send time, not from the closure: a concurrent
+          // request may have already refreshed it, and replaying with the stale
+          // one would burn a second (rotated) refresh token needlessly.
+          let response = await sendWith(
+            useProfileStore.getState().sessionId || sessionId
+          );
 
           if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = (await response.json().catch(() => ({}))) as any;
 
-            // Handle 401 Unauthorized - Session expired
+            // Handle 401 Unauthorized - the access token expired. Trade the
+            // refresh token for a new one and replay the request once so the
+            // user stays logged in; only sign out if that exchange fails.
             if (errorData.statusCode === 401 || response.status === 401) {
-              handleSignOut();
-              throw new Error("Session expired");
-            }
+              // Logging out with an already-dead token is a no-op, not
+              // something worth spending a refresh token on.
+              if (path.includes("/auth/logout")) {
+                throw new Error("Session expired");
+              }
 
-            // Handle other errors (except 404)
-            if (errorData.statusCode != 404) {
+              const newToken = await refreshAccessToken();
+
+              if (!newToken) {
+                handleSignOut();
+                throw new Error("Session expired");
+              }
+
+              response = await sendWith(newToken);
+
+              if (!response.ok) {
+                const retryError = (await response
+                  .json()
+                  .catch(() => ({}))) as any;
+
+                if (retryError.statusCode === 401 || response.status === 401) {
+                  handleSignOut();
+                  throw new Error("Session expired");
+                }
+
+                if (retryError.statusCode != 404) {
+                  throw new Error(retryError.message || "API request failed");
+                }
+              }
+            } else if (errorData.statusCode != 404) {
+              // Handle other errors (except 404)
               // console.log("errorData", url, errorData, response);
               throw new Error(errorData.message || "API request failed");
             }
-
-            // OLD CODE - refresh token approach (commented out)
-            // const originalRequest = errorData.config;
-            // kalau 401 (unauthorized), coba refresh token
-            // if (errorData.response?.status === 401 && !originalRequest._retry) {
-            //   originalRequest._retry = true;
-            //   const { data, error: refreshError } =
-            //     await supabase.auth.refreshSession();
-            //   console.log("refreshError", refreshError);
-            //   if (refreshError) {
-            //     console.error("Refresh token gagal:", refreshError.message);
-            //     // bisa redirect ke login page
-            //     handleSignOut();
-            //     return Promise.reject(error);
-            //   }
-            //   const newAccessToken = data.session?.access_token;
-            //   if (newAccessToken) {
-            //     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            //     return apiRequest(originalRequest); // ulangi request dengan token baru
-            //   }
-            // }
           }
 
           const responseData = await response.json();

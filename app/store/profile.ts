@@ -6,6 +6,11 @@ interface ProfileState {
   setProfile: (profile: any) => void;
   sessionId: any;
   setSessionId: (sessionId: any) => void;
+  refreshToken: string;
+  setRefreshToken: (refreshToken: string) => void;
+  /** Unix seconds at which sessionId expires; 0 when unknown. */
+  tokenExpiresAt: number;
+  setTokenExpiresAt: (tokenExpiresAt: number) => void;
   token: any;
   setToken: (token: any) => void;
   tokenPackage: any;
@@ -50,6 +55,10 @@ export const useProfileStore = create<ProfileState>()(
       setAlreadyFetchProfile: (alreadyFetchProfile) => set({ alreadyFetchProfile }),
       sessionId: "",
       setSessionId: (sessionId) => set({ sessionId }),
+      refreshToken: "",
+      setRefreshToken: (refreshToken) => set({ refreshToken }),
+      tokenExpiresAt: 0,
+      setTokenExpiresAt: (tokenExpiresAt) => set({ tokenExpiresAt }),
       activeMembership: {},
       setActiveMembership: (activeMembership) => set({ activeMembership }),
       allMembershipPackages: {},
@@ -67,6 +76,8 @@ export const useProfileStore = create<ProfileState>()(
           tokenPackage: {},
           token: {},
           sessionId: "",
+          refreshToken: "",
+          tokenExpiresAt: 0,
           activeMembership: {},
           allMembershipPackages: {},
           puzzleLog: {},
@@ -87,6 +98,8 @@ export const useProfileStore = create<ProfileState>()(
         profile: state.profile,
         token: state.token,
         sessionId: state.sessionId,
+        refreshToken: state.refreshToken,
+        tokenExpiresAt: state.tokenExpiresAt,
         activeMembership: state.activeMembership,
         allMembershipPackages: state.allMembershipPackages,
         puzzleLog: state.puzzleLog,

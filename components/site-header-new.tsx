@@ -234,29 +234,10 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
             </div>
           </div>
 
-          {/* Right: Mobile Analyze Button + Menu / Desktop Auth Buttons */}
+          {/* Right: Mobile Menu / Desktop Auth Buttons */}
           <div className="flex items-center gap-2">
-            {/* Mobile: Analyze Button + Hamburger */}
+            {/* Mobile: Hamburger */}
             <div className="flex xl:hidden items-center gap-2">
-              <Button
-                onClick={handleStartAnalysis}
-                color="primary"
-                variant="outlineprimary"
-                className="rounded-[6px] h-[40px] px-3 bg-[#221AE910] text-[14px] --sm"
-              >
-                <BarChart2
-                  className="mr-1 h-[16px] w-[16px]"
-                  color={sessionId.length == 0 ? "#221AE9" : "#000"}
-                />
-                <span
-                  className={`font-normal text-[14px] ${
-                    sessionId.length == 0 && `text-[#221AE9]`
-                  }`}
-                >
-                  Analyze
-                </span>
-              </Button>
-
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" className="h-9 w-9 p-0">

@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProfileStore } from "../../store/profile";
-import { setPersistedCookie } from "@/utils/persisted-cookie";
 import {
   isPromoWindowActive,
   MARCH_OFFER_DIALOG_SESSION_KEY,
 } from "@/constants/marchOffer";
 import { ensurePromoAppSetting } from "@/functions/app-setting";
+import { clearSession, persistSession } from "@/functions/refresh-token";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +34,7 @@ export default function SSOCallbackPage() {
     message: "",
   });
 
-  const { setProfile, setSessionId,  } = useProfileStore();
+  const { setProfile } = useProfileStore();
   const {setProfileShow,providerType } = usePgnStore()
   const router = useRouter();
   const baseUrl = process.env.BASE_URL;
@@ -87,6 +87,9 @@ export default function SSOCallbackPage() {
 
         const params = new URLSearchParams(hash.substring(1));
         const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+        const expiresAt = params.get("expires_at");
+        const expiresIn = params.get("expires_in");
         const isNew = params.get("is_new");
         if(isNew){
           trackCustomEvent("CompleteRegistration", { sso: providerType});
@@ -121,7 +124,8 @@ export default function SSOCallbackPage() {
         if (statusData.success && statusData.data) {
           const { isActive, canLogin } = statusData.data;
 
-          if (!isActive && !canLogin) {
+          // Require an explicit false — see the note in app/login/page.tsx.
+          if (isActive === false && canLogin === false) {
             try {
               await fetch(`${baseUrl}/auth/logout`, {
                 method: "POST",
@@ -137,8 +141,7 @@ export default function SSOCallbackPage() {
             localStorage.removeItem("access_token");
             localStorage.removeItem("refresh_token");
             localStorage.removeItem("token");
-            setPersistedCookie("token", "", 0);
-            setSessionId("");
+            clearSession();
 
             showAlert(
               "Account Deactivated",
@@ -148,8 +151,11 @@ export default function SSOCallbackPage() {
             return;
           }
 
-          setPersistedCookie("token", accessToken, 365);
-          setSessionId(accessToken);
+          persistSession(accessToken, {
+            refresh_token: refreshToken ?? undefined,
+            expires_at: expiresAt ?? undefined,
+            expires_in: expiresIn ?? undefined,
+          });
 
           try {
             const profileResponse = await fetch(`${baseUrl}/profile`, {
@@ -178,7 +184,9 @@ export default function SSOCallbackPage() {
               const userUsername =
                 profileData.data?.username || profileData.username;
               const userOnboardElo =
-                profileData.data?.onboard_elo ?? profileData.onboard_elo;
+                profileData.data?.onboardElo ??
+                profileData.onboardElo ??
+                profileData.data?.onboard_elo;
               // Prefer the explicit chess.com connection flag; fall back to the
               // legacy "has a username" heuristic while the backend field rolls out.
               const userIsChesscomConnected =
@@ -220,7 +228,7 @@ export default function SSOCallbackPage() {
     };
 
     processSSO();
-  }, [baseUrl, providerType, router, setProfile, setProfileShow, setSessionId]);
+  }, [baseUrl, providerType, router, setProfile, setProfileShow]);
 
   if (isProcessing) {
     return (

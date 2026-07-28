@@ -19,6 +19,10 @@ const publicRoutes = [
   "/login",
   "/register",
   "/forgot-password",
+  // Shown right after the account is deleted, by which point the session is
+  // already gone — it has to be reachable without a token or the confirmation
+  // gets redirected straight to /login.
+  "/delete-account",
   "/auth/callback",
   "/support",
   "/contact",

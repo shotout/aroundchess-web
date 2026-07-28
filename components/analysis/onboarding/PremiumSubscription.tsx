@@ -495,7 +495,7 @@ export const PremiumSubsContent: React.FC<{
             </div>
 
             <p className="text-gray-700 text-[14px] --sm mb-3">
-              Our Basic Package for free limited Access!
+              Our free package with limited Access
             </p>
 
             <div className="space-y-2 flex-grow">

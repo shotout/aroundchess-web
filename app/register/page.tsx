@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useProfileStore } from "../store/profile";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
-import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { persistSession } from "@/functions/refresh-token";
 import { useSearchParams } from "next/navigation";
 import { trackCustomEvent, trackSignUp } from "../utils/facebookPixel";
 import { useRouter } from "next/navigation";
@@ -37,7 +37,6 @@ function RegisterPage() {
   const [emailTouched, setEmailTouched] = useState(false);
   const codeInputRef = useRef<HTMLInputElement>(null);
   const baseUrl = process.env.BASE_URL;
-  const { setSessionId } = useProfileStore();
   const passwordConditions: PasswordCondition[] = [
     {
       id: "minLength",
@@ -170,17 +169,14 @@ function RegisterPage() {
       }
 
       if (data.data && data.data.access_token) {
-        setSessionId(data.data.access_token);
-
-        setPersistedCookie("token", data.data.access_token, 365);
+        persistSession(data.data.access_token, data.data);
 
         toast.success("Account verified and logged in successfully!");
         trackCustomEvent("CompleteRegistration", { email });
         router.push("/chess-knowledge");
 
       } else if (data.token) {
-        setSessionId(data.token);
-        setPersistedCookie("token", data.token, 365);
+        persistSession(data.token, data);
         trackCustomEvent("CompleteRegistration", { email });
 
         toast.success("Account verified and logged in successfully!");
@@ -508,9 +504,9 @@ function RegisterPage() {
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   <button
                     onClick={handleGoogle}
-                    className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
+                    className="flex items-center justify-center h-12 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex items-center justify-center gap-x-2">
+                    <div className="flex items-center justify-center gap-x-1.5 sm:gap-x-2">
                       <svg className="h-5 w-5" viewBox="0 0 24 24">
                         <path
                           d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -529,7 +525,7 @@ function RegisterPage() {
                           fill="#EA4335"
                         />
                       </svg>
-                      <span className="hidden sm:inline text-black font-medium">
+                      <span className="text-black font-medium text-[13px] sm:text-base">
                         Google
                       </span>
                     </div>
@@ -537,9 +533,9 @@ function RegisterPage() {
 
                   <button
                     onClick={handleFacebook}
-                    className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
+                    className="flex items-center justify-center h-12 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex items-center justify-center gap-x-2">
+                    <div className="flex items-center justify-center gap-x-1.5 sm:gap-x-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-5 w-5"
@@ -548,16 +544,16 @@ function RegisterPage() {
                       >
                         <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 12-12 12c0 5.628 3.874 10.35 9.101 11.647Z" />
                       </svg>
-                      <span className="hidden sm:inline text-black font-medium">
+                      <span className="text-black font-medium text-[13px] sm:text-base">
                         Facebook
                       </span>
                     </div>
                   </button>
                   <button
                     onClick={handleApple}
-                    className="flex items-center justify-center h-12 bg-white/40 rounded-md hover:bg-white/50 transition-colors"
+                    className="flex items-center justify-center h-12 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex items-center justify-center gap-x-2">
+                    <div className="flex items-center justify-center gap-x-1.5 sm:gap-x-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-5 w-5"
@@ -566,7 +562,7 @@ function RegisterPage() {
                       >
                         <path d="M14.94 5.19A4.38 4.38 0 0 0 16 2a4.44 4.44 0 0 0-3 1.52 4.17 4.17 0 0 0-1 3.09a3.69 3.69 0 0 0 2.94-1.42zm2.52 7.44a4.51 4.51 0 0 1 2.16-3.81a4.66 4.66 0 0 0-3.66-2c-1.56-.16-3 .91-3.83.91s-2-.89-3.3-.87a4.92 4.92 0 0 0-4.14 2.53C2.93 12.45 4.24 17 6 19.47c.8 1.21 1.8 2.58 3.12 2.53s1.75-.82 3.28-.82s2 .82 3.3.79s2.22-1.23 3.06-2.45a11 11 0 0 0 1.38-2.85a4.41 4.41 0 0 1-2.68-4.04z" />
                       </svg>
-                      <span className="hidden sm:inline text-black font-medium">
+                      <span className="text-black font-medium text-[13px] sm:text-base">
                         Apple
                       </span>
                     </div>
@@ -700,7 +696,7 @@ function RegisterPage() {
             )}
 
             {!emailSent ? (
-              <div className="text-center mt-6 border bg-white/40 py-2 px-4 border-white/40 rounded-md">
+              <div className="text-center mt-6 border bg-white py-2 px-4 border-gray-300 rounded-md">
                 <p className="text-black/90 font-medium">
                   Already have an account?{" "}
                   <Link

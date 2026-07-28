@@ -77,7 +77,17 @@ type TourStep = {
   /** auto-scroll the opponent list inside the target, like the video demo */
   scrollShowcase?: boolean;
   demo?: "win" | "lose" | "analyze";
+  /** fields replaced below 640px, where the design spotlights tighter targets */
+  mobile?: Omit<TourStep, "title" | "content" | "demo" | "mobile">;
 };
+
+const MOBILE_BP = 640;
+const isMobileViewport = () =>
+  typeof window !== "undefined" && window.innerWidth < MOBILE_BP;
+
+function resolveStep(step: TourStep, mobile: boolean): TourStep {
+  return mobile && step.mobile ? { ...step, ...step.mobile } : step;
+}
 
 const STEPS: TourStep[] = [
   {
@@ -87,6 +97,18 @@ const STEPS: TourStep[] = [
     include: ["play-top-bar"],
     scrollAnchor: "play-top-bar",
     tooltipBottomAt: 96,
+    // Mobile spotlights the Play VS AI card alone (no leaderboard) and parks it
+    // low enough for the tooltip to clear the navbar and sit entirely above the
+    // card — so the card's "Play VS AI" heading stays visible above Choose Your
+    // Color, with the caret pointing down at the card's top edge. No
+    // tooltipBottomAt: that would pin the tooltip over the heading instead.
+    mobile: {
+      anchors: ["opponent-panel"],
+      include: [],
+      scrollAnchor: undefined,
+      scrollMargin: 330,
+      tooltipBottomAt: undefined,
+    },
   },
   {
     title: "Tutorial: Choose your opponent",
@@ -96,6 +118,15 @@ const STEPS: TourStep[] = [
     scrollMargin: 224,
     tooltipBottomAt: -14,
     scrollShowcase: true,
+    // Mobile narrows the spotlight to the opponent section + Start Game, so
+    // "Choose Your Color" stays dimmed.
+    mobile: {
+      anchors: ["opponent-list"],
+      include: ["start-game"],
+      scrollMargin: 300,
+      tooltipBottomAt: undefined,
+      scrollShowcase: true,
+    },
   },
   {
     title: "Tutorial: Rise up when you win",
@@ -167,6 +198,7 @@ function TourTooltip({
   onPrev,
   onNext,
   caret,
+  widthPx,
 }: {
   step: TourStep;
   index: number;
@@ -174,33 +206,61 @@ function TourTooltip({
   onPrev: () => void;
   onNext: () => void;
   caret?: "top" | "bottom";
+  /** Overrides the default width — demo steps match the scaled card below. */
+  widthPx?: number;
   }) {
   const isLast = index === STEPS.length - 1;
   return (
-    <div className="relative w-[min(430px,calc(100vw-24px))] rounded-[14px] bg-white shadow-2xl ring-2 ring-[#7CC0F2] p-[14px] sm:p-[16px] pointer-events-auto">
+    <div
+      style={widthPx ? { width: widthPx } : undefined}
+      className="relative w-[min(430px,calc(100vw-24px))] rounded-[16px] sm:rounded-[14px] bg-white shadow-2xl ring-2 ring-[#221AE9] sm:ring-[#7CC0F2] p-4 sm:p-[16px] pointer-events-auto"
+    >
       {caret && (
-        <div
-          className={`absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45 ${
-            caret === "bottom" ? "-bottom-[7px] shadow-md" : "-top-[7px]"
-          }`}
-        />
+        <>
+          {/* mobile: speech-bubble tail with the card's blue outline */}
+          <span
+            className={`sm:hidden absolute left-1/2 -translate-x-1/2 ${
+              caret === "bottom" ? "top-full" : "bottom-full"
+            }`}
+          >
+            <span
+              className={`block w-0 h-0 border-x-[15px] border-x-transparent ${
+                caret === "bottom"
+                  ? "border-t-[17px] border-t-[#221AE9]"
+                  : "border-b-[17px] border-b-[#221AE9]"
+              }`}
+            />
+            <span
+              className={`block absolute left-1/2 -translate-x-1/2 w-0 h-0 border-x-[12px] border-x-transparent ${
+                caret === "bottom"
+                  ? "-top-[3px] border-t-[14px] border-t-white"
+                  : "-bottom-[3px] border-b-[14px] border-b-white"
+              }`}
+            />
+          </span>
+          <div
+            className={`hidden sm:block absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45 ${
+              caret === "bottom" ? "-bottom-[7px] shadow-md" : "-top-[7px]"
+            }`}
+          />
+        </>
       )}
       <div className="flex items-start justify-between gap-3">
-        <p className="font-bold text-[13px] sm:text-[14px] text-[#221AE9] leading-snug">
+        <p className="font-bold text-[17px] sm:text-[14px] text-[#040404] sm:text-[#221AE9] leading-snug">
           {step.title}
         </p>
-        <span className="text-[11px] sm:text-[12px] text-gray-400 font-medium shrink-0 pt-[1px]">
+        <span className="text-[13px] sm:text-[12px] text-gray-500 sm:text-gray-400 font-medium shrink-0 pt-[3px] sm:pt-[1px]">
           {index + 1}/{STEPS.length}
         </span>
       </div>
-      <p className="text-[12px] sm:text-[13px] text-gray-600 mt-[6px] leading-relaxed">
+      <p className="text-[15px] sm:text-[13px] text-gray-600 mt-[8px] sm:mt-[6px] leading-relaxed">
         {step.content}
       </p>
-      <div className="flex items-center justify-between mt-[12px]">
+      <div className="flex items-center justify-between mt-[16px] sm:mt-[12px]">
         <button
           type="button"
           onClick={onSkip}
-          className="px-4 py-[6px] rounded-[8px] bg-[#D9F1FF] text-[#221AE9] text-[12px] sm:text-[13px] font-semibold hover:bg-[#c4e9ff] transition-colors"
+          className="px-5 h-9 rounded-full border border-[#7CC0F2] bg-[#D9F1FF] text-[#221AE9] text-[15px] font-semibold hover:bg-[#c4e9ff] transition-colors sm:px-4 sm:h-auto sm:py-[6px] sm:rounded-[8px] sm:border-0 sm:text-[13px]"
         >
           Skip
         </button>
@@ -209,7 +269,7 @@ function TourTooltip({
             <button
               type="button"
               onClick={onPrev}
-              className="px-4 py-[6px] rounded-[8px] bg-[#D9F1FF] text-[#221AE9] text-[12px] sm:text-[13px] font-semibold hover:bg-[#c4e9ff] transition-colors"
+              className="px-5 h-9 rounded-full border border-[#7CC0F2] bg-[#D9F1FF] text-[#221AE9] text-[15px] font-semibold hover:bg-[#c4e9ff] transition-colors sm:px-4 sm:h-auto sm:py-[6px] sm:rounded-[8px] sm:border-0 sm:text-[13px]"
             >
               Prev
             </button>
@@ -217,7 +277,7 @@ function TourTooltip({
           <button
             type="button"
             onClick={onNext}
-            className="px-4 py-[6px] rounded-[8px] bg-[#221AE9] text-white text-[12px] sm:text-[13px] font-semibold hover:bg-[#2d25ea] transition-colors"
+            className="px-5 h-9 rounded-full bg-[#221AE9] text-white text-[15px] font-semibold hover:bg-[#2d25ea] transition-colors sm:px-4 sm:h-auto sm:py-[6px] sm:rounded-[8px] sm:text-[13px]"
           >
             {isLast ? "Finish" : "Next"}
           </button>
@@ -239,6 +299,7 @@ function ScaleToFit({
   reserve = 210,
   referenceHeight,
   onMeasure,
+  onScale,
 }: {
   children: React.ReactNode;
   /** px kept clear for the tooltip + gaps above the card */
@@ -252,6 +313,9 @@ function ScaleToFit({
   referenceHeight?: number;
   /** reports this card's natural (untransformed) height once measured */
   onMeasure?: (height: number) => void;
+  /** reports the applied scale, so the tooltip above can match the card's
+      visual width (a CSS scale shrinks width as well as height) */
+  onScale?: (scale: number) => void;
 }) {
   const innerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -264,10 +328,20 @@ function ScaleToFit({
       const natural = el.offsetHeight; // untransformed layout height
       if (!natural) return;
       onMeasure?.(natural);
+      // Mobile never scales: the transform shrinks width as well as height, so
+      // any scale < 1 would make the card narrower than the tooltip above it.
+      // It renders at full container width and the column scrolls instead.
+      if (window.innerWidth < MOBILE_BP) {
+        setScale(1);
+        onScale?.(1);
+        setBoxHeight(undefined);
+        return;
+      }
       const basis = referenceHeight && referenceHeight > 0 ? referenceHeight : natural;
       const avail = window.innerHeight - reserve;
       const next = Math.min(1, avail / basis);
       setScale(next);
+      onScale?.(next);
       setBoxHeight(natural * next);
     };
     measure();
@@ -278,7 +352,7 @@ function ScaleToFit({
       ro.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [reserve, referenceHeight, onMeasure]);
+  }, [reserve, referenceHeight, onMeasure, onScale]);
 
   return (
     <div style={{ height: boxHeight, width: "100%" }}>
@@ -293,12 +367,6 @@ function ScaleToFit({
 }
 
 /* ---------------------- demo positions (chess.js) ----------------------- */
-// The analysis demo reviews a scholar's-mate loss from Black's side.
-function fenAfter(moves: string[]): string {
-  const chess = new Chess();
-  for (const san of moves) chess.move(san);
-  return chess.fen();
-}
 
 function isKnightMove(from: string, to: string): boolean {
   const fileDiff = Math.abs(from.charCodeAt(0) - to.charCodeAt(0));
@@ -529,42 +597,45 @@ function InterludeMoveList({ rect }: { rect: Rect }) {
 
 /* ----------------- analysis demo (mirrors GameAnalysis) ----------------- */
 
+// Three mistakes from the design (all "Mistake"). Each FEN is written out so
+// the played move (badMove, drawn as the red arrow) is legal in it and the
+// coached alternative (goodArrow) points at the squares the copy names.
 const DEMO_MISTAKES = [
   {
-    type: "Inaccuracy",
-    moveNumber: 1,
-    move: "e5",
-    keyEvaluation: -0.3,
-    fen: fenAfter(["e4"]),
-    badMove: "e5",
-    goodArrow: ["c7", "c5"] as const,
+    type: "Mistake",
+    moveNumber: 11,
+    move: "e4",
+    keyEvaluation: -2.26,
+    fen: "r2qkbn1/pp1bp2p/6p1/4pP2/1n6/8/PPPPP1PP/RNBQKB1R w KQq - 0 11",
+    badMove: "e4",
+    goodArrow: ["e7", "d8"] as const,
     analysis:
-      "A solid reply, but it commits your center early against an aggressive setup.",
-    solution: "c5 keeps the position flexible against early queen attacks.",
+      "A noticeable step back - you had a good position, but this move let a lot of it slip away.",
+    solution: "e7d8r keeps your pieces coordinated better in this position",
   },
   {
     type: "Mistake",
-    moveNumber: 2,
-    move: "Nc6",
-    keyEvaluation: -1.2,
-    fen: fenAfter(["e4", "e5", "Qh5"]),
-    badMove: "Nc6",
-    goodArrow: ["d8", "e7"] as const,
+    moveNumber: 17,
+    move: "exf5",
+    keyEvaluation: 9.32,
+    fen: "3r1knr/p2b4/3B3p/5p2/4P3/8/PPP2PPP/R1NQK2R w KQ - 0 17",
+    badMove: "exf5",
+    goodArrow: ["d1", "h5"] as const,
     analysis:
-      "Developing the knight is natural, but it ignores White's early queen raid aiming at f7.",
-    solution: "Qe7 defends f7 and prepares to chase the queen away.",
+      "A costly move: you were ahead, but this hands back a lot of what you built up.",
+    solution: "Coaches agree - d1 to h5 is a move they'd also consider!",
   },
   {
-    type: "Blunder",
-    moveNumber: 3,
-    move: "Nf6",
-    keyEvaluation: -9.8,
-    fen: fenAfter(["e4", "e5", "Qh5", "Nc6", "Bc4"]),
-    badMove: "Nf6",
-    goodArrow: ["g7", "g6"] as const,
+    type: "Mistake",
+    moveNumber: 27,
+    move: "Rf1",
+    keyEvaluation: 11.29,
+    fen: "2k5/8/p1b5/5Q2/8/3N4/PPP2PPP/4K2R w K - 0 27",
+    badMove: "Rf1",
+    goodArrow: ["f6", "f7"] as const,
     analysis:
-      "This attacks the queen but walks into checkmate - both the queen and bishop are aiming at f7.",
-    solution: "g6 blocks the queen's path and keeps your king safe.",
+      "A real setback - your position is still playable, but much weaker than before.",
+    solution: "Even strong players sometimes go for f6 to f7 in this spot!",
   },
 ];
 
@@ -582,9 +653,15 @@ function DemoSlideBoard({
   const [badFromTo, setBadFromTo] = useState<[string, string] | null>(null);
 
   useEffect(() => {
-    const chess = new Chess(mistake.fen);
-    const preview = chess.move(mistake.badMove);
-    setBadFromTo(preview ? [preview.from, preview.to] : null);
+    try {
+      const chess = new Chess(mistake.fen);
+      const preview = chess.move(mistake.badMove);
+      setBadFromTo(preview ? [preview.from, preview.to] : null);
+    } catch {
+      // chess.js throws on an illegal SAN; the slide still renders, just
+      // without the red arrow, rather than taking the whole tour down.
+      setBadFromTo(null);
+    }
   }, [mistake]);
 
   const arrows = [
@@ -598,7 +675,7 @@ function DemoSlideBoard({
         arePiecesClickable={false}
         arePiecesDraggable={false}
         boardWidth={boardWidth}
-        orientation="black"
+        orientation="white"
         position={mistake.fen}
         onPromotionPieceSelect={() => false}
         promotionToSquare={null}
@@ -608,7 +685,7 @@ function DemoSlideBoard({
         areArrowsAllowed={false}
         customArrowColor=""
       />
-      <CustomChessArrows arrows={arrows} boardSize={boardWidth} orientation="black" />
+      <CustomChessArrows arrows={arrows} boardSize={boardWidth} orientation="white" />
     </div>
   );
 }
@@ -633,7 +710,28 @@ function DemoAnalyzeCard() {
   const swiperRef = useRef<SwiperType>();
   const [activeIndex, setActiveIndex] = useState(0);
   const shortViewport = useShortViewport();
-  const BOARD_W = shortViewport ? 190 : 225;
+  // Mobile fills the card with the board (QA: "make the card full"); desktop
+  // keeps its fixed sizes.
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [mobileBoardW, setMobileBoardW] = useState(0);
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const measure = () => {
+      // card padding (10 x2) + slide padding (12 x2) + slide border
+      const inner = el.clientWidth - 48;
+      setMobileBoardW(window.innerWidth < MOBILE_BP && inner > 0 ? inner : 0);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+  const BOARD_W = mobileBoardW || (shortViewport ? 190 : 225);
 
   // Auto-advance staged as a fake finger drag: translate frames are fed to
   // the swiper by hand (the cards effect rotates the top card exactly like a
@@ -674,8 +772,11 @@ function DemoAnalyzeCard() {
   }, []);
 
   return (
-    <div className="w-full bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] p-[16px] select-none pointer-events-none">
-      <h3 className="text-[16px] text-center font-bold text-[#121212] mb-[10px]">
+    <div
+      ref={cardRef}
+      className="w-full bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] p-[10px] sm:p-[16px] select-none pointer-events-none"
+    >
+      <h3 className="hidden sm:block text-[16px] text-center font-bold text-[#121212] mb-[10px]">
         Game Analysis
       </h3>
 
@@ -807,7 +908,7 @@ function DemoAnalyzeCard() {
 function FinaleCard({ onPrev, onDone }: { onPrev: () => void; onDone: () => void }) {
   return (
     <div className="relative w-full bg-white rounded-2xl shadow-2xl pt-[26px] pb-[20px] px-[24px] pointer-events-auto">
-      <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#34C759] text-white text-[13px] font-bold px-[18px] py-[6px] rounded-full whitespace-nowrap shadow-md">
+      <div className="absolute -top-[16px] sm:-top-[14px] left-1/2 -translate-x-1/2 bg-[#34C759] text-white text-[16px] sm:text-[13px] font-bold px-[20px] sm:px-[18px] py-[7px] sm:py-[6px] rounded-full whitespace-nowrap shadow-md">
         You&apos;re All Set!
       </div>
       <Image
@@ -817,24 +918,24 @@ function FinaleCard({ onPrev, onDone }: { onPrev: () => void; onDone: () => void
         height={640}
         className="w-[80%] mx-auto h-auto rounded-[8px] mt-[6px]"
       />
-      <p className="text-center font-bold text-[17px] text-[#111827] mt-[14px]">
+      <p className="text-center font-bold text-[22px] sm:text-[17px] text-[#111827] mt-[16px] sm:mt-[14px]">
         Everything&apos;s ready!
       </p>
-      <p className="text-center text-[12px] text-gray-500 mt-[2px]">
+      <p className="text-center text-[15px] sm:text-[12px] text-gray-500 mt-[4px] sm:mt-[2px]">
         Your chess journey starts now.
       </p>
-      <div className="flex items-center justify-center gap-[10px] mt-[16px]">
+      <div className="flex items-center justify-center gap-[12px] sm:gap-[10px] mt-[20px] sm:mt-[16px]">
         <button
           type="button"
           onClick={onPrev}
-          className="flex-1 max-w-[140px] py-[9px] rounded-full bg-[#AEE0FB] text-[#0B3B66] font-semibold text-[13px] hover:bg-[#9ad7fa] transition-colors"
+          className="flex-1 max-w-[150px] sm:max-w-[140px] py-[11px] sm:py-[9px] rounded-full bg-[#AEE0FB] text-[#0B3B66] font-semibold text-[16px] sm:text-[13px] hover:bg-[#9ad7fa] transition-colors"
         >
           Prev
         </button>
         <button
           type="button"
           onClick={onDone}
-          className="flex-1 max-w-[140px] py-[9px] rounded-full bg-[#221AE9] text-white font-semibold text-[13px] hover:bg-[#2d25ea] transition-colors"
+          className="flex-1 max-w-[150px] sm:max-w-[140px] py-[11px] sm:py-[9px] rounded-full bg-[#221AE9] text-white font-semibold text-[16px] sm:text-[13px] hover:bg-[#2d25ea] transition-colors"
         >
           Play Now
         </button>
@@ -884,7 +985,16 @@ export function PlaygroundTour({
     winCardHeightRef.current = h;
   }).current;
 
-  const step = interlude ? undefined : (STEPS[index] as TourStep | undefined); // undefined on finale/interlude
+  // ScaleToFit shrinks the demo card to fit short viewports, and a CSS scale
+  // narrows it as well as shortening it. Track that factor so the tooltip
+  // above can be narrowed to the same visual width.
+  const [demoScale, setDemoScale] = useState(1);
+  const reportDemoScale = useRef((value: number) => setDemoScale(value)).current;
+
+  // viewport.vw is 0 until the first rAF tick, so fall back to a live read.
+  const isMobile = viewport.vw > 0 ? viewport.vw < MOBILE_BP : isMobileViewport();
+  const rawStep = interlude ? undefined : (STEPS[index] as TourStep | undefined);
+  const step = rawStep ? resolveStep(rawStep, isMobile) : undefined; // undefined on finale/interlude
   const anchored = !!step?.anchors;
 
   useEffect(() => setMounted(true), []);
@@ -987,9 +1097,11 @@ export function PlaygroundTour({
       return;
     }
     // Leaving step 2: play the demo game on the board before the win step.
+    // Desktop plays it on the page's own board preview; mobile has no board on
+    // this page, so it gets a free-floating one over a dim backdrop.
     if (index === 1) {
       const img = findBoardImage();
-      if (img && img.getBoundingClientRect().width > 0) {
+      if ((img && img.getBoundingClientRect().width > 0) || isMobileViewport()) {
         setInterlude(true);
         return;
       }
@@ -1003,6 +1115,12 @@ export function PlaygroundTour({
     }
     setIndex((i) => Math.max(i - 1, 0));
   };
+
+  // A scale measured on the win/lose card must not leak into the next step
+  // (the analyze demo sizes itself and never scales).
+  useEffect(() => {
+    setDemoScale(1);
+  }, [index]);
 
   // Bring the spotlighted element into view when an anchored step starts.
   // The scroll margin keeps the element's top clear of the fixed navbar (and
@@ -1027,7 +1145,8 @@ export function PlaygroundTour({
   // element — no component state is touched — and the original scroll
   // position is restored when the step ends.
   useEffect(() => {
-    const showcaseStep = STEPS[index];
+    const raw = STEPS[index];
+    const showcaseStep = raw ? resolveStep(raw, isMobileViewport()) : undefined;
     if (!open || interlude || !showcaseStep?.scrollShowcase) return;
     const panel = findAnchor(showcaseStep.anchors);
     const list = panel?.querySelector<HTMLElement>(".overflow-y-auto");
@@ -1069,7 +1188,9 @@ export function PlaygroundTour({
     if (!open) return;
     let raf = 0;
     const tick = () => {
-      const current = interlude ? { anchors: ["board-preview"] } : STEPS[index];
+      const current = interlude
+        ? { anchors: ["board-preview"] }
+        : STEPS[index] && resolveStep(STEPS[index], isMobileViewport());
       const el = findAnchor(current?.anchors);
       let nextRect: Rect | null = null;
       let nextSpot: Rect | null = null;
@@ -1159,6 +1280,31 @@ export function PlaygroundTour({
 
   if (!mounted || !open) return null;
 
+  // Mobile has no board on the play page, so the won-board interlude is laid
+  // out free-floating and centred instead of tracked onto page elements.
+  const mobileInterlude = interlude && !boardImgRect && isMobile && viewport.vw > 0;
+  const mBoardW = Math.min(viewport.vw - 24, 420);
+  const M_BAR_H = 56;
+  const M_GAP = 8;
+  const mLeft = Math.round((viewport.vw - mBoardW) / 2);
+  const mTop = Math.max(
+    12,
+    Math.round((viewport.vh - (mBoardW + M_BAR_H * 2 + M_GAP * 2)) / 2)
+  );
+  const mTopBar: Rect = { top: mTop, left: mLeft, width: mBoardW, height: M_BAR_H };
+  const mBoard: Rect = {
+    top: mTop + M_BAR_H + M_GAP,
+    left: mLeft,
+    width: mBoardW,
+    height: mBoardW,
+  };
+  const mBottomBar: Rect = {
+    top: mBoard.top + mBoardW + M_GAP,
+    left: mLeft,
+    width: mBoardW,
+    height: M_BAR_H,
+  };
+
   // Spotlight geometry: pads the union of anchor rects; collapses to a point
   // when a step has no anchor so the 200vmax shadow dims the whole screen.
   const PAD = 8;
@@ -1182,7 +1328,23 @@ export function PlaygroundTour({
   // target's top edge (tall targets like the chessboard card). Always inside
   // the viewport, so it can never hide behind the fixed navbar.
   const TOOLTIP_W = Math.min(430, viewport.vw - 24);
-  const EST_TOOLTIP_H = 180;
+
+  // Steps 3 and 4: match the tooltip to the demo card's on-screen width. The
+  // column below is w-[min(430px, 92vw)] (min(430px, 100vw-24px) on mobile),
+  // then ScaleToFit may scale it down — so multiply by that same factor.
+  const demoColumnWidth =
+    viewport.vw <= 0
+      ? 0
+      : viewport.vw >= MOBILE_BP
+        ? Math.min(430, viewport.vw * 0.92)
+        : Math.min(430, viewport.vw - 24);
+  const demoTooltipWidth =
+    demoColumnWidth > 0 && (step?.demo === "win" || step?.demo === "lose")
+      ? Math.round(demoColumnWidth * demoScale)
+      : undefined;
+  // The mobile tooltip runs larger type and pill buttons, so it needs a
+  // taller estimate than the desktop card for the placement math below.
+  const EST_TOOLTIP_H = viewport.vw > 0 && viewport.vw < 640 ? 235 : 180;
   const MARGIN = 12;
   let mode: "edge" | "above" | "below" | "over" = "over";
   if (
@@ -1286,13 +1448,15 @@ export function PlaygroundTour({
                 onPrev={prev}
                 onNext={next}
                 caret="bottom"
+                widthPx={demoTooltipWidth}
               />
               {/* the analyze demo keeps overflow visible so the swiper card
                   deck can rotate outside its own bounds, like the real modal */}
-              <div className="w-[min(430px,92vw)] mt-[14px] rounded-2xl">
+              {/* same width as the tooltip above it on mobile */}
+              <div className="w-[min(430px,calc(100vw-24px))] sm:w-[min(430px,92vw)] mt-[14px] rounded-2xl">
 
                 {step.demo === "win" && (
-                  <ScaleToFit onMeasure={reportWinCardHeight}>
+                  <ScaleToFit onMeasure={reportWinCardHeight} onScale={reportDemoScale}>
                     <WinModalCard
                       variant="tour"
                       oldElo={375}
@@ -1304,7 +1468,10 @@ export function PlaygroundTour({
                   </ScaleToFit>
                 )}
                 {step.demo === "lose" && (
-                  <ScaleToFit referenceHeight={winCardHeightRef.current || undefined}>
+                  <ScaleToFit
+                    referenceHeight={winCardHeightRef.current || undefined}
+                    onScale={reportDemoScale}
+                  >
                     <LoseModalCard
                       variant="tour"
                       oldElo={400}
@@ -1333,6 +1500,21 @@ export function PlaygroundTour({
             {topBarRect && <InterludeCaptureBar rect={topBarRect} variant="lost" />}
             {bottomBarRect && <InterludeCaptureBar rect={bottomBarRect} variant="won" />}
             {panelRect && <InterludeMoveList rect={panelRect} />}
+          </motion.div>
+        )}
+
+        {mobileInterlude && (
+          <motion.div
+            key="interlude-mobile"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="fixed inset-0 bg-[rgba(9,14,40,0.62)] pointer-events-none" />
+            <InterludeCaptureBar rect={mTopBar} variant="lost" />
+            <InterludeBoard rect={mBoard} onDone={next} />
+            <InterludeCaptureBar rect={mBottomBar} variant="won" />
           </motion.div>
         )}
 

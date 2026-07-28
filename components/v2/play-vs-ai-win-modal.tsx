@@ -78,7 +78,7 @@ export function WinModalCard({
       <div
         className={
           tour
-            ? "w-[74%] mx-auto aspect-[540/400]"
+            ? "w-[95%] sm:w-[74%] mx-auto aspect-[540/400]"
             : "w-[68%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         }
       >

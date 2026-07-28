@@ -491,7 +491,7 @@ const chartRange = React.useMemo(() => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-gradient-to-r from-[#CF9DFF] to-[#CF9DFF]/80 flex items-start gap-y-2 justify-center flex-col rounded-lg max-h-[150px] text-white p-3 lg:p-6 relative overflow-hidden">
-                  <h1 className="text-lg font-medium">my current level</h1>
+                  <h1 className="text-lg font-medium">My Current Level:</h1>
                   <div className="bg-white/20 border-r-2 border-l-2 rounded-md p-2">
                     <h1 className="text-base lg:text-xl font-semibold">
                       {apiData?.currentLevel?.level || "Loading..."}

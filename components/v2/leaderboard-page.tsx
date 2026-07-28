@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Navigation from "@/components/navigator/navigation";
 import { LeaderboardTopStats } from "@/components/v2/leaderboard-top-stats";
 import { LeaderboardList, type LeaderboardEntry } from "@/components/v2/leaderboard-list";
 import { LeaderboardNextGame } from "@/components/v2/leaderboard-next-game";
+import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 import { LeaderboardJoinModal } from "@/components/v2/leaderboard-join-modal";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
@@ -48,6 +50,11 @@ export function LeaderboardPage() {
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
+  // Ticks once the initial page-1 fetch settles. The list arms its automatic
+  // "jump to my rank" off this rather than off isLoading: persisted entries
+  // make isLoading false on the very first render, so the jump used to run
+  // against last session's rows and get overwritten by the fresh page 1.
+  const [initialLoadNonce, setInitialLoadNonce] = useState(0);
   const pageRef = useRef(1);
   // Single-flight guard so a fast scroll can't fire overlapping page fetches.
   const fetchingMoreRef = useRef(false);
@@ -110,7 +117,10 @@ export function LeaderboardPage() {
         }
       })
       .catch(() => {})
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+        setInitialLoadNonce((n) => n + 1);
+      });
 
     getLeaderboardMe()
       .then((res: any) => { if (res?.data) setLeaderboardMe(res.data); })
@@ -238,6 +248,8 @@ export function LeaderboardPage() {
 
   const username = profile?.username || profile?.name || "You";
   const myElo = leaderboard?.my_elo ?? 0;
+  // See useEffectiveElo: new accounts have no leaderboard ELO yet.
+  const effectiveElo = useEffectiveElo();
   const myRank = leaderboard?.my_rank ?? 0;
   const totalPlayers = leaderboard?.total ?? null;
 
@@ -294,7 +306,8 @@ export function LeaderboardPage() {
           }}
           onPlayNow={() => {
             setShowJoinModal(false);
-            router.push("/play");
+            // the hash makes the play page scroll straight to the Play VS AI card
+            router.push("/play#play-vs-ai");
           }}
         />
       )}
@@ -303,6 +316,15 @@ export function LeaderboardPage() {
         <Navigation>
           <div className="p-[10px] sm:p-[24px] flex flex-col gap-[10px] max-w-[1200px] min-[1600px]:max-w-[1400px] mx-auto w-full">
             <div className="sm:hidden flex items-center gap-[10px]">
+              {/* Back to the previous screen — mobile has no sidebar to navigate with. */}
+              <button
+                type="button"
+                onClick={() => router.back()}
+                aria-label="Go back"
+                className="shrink-0 -ml-[2px] p-[2px] text-[#111827]"
+              >
+                <ArrowLeft size={24} strokeWidth={2.5} />
+              </button>
               <Image
                 src="/images/v2/play/leaderboard.png"
                 alt=""
@@ -329,9 +351,10 @@ export function LeaderboardPage() {
                 onJumpToMyRank={jumpToMyRank}
                 isJumpingToMyRank={isJumping}
                 onResetToTop={resetToTop}
+                autoJumpNonce={initialLoadNonce}
               />
 
-              <div className="pt-4"><LeaderboardNextGame userElo={myElo} /></div>
+              <div className="pt-4"><LeaderboardNextGame userElo={effectiveElo} /></div>
             </div>
           </div>
         </Navigation>

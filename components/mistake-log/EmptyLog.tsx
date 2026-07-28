@@ -20,7 +20,10 @@ const EmptyLog: React.FC<emptyLogProps> = ({
     router.push("/my-game-history");
   };
   return (
-    <div className="flex flex-col w-full h-[calc(100vh-158px)] lg:h-auto justify-center gap-[24px] rounded-[16px] items-center p-[16px] mb-[16px]">
+    // Mobile sat in a full-viewport box with the content centred, which left a
+    // large dead gap above the illustration and below the button. Let the block
+    // size to its content; desktop keeps the centred layout.
+    <div className="flex flex-col w-full lg:h-auto justify-start lg:justify-center gap-[24px] rounded-[16px] items-center px-[16px] pt-[24px] lg:pt-[16px] pb-[16px] mb-[16px]">
       <Image
         alt=""
         src={"/images/mistake-log/empty-mistake-log.png"}
@@ -31,7 +34,7 @@ const EmptyLog: React.FC<emptyLogProps> = ({
       <div className="flex flex-col w-full justify-center items-center gap-2">
         <span className="font-semibold text-[18px] text-center leading-[140%] lg:text-[24px] text-[#121212]">
           {title ? title : (
-            <span>You have not yet saved <br className="lg:hidden" />any Mistakes</span>
+            <span>You have not saved <br className="lg:hidden" />any Mistakes yet.</span>
           )}
         </span>
         {/* <span className="font-meidum text-[18px] text-[#585858]">

@@ -36,14 +36,25 @@ export function PremiumLockGuard({ image, description }: PremiumLockGuardProps) 
           <X className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
         </button>
 
-        <Image
-          src={image}
-          alt="Premium"
-          width={320}
-          height={320}
-          priority
-          className="w-[110px] sm:w-[260px] h-auto object-contain mx-auto"
-        />
+        {/* Lock badge overlaps the artwork's bottom-left corner (design). */}
+        <div className="relative w-[110px] sm:w-[260px] mx-auto">
+          <Image
+            src={image}
+            alt="Premium"
+            width={320}
+            height={320}
+            priority
+            className="w-full h-auto object-contain"
+          />
+          <Image
+            src="/images/v2/learn/premium-badge.png"
+            alt=""
+            width={286}
+            height={80}
+            aria-hidden="true"
+            className="absolute left-[2%] -bottom-[4%] w-[80%] h-auto object-contain pointer-events-none"
+          />
+        </div>
 
         <h2 className="mt-[16px] sm:mt-[28px] font-bold text-[16px] sm:text-[28px] text-[#111827]">
           Your next level starts here.

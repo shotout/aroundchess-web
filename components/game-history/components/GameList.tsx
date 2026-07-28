@@ -688,6 +688,11 @@ const GamesList: React.FC<GamesListProps> = ({
       "pgn upload": "Import",
       "pdn upload": "Import",
       import: "Import",
+      // The API also labels manually-added games "other game", which fell
+      // through the map and rendered raw in the Source column.
+      other_game: "Import",
+      "other game": "Import",
+      other: "Import",
     };
     return map[src.toLowerCase().trim()] ?? src;
   };
@@ -729,7 +734,7 @@ const GamesList: React.FC<GamesListProps> = ({
       };
     }
     return {
-      label: "Analyze",
+      label: "Analyze Mistakes",
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-1" />,
       className: "bg-[#221AE9] hover:bg-[#1B14CC] text-white",
       style: v2GlowStyle(34, 26, 233),
@@ -760,8 +765,8 @@ const GamesList: React.FC<GamesListProps> = ({
       <div className="w-[calc(100%+32px)] bg-[#FAFDFF] lg:bg-white lg:w-full flex flex-col items-center justify-center gap-[16px] p-[16px] lg:p-[32px] border-t lg:border border-[#C0CED4] lg:rounded-[8px] mb-[16px] mx-[-16px] lg:mx-0">
         <Image src={"/icons/game-history-empty.svg"} alt="empty" width={132} height={120} />
         <div className="text-center">
-          <h3 className="font-semibold text-[18px] leading-[140%] mb-[4px]">No Games available</h3>
-          <p className="text-[16px] leading-[140%] text-[#585858]">Play against AI or play on Chess.com to <br />see your Games here.</p>
+          <h3 className="font-semibold text-[18px] leading-[140%] mb-[4px]">You have not played any games yet</h3>
+          <p className="text-[16px] leading-[140%] text-[#585858]">Play against AI or connect your Chess.com to see your Games here.</p>
         </div>
         <Button
           onClick={() => {
@@ -769,7 +774,7 @@ const GamesList: React.FC<GamesListProps> = ({
           }}
           className="flex md:w-[350px] relative justify-center items-center w-full gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden"
         >
-          You vs AI
+          Play Now
         </Button>
       </div>
     );

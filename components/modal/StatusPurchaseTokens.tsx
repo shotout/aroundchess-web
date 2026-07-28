@@ -2,7 +2,7 @@
 
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useStatusPurchaseTokens } from "@/app/store/statusPurchaseTokens";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -37,14 +37,15 @@ export function StatusPurchaseTokens() {
         "Your payment failed. Please retry or use a different payment method."
       );
     } else {
-      handleWaiting();
+      setContent("We're verifying your payment");
       setDescription("");
     }
   }, [status]);
-  const handleWaiting = () => {
-    // Timer to update dots every second
+
+  useEffect(() => {
+    if (status != "waiting") return;
+    // Cycle the trailing dots through empty, ., .. and ...
     const timer = setInterval(() => {
-      // Cycle through empty, ., .., and ...
       setDots((prevDots) => {
         if (prevDots === "") return ".";
         if (prevDots === ".") return "..";
@@ -53,14 +54,8 @@ export function StatusPurchaseTokens() {
       });
     }, 2000);
 
-    // Clean up the interval when component unmounts
     return () => clearInterval(timer);
-  };
-  useEffect(() => {
-    if (status == "waiting") {
-      setContent(`We're verifying your payment${dots}`);
-    }
-  }, [dots, status]);
+  }, [status]);
   useEffect(() => {
     setOpen(open);
   }, [open]);
@@ -89,6 +84,8 @@ export function StatusPurchaseTokens() {
         }}
         className={`rounded-lg max-w-sm sm:max-w-[1141px] sm:max-h-[95%] lg:p-[32px] bg-white border border-[#C0CED4] max-h-[95%] overflow-y-hidden`}
       >
+        {/* Radix requires an accessible name on every DialogContent */}
+        <DialogTitle className="sr-only">Payment status</DialogTitle>
         <div className="flex flex-col justify-center items-center">
           <div className="flex flex-row items-center justify-center gap-3">
             <Image
@@ -103,6 +100,12 @@ export function StatusPurchaseTokens() {
           <div className="flex flex-col items-center justify-center gap-2 mt-4 mb-4">
             <span className="font-semibold text-[18px] text-[#2e2e2e] text-center">
               {content}
+              {status == "waiting" && (
+                /* Reserve the dots' width so only the dots animate, not the text */
+                <span className="inline-block w-[1.1em] text-left whitespace-pre">
+                  {dots}
+                </span>
+              )}
             </span>
             <span className="font-normal text-[14px] text-[#2e2e2e] text-center">
               {description}

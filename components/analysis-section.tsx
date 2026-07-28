@@ -191,15 +191,27 @@ export function AnalysisSection() {
                           </motion.div>
                         </AnimatePresence>
 
-                        {/* Floating next button on image — mobile/tablet only */}
-                        <button
-                          onClick={nextSlide}
-                          disabled={current === analysis.length - 1}
-                          className="xl:hidden absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#221AE9] text-white flex items-center justify-center shadow-md disabled:opacity-30 z-10"
-                          aria-label="Next slide"
-                        >
-                          <ChevronRight size={20} />
-                        </button>
+                        {/* Floating prev/next buttons on image — mobile/tablet only.
+                            Hidden at the boundaries instead of disabled. */}
+                        {current > 0 && (
+                          <button
+                            onClick={prevSlide}
+                            className="xl:hidden absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#221AE9]/50 text-white flex items-center justify-center shadow-md z-10"
+                            aria-label="Previous slide"
+                          >
+                            <ChevronLeft size={20} />
+                          </button>
+                        )}
+
+                        {current < analysis.length - 1 && (
+                          <button
+                            onClick={nextSlide}
+                            className="xl:hidden absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#221AE9]/50 text-white flex items-center justify-center shadow-md z-10"
+                            aria-label="Next slide"
+                          >
+                            <ChevronRight size={20} />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

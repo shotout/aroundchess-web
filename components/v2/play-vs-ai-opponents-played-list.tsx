@@ -30,7 +30,7 @@ export function PlayVsAiOpponentsPlayedList({
   const canLoadMore = !!pagination && pagination.page < pagination.totalPages;
 
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white p-[16px] md:p-[20px]">
+    <div className="rounded-2xl border border-[#E5E7EB] bg-white px-[8px] py-[16px] md:p-[20px]">
       <h3 className="flex items-center gap-[8px] text-[16px] md:text-[18px] font-bold text-[#111827] mb-[12px]">
         <Image
           src="/images/v2/leaderboard/sword.png"
@@ -66,7 +66,7 @@ export function PlayVsAiOpponentsPlayedList({
       )}
 
       {opponents.length > 0 && (
-        <div className="leaderboard-scrollbar max-h-[400px] overflow-y-auto flex flex-col gap-[10px] pl-[2px] pr-[10px] py-[2px]">
+        <div className="leaderboard-scrollbar max-h-[400px] overflow-y-auto flex flex-col gap-[10px] pl-[2px] pr-[4px] md:pr-[10px] py-[2px]">
           {opponents.map((opponent) => {
             const rosterEntry = findRosterOpponentByName(opponent.opponentUsername);
             const avatarSrc =
@@ -80,7 +80,7 @@ export function PlayVsAiOpponentsPlayedList({
             return (
               <div
                 key={opponent.opponentUsername}
-                className="rounded-2xl border border-[#F1F3F9] bg-white shadow-[0_2px_10px_rgba(17,24,39,0.06)] px-[12px] md:px-[16px] py-[10px] md:py-[12px]"
+                className="rounded-2xl border border-[#F1F3F9] bg-white shadow-[0_2px_10px_rgba(17,24,39,0.06)] px-[8px] md:px-[16px] py-[10px] md:py-[12px]"
               >
                 {/* Mobile — one line: avatar, name/ELO, donut, games + win/draw/lost. Row is tappable. */}
                 <button

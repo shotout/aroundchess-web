@@ -63,7 +63,7 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
   }, []);
 
   return (
-    <div data-tour-anchor="playground-hero" className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
+    <div id="play-vs-ai" data-tour-anchor="playground-hero" className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
       <div ref={boardCardRef} data-tour-anchor="board-preview" className="hidden sm:flex sm:w-[70%] self-start bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex-col gap-2">
         <AiOpponentPreviewBar />
         <div ref={boardWrapRef} data-preview-board className="w-full">

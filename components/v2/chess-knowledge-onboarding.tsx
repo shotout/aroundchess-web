@@ -35,7 +35,7 @@ const OPTIONS = [
 export default function ChessKnowledgeOnboarding() {
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const { sessionId } = useProfileStore();
+  const { sessionId, setProfile } = useProfileStore();
   const router = useRouter();
 
   const handleFinish = async () => {
@@ -49,6 +49,20 @@ export default function ChessKnowledgeOnboarding() {
         },
         body: JSON.stringify({ level: selectedLevel }),
       });
+
+      // The stored profile was fetched at login, before this level existed, so
+      // re-read it now — otherwise profile.onboardElo stays empty and the play
+      // page recommends beginner opponents regardless of what was picked here.
+      const profileResponse = await fetch(`${BASE_URL}/profile`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
+        },
+      });
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        setProfile(profileData.data ?? profileData);
+      }
     } catch (error) {
       console.error("Failed to save chess level:", error);
     } finally {
@@ -88,7 +102,7 @@ export default function ChessKnowledgeOnboarding() {
                 transition-colors text-left
                 ${
                   isSelected
-                    ? "border-blue-base bg-blue-base/5"
+                    ? "border-blue-base bg-white"
                     : "border-gray-200 bg-white hover:border-blue-300"
                 }
               `}
