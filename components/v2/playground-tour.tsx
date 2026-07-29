@@ -174,6 +174,18 @@ function toRect(r: DOMRect): Rect {
   };
 }
 
+/** Rect of an element only when it actually occupies space. A hidden element
+ *  (the play page's board preview below 640px) still answers querySelector and
+ *  still returns a DOMRect, just a 0x0 one — treating that as "present" is what
+ *  made mobile take the desktop interlude path and draw its overlays at
+ *  nonsense positions. */
+function visibleRect(el: HTMLElement | null): Rect | null {
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  if (r.width <= 0 || r.height <= 0) return null;
+  return toRect(r);
+}
+
 function unionRects(a: Rect, b: Rect): Rect {
   const top = Math.min(a.top, b.top);
   const left = Math.min(a.left, b.left);
@@ -385,17 +397,58 @@ const BAD_ARROW = "rgba(239, 68, 68, 0.5)";
 const GOOD_ARROW = "rgba(34, 197, 94, 0.5)";
 
 /* -------------------- won-board interlude (step 2 -> 3) ----------------- */
-// Shows a decisive winning position on the spotlighted page board for a
-// moment before the You Won step — White's queen dominating with Black
-// reduced to bare pawns.
+// Shows a decisive winning position for a moment before the You Won step.
 
-const WON_FEN = "8/p7/5Q2/2p5/1p6/1P6/2P5/4K3 w - - 0 1";
 const INTERLUDE_HOLD_MS = 1000;
 
-// Captured rows matching WON_FEN: Black is down to three pawns, White gave up
-// both rooks, bishops, knights and six pawns on the way to the win.
-const CAPTURED_BLACK = ["bK", "bQ", "bB", "bB", "bN", "bN", "bR", "bR", "bP", "bP", "bP", "bP", "bP"];
-const CAPTURED_WHITE = ["wB", "wB", "wN", "wN", "wR", "wR", "wP", "wP", "wP", "wP", "wP", "wP"];
+// One real game drives everything the interlude shows — the final position, the
+// move list, both captured rows and the last-move highlight — so the piece
+// counts, colors and squares can never contradict each other (the old
+// hand-written lists even included a captured king). Morphy's Opera Game, 1858:
+// White mates on move 17 after a queen sacrifice.
+const INTERLUDE_SAN = [
+  "e4", "e5", "Nf3", "d6", "d4", "Bg4", "dxe5", "Bxf3", "Qxf3", "dxe5",
+  "Bc4", "Nf6", "Qb3", "Qe7", "Nc3", "c6", "Bg5", "b5", "Nxb5", "cxb5",
+  "Bxb5+", "Nbd7", "O-O-O", "Rd8", "Rxd7", "Rxd7", "Rd1", "Qe6", "Bxd7+",
+  "Nxd7", "Qb8+", "Nxb8", "Rd8#",
+];
+
+function buildInterludeGame() {
+  const chess = new Chess();
+  // Each side's row lists the pieces it took, so the icon color is the
+  // opponent's — same convention as the real game screen's capture rows.
+  const whiteCaptures: string[] = [];
+  const blackCaptures: string[] = [];
+  const moves: [string, string][] = [];
+  let lastMove: [string, string] | null = null;
+
+  for (const san of INTERLUDE_SAN) {
+    let move;
+    try {
+      move = chess.move(san);
+    } catch {
+      break; // a bad SAN shortens the demo game rather than taking the tour down
+    }
+    if (!move) break;
+    if (move.captured) {
+      const icon = (move.color === "w" ? "b" : "w") + move.captured.toUpperCase();
+      (move.color === "w" ? whiteCaptures : blackCaptures).push(icon);
+    }
+    if (move.color === "w") moves.push([move.san, ""]);
+    else if (moves.length) moves[moves.length - 1][1] = move.san;
+    lastMove = [move.from, move.to];
+  }
+
+  return { fen: chess.fen(), whiteCaptures, blackCaptures, moves, lastMove };
+}
+
+const INTERLUDE_GAME = buildInterludeGame();
+
+const WON_FEN = INTERLUDE_GAME.fen;
+/** Black pieces White captured — shown on White's (the winner's) row. */
+const CAPTURED_BY_WHITE = INTERLUDE_GAME.whiteCaptures;
+/** White pieces Black captured — shown on Black's row. */
+const CAPTURED_BY_BLACK = INTERLUDE_GAME.blackCaptures;
 
 // Win/lose player bars drawn over the preview card's own bars during the
 // interlude — same colors and captured-piece treatment as the real game's
@@ -403,7 +456,8 @@ const CAPTURED_WHITE = ["wB", "wB", "wN", "wN", "wR", "wR", "wP", "wP", "wP", "w
 function InterludeCaptureBar({ rect, variant }: { rect: Rect; variant: "lost" | "won" }) {
   const { PieceChoosed } = useChessBoardThemeStore();
   const lost = variant === "lost";
-  const icons = lost ? CAPTURED_BLACK : CAPTURED_WHITE;
+  // Each row shows that player's own captures, not their losses.
+  const icons = lost ? CAPTURED_BY_BLACK : CAPTURED_BY_WHITE;
   const pieceH = Math.max(18, Math.min(34, Math.round(rect.height * 0.52)));
   const avatarS = Math.max(28, Math.min(48, Math.round(rect.height * 0.72)));
   return (
@@ -495,21 +549,10 @@ function InterludeBoard({ rect, onDone }: { rect: Rect; onDone: () => void }) {
   );
 }
 
-// Mock move list shown over the opponent panel during the interlude so the
-// right column reads like the real vs-AI game screen (Movement Details + a
-// won-game banner). Purely decorative — a plausible white checkmate.
-const INTERLUDE_MOVES: [string, string][] = [
-  ["e4", "e5"],
-  ["Bc4", "Nc6"],
-  ["Qh5", "g6"],
-  ["Qf3", "Nf6"],
-  ["d3", "Bc5"],
-  ["Qb3", "Qe7"],
-  ["Ng5", "Nd8"],
-  ["Bxf7+", "Nxf7"],
-  ["Nxf7", "Qxf7"],
-  ["Qxf7#", ""],
-];
+// Move list shown over the opponent panel during the interlude so the right
+// column reads like the real vs-AI game screen (Movement Details + a won-game
+// banner). Same replay as the board, so the moves match the position.
+const INTERLUDE_MOVES: [string, string][] = INTERLUDE_GAME.moves;
 
 function InterludeMoveList({ rect }: { rect: Rect }) {
   return (
@@ -595,6 +638,270 @@ function InterludeMoveList({ rect }: { rect: Rect }) {
   );
 }
 
+/* -------------- mobile interlude: the won game screen (step 2 -> 3) ------ */
+// Mobile has no board on the play page, so rather than floating a board over a
+// dim backdrop this replicates the vs-AI game screen in its won state, per
+// design: captured rows, board, legend, win banner, the finish buttons, the
+// tabs and the move boxes. It starts below the real navbar so the app frame
+// still shows through.
+
+// The mating move, highlighted with the board's own previous/current colors.
+const WON_SQUARE_STYLES: Record<string, { backgroundColor: string }> =
+  INTERLUDE_GAME.lastMove
+    ? {
+        [INTERLUDE_GAME.lastMove[0]]: { backgroundColor: "#B9CA43" },
+        [INTERLUDE_GAME.lastMove[1]]: { backgroundColor: "#F5F682" },
+      }
+    : {};
+
+// Everything above and below the board inside the sheet. Used to pick a board
+// size that lets the whole screen fit without scrolling, like the design.
+const M_SHEET_CHROME = 452;
+
+function MobileCapturedRow({
+  icons,
+  align,
+  pieceTheme,
+}: {
+  icons: string[];
+  align: "start" | "end";
+  pieceTheme: string;
+}) {
+  return (
+    <div
+      className={`flex items-center flex-1 ${
+        align === "end" ? "justify-end" : ""
+      }`}
+    >
+      {icons.map((icon, i) => (
+        <Image
+          key={`${icon}-${i}`}
+          src={`/pieces/${pieceTheme}/${icon}.png`}
+          alt=""
+          width={50}
+          height={50}
+          className={`w-[22px] h-[22px] object-contain ${i > 0 ? "-ml-3" : ""}`}
+          style={{ zIndex: icons.length - i }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
+  const { PieceChoosed } = useChessBoardThemeStore();
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [boardW, setBoardW] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(onDone, INTERLUDE_HOLD_MS);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+    const measure = () => {
+      const byWidth = el.clientWidth - 32;
+      const byHeight = el.clientHeight - M_SHEET_CHROME;
+      setBoardW(Math.max(180, Math.min(byWidth, byHeight, 420)));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // The final moves only — the design shows the tail of the game with the WIN
+  // marker, and a narrow screen can't hold all ten columns anyway.
+  const tailMoves = INTERLUDE_MOVES.slice(-6);
+  const firstTailNumber = INTERLUDE_MOVES.length - tailMoves.length + 1;
+
+  return (
+    <div
+      ref={sheetRef}
+      className="fixed inset-x-0 bottom-0 bg-white overflow-hidden pointer-events-none flex flex-col"
+      style={{
+        top: "calc(var(--banner-height, 0px) + var(--current-header-height, 0px))",
+      }}
+    >
+      {/* header: back + "You (White) VS Lisa (250)" + board controls */}
+      <div className="w-full flex justify-between items-center px-[16px] pt-[12px]">
+        <div className="flex items-center gap-[8px] min-w-0">
+          <ArrowLeft color="black" size={22} className="shrink-0" />
+          <span className="text-[15px] truncate">You (White) VS Lisa (250)</span>
+        </div>
+        <div className="flex items-center gap-[10px] shrink-0">
+          <Image
+            src="/images/play-vs-ai/switch.png"
+            alt=""
+            width={20}
+            height={20}
+            className="w-[20px] h-[20px] object-contain"
+          />
+          <Settings size={18} className="text-[#221AE9]" />
+        </div>
+      </div>
+
+      {/* Captured rows exactly as the game screen builds them: the left row is
+          what White took (black pieces), the right what Black took. */}
+      <div className="flex justify-between items-center w-full px-4 py-[6px]">
+        <MobileCapturedRow icons={CAPTURED_BY_WHITE} align="start" pieceTheme={PieceChoosed} />
+        <div className="w-px mx-2" />
+        <MobileCapturedRow icons={CAPTURED_BY_BLACK} align="end" pieceTheme={PieceChoosed} />
+      </div>
+
+      <div className="flex flex-col items-center gap-[8px] px-[16px]">
+        {boardW > 0 && (
+          <div className="relative" style={{ width: boardW }}>
+            <TwoDChessboard
+              arePiecesClickable={false}
+              arePiecesDraggable={false}
+              boardWidth={boardW}
+              orientation="white"
+              position={WON_FEN}
+              onPromotionPieceSelect={() => false}
+              promotionToSquare={null}
+              showPromotionDialog={false}
+              customSquareStyles={WON_SQUARE_STYLES}
+              customArrows={[]}
+              areArrowsAllowed={false}
+              customArrowColor=""
+            />
+          </div>
+        )}
+
+        {/* board legend */}
+        <div className="flex flex-row flex-wrap items-center justify-center gap-2">
+          <div className="flex items-center gap-1">
+            <div className="w-[14px] h-[14px] bg-[#B9CA43]" />
+            <span className="text-[11px]">Previous Position</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-[14px] h-[14px] bg-[#F5F682]" />
+            <span className="text-[11px]">Current Position</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-[14px] h-[14px] rounded-full bg-[#1C16C2]" />
+            <span className="text-[11px]">Possible Move</span>
+          </div>
+        </div>
+
+        {/* win banner */}
+        <div className="relative w-full overflow-hidden rounded-[8px] border border-[#00B427] bg-[linear-gradient(to_right,#E9F8EC,#CFF3D9)] h-[44px] flex items-center gap-[10px] px-[12px]">
+          <Image
+            src="/images/play-vs-ai/trophy-win.png"
+            alt=""
+            width={40}
+            height={40}
+            className="w-[24px] h-[24px] object-contain shrink-0"
+          />
+          <span className="font-semibold text-[13px] text-[#0A6D23]">
+            Congratulations! You have won this Game!
+          </span>
+          <Image
+            src="/images/play-vs-ai/sparks-win.png"
+            alt=""
+            width={200}
+            height={56}
+            className="absolute right-0 top-0 h-full w-auto object-cover opacity-70"
+          />
+        </div>
+
+        {/* finish buttons */}
+        <div className="w-full flex flex-col gap-[8px]">
+          <div className="w-full h-[40px] rounded-full border-[3px] border-[#19A23C] bg-[#34C759] flex items-center justify-center gap-[8px] font-medium text-[15px]">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M12 13.3327V6.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M8 13.3327V2.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M4 13.332V9.33203" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            Analyze Now
+          </div>
+          <div className="flex w-full gap-2">
+            <div className="bg-white w-full rounded-full h-[40px] border border-[#C0CED4] flex items-center justify-center gap-2">
+              <Image
+                src="/images/play-vs-ai/clipboard.png"
+                alt=""
+                width={40}
+                height={40}
+                className="h-[18px] w-[18px] object-contain"
+              />
+              <span className="font-medium text-[14px] text-[#221AE9]">Share PGN/FEN</span>
+            </div>
+            <div className="w-full rounded-full h-[40px] bg-[#C6EEFE] border border-[#7CC0F2] flex items-center justify-center gap-2">
+              <span className="text-[#221AE9] font-medium text-[14px]">+ New Game</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* tabs + move boxes */}
+      <div className="mt-[10px] flex bg-[#F7FCFF] border-b border-gray-200">
+        <div className="flex-1 flex items-center justify-center gap-2 py-[10px] relative">
+          <Image
+            src="/images/play-vs-ai/chess-king-rook-active.png"
+            alt=""
+            width={19}
+            height={19}
+            className="w-[19px] h-[19px] object-contain"
+          />
+          <span className="text-[14px] font-semibold text-[#221AE9]">Current Game</span>
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#221AE9]" />
+        </div>
+        <div className="flex-1 flex items-center justify-center gap-2 py-[10px]">
+          <Image
+            src="/images/play-vs-ai/past-games.png"
+            alt=""
+            width={18}
+            height={18}
+            className="w-[18px] h-[18px] object-contain"
+          />
+          <span className="text-[14px] font-semibold text-black">Past Games</span>
+        </div>
+      </div>
+
+      <div className="px-4 pt-[8px] overflow-hidden">
+        <div className="flex gap-1">
+          {/* sticky White/Black labels, as on the real screen */}
+          <div className="flex flex-col gap-1 min-w-[60px] shrink-0">
+            <div className="h-[22px]" />
+            <div className="bg-[#E6F7FE] border border-[#C6EEFE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
+              <span className="text-[14px] font-medium">White</span>
+            </div>
+            <div className="bg-[#E6F7FE] border border-[#C6EEFE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
+              <span className="text-[14px] font-medium">Black</span>
+            </div>
+          </div>
+
+          {tailMoves.map(([white, black], i) => (
+            <div key={i} className="flex flex-col gap-1 min-w-[60px]">
+              <div className="text-center text-[13px] font-medium text-gray-600 h-[22px] flex items-center justify-center">
+                Move {firstTailNumber + i}
+              </div>
+              <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
+                <span className="text-[14px] font-medium">{white}</span>
+              </div>
+              <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
+                <span className="text-[14px] font-medium">{black}</span>
+              </div>
+            </div>
+          ))}
+
+          <div className="flex flex-col gap-1 min-w-[60px]">
+            <div className="h-[22px]" />
+            <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
+              <span className="text-[14px] font-bold text-green-500">WIN</span>
+            </div>
+            <div className="min-h-[36px]" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ----------------- analysis demo (mirrors GameAnalysis) ----------------- */
 
 // Three mistakes from the design (all "Mistake"). Each FEN is written out so
@@ -606,7 +913,10 @@ const DEMO_MISTAKES = [
     moveNumber: 11,
     move: "e4",
     keyEvaluation: -2.26,
-    fen: "r2qkbn1/pp1bp2p/6p1/4pP2/1n6/8/PPPPP1PP/RNBQKB1R w KQq - 0 11",
+    // Black rook on h7 (not h8), pawns on f5/g5, black pawn on h6, no d2 pawn —
+    // and e7 holds a WHITE pawn, since the coached move "e7d8r" is a promotion
+    // that takes the queen on d8.
+    fen: "r2qkbn1/pp1bP2r/7p/5pP1/1n6/8/PPP1P1PP/RNBQKB1R w KQq - 0 11",
     badMove: "e4",
     goodArrow: ["e7", "d8"] as const,
     analysis:
@@ -618,7 +928,10 @@ const DEMO_MISTAKES = [
     moveNumber: 17,
     move: "exf5",
     keyEvaluation: 9.32,
-    fen: "3r1knr/p2b4/3B3p/5p2/4P3/8/PPP2PPP/R1NQK2R w KQ - 0 17",
+    // Same f5/g5 pawn pair as card 1 (the white pawn sits on g5, not e5), and
+    // the black king is on e8 — on f8 it stood in check from the d6 bishop
+    // while it was White's move, which can't happen.
+    fen: "3rk1nr/p2b4/3B3p/5pP1/4P3/8/PPP2PPP/R1NQK2R w KQk - 0 17",
     badMove: "exf5",
     goodArrow: ["d1", "h5"] as const,
     analysis:
@@ -630,7 +943,11 @@ const DEMO_MISTAKES = [
     moveNumber: 27,
     move: "Rf1",
     keyEvaluation: 11.29,
-    fen: "2k5/8/p1b5/5Q2/8/3N4/PPP2PPP/4K2R w K - 0 27",
+    // "f6 to f7" is a pawn push, so f6 holds a white PAWN and the queen stays on
+    // f5. The black king is on d8: from c8 it stood in check from that queen
+    // while it was White's move. Rf1 is unambiguous — the king blocks the a1
+    // rook from reaching f1.
+    fen: "3k4/8/p1b2P2/5Q2/8/3N4/PPP2PPP/R3K2R w KQ - 0 27",
     badMove: "Rf1",
     goodArrow: ["f6", "f7"] as const,
     analysis:
@@ -710,17 +1027,26 @@ function DemoAnalyzeCard() {
   const swiperRef = useRef<SwiperType>();
   const [activeIndex, setActiveIndex] = useState(0);
   const shortViewport = useShortViewport();
-  // Mobile fills the card with the board (QA: "make the card full"); desktop
-  // keeps its fixed sizes.
+  // The board fills the card's inner width, as in the design. Mobile always
+  // fills (the tour column scrolls); desktop also caps by viewport height,
+  // since a full-width board there would push the card past the fold.
   const cardRef = useRef<HTMLDivElement>(null);
-  const [mobileBoardW, setMobileBoardW] = useState(0);
+  const [boardW, setBoardW] = useState(0);
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const measure = () => {
-      // card padding (10 x2) + slide padding (12 x2) + slide border
-      const inner = el.clientWidth - 48;
-      setMobileBoardW(window.innerWidth < MOBILE_BP && inner > 0 ? inner : 0);
+      // card padding (16 x2) + slide padding (16 x2) + slide border
+      const inner = el.clientWidth - 66;
+      if (inner <= 0) return;
+      if (window.innerWidth < MOBILE_BP) {
+        setBoardW(inner);
+        return;
+      }
+      // Everything else in the column: tooltip, gap, title, board controls and
+      // the detail box below the board.
+      const heightCap = window.innerHeight - 520;
+      setBoardW(Math.max(180, Math.min(inner, heightCap, 320)));
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -731,7 +1057,7 @@ function DemoAnalyzeCard() {
       window.removeEventListener("resize", measure);
     };
   }, []);
-  const BOARD_W = mobileBoardW || (shortViewport ? 190 : 225);
+  const BOARD_W = boardW || (shortViewport ? 190 : 225);
 
   // Auto-advance staged as a fake finger drag: translate frames are fed to
   // the swiper by hand (the cards effect rotates the top card exactly like a
@@ -774,9 +1100,18 @@ function DemoAnalyzeCard() {
   return (
     <div
       ref={cardRef}
-      className="w-full bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] p-[10px] sm:p-[16px] select-none pointer-events-none"
+      className="relative w-full bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] p-[16px] select-none pointer-events-none"
     >
-      <h3 className="hidden sm:block text-[16px] text-center font-bold text-[#121212] mb-[10px]">
+      {/* Modal chrome from the real Game Analysis dialog — the close button is
+          decorative here; the tour's own controls drive the step. */}
+      <span className="absolute top-[16px] right-[16px]">
+        <svg width="24" height="24" viewBox="0 0 40 40" fill="none">
+          <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" />
+          <path d="M10 10L30 30" stroke="black" strokeWidth="4" strokeLinecap="round" />
+        </svg>
+      </span>
+
+      <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px]">
         Game Analysis
       </h3>
 
@@ -793,8 +1128,8 @@ function DemoAnalyzeCard() {
       >
         {DEMO_MISTAKES.map((mistake, index) => (
           <SwiperSlide key={index}>
-            <div className="bg-white border border-[#221AE9] rounded-[8px] p-[12px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25)]">
-              <div className="w-full flex flex-col gap-[6px] items-center justify-center mb-[10px]">
+            <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25)]">
+              <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px]">
                 <div
                   style={{ width: BOARD_W }}
                   className="flex flex-row justify-end items-center gap-3"
@@ -802,66 +1137,73 @@ function DemoAnalyzeCard() {
                   <Image
                     src="/images/play-vs-ai/switch.png"
                     alt="switch"
-                    width={18}
-                    height={18}
-                    className="w-[18px] h-[18px] rounded-full object-contain"
+                    width={20}
+                    height={20}
+                    className="w-[20px] h-[20px] rounded-full object-contain"
                   />
-                  <Settings size={16} className="text-[#221AE9]" />
+                  <Settings size={18} className="text-[#221AE9]" />
                 </div>
                 <DemoSlideBoard mistake={mistake} boardWidth={BOARD_W} />
               </div>
 
               <div className="w-full border border-[#221AE9] rounded-[8px]">
                 <div className="flex items-center justify-between py-[4px] rounded-t-[7px] px-[10px] bg-gradient-to-tr from-[#2327EB] to-[#25CADC]">
-                  <div className="flex items-center gap-[6px] min-w-0">
-                    <div className="flex items-center gap-[4px] px-[6px] py-[2px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px] shrink-0">
+                  <div className="flex items-center gap-[8px] min-w-0">
+                    <div className="flex items-center gap-[6px] px-[8px] py-[3px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px] shrink-0">
                       <Image
                         src="/images/analysis/icon_miss.png"
                         alt="miss"
-                        width={14}
-                        height={14}
-                        className="w-[14px] h-[14px] object-contain"
+                        width={18}
+                        height={18}
+                        className="w-[18px] h-[18px] object-contain"
                       />
-                      <span className="font-semibold text-[11px]">{mistake.type}</span>
+                      <span className="font-semibold text-[13px]">{mistake.type}</span>
                     </div>
-                    <span className="font-bold text-white text-[12px] truncate">
+                    <span className="font-bold text-white text-[14px] truncate">
                       Move {mistake.moveNumber}: {mistake.move}
                     </span>
                   </div>
-                  <div className="flex gap-[6px] items-center shrink-0">
-                    <span className="text-[#E22B32] border-[#E22B32] border font-medium text-[11px] bg-white rounded-full py-[1px] px-[8px]">
+                  <div className="flex gap-[8px] items-center shrink-0">
+                    {/* same sign rule as the real modal: losses red, gains green */}
+                    <span
+                      className={`${
+                        mistake.keyEvaluation < 0
+                          ? "text-[#E22B32] border-[#E22B32]"
+                          : "text-[#00B427] border-[#00B427]"
+                      } border font-medium text-[14px] bg-white rounded-full py-[2px] px-[10px]`}
+                    >
                       {mistake.keyEvaluation}
                     </span>
-                    <span className="w-[24px] h-[24px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] rounded-[6px]">
-                      <Bookmark className="w-[12px] h-[12px]" color="#221AE9" />
+                    <span className="w-[32px] h-[32px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] rounded-[8px]">
+                      <Bookmark className="w-[14px] h-[14px]" color="#221AE9" />
                     </span>
                   </div>
                 </div>
                 {/* fixed height keeps every card identical so the swiper
                     doesn't reserve extra room under the shorter slides */}
-                <div className="p-[8px] h-[136px] overflow-hidden">
-                  <h3 className="flex items-center gap-[6px] mb-[2px]">
+                <div className="p-[10px] pt-[8px] h-[178px] overflow-hidden">
+                  <h3 className="flex items-center gap-[8px] mb-[4px]">
                     <Image
                       src="/images/analysis/icon_analysis.svg"
                       alt="analysis"
-                      width={20}
-                      height={20}
-                      className="w-[20px] h-[20px] object-contain"
+                      width={28}
+                      height={28}
+                      className="w-[28px] h-[28px] object-contain"
                     />
-                    <span className="font-bold text-[14px] text-[#040404]">Analysis</span>
+                    <span className="font-bold text-[18px] text-[#040404]">Analysis</span>
                   </h3>
-                  <p className="text-[12px] leading-[130%] text-[#585858] mb-[6px] min-h-[32px]">
+                  <p className="text-[15px] leading-[130%] text-[#585858] mb-[8px] min-h-[40px]">
                     {mistake.analysis}
                   </p>
-                  <div className="flex w-full items-center bg-[#1C17A6] gap-[10px] p-[6px] rounded-[8px]">
+                  <div className="flex w-full items-center bg-[#1C17A6] gap-[16px] p-[8px] rounded-[8px]">
                     <Image
                       src="/images/analysis/icon_union.svg"
                       alt="analysis"
-                      width={30}
-                      height={30}
-                      className="w-[30px] h-[30px] object-contain"
+                      width={44}
+                      height={44}
+                      className="w-[44px] h-[44px] object-contain"
                     />
-                    <div className="relative leading-[120%] flex items-center min-h-[34px] w-full rounded-[8px] text-[11px] text-white px-[8px] py-[6px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[12px] before:h-[12px] before:absolute before:top-[50%] before:left-[-12px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
+                    <div className="relative leading-[120%] flex items-center min-h-[44px] w-full rounded-[8px] text-[14px] text-white px-[10px] py-[8px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
                       {mistake.solution}
                     </div>
                   </div>
@@ -1122,6 +1464,18 @@ export function PlaygroundTour({
     setDemoScale(1);
   }, [index]);
 
+  // The interlude is advanced by whichever overlay renders (the tracked board on
+  // desktop, the won-game sheet on mobile). If neither can — no visible board
+  // and not a mobile layout — this keeps the tour from getting stuck on it.
+  useEffect(() => {
+    if (!interlude) return;
+    const t = setTimeout(() => {
+      setInterlude(false);
+      setIndex(2);
+    }, INTERLUDE_HOLD_MS + 1500);
+    return () => clearTimeout(t);
+  }, [interlude]);
+
   // Bring the spotlighted element into view when an anchored step starts.
   // The scroll margin keeps the element's top clear of the fixed navbar (and
   // leaves room above it when the step's tooltip sits above the target).
@@ -1219,7 +1573,7 @@ export function PlaygroundTour({
             '[data-tour-anchor="board-preview"] [data-preview-board]'
           )
         : null;
-      const nextImg = img ? toRect(img.getBoundingClientRect()) : null;
+      const nextImg = visibleRect(img);
       if (!sameRect(nextImg, boardImgRef.current)) {
         boardImgRef.current = nextImg;
         setBoardImgRect(nextImg);
@@ -1229,7 +1583,7 @@ export function PlaygroundTour({
             '[data-tour-anchor="board-preview"] [data-preview-bar="opponent"]'
           )
         : null;
-      const nextTop = topBar ? toRect(topBar.getBoundingClientRect()) : null;
+      const nextTop = visibleRect(topBar);
       if (!sameRect(nextTop, topBarRef.current)) {
         topBarRef.current = nextTop;
         setTopBarRect(nextTop);
@@ -1239,7 +1593,7 @@ export function PlaygroundTour({
             '[data-tour-anchor="board-preview"] [data-preview-bar="player"]'
           )
         : null;
-      const nextBottom = bottomBar ? toRect(bottomBar.getBoundingClientRect()) : null;
+      const nextBottom = visibleRect(bottomBar);
       if (!sameRect(nextBottom, bottomBarRef.current)) {
         bottomBarRef.current = nextBottom;
         setBottomBarRect(nextBottom);
@@ -1249,7 +1603,7 @@ export function PlaygroundTour({
             '[data-tour-anchor="opponent-panel"]'
           )
         : null;
-      const nextPanel = panel ? toRect(panel.getBoundingClientRect()) : null;
+      const nextPanel = visibleRect(panel);
       if (!sameRect(nextPanel, panelRef.current)) {
         panelRef.current = nextPanel;
         setPanelRect(nextPanel);
@@ -1280,30 +1634,9 @@ export function PlaygroundTour({
 
   if (!mounted || !open) return null;
 
-  // Mobile has no board on the play page, so the won-board interlude is laid
-  // out free-floating and centred instead of tracked onto page elements.
+  // Mobile has no board on the play page, so the interlude renders the whole
+  // won game screen (MobileWonGameSheet) instead of tracking page elements.
   const mobileInterlude = interlude && !boardImgRect && isMobile && viewport.vw > 0;
-  const mBoardW = Math.min(viewport.vw - 24, 420);
-  const M_BAR_H = 56;
-  const M_GAP = 8;
-  const mLeft = Math.round((viewport.vw - mBoardW) / 2);
-  const mTop = Math.max(
-    12,
-    Math.round((viewport.vh - (mBoardW + M_BAR_H * 2 + M_GAP * 2)) / 2)
-  );
-  const mTopBar: Rect = { top: mTop, left: mLeft, width: mBoardW, height: M_BAR_H };
-  const mBoard: Rect = {
-    top: mTop + M_BAR_H + M_GAP,
-    left: mLeft,
-    width: mBoardW,
-    height: mBoardW,
-  };
-  const mBottomBar: Rect = {
-    top: mBoard.top + mBoardW + M_GAP,
-    left: mLeft,
-    width: mBoardW,
-    height: M_BAR_H,
-  };
 
   // Spotlight geometry: pads the union of anchor rects; collapses to a point
   // when a step has no anchor so the 200vmax shadow dims the whole screen.
@@ -1511,10 +1844,7 @@ export function PlaygroundTour({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="fixed inset-0 bg-[rgba(9,14,40,0.62)] pointer-events-none" />
-            <InterludeCaptureBar rect={mTopBar} variant="lost" />
-            <InterludeBoard rect={mBoard} onDone={next} />
-            <InterludeCaptureBar rect={mBottomBar} variant="won" />
+            <MobileWonGameSheet onDone={next} />
           </motion.div>
         )}
 

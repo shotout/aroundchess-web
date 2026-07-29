@@ -15,8 +15,15 @@ import { GameHistoryTabs } from "@/components/v2/game-history-tabs";
 
 const GameHistoryPageV2: React.FC = () => {
   const { username, isOpenTutorial } = usePgnStore();
-  const { sessionId } = useProfileStore();
+  const { sessionId, profile } = useProfileStore();
   const { isTutorialPlay, dataTutorial } = useTutorial();
+
+  // Same rule as the profile page (see profile-account-card): trust the
+  // backend's explicit flag and fall back to the legacy username heuristic.
+  // Testing `username` alone hid the banner from anyone who had an AroundChess
+  // username — which is everyone — since that store value is the account's
+  // name, not the linked Chess.com one.
+  const isChessComConnected = profile?.isChessComConnected ?? Boolean(username);
 
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [openAccountConnected, setOpenAccountConnected] = useState(false);
@@ -55,10 +62,13 @@ const GameHistoryPageV2: React.FC = () => {
 
   return (
     <main className="w-full bg-primary-white min-h-screen">
+      {/* Pass the setter straight through, like /profile does — the previous
+          `() => setOpen(false)` turned any open request from inside the dialog
+          into a close. */}
       <ChessAccountSetup
         isLoading={isLoading}
         open={openAccountConnected}
-        setOpen={() => setOpenAccountConnected(false)}
+        setOpen={setOpenAccountConnected}
       />
 
       <div className="p-4 md:p-6">
@@ -78,7 +88,7 @@ const GameHistoryPageV2: React.FC = () => {
         
         <GameHistoryAiProgressBanner />
 
-        {!isTutorialPlay && !username && (
+        {!isTutorialPlay && !isChessComConnected && (
           <GameHistoryConnectBanner
             onClick={() => setOpenAccountConnected(true)}
           />

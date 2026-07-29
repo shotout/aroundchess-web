@@ -9,7 +9,7 @@ import CacheUtil from "@/app/training-plan/api/cacheUtils";
 import { useRouter } from "next/navigation";
 import {
   clearSession,
-  refreshAccessToken,
+  refreshSession,
   shouldRefreshBeforeRequest,
 } from "./refresh-token";
 
@@ -118,7 +118,7 @@ export function useApiClient() {
           // The access token only lives an hour, so renew it up front once it
           // is nearly stale rather than letting the request fail first.
           if (!path.includes("/auth/logout") && shouldRefreshBeforeRequest()) {
-            await refreshAccessToken();
+            await refreshSession();
           }
 
           // Read the token at send time, not from the closure: a concurrent
@@ -141,23 +141,33 @@ export function useApiClient() {
                 throw new Error("Session expired");
               }
 
-              const newToken = await refreshAccessToken();
+              const refreshed = await refreshSession();
 
-              if (!newToken) {
+              // Only an outright rejection ends the session. A transport
+              // failure (offline, 5xx, a socket dropped on wake-from-sleep)
+              // leaves the refresh token valid, so surface the error and let
+              // the next request try again instead of kicking the user out.
+              if (refreshed.status === "unavailable") {
+                throw new Error("Could not reach the server. Please try again.");
+              }
+
+              if (refreshed.status !== "refreshed") {
                 handleSignOut();
                 throw new Error("Session expired");
               }
 
-              response = await sendWith(newToken);
+              response = await sendWith(refreshed.token);
 
               if (!response.ok) {
                 const retryError = (await response
                   .json()
                   .catch(() => ({}))) as any;
 
+                // A 401 on a token we just minted isn't an expiry — it's this
+                // endpoint refusing the request (permissions, membership, …),
+                // so report it rather than destroying a valid session.
                 if (retryError.statusCode === 401 || response.status === 401) {
-                  handleSignOut();
-                  throw new Error("Session expired");
+                  throw new Error(retryError.message || "Request not allowed");
                 }
 
                 if (retryError.statusCode != 404) {

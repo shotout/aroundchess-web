@@ -101,6 +101,11 @@ const GameCard: React.FC<GameCardProps> = ({
       vs_ai: "Against AI",
       ai: "Against AI",
       "against ai": "Against AI",
+      // The API also sends "VS AI Game" — same thing the table filter calls
+      // "Against AI".
+      vs_ai_game: "Against AI",
+      "vs ai game": "Against AI",
+      "vs ai": "Against AI",
       pgn_upload: "Import",
       "pgn upload": "Import",
       "pdn upload": "Import",

@@ -105,12 +105,17 @@ export const ChessService = {
       let white = "Player";
       let black = "Opponent";
       let url = "#";
+      let whiteElo: string | undefined;
+      let blackElo: string | undefined;
 
       try {
         const headers = chess.header();
         white = headers.White || username;
         black = headers.Black || profileInfo?.opponentName || "Opponent";
         url = headers.Site || "#";
+        // Shown on the player rows next to each name.
+        whiteElo = headers.WhiteElo || undefined;
+        blackElo = headers.BlackElo || undefined;
       } catch (e) {
         console.error("Error extracting PGN headers:", e);
       }
@@ -130,6 +135,8 @@ export const ChessService = {
         fen,
         white,
         black,
+        whiteElo,
+        blackElo,
         url,
         username,
         gameIndex,

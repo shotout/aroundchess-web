@@ -13,7 +13,7 @@ import ProfileAvatarUpload from "@/components/v2/profile-avatar-upload";
 import { fadeInUp } from "@/utils/motion";
 
 import { useProfileStore } from "@/app/store/profile";
-import { useHasPlayedToday, useStreakStore } from "@/app/store/streak";
+import { refreshStreakStatus, useHasPlayedToday, useStreakStore } from "@/app/store/streak";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePricingOffer } from "@/app/store/pricingOffer";
@@ -42,6 +42,9 @@ interface SidebarLink {
     iconActive: string;
     disabled?: boolean;
     permission?: boolean;
+    /** Element id appended as a hash on mobile, so the destination page scrolls
+     *  straight to it instead of landing at the top. */
+    mobileScrollTo?: string;
   }[];
 }
 
@@ -64,6 +67,9 @@ const sidebarLinks: SidebarLink[] = [
         href: "/playground/play-vs-ai",
         icon: "/icons/sidebar-play-vs-ai-icon.png",
         iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
+        // Mobile stacks the leaderboard card above the Play VS AI card, so land
+        // on the card itself — same jump the leaderboard's "Play Now" does.
+        mobileScrollTo: "play-vs-ai",
       },
       {
         name: "Game History",
@@ -168,16 +174,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
   useEffect(() => {
     if (!sessionId) return;
-    // Only fetch when the store has never been filled (e.g. first visit on
-    // this device); otherwise trust the persisted value.
-    if (useStreakStore.getState().status !== null) return;
-    getStreakStatus()
-      .then((data: any) => {
-        if (data?.success) {
-          useStreakStore.getState().setStatus(data.data);
-        }
-      })
-      .catch(() => {});
+    // Refresh on every page load (deduped in the store) so the badge's streak
+    // and flame follow the backend instead of the persisted value going stale.
+    refreshStreakStatus(sessionId, getStreakStatus);
   }, [sessionId]);
 
   const handleToProfile = () => {
@@ -520,7 +519,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                               href={
                                 !isSignedIn && !child.permission
                                   ? "#"
-                                  : child.href
+                                  : isMobile && child.mobileScrollTo
+                                    ? `${child.href}#${child.mobileScrollTo}`
+                                    : child.href
                               }
                               onClick={() =>
                                 handleNavigation(child.href, child.permission)

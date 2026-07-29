@@ -6,7 +6,7 @@ import { PlayHeroGamePreview } from "@/components/v2/play-hero-game-preview";
 import { PlayGreeting, PlayTopBar } from "@/components/v2/play-top-bar";
 import { PlayRecentGames } from "@/components/v2/play-recent-games";
 import { useProfileStore } from "@/app/store/profile";
-import { useStreakStore } from "@/app/store/streak";
+import { refreshStreakStatus } from "@/app/store/streak";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { gameHistoryApi } from "@/components/game-history/services/api";
 import { transformApiDataToComponentFormat } from "@/components/game-history/hooks/useGameData";
@@ -31,16 +31,11 @@ export function PlayPage() {
   useEffect(() => {
     if (!sessionId) return;
 
-    getStreakStatus()
-      .then((data: any) => {
-        if (!data?.success) return;
-        setStreak(data.data?.currentStreak ?? 0);
-        // Keep the shared streak store's status in sync so the badge click
-        // (openDayStreakStatusModal) can detect a just-broken streak even on
-        // pages that don't mount the sidebar.
-        useStreakStore.getState().setStatus(data.data);
-      })
-      .catch(() => {});
+    // Shared once-per-page-load refresh (also syncs the streak store's status,
+    // so the badge click can detect a just-broken streak).
+    refreshStreakStatus(sessionId, getStreakStatus).then((data: any) => {
+      if (data?.success) setStreak(data.data?.currentStreak ?? 0);
+    });
 
     getLeaderboardData()
       .then((data: any) => { if (data?.success) setLeaderboard(data.data); })

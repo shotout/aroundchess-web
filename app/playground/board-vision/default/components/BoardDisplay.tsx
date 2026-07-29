@@ -75,7 +75,7 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
 
   return (
     <motion.div
-      className={`xl:border border-gray-200 xl:p-4 space-y-2 rounded-md flex flex-col md:col-span-6 ${className}`}
+      className={`xl:border border-[#E5E7EB] xl:bg-white xl:shadow-sm xl:p-4 space-y-2 rounded-[16px] flex flex-col md:col-span-6 ${className}`}
       variants={leftPanelVariants}
     >
       <div className="relative w-full flex justify-center items-center" ref={containerRef}>

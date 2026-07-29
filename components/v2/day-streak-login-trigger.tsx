@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useProfileStore } from "@/app/store/profile";
-import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
+import {
+  getLocalDateStamp,
+  refreshStreakStatus,
+  useStreakStore,
+} from "@/app/store/streak";
 import { useApiClient } from "@/functions/api-client";
 import {
   CELEBRATION_LOTTIE,
@@ -81,12 +85,13 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
     )
       return;
     fetchedRef.current = true;
-    getStreakStatus()
+    // Shares the sidebar/header/page refresh when they land together, so a page
+    // load issues one status request; setStatus is applied by the helper.
+    refreshStreakStatus(sessionId, getStreakStatus)
       .then((res: any) => {
         if (!res?.success) return;
         const store = useStreakStore.getState();
         const currentStreak = res.data?.currentStreak ?? 0;
-        store.setStatus(res.data);
         store.setLastSeenStreak(currentStreak);
         if (!DAILY_LOGIN_MODAL_ENABLED) return;
         // New users see the playground tour first; the tour's finish opens

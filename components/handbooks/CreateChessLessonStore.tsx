@@ -8,6 +8,7 @@ import {
   Pagination,
 } from "./ChessLessonTypes";
 import { useProfileStore } from "@/app/store/profile";
+import { refreshSession } from "@/functions/refresh-token";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { toast } from "sonner";
 
@@ -38,6 +39,28 @@ const handleSessionExpiration = () => {
 
   toast.error("Your session has expired. Please log in again.");
   window.location.href = "/login";
+};
+
+/** GET with the session token, renewing it on a 401 and replaying once — an
+ *  expired access token must not end a session whose refresh token still
+ *  works. Returns the response; only an outright rejected refresh signs out. */
+const authedFetch = async (
+  url: string,
+  sessionId?: string
+): Promise<Response> => {
+  const send = (token?: string) =>
+    fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+  const token = sessionId ? sessionId : undefined;
+  const response = await send(token);
+  if (response.status !== 401 || !token) return response;
+
+  const refreshed = await refreshSession();
+  if (refreshed.status === "refreshed") return send(refreshed.token);
+  if (refreshed.status === "rejected") handleSessionExpiration();
+  return response;
 };
 
 export function createChessLessonStore<T extends ChessLesson>({
@@ -121,15 +144,14 @@ export function createChessLessonStore<T extends ChessLesson>({
             // Use a high limit to fetch all in one go (adjust if your API has a max limit)
             const url = `${apiBaseUrl}/${apiEndpoint}?limit=1000&category=${lessonType}`;
 
-            const headers: HeadersInit = {};
-            if (sessionId != "") {
-              headers["Authorization"] = `Bearer ${sessionId}`;
-            }
-
-            const response = await fetch(url, { headers });
+            const response = await authedFetch(
+              url,
+              sessionId != "" ? sessionId : undefined
+            );
 
             if (response.status === 401) {
-              handleSessionExpiration();
+              // authedFetch already renewed-and-replayed; still 401 means the
+              // session was rejected (and handled) or the endpoint refused us.
               return;
             }
 
@@ -175,10 +197,9 @@ export function createChessLessonStore<T extends ChessLesson>({
               get().fetchReadStatuses(sessionId);
             }
           } catch (error) {
-            if (error instanceof Error && error.message.includes("401")) {
-              handleSessionExpiration();
-              return;
-            }
+            // No 401 sniffing here: authedFetch owns that decision. Matching on
+            // the message text signed people out for any error that merely
+            // mentioned "401".
             set({
               error:
                 error instanceof Error
@@ -262,15 +283,13 @@ export function createChessLessonStore<T extends ChessLesson>({
             const apiBaseUrl = process.env.BASE_URL;
             const apiUrl = `${apiBaseUrl}/handbooks/${id}`;
 
-            const headers: HeadersInit = {};
-            if (sessionId != "") {
-              headers["Authorization"] = `Bearer ${sessionId}`;
-            }
-
-            const response = await fetch(apiUrl, { headers });
+            const response = await authedFetch(
+              apiUrl,
+              sessionId != "" ? sessionId : undefined
+            );
 
             if (response.status === 401) {
-              handleSessionExpiration();
+              // See fetchAllLessons: the renew-and-replay already happened.
               return null;
             }
 
@@ -313,10 +332,7 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             return lessonData;
           } catch (error) {
-            if (error instanceof Error && error.message.includes("401")) {
-              handleSessionExpiration();
-              return null;
-            }
+            // See fetchAllLessons — authedFetch decides on 401s.
             set((state) => ({
               error:
                 error instanceof Error

@@ -55,27 +55,28 @@ export const ButtonFinish = ({
               Show Analysis
             </button>
           ) : (
-            // Show "Analyze Now" button when no analysis exists
+            // No analysis yet — blue "Analyze Mistakes", matching the finished-game
+            // mockup and the wording the game-history table already uses.
             <button
               type="button"
               onClick={() => {
-                console.log("🔘 Analyze Now button clicked in ButtonFinish");
+                console.log("🔘 Analyze Mistakes button clicked in ButtonFinish");
                 onAnalyzeClick();
               }}
               disabled={isAnalyzing}
-              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-[3px] border-[#19A23C] bg-[#34C759] z-1 shadow-[0px_0px_1px_2px_rgba(52,199,89,.2] relative before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:inset-2 before:shadow-[0px_0px_0px_2px_#6AFB8F] before:z-5 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:rounded-full after:inset-2 after:shadow-[0px_2px_2px_0px_#0A6D23] disabled:opacity-70"
+              className="flex items-center justify-center font-medium text-[15px] gap-[8px] w-full md:w-1/4 xl:w-full rounded-full h-[40px] border-[3px] border-[#1B14CC] bg-[#221AE9] text-white z-1 shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] relative before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:inset-2 before:shadow-[0px_0px_0px_2px_#4E47FF] before:z-5 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:rounded-full after:inset-2 after:shadow-[0px_2px_2px_0px_#1C17A6] disabled:opacity-70"
               data-tutorial="play-vs-ai-step-3"
             >
               {isAnalyzing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 13.3327V6.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M8 13.3327V2.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M4 13.332V9.33203" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 13.3327V6.66602" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 13.3327V2.66602" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 13.332V9.33203" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               )}
-              {isAnalyzing ? "Starting..." : "Analyze Now"}
+              {isAnalyzing ? "Starting..." : "Analyze Mistakes"}
             </button>
           )}
         </div>

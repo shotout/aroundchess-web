@@ -44,10 +44,10 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
     handleGetLog();
   }, []);
   const handleGetLog = async () => {
-    await getUsagePuzzle().then((res) => {
-      let usage = res.data.totalPuzzlesThisMonth;
-      setRemainingPuzzle(usage);
-    });
+    // Null when there's no session yet; rejects on a network failure. See the
+    // same guard in app/playground/puzzle/page.tsx.
+    const res: any = await getUsagePuzzle().catch(() => null);
+    setRemainingPuzzle(Number(res?.data?.totalPuzzlesThisMonth) || 0);
   };
   const handleClosePremium = () => {
     setShowPremiumDialog(false);

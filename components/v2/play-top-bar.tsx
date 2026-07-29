@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useProfileStore } from "@/app/store/profile";
 import { useHasPlayedToday } from "@/app/store/streak";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
+import { ELO_INFO, RANK_INFO, MOVED_INFO } from "@/components/v2/stat-info-text";
 import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
 import { formatNumber } from "@/components/v2/format-number";
 
@@ -27,14 +28,6 @@ function toOrdinal(n: number): string {
   const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
   return formatNumber(n) + suffix;
 }
-
-// Tooltip copy for each stat (shared between the desktop and mobile bars).
-const ELO_INFO =
-  "Your ELO score reflects your current playing strength. It updates after each rated game based on your results and your opponents' ratings.";
-const RANK_INFO =
-  "Your Rank is your position on the leaderboard based on your ELO score.";
-const MOVED_INFO =
-  "The number of positions you gained or lost on the leaderboard since yesterday.";
 
 function StatItem({
   icon,

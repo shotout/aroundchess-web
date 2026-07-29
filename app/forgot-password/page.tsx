@@ -475,7 +475,10 @@ const ForgotPasswordPage: NextPage = () => {
                             autoCapitalize="none"
                             autoCorrect="off"
                             maxLength={1}
-                            className="bg-white/40 border-white/40 rounded-md h-14 w-14 text-black text-center text-xl font-medium"
+                            // 6 x 56px + gaps overflows a 390px screen, which is
+                            // what squeezed the boxes together. Same responsive
+                            // sizing the register page's code inputs use.
+                            className="bg-white/40 border-white/40 rounded-md w-[11.5vw] h-[11.5vw] sm:h-14 sm:w-14 text-black text-center text-xl font-medium"
                           />
                         ))}
                       </div>
@@ -573,7 +576,9 @@ const ForgotPasswordPage: NextPage = () => {
                   <div className="mb-6 bg-[#FAFDFF] border border-[#C0CED4] rounded-[4px] p-[8px]">
                     <div className="flex flex-row flex-wrap">
                       {validatedConditions.map((condition, index) => (
-                        <div key={condition.id} className="w-1/2">
+                        // One rule per line on mobile (two columns wrapped every
+                        // label), two columns from md — as on the register page.
+                        <div key={condition.id} className="w-full md:w-1/2">
                           <div className="flex flex-row items-center">
                             <Image
                               alt=""

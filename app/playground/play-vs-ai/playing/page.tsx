@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useProfileStore } from "@/app/store/profile";
-import { useStreakStore } from "@/app/store/streak";
+import { refreshStreakStatus } from "@/app/store/streak";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { useApiClient } from "@/functions/api-client";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
@@ -24,16 +24,11 @@ export default function Playing() {
   useEffect(() => {
     if (!sessionId) return;
 
-    getStreakStatus()
-      .then((data: any) => {
-        if (!data?.success) return;
-        setStreak(data.data?.currentStreak ?? 0);
-        // Keep the shared streak store's status in sync so the badge click
-        // (openDayStreakStatusModal) can detect a just-broken streak even on
-        // pages that don't mount the sidebar.
-        useStreakStore.getState().setStatus(data.data);
-      })
-      .catch(() => {});
+    // Shared once-per-page-load refresh (also syncs the streak store's status,
+    // so the badge click can detect a just-broken streak).
+    refreshStreakStatus(sessionId, getStreakStatus).then((data: any) => {
+      if (data?.success) setStreak(data.data?.currentStreak ?? 0);
+    });
 
     getLeaderboardData()
       .then((data: any) => { if (data?.success) setLeaderboard(data.data); })

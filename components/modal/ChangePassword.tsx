@@ -197,7 +197,10 @@ export function ChangePassword() {
                     className={FIELD_CLASS}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    disabled={busy}
+                    // The OTP can only go to the account's own inbox, so the
+                    // prefilled address isn't editable. It stays editable only
+                    // in the edge case where the profile has no email yet.
+                    disabled={busy || !!profile?.email}
                   />
                 </IconField>
                 <button

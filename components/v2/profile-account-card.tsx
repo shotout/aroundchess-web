@@ -530,13 +530,15 @@ const ProfileAccountCard = ({
             <div className="w-full">
               {/* Disabled rather than readOnly: a readOnly input still takes
                   focus, so it drew a focus ring and read as editable even
-                  though the linked chess.com name can't be changed here. */}
+                  though the linked chess.com name can't be changed here.
+                  No disabled:opacity-100 override — the base disabled:opacity-50
+                  mutes it exactly like the locked game-type select beside it. */}
               <Input
                 disabled
                 id="chesscom-username"
                 name="chesscomUsername"
                 type="text"
-                className="w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px] disabled:opacity-100 disabled:cursor-not-allowed"
+                className="w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px] disabled:cursor-not-allowed"
                 value={username}
                 onChange={() => {}}
               />

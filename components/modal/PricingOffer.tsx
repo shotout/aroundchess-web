@@ -52,13 +52,9 @@ export const PricingOffer: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogPortal>
+        {/* Flat colour, no chess-piece pattern image — per the mockup. */}
         <DialogContent
-          style={{
-            backgroundImage: "url(/images/pricing/bg-laptop.png)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-          className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] sm:max-w-[680px] xl:max-w-[1141px] max-h-[97%] rounded-lg p-4 shadow-xl overflow-y-auto z-[1000]`}
+          className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] sm:max-w-[680px] xl:max-w-[1141px] max-h-[97%] rounded-lg bg-[#F7FCFF] p-4 sm:p-6 shadow-xl overflow-y-auto z-[1000]`}
         >
           <div className="text-center py-2 z-2 md:px-8">
             <DialogTitle className=" text-[18px] lg:text-[32px] font-medium">
@@ -68,7 +64,7 @@ export const PricingOffer: React.FC = () => {
               <span className="text-[#221AE9]">
                 Go Premium for Unlimited Access{" "}
               </span>
-              or buy Analysis Tokens for access to more AD-FREE Analyses.
+              or buy Analysis Tokens for access to more Analyses.
             </DialogDescription>
           </div>
 

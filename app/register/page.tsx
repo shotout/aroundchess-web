@@ -303,13 +303,20 @@ function RegisterPage() {
 
   return (
     <>
-      <div className="h-screen flex flex-col">
+      {/* dvh so header + form together match the space the keyboard leaves,
+          which keeps the footer that follows below the fold instead of on top
+          of the form. */}
+      <div className="h-[100dvh] flex flex-col">
         <SiteHeaderNew />
 
+        {/* dvh, not vh: on mobile the visual viewport shrinks when the keyboard
+            opens, but 100vh keeps its full height — so this block stayed taller
+            than the screen and the footer below it rode up over the form. The
+            600px floor is desktop-only for the same reason. */}
         <main
-          className="relative flex items-center justify-center p-4 sm:p-6 md:p-8 
-                     h-[calc(100vh-72px)] lg:h-[calc(100vh-97px)]
-                     min-h-[600px] overflow-y-auto"
+          className="relative flex items-center justify-center p-4 sm:p-6 md:p-8
+                     h-[calc(100dvh-72px)] lg:h-[calc(100dvh-97px)]
+                     sm:min-h-[600px] overflow-y-auto"
         >
           <div className="absolute inset-0 -z-10">
             <Image

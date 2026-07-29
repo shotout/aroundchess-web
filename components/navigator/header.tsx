@@ -21,7 +21,7 @@ import { useUserStore } from "@/app/training-plan/store";
 import { useApiClient } from "@/functions/api-client";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
-import { useHasPlayedToday, useStreakStore } from "@/app/store/streak";
+import { refreshStreakStatus, useHasPlayedToday, useStreakStore } from "@/app/store/streak";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -67,18 +67,15 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   useEffect(() => {
     if (!isSignedIn) return;
-    getStreakStatus()
-      .then((data: any) => {
-        if (!data?.success) return;
-        setStreak(data.data?.currentStreak ?? 0);
-        // Keep the shared streak store's status in sync so the badge click
-        // (openDayStreakStatusModal) can detect a just-broken streak even on
-        // pages that don't mount the sidebar.
-        useStreakStore.getState().setStatus(data.data);
-      })
-      .catch(() => {});
+    // Shared once-per-page-load refresh: keeps the store's status in sync so
+    // the badge click (openDayStreakStatusModal) can detect a just-broken
+    // streak even on pages that don't mount the sidebar, and re-derives the
+    // flame from the backend on every reload.
+    refreshStreakStatus(sessionId, getStreakStatus).then((data: any) => {
+      if (data?.success) setStreak(data.data?.currentStreak ?? 0);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSignedIn]);
+  }, [isSignedIn, sessionId]);
 
   useEffect(() => {
     const checkIfDesktop = () => {
