@@ -8,10 +8,27 @@ const nextConfig = {
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY                                                                                                                                         
   },                                                                                                                                                                                                         
                                                                                                                                                                                                              
-  experimental: {                                                                                                                                                                                            
-    missingSuspenseWithCSRBailout: false,                                                                                                                                                                    
-  },                                                                                                                                                                                                         
-                                                                                                                                                                                                             
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
+    // Trades a little build time for a much lower peak heap.
+    webpackMemoryOptimizations: true,
+  },
+
+  eslint: {
+    // Lint is run separately (`yarn lint`); doing it inside `next build` was
+    // tipping the Vercel builder over its memory limit.
+    ignoreDuringBuilds: true,
+  },
+
+  webpack: (config, { dev }) => {
+    // The filesystem cache keeps the whole module graph resident and then
+    // serializes it (the PackFileCacheStrategy "Serializing big strings"
+    // warnings) — that peak is what gets the build OOM-killed on Vercel.
+    // It buys nothing on a cold CI builder anyway.
+    if (!dev) config.cache = false;
+    return config;
+  },
+
   async redirects() {
     return [
       {
@@ -102,8 +119,9 @@ export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
+  // Off: no SENTRY_AUTH_TOKEN is set in CI, so the widened source maps are
+  // generated and held in memory but never actually uploaded.
+  widenClientFileUpload: false,
 
   // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
   // This can increase your server load as well as your hosting bill.
