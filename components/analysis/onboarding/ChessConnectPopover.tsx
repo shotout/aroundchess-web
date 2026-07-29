@@ -309,7 +309,7 @@ export const ChessConnectDialog = ({
 
           <div className="w-full p-4 md:p-6">
             <div className="flex flex-col gap-y-1">
-              <h2 className="text-[20px] md:text-2xl font-bold text-center">
+              <h2 className="text-[18px] md:text-2xl font-bold text-center">
                 Connect your Chess.com Account
               </h2>
               <p className="text-center text-[14px] --xs md:text-base text-black">

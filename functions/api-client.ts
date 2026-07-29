@@ -12,6 +12,7 @@ import {
   refreshSession,
   shouldRefreshBeforeRequest,
 } from "./refresh-token";
+import { redactSecrets, toSafeApiErrorMessage } from "./api-error-message";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -88,6 +89,20 @@ export function useApiClient() {
             const query = new URLSearchParams(params as any).toString();
             url += `?${query}`;
           }
+
+          // Thrown messages end up in toast.error(error.message) on most
+          // screens, so a server message that quotes its own internals (an
+          // expired Stripe key, a connection string) can't be passed straight
+          // through. Swapping it here covers every caller at once; the original
+          // still reaches the console, with credentials redacted.
+          const safeMessageFor = (message: unknown, fallback: string) => {
+            const safe = toSafeApiErrorMessage(message, path, fallback);
+            if (typeof message === "string" && message !== safe) {
+              console.error(`API error (${path}):`, redactSecrets(message));
+            }
+            return safe;
+          };
+
           // FormData bodies can only be consumed once, so the retry below has
           // to rebuild the init object rather than reuse it.
           const sendWith = (token: string) => {
@@ -167,17 +182,23 @@ export function useApiClient() {
                 // endpoint refusing the request (permissions, membership, …),
                 // so report it rather than destroying a valid session.
                 if (retryError.statusCode === 401 || response.status === 401) {
-                  throw new Error(retryError.message || "Request not allowed");
+                  throw new Error(
+                    safeMessageFor(retryError.message, "Request not allowed")
+                  );
                 }
 
                 if (retryError.statusCode != 404) {
-                  throw new Error(retryError.message || "API request failed");
+                  throw new Error(
+                    safeMessageFor(retryError.message, "API request failed")
+                  );
                 }
               }
             } else if (errorData.statusCode != 404) {
               // Handle other errors (except 404)
               // console.log("errorData", url, errorData, response);
-              throw new Error(errorData.message || "API request failed");
+              throw new Error(
+                safeMessageFor(errorData.message, "API request failed")
+              );
             }
           }
 
