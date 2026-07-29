@@ -1,6 +1,7 @@
 "use client";
 
 import { usePricingOffer } from "@/app/store/pricingOffer";
+import { hasMembership, useHasMembership } from "@/app/store/profile";
 import { isMarchCampaignActive } from "@/constants/marchOffer";
 import { usePromoActive, usePromoEndDateLabel } from "@/hooks/usePromo";
 import { X } from "lucide-react";
@@ -67,8 +68,12 @@ export function MarchOfferBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const bannerRef = useRef<HTMLDivElement | null>(null);
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
-  const isPromoActive = usePromoActive();
   const promoEndLabel = usePromoEndDateLabel();
+  // Members already have the plan this banner sells, so the campaign is simply
+  // not active for them — folding it into one flag keeps every show path
+  // (initial, reset event, midnight re-show) gated the same way.
+  const isMember = useHasMembership();
+  const isPromoActive = usePromoActive() && !isMember;
 
   const syncBannerHeight = useCallback(() => {
     if (!bannerRef.current || typeof document === "undefined") {
@@ -94,7 +99,7 @@ export function MarchOfferBanner() {
 
   useEffect(() => {
     const handleReset = () => {
-      if (!isMarchCampaignActive()) {
+      if (!isMarchCampaignActive() || hasMembership()) {
         setIsVisible(false);
         resetBannerHeight();
         return;
@@ -149,7 +154,7 @@ export function MarchOfferBanner() {
     nextMidnight.setHours(24, 0, 0, 0);
 
     const timeoutId = window.setTimeout(() => {
-      if (!isMarchCampaignActive()) {
+      if (!isMarchCampaignActive() || hasMembership()) {
         return;
       }
 

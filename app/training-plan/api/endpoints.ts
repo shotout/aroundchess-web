@@ -1,4 +1,6 @@
 import axios from "axios";
+import { useProfileStore } from "@/app/store/profile";
+import { refreshSession, shouldRefreshBeforeRequest } from "@/functions/refresh-token";
 import CacheUtil, { CACHE_KEYS, getProgressCacheKey, getGameTypeCacheKey } from "./cacheUtils";
 
 const BASE_URL = process.env.BASE_URL;
@@ -23,15 +25,40 @@ export const endpoints = {
   },
 };
 
+/** Axios goes over XHR, so the global fetch wrapper can't help here: renew the
+ *  token when it is stale and replay once on a 401, the same as everywhere else.
+ *  `token` is the caller's captured value; the store's is preferred when set. */
+const withFreshToken = async <T>(
+  token: string,
+  send: (token: string) => Promise<T>
+): Promise<T> => {
+  if (shouldRefreshBeforeRequest()) {
+    await refreshSession();
+  }
+
+  try {
+    return await send(useProfileStore.getState().sessionId || token);
+  } catch (error: any) {
+    if (error?.response?.status !== 401) throw error;
+
+    const refreshed = await refreshSession();
+    if (refreshed.status !== "refreshed") throw error;
+
+    return send(refreshed.token);
+  }
+};
+
 export const apiService = {
   get: async (url: string, token: string, params = {}) => {
     try {
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params,
-      });
+      const response = await withFreshToken(token, (accessToken) =>
+        axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          params,
+        })
+      );
       return response.data;
     } catch (error: any) {
       if (url.includes("existing-topics")) {
@@ -64,11 +91,13 @@ export const apiService = {
 
   post: async (url: string, token: string, data = {}) => {
     try {
-      const response = await axios.post(url, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await withFreshToken(token, (accessToken) =>
+        axios.post(url, data, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+      );
 
       if (url.includes("create")) {
         CacheUtil.clearAll();

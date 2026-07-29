@@ -3,7 +3,8 @@ import { Variants } from "framer-motion";
 export interface PlayerInfoProps {
   profilePic: any;
   playerName: string;
-  countryCode?: string;
+  /** From the PGN's WhiteElo/BlackElo header; omitted when the game has none. */
+  elo?: string | number;
 }
 
 export interface HighlightedSquare {
@@ -23,6 +24,9 @@ export interface Position {
   fen: string;
   white: string;
   black: string;
+  /** PGN WhiteElo/BlackElo headers — chess.com games carry them, uploads may not. */
+  whiteElo?: string;
+  blackElo?: string;
   url: string;
   /** The player's name in this game (matches the PGN White/Black header). */
   username?: string;
@@ -108,7 +112,8 @@ export interface PerformanceValuation {
 export interface PlayerInfoProps {
   profilePic: any;
   playerName: string;
-  countryCode?: string;
+  /** From the PGN's WhiteElo/BlackElo header; omitted when the game has none. */
+  elo?: string | number;
 }
 
 export interface UserBoardDisplayProps extends BoardDisplayProps {

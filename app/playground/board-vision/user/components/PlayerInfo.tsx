@@ -1,57 +1,32 @@
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import ReactCountryFlag from "react-country-flag";
+import React from "react";
+import { GamePlayerAvatar } from "@/components/v2/game-player-avatar";
 import { PlayerInfoProps } from "../../types/default-pgn";
 
-const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerName }) => {
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [countryCode, setCountryCode] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchPlayerData = async () => {
-      try {
-        const res = await fetch(`https://api.chess.com/pub/player/${playerName}`);
-        if (!res.ok) {
-          console.error("Failed to fetch player data:", res.status);
-          return;
-        }
-        const data = await res.json();
-
-        if (data.avatar) setAvatarUrl(data.avatar);
-
-        if (data.country) {
-          // Example: data.country = "https://api.chess.com/pub/country/US"
-          const code = data.country.split("/").pop(); // "US"
-          setCountryCode(code);
-        }
-      } catch (err) {
-        console.error("Fetch error:", err);
-      }
-    };
-
-    fetchPlayerData();
-  }, [playerName]);
-
+/**
+ * A player row above/below the board: avatar, name, ELO — same treatment as the
+ * vs-AI game screen's player bars.
+ *
+ * It used to fetch the avatar and country from api.chess.com on every mount and
+ * render a country flag. The flag is gone (design) and the picture now comes
+ * from the app's own data like everywhere else, so drawing a player row no
+ * longer depends on a third-party request.
+ */
+const PlayerInfo: React.FC<PlayerInfoProps> = ({
+  profilePic,
+  playerName,
+  elo,
+}) => {
   return (
-    <div className="flex items-center space-x-3 p-2 border border-gray-200 rounded-lg">
-      <div className="relative h-12 w-12 flex-shrink-0 rounded-full overflow-hidden border-2 border-blue-base">
-        <Image
-          src={avatarUrl || "/board-vision/user.svg"}
-          alt={`${playerName}'s avatar`}
-          width={48}
-          height={48}
-          className="p-1"
-        />
+    <div className="flex items-center gap-[12px] p-[12px] rounded-[16px] border border-[#E5E7EB] bg-white shadow-sm">
+      <GamePlayerAvatar imageUrl={profilePic} seed={playerName || "player"} />
+      <div className="flex flex-col leading-tight min-w-0">
+        <span className="font-bold text-[16px] text-[#111827] truncate">
+          {playerName}
+        </span>
+        {elo ? (
+          <span className="text-[14px] text-[#6B7280]">ELO {elo}</span>
+        ) : null}
       </div>
-      <span className="text-gray-700 font-semibold">{playerName}</span>
-      {countryCode && (
-        <ReactCountryFlag
-          countryCode={countryCode}
-          className="ml-2"
-          svg
-          style={{ width: "1.5em", height: "1.5em" }}
-        />
-      )}
     </div>
   );
 };

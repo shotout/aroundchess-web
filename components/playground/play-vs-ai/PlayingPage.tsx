@@ -354,6 +354,17 @@ export default function PlayingPage() {
   const { isTutorialPlay, stepFocused } = useTutorial();
   const router = useRouter();
   const pathname = usePathname();
+  /** Mobile board back arrow. This page is reached from more than just the Play
+   *  VS AI lobby — e.g. "Play against this Opponent" on the opponent stats page
+   *  — so return to wherever the user actually came from, and only fall back to
+   *  the lobby when there is no history (deep link, fresh tab). */
+  const handleMobileBack = useCallback(() => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push("/playground/play-vs-ai");
+  }, [router]);
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
   const { isMember, isMemberMonthly, token } = useProfileStore();
@@ -3021,7 +3032,7 @@ export default function PlayingPage() {
           
             <div className="w-full flex justify-between md:justify-end items-center px-[16px] mt-[24px] md:mt-0 md:px-0">
               <div className="flex items-center gap-[8px] md:hidden">
-                <button onClick={() => router.push("/playground/play-vs-ai")}>
+                <button onClick={handleMobileBack}>
                   <ArrowLeft color="black" size={24} />
                 </button>
 
@@ -3215,7 +3226,11 @@ export default function PlayingPage() {
               
             )}
 
-            {!game.isGameOver() && (
+            {/* Undo/reset only while a game is actually running. isGameOver() is
+                false after a resignation (and any other non-board ending), so
+                these two stayed on the finished screen — statusGame is the same
+                flag that swaps ButtonPlaying for ButtonFinish below. */}
+            {statusGame === "Ongoing" && (
                   // <div className="flex flex-row justify-center items-center gap-2 px-4">
                   <div className="flex flex-row justify-center items-center gap-[12px] px-[16px]">
                     <button
@@ -3537,7 +3552,8 @@ export default function PlayingPage() {
                   PieceChoosed={PieceChoosed}
                 />
 
-                {!game.isGameOver() && (
+                {/* Same rule as the mobile row above. */}
+                {statusGame === "Ongoing" && (
                   <div className="flex flex-row justify-center items-center gap-[12px] my-[16px]">
                     <button
                       disabled={game.history().length === 0}

@@ -295,12 +295,16 @@ useEffect(() => {
 
   return (
     <>
-      <div className="h-screen flex flex-col">
+      {/* See the register page: dvh keeps header + form inside the space the
+          keyboard leaves, so the footer below can't ride up over the form. */}
+      <div className="h-[100dvh] flex flex-col">
         <SiteHeaderNew />
+        {/* dvh tracks the keyboard, vh doesn't, and the min-height floor must
+            not apply on mobile. */}
         <main
-          className="relative flex items-center justify-center p-4 sm:p-6 md:p-8 
-                     h-[calc(100vh-72px)] lg:h-[calc(100vh-97px)]
-                     min-h-[580px] overflow-y-auto"
+          className="relative flex items-center justify-center p-4 sm:p-6 md:p-8
+                     h-[calc(100dvh-72px)] lg:h-[calc(100dvh-97px)]
+                     sm:min-h-[580px] overflow-y-auto"
         >
           <div className="absolute inset-0 -z-10">
             <Image

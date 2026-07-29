@@ -57,11 +57,11 @@ export function DayStreakModal({
         ? "Day Streak"
         : null;
  
-  const notPlayedToday = staticFlame === "off" || variant === "broken";
   const daysLeft = 7 - (streak % 7);
+  
   const subtitle =
     variant === "celebration" || variant === "broken" ? (
-      notPlayedToday ? (
+      streak <= 0 ? (
         <>
           Start playing today – only {daysLeft} more days
           <br />
@@ -70,10 +70,9 @@ export function DayStreakModal({
         </>
       ) : (
         <>
-          Keep it up! Play Today – only {daysLeft} more
+          Keep it up! Play Today – only {daysLeft} more days
           <br />
-          days to get{" "}
-          <span className="font-bold">10 Free Analysis Tokens</span>.
+          to get <span className="font-bold">10 Free Analysis Tokens</span>.
         </>
       )
     ) : variant === "reward" ? (

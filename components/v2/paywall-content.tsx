@@ -219,6 +219,9 @@ export const PaywallContent: React.FC<{
             </span>
           </div>
 
+          {/* The mockup insets the card grid and the CTA well inside the modal,
+              further than the tab bar above them. */}
+          <div className="sm:px-[32px] xl:px-[80px] flex flex-col gap-[16px]">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
             {featuredTokens.map((option: any, index: number) => {
               const isSelected = selectedToken === index;
@@ -285,6 +288,7 @@ export const PaywallContent: React.FC<{
                 Purchase Now
               </button>
             )}
+          </div>
           </div>
 
           {/* Legal links — mobile only, per mockup */}

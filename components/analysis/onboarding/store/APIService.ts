@@ -1,6 +1,14 @@
 "use client";
 
+import { authedFetch } from "@/functions/authed-fetch";
+
 const endpoint = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
+
+// Every call here goes through authedFetch: the `sessionId` arguments are kept
+// as the "am I signed in" guard, but the token actually sent is the current one
+// from the store, renewed and replayed on a 401. Passing a captured sessionId
+// straight to fetch() is what produced "Session expired or inactive" errors on
+// pages left open past the access token's hour.
 
 export interface GameTypeData {
   game_type: string;
@@ -29,13 +37,12 @@ export const ChessApiService = {
         throw new Error("Session ID is required");
       }
 
-      const response = await fetch(
+      const response = await authedFetch(
         `${endpoint}/games/player-stats/${username}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionId}`,
           },
         }
       );
@@ -70,11 +77,10 @@ export const ChessApiService = {
         throw new Error("Username, gameType, elo, and session ID are required");
       }
 
-      const response = await fetch(`${endpoint}/profile/set-username`, {
+      const response = await authedFetch(`${endpoint}/profile/set-username`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionId}`,
         },
         body: JSON.stringify({
           username,
@@ -129,11 +135,8 @@ export const ChessApiService = {
         throw new Error("Session ID is required");
       }
 
-      const response = await fetch(`${endpoint}/profile`, {
+      const response = await authedFetch(`${endpoint}/profile`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${sessionId}`,
-        },
       });
 
       if (!response.ok) {
@@ -195,11 +198,10 @@ export const ChessApiService = {
         hasSessionId: !!sessionId,
       });
 
-      const response = await fetch(url, {
+      const response = await authedFetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionId}`,
         },
       });
 
@@ -250,11 +252,10 @@ export const ChessApiService = {
         hasSessionId: !!sessionId,
       });
 
-      const response = await fetch(url, {
+      const response = await authedFetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionId}`,
         },
         body: JSON.stringify(payload),
       });

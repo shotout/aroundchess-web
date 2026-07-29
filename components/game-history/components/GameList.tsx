@@ -684,6 +684,11 @@ const GamesList: React.FC<GamesListProps> = ({
       vs_ai: "Against AI",
       ai: "Against AI",
       "against ai": "Against AI",
+      // The API labels these "VS AI Game"; the filter above the table calls the
+      // same thing "Against AI", so match it.
+      vs_ai_game: "Against AI",
+      "vs ai game": "Against AI",
+      "vs ai": "Against AI",
       pgn_upload: "Import",
       "pgn upload": "Import",
       "pdn upload": "Import",
@@ -941,7 +946,7 @@ const GamesList: React.FC<GamesListProps> = ({
                             : game.source || "Unknown"}
                         </div>
 
-                        <div className="px-4 py-3 min-w-[144px] min-h-[40px]">
+                        <div className="px-4 py-3 min-w-[180px] min-h-[40px]">
                           {(() => {
                             const btn = getAnalysisButtonContent(game.id, game);
                             const v2 = isV2 ? getV2ButtonPresentation(btn) : null;
@@ -964,7 +969,9 @@ const GamesList: React.FC<GamesListProps> = ({
                                 ) : (
                                   btn.icon
                                 )}
-                                <span className="max-w-[90px]">
+                                {/* No width cap here — "Analyze Mistakes" has to
+                                    stay on one line. */}
+                                <span className="whitespace-nowrap">
                                   {v2 ? v2.label : btn.text}
                                 </span>
                               </button>

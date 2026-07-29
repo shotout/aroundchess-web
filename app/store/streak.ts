@@ -55,6 +55,37 @@ export function isStreakBroken(status: any): boolean {
   return !!status?.streakJustBroken || isStatusLastPlayStale(status?.lastPlayDate);
 }
 
+// Only an in-flight request is shared: the sidebar, header and page all mount
+// together on a page load, so they coalesce into one request, while a later
+// mount (client-side navigation, or after a finished game) still gets fresh
+// data instead of a cached snapshot.
+let statusRefreshKey: string | null = null;
+let statusRefresh: Promise<any> | null = null;
+
+/** Re-derive the streak badges from the backend: fetches /v4/streaks/status
+ * and pushes it through setStatus (which reconciles hasPlayedToday → the
+ * lit/unlit flame). Pass the session id so switching accounts never reuses the
+ * previous account's in-flight request. Resolves with the raw response (null
+ * when the request failed). */
+export function refreshStreakStatus(
+  sessionKey: string,
+  fetchStatus: () => Promise<any>
+): Promise<any> {
+  if (statusRefresh && statusRefreshKey === sessionKey) return statusRefresh;
+  statusRefreshKey = sessionKey;
+  const pending: Promise<any> = fetchStatus()
+    .then((res: any) => {
+      if (res?.success) useStreakStore.getState().setStatus(res.data);
+      return res;
+    })
+    .catch(() => null)
+    .finally(() => {
+      if (statusRefresh === pending) statusRefresh = null;
+    });
+  statusRefresh = pending;
+  return pending;
+}
+
 export const useStreakStore = create<StreakState>()(
   persist(
     (set) => ({

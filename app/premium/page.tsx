@@ -24,9 +24,8 @@ export default function PremiumPage() {
               <span className="text-[#221AE9]">
                 Go Premium for Unlimited Access{" "}
               </span>
-              or buy Analysis Tokens for access to more AD-FREE Analyses.
+              or buy Analysis Tokens for access to more Analyses.
             </p>
-
             <PaywallContent source="pricing_dialog" />
           </div>
         </Navigation>

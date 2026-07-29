@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import Lottie from "lottie-react";
 import { motion } from "framer-motion";
 import { EloOdometer } from "@/components/v2/elo-odometer";
+import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 import { useLottieData } from "@/components/v2/hooks/useLottieData";
 import {
   AiRosterOpponent,
@@ -49,9 +50,15 @@ export function WinModalCard({
   const tour = variant === "tour";
   const animationData = useLottieData(WIN_LOTTIE);
 
+  // While an account is still calibrating there is no rated ELO yet, so both
+  // props are 0 and the picks fell through to the fixed beginner spread
+  // (250/400/500/600) — even for someone onboarding said was advanced. Rate them
+  // by the same rule the rest of the app uses: leaderboard ELO, else the
+  // onboarding ELO, else the shared 1200 default.
+  const effectiveElo = useEffectiveElo();
   const opponents = useMemo(
-    () => pickRecommendedOpponents(newElo || oldElo),
-    [newElo, oldElo]
+    () => pickRecommendedOpponents(newElo || oldElo || effectiveElo || 1200),
+    [newElo, oldElo, effectiveElo]
   );
   const [selectedId, setSelectedId] = useState<number | null>(null);
 

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
+import { ELO_INFO, RANK_INFO, MOVED_INFO } from "@/components/v2/stat-info-text";
 import { formatNumber } from "@/components/v2/format-number";
 
 interface LeaderboardTopStatsProps {
@@ -22,12 +23,14 @@ function StatCard({
   icon,
   label,
   infoText,
+  infoAlign = "right",
   size = 36,
   children,
 }: {
   icon: string;
   label: string;
   infoText: string;
+  infoAlign?: "left" | "right" | "center";
   size?: number;
   children: React.ReactNode;
 }) {
@@ -44,7 +47,7 @@ function StatCard({
       <div className="flex flex-col leading-tight">
         <div className="flex items-center gap-[4px]">
           <span className="text-[11px] sm:text-[12px] text-[#6B7280] whitespace-nowrap">{label}</span>
-          <InfoTooltip text={infoText} size={13} />
+          <InfoTooltip text={infoText} size={13} align={infoAlign} />
         </div>
         {children}
       </div>
@@ -62,7 +65,7 @@ function MobileStatCard({
   icon: string;
   label: string;
   infoText: string;
-  infoAlign?: "left" | "right";
+  infoAlign?: "left" | "right" | "center";
   children: React.ReactNode;
 }) {
   return (
@@ -89,18 +92,18 @@ export function LeaderboardTopStats({ elo, rank, movedUp }: LeaderboardTopStatsP
     <>
       {/* Mobile — compact, independently sized so it never overflows */}
       <div className="sm:hidden bg-white/70 rounded-xl sm:border border-[#E5E7EB] sm:shadow-sm px-[10px] py-[10px] flex items-center justify-between gap-[4px]">
-        <MobileStatCard icon="/images/v2/leaderboard/your_elo.png" label="Your ELO" infoText="Your current chess skill rating." infoAlign="left">
+        <MobileStatCard icon="/images/v2/leaderboard/your_elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left">
           <span className="text-[15px] font-bold text-[#111827]">{elo || "—"}</span>
         </MobileStatCard>
 
-        <MobileStatCard icon="/images/v2/leaderboard/your_rank.png" label="Your Rank" infoText="Your current position on the leaderboard.">
+        <MobileStatCard icon="/images/v2/leaderboard/your_rank.png" label="Your Rank" infoText={RANK_INFO} infoAlign="center">
           <span className="text-[15px] font-bold text-[#111827]">{toOrdinal(rank)}</span>
         </MobileStatCard>
 
         <MobileStatCard
           icon="/images/v2/leaderboard/moved_rank.png"
           label={movedLabel}
-          infoText="The number of positions you gained or lost on the leaderboard since yesterday."
+          infoText={MOVED_INFO}
         >
           {isUp || isDown ? (
             <div className="flex items-center gap-[2px]">
@@ -124,18 +127,18 @@ export function LeaderboardTopStats({ elo, rank, movedUp }: LeaderboardTopStatsP
       {/* Desktop — unchanged */}
       <div className="hidden sm:block bg-white/50 p-4 w-[80%] mx-auto rounded-xl">
         <div className="w-auto mx-auto bg-white/70 rounded-xl border-[#E5E7EB] shadow-sm px-[26px] sm:px-[28px] py-[12px] sm:py-[14px] flex items-center justify-center gap-[180px]">
-          <StatCard icon="/images/v2/leaderboard/your_elo.png" label="Your ELO" infoText="Your current chess skill rating.">
+          <StatCard icon="/images/v2/leaderboard/your_elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left">
             <span className="text-[18px] sm:text-[20px] font-bold text-[#111827]">{elo || "—"}</span>
           </StatCard>
 
-          <StatCard icon="/images/v2/leaderboard/your_rank.png" label="Your Rank" infoText="Your current position on the leaderboard.">
+          <StatCard icon="/images/v2/leaderboard/your_rank.png" label="Your Rank" infoText={RANK_INFO} infoAlign="left">
             <span className="text-[18px] sm:text-[20px] font-bold text-[#111827]">{toOrdinal(rank)}</span>
           </StatCard>
 
           <StatCard
             icon="/images/v2/leaderboard/moved_rank.png"
             label={movedLabel}
-            infoText="The number of positions you gained or lost on the leaderboard since yesterday."
+            infoText={MOVED_INFO}
           >
             {isUp || isDown ? (
               <div className="flex items-center gap-[4px]">

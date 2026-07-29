@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { useProfileStore } from "@/app/store/profile";
 import PlayerInfo from "./PlayerInfo";
 import { UserBoardDisplayProps } from "../../types/default-pgn";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
@@ -31,6 +32,18 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
 
   const isUserPlayingWhite =
     currentPosition?.white?.toLowerCase() === username?.toLowerCase();
+
+  // The player's own row uses the account's profile picture, like the vs-AI
+  // board and the sidebar; whatever the game data carried is the fallback.
+  const { profile } = useProfileStore();
+  const ownProfilePic = profile?.imageUrl || userProfilePic;
+
+  const userElo = isUserPlayingWhite
+    ? currentPosition?.whiteElo
+    : currentPosition?.blackElo;
+  const opponentElo = isUserPlayingWhite
+    ? currentPosition?.blackElo
+    : currentPosition?.whiteElo;
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
@@ -79,10 +92,18 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
 
   return (
     <motion.div
-      className="xl:border border-gray-200 md:col-span-6 xl:p-4 p-0 mb-4 xl:mb-0 rounded-md flex flex-col justify-center"
+      className="xl:border border-[#E5E7EB] xl:bg-white xl:shadow-sm md:col-span-6 xl:p-4 p-0 mb-4 xl:mb-0 rounded-[16px] flex flex-col justify-center gap-[8px]"
       variants={leftPanelVariants}
     >
-      <PlayerInfo profilePic={opponentProfilePic} playerName={opponentName} />
+      {/* Player rows are a desktop affordance in the design; mobile shows the
+          plain "white vs black" caption under the board instead. */}
+      <div className="hidden xl:block">
+        <PlayerInfo
+          profilePic={opponentProfilePic}
+          playerName={opponentName}
+          elo={opponentElo}
+        />
+      </div>
 
       <div className="relative w-full flex justify-center items-center my-4" ref={containerRef}>
         <div className="bg-white flex items-center justify-center overflow-hidden">
@@ -116,7 +137,20 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
           </div>
         </div>
       </div>
-      <PlayerInfo profilePic={userProfilePic} playerName={username} />
+      <div className="hidden xl:block">
+        <PlayerInfo
+          profilePic={ownProfilePic}
+          playerName={username}
+          elo={userElo}
+        />
+      </div>
+
+      {/* Mobile caption, matching the design */}
+      {currentPosition.white && currentPosition.black && (
+        <p className="xl:hidden text-center text-[14px] text-[#111827] mt-[8px]">
+          {currentPosition.white} VS {currentPosition.black}
+        </p>
+      )}
     </motion.div>
   );
 };

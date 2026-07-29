@@ -173,7 +173,7 @@ const UserPGN: React.FC = () => {
           />
 
           <motion.div
-            className="border border-primary-gray md:col-span-4 rounded-md flex flex-col"
+            className="border border-[#E5E7EB] bg-white shadow-sm md:col-span-4 rounded-[16px] flex flex-col"
             variants={rightPanelVariants}
           >
             <div className="flex flex-col h-full">

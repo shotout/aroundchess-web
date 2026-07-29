@@ -6,6 +6,10 @@ import { MarchOfferBanner } from "../components/MarchOfferBanner";
 import { AppSettingProvider } from "../components/v2/app-setting-provider";
 import { TutorialProvider } from "../components/TutorialProvider";
 import { DayStreakModalHost } from "../components/v2/day-streak-modal-host";
+import { SessionKeepAlive } from "../components/v2/session-keepalive";
+// Imported for its side effect, and imported here so the fetch wrapper is in
+// place before any page code can fire a request.
+import "../functions/install-auth-fetch";
 import React, { Suspense } from "react";
 import Script from "next/script";
 import { useModalSetting } from "./store/cookiesSetting";
@@ -42,6 +46,7 @@ export default function RootLayout({
         </head>
         <body>
           <AppSettingProvider />
+          <SessionKeepAlive />
           <MarchOfferBanner />
           {setting.marketing && (
             <Script id="facebook-pixel" strategy="afterInteractive">
