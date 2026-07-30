@@ -97,20 +97,12 @@ function OpponentCard({
   opponent: Opponent;
   selected: boolean;
   onClick: () => void;
-  /** compact sizing while the playground tour is on screen */
-  tour: boolean;
 }) {
-  // Passed down rather than read per card: there are ~40 of these, and each
-  // calling the hook would mean 40 window listeners for one boolean.
-  const p = pick(tour);
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center ${p(
-        "gap-0.5 p-1",
-        "gap-1 p-1.5"
-      )} sm:gap-1 sm:p-1.5 rounded-lg border transition-colors ${
+      className={`flex flex-col items-center gap-1 p-1.5 rounded-lg border transition-colors ${
         selected ? "border-blue-base bg-blue-base/5" : "border-transparent"
       }`}
     >
@@ -119,24 +111,13 @@ function OpponentCard({
         alt={opponent.name}
         width={76}
         height={76}
-        className={`${p(
-          "w-11 h-11",
-          "w-14 h-14"
-        )} sm:w-[68px] sm:h-[68px] rounded-full object-cover`}
+        className="w-14 h-14 sm:w-[68px] sm:h-[68px] rounded-full object-cover"
       />
       <div className="text-center">
-        <div
-          className={`${p("text-[11px] max-sm:leading-tight", "text-[12px]")} sm:text-[14px] font-medium ${
-            selected ? "text-blue-base" : "text-gray-900"
-          }`}
-        >
+        <div className={`text-[12px] sm:text-[14px] font-medium ${selected ? "text-blue-base" : "text-gray-900"}`}>
           {opponent.name}
         </div>
-        <div
-          className={`${p("text-[9px] max-sm:leading-tight", "text-[10px]")} sm:text-[12px] text-gray-500`}
-        >
-          ELO {opponent.elo}
-        </div>
+        <div className="text-[10px] sm:text-[12px] text-gray-500">ELO {opponent.elo}</div>
       </div>
     </button>
   );
@@ -151,12 +132,6 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   const effectiveElo = useEffectiveElo();
   const hasUserElo = effectiveElo > 0;
   const userElo = effectiveElo || DEFAULT_USER_ELO;
-
-  // Compact mobile sizing, on only while the tour is spotlighting this card —
-  // not for the whole run. On the demo steps this is just the background, and
-  // it should look like the real page.
-  const tour = usePlaygroundTourHeroCompact();
-  const p = pick(tour);
 
   // Deterministic on first render (SSR-safe), shuffled after mount so ties
   // between same-ELO bots resolve to a random pick.
@@ -283,10 +258,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
             key={color}
             type="button"
             onClick={() => setSelectedColor(color)}
-            className={`flex-1 flex items-center justify-center gap-1.5 ${p(
-              "py-1.5 text-[12px]",
-              "py-2 text-[13px]"
-            )} sm:py-2 rounded-full sm:text-sm font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-[13px] sm:text-sm font-medium transition-colors ${
               selectedColor === color
                 ? "bg-white shadow text-gray-900 max-sm:bg-[#DED9F8] max-sm:shadow-none"
                 : "text-gray-500 max-sm:text-gray-900"
