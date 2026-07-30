@@ -63,7 +63,11 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
   }, []);
 
   return (
-    <div id="play-vs-ai" data-tour-anchor="playground-hero" className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
+    // max-sm:w-[80%] is the width half of the mobile 20%: the tour spotlights
+    // this hero, and its ring — which the step-1/2 tooltip is sized to match —
+    // is measured straight off this element. Desktop is untouched (sm:w-full
+    // restores it before the row goes horizontal).
+    <div id="play-vs-ai" data-tour-anchor="playground-hero" className="w-full max-sm:w-[80%] max-sm:mx-auto flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
       <div ref={boardCardRef} data-tour-anchor="board-preview" className="hidden sm:flex sm:w-[70%] self-start bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex-col gap-2">
         <AiOpponentPreviewBar />
         <div ref={boardWrapRef} data-preview-board className="w-full">
@@ -100,9 +104,9 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
       <div
         data-tour-anchor="opponent-panel"
         style={{ height: panelHeight }}
-        className="w-full sm:w-[42%] max-sm:!h-auto bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-3 sm:p-4 flex flex-col"
+        className="w-full sm:w-[42%] max-sm:!h-auto bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-2 sm:p-4 flex flex-col"
       >
-        <h1 className="sm:hidden text-center font-bold text-[28px] text-[#221AE9] mb-[8px]">
+        <h1 className="sm:hidden text-center font-bold text-[22px] text-[#221AE9] mb-[6px]">
           Play VS AI
         </h1>
         <HeroPlayVSAIPreview recommendedListHeightClass={recommendedListHeightClass} />

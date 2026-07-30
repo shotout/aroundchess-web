@@ -101,7 +101,7 @@ function OpponentCard({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center gap-1 p-1.5 rounded-lg border transition-colors ${
+      className={`flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 rounded-lg border transition-colors ${
         selected ? "border-blue-base bg-blue-base/5" : "border-transparent"
       }`}
     >
@@ -110,13 +110,13 @@ function OpponentCard({
         alt={opponent.name}
         width={76}
         height={76}
-        className="w-14 h-14 sm:w-[68px] sm:h-[68px] rounded-full object-cover"
+        className="w-11 h-11 sm:w-[68px] sm:h-[68px] rounded-full object-cover"
       />
       <div className="text-center">
-        <div className={`text-[12px] sm:text-[14px] font-medium ${selected ? "text-blue-base" : "text-gray-900"}`}>
+        <div className={`text-[11px] sm:text-[14px] font-medium max-sm:leading-tight ${selected ? "text-blue-base" : "text-gray-900"}`}>
           {opponent.name}
         </div>
-        <div className="text-[10px] sm:text-[12px] text-gray-500">ELO {opponent.elo}</div>
+        <div className="text-[9px] sm:text-[12px] max-sm:leading-tight text-gray-500">ELO {opponent.elo}</div>
       </div>
     </button>
   );
@@ -246,8 +246,11 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 gap-3">
-      <h2 className="text-base sm:text-lg font-semibold text-gray-900 text-center">
+    // Mobile runs ~20% tighter than desktop throughout: the tour spotlights
+    // this whole card on a phone, and at the ~669px Safari actually hands the
+    // page it was overflowing the fold with Start Game below it.
+    <div className="flex flex-col flex-1 min-h-0 gap-2 sm:gap-3">
+      <h2 className="text-[13px] sm:text-lg font-semibold text-gray-900 text-center">
         Choose Your Color
       </h2>
 
@@ -257,7 +260,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
             key={color}
             type="button"
             onClick={() => setSelectedColor(color)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-[13px] sm:text-sm font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 sm:py-2 rounded-full text-[12px] sm:text-sm font-medium transition-colors ${
               selectedColor === color
                 ? "bg-white shadow text-gray-900 max-sm:bg-[#DED9F8] max-sm:shadow-none"
                 : "text-gray-500 max-sm:text-gray-900"
@@ -272,7 +275,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
               alt={color}
               width={16}
               height={16}
-              className="w-4 h-4"
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4"
             />
             {capitalize(color)}
           </button>
@@ -283,9 +286,9 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
           on desktop the wrapper is invisible and keeps the same column gap. */}
       <div
         data-tour-anchor="opponent-list"
-        className="flex flex-col gap-3 grow min-h-0 max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)] max-sm:p-3"
+        className="flex flex-col gap-2 sm:gap-3 grow min-h-0 max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)] max-sm:p-2"
       >
-      <h2 className="text-base sm:text-lg font-semibold text-gray-900 text-center pt-1">
+      <h2 className="text-[13px] sm:text-lg font-semibold text-gray-900 text-center pt-0.5 sm:pt-1">
         Choose Your Opponent
       </h2>
 
@@ -311,16 +314,16 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
                 setActiveSection(tab.key);
                 setSelectedOpponent(opponentsFor(tab.key)[0]);
               }}
-              className={`flex-shrink-0 min-w-[110px] px-3 py-2 rounded-lg border text-center transition-colors ${
+              className={`flex-shrink-0 min-w-[88px] sm:min-w-[110px] px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg border text-center transition-colors ${
                 highlightKey === tab.key
                   ? "border-blue-base text-blue-base"
                   : "border-gray-200 text-gray-700"
               }`}
             >
-              <div className="text-[12px] sm:text-[13px] font-semibold leading-tight">
+              <div className="text-[11px] sm:text-[13px] font-semibold leading-tight">
                 {tab.label}
               </div>
-              <div className="text-[10px] sm:text-[11px] text-gray-500 leading-tight">
+              <div className="text-[9px] sm:text-[11px] text-gray-500 leading-tight">
                 {tab.sub}
               </div>
             </button>
@@ -351,13 +354,13 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         <div
           ref={listRef}
           onScroll={handleListScroll}
-          className={`${recommendedListHeightClass} max-sm:h-[248px] grow mb-2 overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}
+          className={`${recommendedListHeightClass} max-sm:h-[198px] grow mb-1 sm:mb-2 overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}
         >
           <div
             ref={(el) => {
               sectionRefs.current["recommended"] = el;
             }}
-            className="grid grid-cols-4 gap-2"
+            className="grid grid-cols-4 gap-1.5 sm:gap-2"
           >
             {recommendedOpponents.map((opponent) => (
               <OpponentCard
@@ -379,12 +382,12 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
                 sectionRefs.current[tab.key] = el;
               }}
             >
-              <div className="flex items-center gap-3 py-1">
+              <div className="flex items-center gap-3 py-0.5 sm:py-1">
                 <div className="h-px flex-1 bg-gray-200" />
-                <span className="text-[12px] sm:text-sm text-gray-500">{tab.label}</span>
+                <span className="text-[10px] sm:text-sm text-gray-500">{tab.label}</span>
                 <div className="h-px flex-1 bg-gray-200" />
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
                 {opponentsByTab[tab.key].map((opponent) => (
                   <OpponentCard
                     key={`${tab.key}-${opponent.name}-${opponent.elo}`}
@@ -399,15 +402,15 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
           </div>
         </div>
       ) : (
-        <div className={`${recommendedListHeightClass} max-sm:h-[280px] grow mb-2 overflow-y-auto overflow-x-hidden pr-0.5`}>
-          <div className="flex items-center gap-3 pb-1">
+        <div className={`${recommendedListHeightClass} max-sm:h-[224px] grow mb-1 sm:mb-2 overflow-y-auto overflow-x-hidden pr-0.5`}>
+          <div className="flex items-center gap-3 pb-0.5 sm:pb-1">
             <div className="h-px flex-1 bg-gray-200" />
-            <span className="text-[12px] sm:text-sm text-gray-500">
+            <span className="text-[10px] sm:text-sm text-gray-500">
               {tabs.find((t) => t.key === selectedTab)?.label}
             </span>
             <div className="h-px flex-1 bg-gray-200" />
           </div>
-          <div className="grid grid-cols-4 gap-2 content-start">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2 content-start">
             {currentOpponents.map((opponent) => (
               <OpponentCard
                 key={`${selectedTab}-${opponent.name}-${opponent.elo}`}
@@ -426,10 +429,10 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         onClick={handlePlayNow}
         data-tutorial="play-vs-ai-step-2"
         data-tour-anchor="start-game"
-        className="mt-auto w-full py-1 px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-base"
+        className="mt-auto w-full py-1 px-4 sm:px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-[13px] sm:text-base"
       >
         Start Game
-        <span className=" rounded-full w-5 h-5 sm:w-5 sm:h-5 py-4 flex items-center justify-center flex-shrink-0">
+        <span className=" rounded-full w-5 h-5 sm:w-5 sm:h-5 py-3 sm:py-4 flex items-center justify-center flex-shrink-0">
           <ChevronRight size={19} className="text-white " />
         </span>
       </button>

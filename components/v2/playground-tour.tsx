@@ -116,16 +116,31 @@ const visibleHeight = (): number => {
 const MIN_CARD_SCALE = 0.45;
 
 /**
- * Visible height below which the tour switches to its tightest type and
- * padding.
+ * Everything the tour draws renders at this fraction of its natural size on
+ * mobile.
  *
- * The tooltip is the one part of a step that can't scale itself — it's the
- * fixed cost every step pays before the spotlight target or the demo card gets
- * any room at all. On a small phone (SE, mini, or any handset whose browser
- * chrome is showing) those ~40px are the difference between the Start Game
- * button being on screen and being under the fold.
+ * A phone gives the page far less than its spec sheet suggests — an iPhone 15
+ * advertises 852px but Safari hands the document 669 once the status bar,
+ * address bar, toolbar and home indicator have taken their cut. The tour's
+ * steps were laid out against the larger number and ran off the bottom.
+ *
+ * One factor beats another pass of hand-shrinking every font-size and padding:
+ * it applies to all five steps at once, can't be partially applied, and is a
+ * single number to turn if the type reads too small. Turn it up (0.85, 0.9) to
+ * relax; the layout follows automatically.
  */
-const COMPACT_VH = 740;
+const MOBILE_SCALE = 0.8;
+
+/**
+ * Visible height below which the tour switches to its tightest type and
+ * padding, *on top of* MOBILE_SCALE.
+ *
+ * Deliberately below the ~669px a normal phone reports: at that size the 20%
+ * scale is doing the work and stacking the compact tier on top would take the
+ * body copy under 10px. This is the last resort for genuinely tiny viewports
+ * (a landscape phone, an SE with every bar showing).
+ */
+const COMPACT_VH = 560;
 
 /** px of padding the spotlight leaves around the anchor it cuts out */
 const PAD = 8;
@@ -302,6 +317,8 @@ function TourTooltip({
   caret,
   widthPx,
   compact,
+  scale = 1,
+  stretch = false,
   onHeight,
 }: {
   step: TourStep;
@@ -314,11 +331,24 @@ function TourTooltip({
   widthPx?: number;
   /** short viewport: drop to the tightest type and padding (see COMPACT_VH) */
   compact?: boolean;
+  /** renders the card at this fraction of its natural size (see MOBILE_SCALE) */
+  scale?: number;
+  /**
+   * Counter-stretch the layout width by 1/scale so the card ends up exactly as
+   * wide as the box it was given, with only its type and spacing scaled down.
+   *
+   * On for anchored steps: their width is handed to them to match the spotlight
+   * ring, and a card narrower than its own ring reads as a mistake. Off for the
+   * free-floating demo steps, where the 20% takes the width down with
+   * everything else — there is nothing there to line up against.
+   */
+  stretch?: boolean;
   /** reports the rendered height, which drives the placement math above */
   onHeight?: (height: number) => void;
   }) {
   const isLast = index === STEPS.length - 1;
   const boxRef = useRef<HTMLDivElement>(null);
+  const [boxHeight, setBoxHeight] = useState(0);
   // Mobile keeps its own look (pill buttons, blue ring, black title) but not
   // its own scale — it used to run a size up from desktop, which is exactly
   // the room the steps below it were missing.
@@ -326,24 +356,51 @@ function TourTooltip({
     "font-semibold transition-colors rounded-full sm:px-4 sm:h-auto sm:py-[6px] sm:rounded-[8px] sm:text-[13px] " +
     (compact ? "px-3 h-7 text-[12px]" : "px-4 h-8 text-[13px]");
 
+  // A transform doesn't change layout, so the scaled card would still reserve
+  // its full natural height and leave 20% of it as dead space underneath. The
+  // outer box takes the *scaled* height instead, and that same number is what
+  // the tour's placement math is told about — it reasons in screen pixels, so
+  // reporting the natural height would put every caret and spotlight gap out
+  // by a fifth of a card.
   useEffect(() => {
     const el = boxRef.current;
-    if (!el || !onHeight) return;
-    const report = () => onHeight(el.offsetHeight);
+    if (!el) return;
+    const report = () => {
+      const height = Math.round(el.offsetHeight * scale);
+      setBoxHeight((current) => (current === height ? current : height));
+      onHeight?.(height);
+    };
     report();
     const ro = new ResizeObserver(report);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [onHeight]);
+  }, [onHeight, scale]);
 
   return (
     <div
-      ref={boxRef}
-      style={widthPx ? { width: widthPx } : undefined}
-      className={`relative w-[min(430px,calc(100vw-24px))] rounded-[14px] bg-white shadow-2xl ring-2 ring-[#221AE9] sm:ring-[#7CC0F2] sm:p-[16px] pointer-events-auto ${
-        compact ? "p-[10px]" : "p-3"
-      }`}
+      className="relative w-[min(430px,calc(100vw-24px))]"
+      style={{ width: widthPx, height: boxHeight || undefined }}
     >
+      {/* Either laid out 1/scale wider and scaled back about its top-left so it
+          ends up exactly as wide as its box (stretch — keeps an anchored step
+          flush with its spotlight ring), or scaled about its top centre so the
+          width comes down with everything else. Either way the caret's
+          left-1/2 lands back on the box's true centre. */}
+      <div
+        ref={boxRef}
+        style={
+          scale === 1
+            ? undefined
+            : {
+                width: stretch ? `${100 / scale}%` : undefined,
+                transform: `scale(${scale})`,
+                transformOrigin: stretch ? "top left" : "top center",
+              }
+        }
+        className={`relative w-full rounded-[14px] bg-white shadow-2xl ring-2 ring-[#221AE9] sm:ring-[#7CC0F2] sm:p-[16px] pointer-events-auto ${
+          compact ? "p-[10px]" : "p-3"
+        }`}
+      >
       {caret && (
         <>
           {/* mobile: speech-bubble tail with the card's blue outline */}
@@ -428,6 +485,7 @@ function TourTooltip({
           </button>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -451,12 +509,20 @@ function ScaleToFit({
   children,
   reserve = 210,
   referenceHeight,
+  maxScale = 1,
   onMeasure,
 }: {
   children: React.ReactNode;
   /** px kept clear for the tooltip + gaps above the card (measured by the tour
       once its tooltip has rendered; the default only covers that first frame) */
   reserve?: number;
+  /**
+   * Ceiling on the scale. Fitting alone stops at 1:1, so on a viewport with
+   * room to spare a card renders at full size — which on mobile is a fifth
+   * larger than the rest of the tour after MOBILE_SCALE. Capping here keeps
+   * every demo card in step with the tooltip above it.
+   */
+  maxScale?: number;
   /**
    * When set, the scale is computed from this height instead of the card's
    * own — used so the win and lose demo cards share one scale factor and
@@ -482,7 +548,7 @@ function ScaleToFit({
       const avail = visibleHeight() - reserve;
       // The floor is mobile-only so desktop keeps exactly the scale it had.
       const floor = isMobileViewport() ? MIN_CARD_SCALE : 0;
-      const next = Math.max(floor, Math.min(1, avail / basis));
+      const next = Math.max(floor, Math.min(maxScale, avail / basis));
       // The counter-stretch below feeds the new layout width back into this
       // measurement, so ignore hair-thin changes: they'd keep the observer
       // firing without moving anything.
@@ -504,13 +570,18 @@ function ScaleToFit({
       window.removeEventListener("resize", measure);
       window.visualViewport?.removeEventListener("resize", measure);
     };
-  }, [reserve, referenceHeight, onMeasure]);
+  }, [reserve, referenceHeight, maxScale, onMeasure]);
 
   // The stretched box is wider than the container, so it's pulled back by half
   // the excess and scaled about its own centre. That keeps it centred whatever
   // the scale — including when MAX_STRETCH caps the compensation and the card
   // ends up a shade narrower than the column.
-  const widthPct = Math.min(MAX_STRETCH, 1 / scale) * 100;
+  //
+  // Compensating to maxScale rather than to 1 is what keeps the deliberate 20%
+  // in the width: the stretch only undoes the *extra* shrink a short viewport
+  // forces, so a card that needs no extra shrink lands at maxScale of the
+  // column — the same width the tooltip above it ends up at.
+  const widthPct = Math.min(MAX_STRETCH, maxScale / scale) * 100;
 
   return (
     <div style={{ height: boxHeight, width: "100%" }}>
@@ -807,7 +878,11 @@ const WON_SQUARE_STYLES: Record<string, { backgroundColor: string }> =
 
 // Everything above and below the board inside the sheet. Used to pick a board
 // size that lets the whole screen fit without scrolling, like the design.
-const M_SHEET_CHROME = 452;
+// Trimmed alongside the sheet's own type and buttons (MOBILE_SCALE's 20%),
+// which is what hands the board back the room — the board is sized from
+// whatever this leaves, so the constant has to track the markup or the board
+// silently shrinks instead of the chrome.
+const M_SHEET_CHROME = 362;
 
 function MobileCapturedRow({
   icons,
@@ -831,7 +906,7 @@ function MobileCapturedRow({
           alt=""
           width={50}
           height={50}
-          className={`w-[22px] h-[22px] object-contain ${i > 0 ? "-ml-3" : ""}`}
+          className={`w-[18px] h-[18px] object-contain ${i > 0 ? "-ml-2.5" : ""}`}
           style={{ zIndex: icons.length - i }}
         />
       ))}
@@ -895,20 +970,20 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
       }
     >
       {/* header: back + "You (White) VS Lisa (250)" + board controls */}
-      <div className="w-full flex justify-between items-center px-[16px] pt-[12px]">
-        <div className="flex items-center gap-[8px] min-w-0">
-          <ArrowLeft color="black" size={22} className="shrink-0" />
-          <span className="text-[15px] truncate">You (White) VS Lisa (250)</span>
+      <div className="w-full flex justify-between items-center px-[13px] pt-[10px]">
+        <div className="flex items-center gap-[6px] min-w-0">
+          <ArrowLeft color="black" size={18} className="shrink-0" />
+          <span className="text-[12px] truncate">You (White) VS Lisa (250)</span>
         </div>
-        <div className="flex items-center gap-[10px] shrink-0">
+        <div className="flex items-center gap-[8px] shrink-0">
           <Image
             src="/images/play-vs-ai/switch.png"
             alt=""
             width={20}
             height={20}
-            className="w-[20px] h-[20px] object-contain"
+            className="w-[16px] h-[16px] object-contain"
           />
-          <Settings size={18} className="text-[#221AE9]" />
+          <Settings size={15} className="text-[#221AE9]" />
         </div>
       </div>
 
@@ -941,31 +1016,31 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
         )}
 
         {/* board legend */}
-        <div className="flex flex-row flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-row flex-wrap items-center justify-center gap-1.5">
           <div className="flex items-center gap-1">
-            <div className="w-[14px] h-[14px] bg-[#B9CA43]" />
-            <span className="text-[11px]">Previous Position</span>
+            <div className="w-[11px] h-[11px] bg-[#B9CA43]" />
+            <span className="text-[9px]">Previous Position</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-[14px] h-[14px] bg-[#F5F682]" />
-            <span className="text-[11px]">Current Position</span>
+            <div className="w-[11px] h-[11px] bg-[#F5F682]" />
+            <span className="text-[9px]">Current Position</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-[14px] h-[14px] rounded-full bg-[#1C16C2]" />
-            <span className="text-[11px]">Possible Move</span>
+            <div className="w-[11px] h-[11px] rounded-full bg-[#1C16C2]" />
+            <span className="text-[9px]">Possible Move</span>
           </div>
         </div>
 
         {/* win banner */}
-        <div className="relative w-full overflow-hidden rounded-[8px] border border-[#00B427] bg-[linear-gradient(to_right,#E9F8EC,#CFF3D9)] h-[44px] flex items-center gap-[10px] px-[12px]">
+        <div className="relative w-full overflow-hidden rounded-[8px] border border-[#00B427] bg-[linear-gradient(to_right,#E9F8EC,#CFF3D9)] h-[35px] flex items-center gap-[8px] px-[10px]">
           <Image
             src="/images/play-vs-ai/trophy-win.png"
             alt=""
             width={40}
             height={40}
-            className="w-[24px] h-[24px] object-contain shrink-0"
+            className="w-[19px] h-[19px] object-contain shrink-0"
           />
-          <span className="font-semibold text-[13px] text-[#0A6D23]">
+          <span className="font-semibold text-[10px] text-[#0A6D23]">
             Congratulations! You have won this Game!
           </span>
           <Image
@@ -978,9 +1053,9 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
         </div>
 
         {/* finish buttons */}
-        <div className="w-full flex flex-col gap-[8px]">
-          <div className="w-full h-[40px] rounded-full border-[3px] border-[#19A23C] bg-[#34C759] flex items-center justify-center gap-[8px] font-medium text-[15px]">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <div className="w-full flex flex-col gap-[6px]">
+          <div className="w-full h-[32px] rounded-full border-[2px] border-[#19A23C] bg-[#34C759] flex items-center justify-center gap-[6px] font-medium text-[12px]">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
               <path d="M12 13.3327V6.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
               <path d="M8 13.3327V2.66602" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
               <path d="M4 13.332V9.33203" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
@@ -988,81 +1063,81 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
             Analyze Now
           </div>
           <div className="flex w-full gap-2">
-            <div className="bg-white w-full rounded-full h-[40px] border border-[#C0CED4] flex items-center justify-center gap-2">
+            <div className="bg-white w-full rounded-full h-[32px] border border-[#C0CED4] flex items-center justify-center gap-1.5">
               <Image
                 src="/images/play-vs-ai/clipboard.png"
                 alt=""
                 width={40}
                 height={40}
-                className="h-[18px] w-[18px] object-contain"
+                className="h-[14px] w-[14px] object-contain"
               />
-              <span className="font-medium text-[14px] text-[#221AE9]">Share PGN/FEN</span>
+              <span className="font-medium text-[11px] text-[#221AE9]">Share PGN/FEN</span>
             </div>
-            <div className="w-full rounded-full h-[40px] bg-[#C6EEFE] border border-[#7CC0F2] flex items-center justify-center gap-2">
-              <span className="text-[#221AE9] font-medium text-[14px]">+ New Game</span>
+            <div className="w-full rounded-full h-[32px] bg-[#C6EEFE] border border-[#7CC0F2] flex items-center justify-center gap-2">
+              <span className="text-[#221AE9] font-medium text-[11px]">+ New Game</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* tabs + move boxes */}
-      <div className="mt-[10px] flex bg-[#F7FCFF] border-b border-gray-200">
-        <div className="flex-1 flex items-center justify-center gap-2 py-[10px] relative">
+      <div className="mt-[8px] flex bg-[#F7FCFF] border-b border-gray-200">
+        <div className="flex-1 flex items-center justify-center gap-1.5 py-[8px] relative">
           <Image
             src="/images/play-vs-ai/chess-king-rook-active.png"
             alt=""
             width={19}
             height={19}
-            className="w-[19px] h-[19px] object-contain"
+            className="w-[15px] h-[15px] object-contain"
           />
-          <span className="text-[14px] font-semibold text-[#221AE9]">Current Game</span>
+          <span className="text-[11px] font-semibold text-[#221AE9]">Current Game</span>
           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#221AE9]" />
         </div>
-        <div className="flex-1 flex items-center justify-center gap-2 py-[10px]">
+        <div className="flex-1 flex items-center justify-center gap-1.5 py-[8px]">
           <Image
             src="/images/play-vs-ai/past-games.png"
             alt=""
             width={18}
             height={18}
-            className="w-[18px] h-[18px] object-contain"
+            className="w-[15px] h-[15px] object-contain"
           />
-          <span className="text-[14px] font-semibold text-black">Past Games</span>
+          <span className="text-[11px] font-semibold text-black">Past Games</span>
         </div>
       </div>
 
       <div className="px-4 pt-[8px] overflow-hidden">
         <div className="flex gap-1">
           {/* sticky White/Black labels, as on the real screen */}
-          <div className="flex flex-col gap-1 min-w-[60px] shrink-0">
-            <div className="h-[22px]" />
-            <div className="bg-[#E6F7FE] border border-[#C6EEFE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
-              <span className="text-[14px] font-medium">White</span>
+          <div className="flex flex-col gap-1 min-w-[48px] shrink-0">
+            <div className="h-[18px]" />
+            <div className="bg-[#E6F7FE] border border-[#C6EEFE] rounded-lg px-2 py-1.5 min-h-[29px] flex items-center justify-center">
+              <span className="text-[11px] font-medium">White</span>
             </div>
-            <div className="bg-[#E6F7FE] border border-[#C6EEFE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
-              <span className="text-[14px] font-medium">Black</span>
+            <div className="bg-[#E6F7FE] border border-[#C6EEFE] rounded-lg px-2 py-1.5 min-h-[29px] flex items-center justify-center">
+              <span className="text-[11px] font-medium">Black</span>
             </div>
           </div>
 
           {tailMoves.map(([white, black], i) => (
-            <div key={i} className="flex flex-col gap-1 min-w-[60px]">
-              <div className="text-center text-[13px] font-medium text-gray-600 h-[22px] flex items-center justify-center">
+            <div key={i} className="flex flex-col gap-1 min-w-[48px]">
+              <div className="text-center text-[10px] font-medium text-gray-600 h-[18px] flex items-center justify-center">
                 Move {firstTailNumber + i}
               </div>
-              <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
-                <span className="text-[14px] font-medium">{white}</span>
+              <div className="bg-white border border-[#DEDEDE] rounded-lg px-2 py-1.5 min-h-[29px] flex items-center justify-center">
+                <span className="text-[11px] font-medium">{white}</span>
               </div>
-              <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
-                <span className="text-[14px] font-medium">{black}</span>
+              <div className="bg-white border border-[#DEDEDE] rounded-lg px-2 py-1.5 min-h-[29px] flex items-center justify-center">
+                <span className="text-[11px] font-medium">{black}</span>
               </div>
             </div>
           ))}
 
-          <div className="flex flex-col gap-1 min-w-[60px]">
-            <div className="h-[22px]" />
-            <div className="bg-white border border-[#DEDEDE] rounded-lg px-3 py-2 min-h-[36px] flex items-center justify-center">
-              <span className="text-[14px] font-bold text-green-500">WIN</span>
+          <div className="flex flex-col gap-1 min-w-[48px]">
+            <div className="h-[18px]" />
+            <div className="bg-white border border-[#DEDEDE] rounded-lg px-2 py-1.5 min-h-[29px] flex items-center justify-center">
+              <span className="text-[11px] font-bold text-green-500">WIN</span>
             </div>
-            <div className="min-h-[36px]" />
+            <div className="min-h-[29px]" />
           </div>
         </div>
       </div>
@@ -1516,6 +1591,9 @@ export function PlaygroundTour({
   // under the fold. vh is 0 until the first rAF tick — assume roomy, since the
   // measured height replaces the estimate a frame later either way.
   const compact = isMobile && viewport.vh > 0 && viewport.vh < COMPACT_VH;
+  // The one factor every part of the tour is drawn at on a phone — tooltip,
+  // all three demo cards and the finale. Desktop is untouched at 1.
+  const scale = isMobile ? MOBILE_SCALE : 1;
   const rawStep = interlude ? undefined : (STEPS[index] as TourStep | undefined);
   const step = rawStep ? resolveStep(rawStep, isMobile) : undefined; // undefined on finale/interlude
   const anchored = !!step?.anchors;
@@ -1918,15 +1996,21 @@ export function PlaygroundTour({
 
   // On mobile the tooltip stretches out to the spotlight ring when the card it
   // points at is wider than the default — sitting a few px inside the ring made
-  // it read as narrow for the screen. Never narrower than the demo steps' width,
-  // so all five steps stay the same size. Desktop keeps the default: its step-1
+  // it read as narrow for the screen. Desktop keeps the default: its step-1
   // spotlight spans the whole hero, which would blow the tooltip up.
+  //
+  // The floor is the demo steps' *visual* width, so all five stay the same size.
+  // That has to be scaled: the demo cards come down to MOBILE_SCALE of the
+  // column, and flooring at the unscaled width would hold steps 1-2 a fifth
+  // wider than steps 3-5 — and wider than the ring they're supposed to match,
+  // now that the hero has come down 20% too.
+  const minTooltipW = Math.round(BASE_TOOLTIP_W * scale);
   const anchoredTooltipW =
     isMobile && anchored && spotRect
       ? Math.round(
           Math.min(
-            Math.max(hole.width, BASE_TOOLTIP_W),
-            Math.max(viewport.vw - SPOTLIGHT_EDGE * 2, BASE_TOOLTIP_W)
+            Math.max(hole.width, minTooltipW),
+            Math.max(viewport.vw - SPOTLIGHT_EDGE * 2, minTooltipW)
           )
         )
       : undefined;
@@ -2048,6 +2132,8 @@ export function PlaygroundTour({
                 caret={rect ? (mode === "below" ? "top" : "bottom") : undefined}
                 widthPx={anchoredTooltipW}
                 compact={compact}
+                scale={scale}
+                stretch
                 onHeight={reportTooltipHeight}
               />
             </div>
@@ -2079,6 +2165,7 @@ export function PlaygroundTour({
                 onNext={next}
                 caret="bottom"
                 compact={compact}
+                scale={scale}
                 onHeight={reportTooltipHeight}
               />
               {/* the analyze demo keeps overflow visible so the swiper card
@@ -2087,7 +2174,11 @@ export function PlaygroundTour({
               <div className="w-[min(430px,calc(100vw-24px))] sm:w-[min(430px,92vw)] mt-[14px] rounded-2xl">
 
                 {step.demo === "win" && (
-                  <ScaleToFit reserve={demoReserve} onMeasure={reportWinCardHeight}>
+                  <ScaleToFit
+                    reserve={demoReserve}
+                    maxScale={scale}
+                    onMeasure={reportWinCardHeight}
+                  >
                     <WinModalCard
                       variant="tour"
                       oldElo={375}
@@ -2101,6 +2192,7 @@ export function PlaygroundTour({
                 {step.demo === "lose" && (
                   <ScaleToFit
                     reserve={demoReserve}
+                    maxScale={scale}
                     referenceHeight={winCardHeightRef.current || undefined}
                   >
                     <LoseModalCard
@@ -2114,9 +2206,13 @@ export function PlaygroundTour({
                   </ScaleToFit>
                 )}
                 {step.demo === "analyze" && (
-                  <ScaleToFit reserve={demoReserve}>
+                  <ScaleToFit reserve={demoReserve} maxScale={scale}>
                     <DemoAnalyzeCard
-                      maxHeight={Math.max(360, viewport.vh - demoReserve)}
+                      /* the board sizes itself from the room the card gets, so
+                         it has to be told about the scale too — otherwise it
+                         picks a board for the full height and the card grows
+                         back the fifth the scale just took off */
+                      maxHeight={Math.max(360, (viewport.vh - demoReserve) / scale)}
                     />
                   </ScaleToFit>
                 )}
@@ -2161,8 +2257,20 @@ export function PlaygroundTour({
             transition={{ duration: 0.25 }}
             className="fixed inset-0 flex items-center justify-center p-4"
           >
+            {/* Scaled about its centre with no counter-stretch, so this one
+                comes down 20% in both dimensions. It's free-floating — no
+                spotlight ring to stay flush with, unlike the tooltip — and the
+                flex parent keeps it centred whatever the transform leaves. */}
             <div className="w-[min(400px,92vw)]">
-              <FinaleCard onPrev={prev} onDone={finish} />
+              <div
+                style={
+                  scale === 1
+                    ? undefined
+                    : { transform: `scale(${scale})`, transformOrigin: "center center" }
+                }
+              >
+                <FinaleCard onPrev={prev} onDone={finish} />
+              </div>
             </div>
           </motion.div>
         )}

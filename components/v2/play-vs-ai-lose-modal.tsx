@@ -43,6 +43,10 @@ export function LoseModalCard({
   const tour = variant === "tour";
   const animationData = useLottieData(LOSE_LOTTIE);
 
+  // See the win modal: the tour gets a step-down in mobile type and spacing
+  // because it renders into the slot its tooltip leaves. Desktop is unchanged.
+  const m = (tourCls: string, modalCls: string) => (tour ? tourCls : modalCls);
+
   return (
     <div
       className={
@@ -51,12 +55,14 @@ export function LoseModalCard({
           : "relative w-full max-w-[545px] max-h-[96vh] overflow-hidden bg-white rounded-2xl shadow-2xl"
       }
     >
+      {/* Height comes from WIDTH, not max-h — see the win modal. The renderer
+          slices (covers + crops), so a max-h under aspect-[540/400] cut the
+          arrows down to two tips on a phone instead of scaling them. */}
       <div
-        className={
-          tour
-            ? "relative w-[95%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
-            : "relative w-[68%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
-        }
+        className={m(
+          "relative w-[57%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400]",
+          "relative w-[68%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
+        )}
       >
         {/* Out of flow — see the win modal: an in-flow height:100% child can
             outgrow an aspect-ratio box in Safari and push the card body away. */}
@@ -70,21 +76,51 @@ export function LoseModalCard({
         )}
       </div>
 
-      <div className="px-[20px] sm:px-[36px] pb-[20px] sm:pb-[28px] sm:[@media(max-height:920px)]:pb-[18px]">
-        <h2 className="text-center font-bold text-[24px] sm:text-[30px] text-[#DC2626] mt-[8px] sm:mt-[12px] mb-[4px] sm:mb-[6px] sm:[@media(max-height:920px)]:mt-[4px] sm:[@media(max-height:920px)]:mb-[2px]">
+      <div
+        className={`${m(
+          "px-[14px] pb-[14px]",
+          "px-[20px] pb-[20px]"
+        )} sm:px-[36px] sm:pb-[28px] sm:[@media(max-height:920px)]:pb-[18px]`}
+      >
+        <h2
+          className={`text-center font-bold ${m(
+            "text-[19px] mt-[4px] mb-[2px]",
+            "text-[24px] mt-[8px] mb-[4px]"
+          )} sm:text-[30px] text-[#DC2626] sm:mt-[12px] sm:mb-[6px] sm:[@media(max-height:920px)]:mt-[4px] sm:[@media(max-height:920px)]:mb-[2px]`}
+        >
           You Lost
         </h2>
 
         {opponentName && (
-          <p className="text-center text-[14px] sm:text-[17px] text-[#374151] mb-[10px] sm:mb-[14px] sm:[@media(max-height:920px)]:mb-[8px]">
+          <p
+            className={`text-center ${m(
+              "text-[12px] mb-[6px]",
+              "text-[14px] mb-[10px]"
+            )} sm:text-[17px] text-[#374151] sm:mb-[14px] sm:[@media(max-height:920px)]:mb-[8px]`}
+          >
             Against {opponentName} (ELO {opponentElo})
           </p>
         )}
 
         {/* ELO pill + loss badge */}
-        <div className="flex items-center justify-center gap-[8px] sm:gap-[10px] mb-[14px] sm:mb-[20px] sm:[@media(max-height:920px)]:mb-[12px]">
-          <div className="flex items-center justify-between gap-[10px] sm:gap-[16px] bg-[#DC2626] rounded-[10px] pl-[14px] pr-[12px] sm:pl-[20px] sm:pr-[16px] py-[8px] sm:py-[10px] flex-1 min-w-0 max-w-[300px]">
-            <span className="text-white font-semibold text-[14px] sm:text-[17px] whitespace-nowrap">
+        <div
+          className={`flex items-center justify-center gap-[8px] sm:gap-[10px] ${m(
+            "mb-[10px]",
+            "mb-[14px]"
+          )} sm:mb-[20px] sm:[@media(max-height:920px)]:mb-[12px]`}
+        >
+          <div
+            className={`flex items-center justify-between gap-[10px] sm:gap-[16px] bg-[#DC2626] rounded-[10px] ${m(
+              "pl-[12px] pr-[10px] py-[6px]",
+              "pl-[14px] pr-[12px] py-[8px]"
+            )} sm:pl-[20px] sm:pr-[16px] sm:py-[10px] flex-1 min-w-0 max-w-[300px]`}
+          >
+            <span
+              className={`text-white font-semibold ${m(
+                "text-[12px]",
+                "text-[14px]"
+              )} sm:text-[17px] whitespace-nowrap`}
+            >
               Your Current ELO
             </span>
             <span className="flex items-center gap-[6px] sm:gap-[8px]">
@@ -92,12 +128,20 @@ export function LoseModalCard({
                 viewBox="0 0 20 20"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-[16px] h-[16px] sm:w-[20px] sm:h-[20px] shrink-0"
+                className={`${m(
+                  "w-[13px] h-[13px]",
+                  "w-[16px] h-[16px]"
+                )} sm:w-[20px] sm:h-[20px] shrink-0`}
               >
                 <path d="M10 18L3 10H7V5H13V10H17L10 18Z" fill="white" />
                 <rect x="7" y="1.7" width="6" height="1.8" rx="0.9" fill="white" />
               </svg>
-              <span className="text-white font-bold text-[22px] sm:text-[28px] leading-none pt-1">
+              <span
+                className={`text-white font-bold ${m(
+                  "text-[18px]",
+                  "text-[22px]"
+                )} sm:text-[28px] leading-none pt-1`}
+              >
                 <EloOdometer
                   from={oldElo}
                   to={newElo}
@@ -113,22 +157,38 @@ export function LoseModalCard({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: ODOMETER_DELAY + ODOMETER_DURATION, duration: 0.35 }}
-            className={`font-bold text-[20px] sm:text-[24px] shrink-0 ${eloDeltaColorClass(delta)}`}
+            className={`font-bold ${m(
+              "text-[16px]",
+              "text-[20px]"
+            )} sm:text-[24px] shrink-0 ${eloDeltaColorClass(delta)}`}
           >
             {formatEloDelta(delta)}
           </motion.span>
         </div>
 
-        <p className="text-center font-bold text-[15px] sm:text-[17px] text-[#111827]">
+        <p
+          className={`text-center font-bold ${m(
+            "text-[13px]",
+            "text-[15px]"
+          )} sm:text-[17px] text-[#111827]`}
+        >
           That was close!
         </p>
-        <p className="text-center text-[13px] sm:text-[15px] text-[#111827] mb-[12px] sm:mb-[18px] sm:[@media(max-height:920px)]:mb-[12px]">
+        <p
+          className={`text-center ${m(
+            "text-[11px] mb-[8px]",
+            "text-[13px] mb-[12px]"
+          )} sm:text-[15px] text-[#111827] sm:mb-[18px] sm:[@media(max-height:920px)]:mb-[12px]`}
+        >
           Discover your biggest mistakes now to see how to win next time!
         </p>
 
         <button
           onClick={onDiscoverMistakes}
-          className="w-full py-[12px] sm:py-[14px] sm:[@media(max-height:920px)]:py-[12px] rounded-full bg-[#221AE9] text-white font-semibold text-[15px] sm:text-[16px] hover:bg-[#2d25ea] transition-colors"
+          className={`w-full ${m(
+            "py-[9px] text-[13px]",
+            "py-[12px] text-[15px]"
+          )} sm:py-[14px] sm:[@media(max-height:920px)]:py-[12px] rounded-full bg-[#221AE9] text-white font-semibold sm:text-[16px] hover:bg-[#2d25ea] transition-colors`}
         >
           Discover Mistakes
         </button>
