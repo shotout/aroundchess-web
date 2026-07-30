@@ -19,6 +19,10 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { toast } from "sonner";
+import {
+  PAYMENT_ERROR_MESSAGE,
+  redactSecrets,
+} from "@/functions/api-error-message";
 
 const FEATURE_TILES = [
   { icon: "/images/v2/profile/icon-_Analyze Games 1.png", top: "Analyze", bottom: "Games" },
@@ -417,14 +421,22 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         window.location.href = res.data.url;
         return;
       }
-      console.error("Checkout session response without url:", res);
-      toast.error(
-        res?.message || "Could not start the checkout. Please try again."
+      // The backend reports checkout failures in a 200 body, so apiRequest's
+      // sanitizer (which only runs on thrown errors) never sees them and the raw
+      // wording used to reach the toast — including provider detail like
+      // "Expired API Key provided: sk_live_***". None of it is actionable for a
+      // user, so show the shared payment line and keep the detail in the log.
+      console.error(
+        "Checkout session response without url:",
+        redactSecrets(String(res?.message ?? ""))
       );
+      toast.error(PAYMENT_ERROR_MESSAGE);
     } catch (error: any) {
-      toast.error(
-        error?.message || "Could not start the checkout. Please try again."
+      console.error(
+        "Checkout session failed:",
+        redactSecrets(String(error?.message ?? ""))
       );
+      toast.error(PAYMENT_ERROR_MESSAGE);
     } finally {
       setPaySelected("");
     }

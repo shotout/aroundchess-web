@@ -6,6 +6,11 @@ import { useProfileStore } from "@/app/store/profile";
 import CountdownTimerDiscount from "@/components/CountdownTimer/CountdownTimerDiscount";
 import DotSpinner from "@/components/game-history/Spinner";
 import { useApiClient } from "@/functions/api-client";
+import {
+  PAYMENT_ERROR_MESSAGE,
+  redactSecrets,
+} from "@/functions/api-error-message";
+import { toast } from "sonner";
 import { formatDateHistory } from "@/functions/format-date";
 import { fadeInUp, motion } from "@/utils/motion";
 import { loadStripe } from "@stripe/stripe-js";
@@ -284,9 +289,29 @@ export const PremiumSubsContent: React.FC<{
     }
     setParamsPayment(body);
     trackCustomEvent("InitiateCheckoutSubscription", body);
-    const res = await checkoutSessions(body);
-    console.log("Checkout session response:", res);
-    window.location.href = res.data.url;
+    // A checkout that doesn't come back with a URL — failed 200 body, or a
+    // thrown request — used to read `res.data.url` off nothing and take the page
+    // down. Report the shared payment line instead and log the detail.
+    try {
+      const res = await checkoutSessions(body);
+      if (res?.data?.url) {
+        window.location.href = res.data.url;
+        return;
+      }
+      console.error(
+        "Checkout session response without url:",
+        redactSecrets(String(res?.message ?? ""))
+      );
+      toast.error(PAYMENT_ERROR_MESSAGE);
+    } catch (error: any) {
+      console.error(
+        "Checkout session failed:",
+        redactSecrets(String(error?.message ?? ""))
+      );
+      toast.error(PAYMENT_ERROR_MESSAGE);
+    } finally {
+      setPaySelected("");
+    }
     // const data = await res.json();
     // const stripe = await stripePromise;
     // await stripe?.redirectToCheckout({ sessionId: data.id });

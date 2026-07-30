@@ -61,6 +61,7 @@ import { PlayVsAiDrawModal, DRAW_LOTTIE } from "@/components/v2/play-vs-ai-draw-
 import { preloadLottie } from "@/components/v2/hooks/useLottieData";
 import { AiRosterOpponent } from "@/components/v2/play-vs-ai-roster-data";
 import { usePlayPageStore } from "@/app/store/playPage";
+import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 import { CommentarGame } from "./CommentaryGame";
 import { CommentaryMove } from "./CommentaryMove";
 import { TableMovement } from "./TableMovement";
@@ -376,6 +377,7 @@ export default function PlayingPage() {
     postVSAILogs,
     getTokenBalance,
     getLeaderboardData,
+    getLeaderboardMe,
     recordStreakPlay,
     postLeaderboardGameResult,
     isLoading,
@@ -398,7 +400,18 @@ export default function PlayingPage() {
   const [depthLevel] = useState(14);
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
   const { open: gameEndOpen, setOpen: setOpenGameStatus } = useGameEndStatus();
-  const { leaderboard, setLeaderboard } = usePlayPageStore();
+  const { leaderboard, setLeaderboard, leaderboardMe, setLeaderboardMe } =
+    usePlayPageStore();
+  // Onboarding-based rating, used when neither leaderboard endpoint has one.
+  const effectiveElo = useEffectiveElo();
+
+  /** The rating the end-of-game modals should show, in the same order the play
+   *  page's top bar uses: the rated leaderboard ELO, then the provisional one
+   *  from /leaderboard/me (an account still calibrating isn't on the
+   *  leaderboard, so my_elo is 0 there), then the onboarding ELO. Without the
+   *  fallbacks a calibrating player saw "Your Current ELO 0" and a 0 change. */
+  const readElo = (lb: any, me: any): number =>
+    Number(lb?.my_elo) || Number(me?.elo) || effectiveElo || 0;
 
   // Modal states for analysis dialogs
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
@@ -1979,12 +1992,12 @@ export default function PlayingPage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("winDemo") === "1") {
-      const base = leaderboard?.my_elo || 2385;
+      const base = readElo(leaderboard, leaderboardMe) || 2385;
       setWinElo({ oldElo: base, newElo: base + 15, delta: 15 });
       setShowWinModal(true);
     }
     if (params.get("loseDemo") === "1") {
-      const base = leaderboard?.my_elo || 2385;
+      const base = readElo(leaderboard, leaderboardMe) || 2385;
       setLoseElo({ oldElo: base, newElo: base - 15, delta: -15 });
       setShowLoseModal(true);
     }
@@ -1994,7 +2007,7 @@ export default function PlayingPage() {
     if (drawDemo !== null) {
       const parsed = parseInt(drawDemo, 10);
       const delta = !Number.isFinite(parsed) || parsed === 1 ? -15 : parsed;
-      const base = leaderboard?.my_elo || 2385;
+      const base = readElo(leaderboard, leaderboardMe) || 2385;
       setDrawElo({ oldElo: base, newElo: base + delta, delta });
       setShowDrawModal(true);
     }
@@ -2007,88 +2020,57 @@ export default function PlayingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const refreshWinElo = async (saveRes: any) => {
-    const prevElo = leaderboard?.my_elo ?? 0;
-    const rawDelta = Number(
-      String(saveRes?.data?.elo_change ?? "").replace("+", "")
-    );
-    const apiDelta =
-      Number.isFinite(rawDelta) && rawDelta !== 0 ? rawDelta : null;
+  /** The signed ELO change the save response reported, or null when it carried
+   *  none (0 counts as "none" so the leaderboard difference below can speak). */
+  const readSavedDelta = (saveRes: any): number | null => {
+    const raw = Number(String(saveRes?.data?.elo_change ?? "").replace("+", ""));
+    return Number.isFinite(raw) && raw !== 0 ? raw : null;
+  };
+
+  /** Rating before and after the finished game, from both leaderboard endpoints
+   *  so a calibrating account (no rated my_elo yet) still reports a real number
+   *  — see readElo. Also pushes the fresh payloads into the store. */
+  const refreshElo = async (saveRes: any) => {
+    const before = readElo(leaderboard, leaderboardMe);
+    const apiDelta = readSavedDelta(saveRes);
+    let after = before;
     try {
-      const lb: any = await getLeaderboardData();
-      if (lb?.success && lb.data) {
-        setLeaderboard(lb.data);
-        const newElo = lb.data.my_elo ?? prevElo;
-        const delta = apiDelta ?? Math.max(0, newElo - prevElo);
-        setWinElo({ oldElo: newElo - delta, newElo, delta });
-        return;
-      }
+      const [lb, me]: any[] = await Promise.all([
+        getLeaderboardData().catch(() => null),
+        getLeaderboardMe().catch(() => null),
+      ]);
+      if (lb?.success && lb.data) setLeaderboard(lb.data);
+      if (me?.data) setLeaderboardMe(me.data);
+      after = readElo(lb?.data ?? leaderboard, me?.data ?? leaderboardMe);
     } catch {
-      // fall through to the save-response fallback below
+      // keep `before`: the save response's delta below is then the only signal
     }
-    if (apiDelta !== null) {
-      setWinElo({
-        oldElo: prevElo,
-        newElo: prevElo + apiDelta,
-        delta: apiDelta,
-      });
-    }
+    return { before, after, apiDelta };
+  };
+
+  const refreshWinElo = async (saveRes: any) => {
+    const { before, after, apiDelta } = await refreshElo(saveRes);
+    // A win never shows a drop: trust the reported change, else the rise the
+    // leaderboard recorded.
+    const delta = apiDelta ?? Math.max(0, after - before);
+    const newElo = after > before ? after : before + delta;
+    setWinElo({ oldElo: newElo - delta, newElo, delta });
   };
 
   const refreshLoseElo = async (saveRes: any) => {
-    const prevElo = leaderboard?.my_elo ?? 0;
-    const rawDelta = Number(
-      String(saveRes?.data?.elo_change ?? "").replace("+", "")
-    );
-    const apiDelta =
-      Number.isFinite(rawDelta) && rawDelta !== 0 ? rawDelta : null;
-    try {
-      const lb: any = await getLeaderboardData();
-      if (lb?.success && lb.data) {
-        setLeaderboard(lb.data);
-        const newElo = lb.data.my_elo ?? prevElo;
-        const delta = apiDelta ?? Math.min(0, newElo - prevElo);
-        setLoseElo({ oldElo: newElo - delta, newElo, delta });
-        return;
-      }
-    } catch {
-      // fall through to the save-response fallback below
-    }
-    if (apiDelta !== null) {
-      setLoseElo({
-        oldElo: prevElo,
-        newElo: prevElo + apiDelta,
-        delta: apiDelta,
-      });
-    }
+    const { before, after, apiDelta } = await refreshElo(saveRes);
+    const delta = apiDelta ?? Math.min(0, after - before);
+    const newElo = after < before ? after : before + delta;
+    setLoseElo({ oldElo: newElo - delta, newElo, delta });
   };
 
   // Unlike win/lose, a draw's ELO delta can go either way, so it's taken
   // as-is with no clamping.
   const refreshDrawElo = async (saveRes: any) => {
-    const prevElo = leaderboard?.my_elo ?? 0;
-    const rawDelta = Number(
-      String(saveRes?.data?.elo_change ?? "").replace("+", "")
-    );
-    const apiDelta =
-      Number.isFinite(rawDelta) && rawDelta !== 0 ? rawDelta : null;
-    try {
-      const lb: any = await getLeaderboardData();
-      if (lb?.success && lb.data) {
-        setLeaderboard(lb.data);
-        const newElo = lb.data.my_elo ?? prevElo;
-        const delta = apiDelta ?? newElo - prevElo;
-        setDrawElo({ oldElo: newElo - delta, newElo, delta });
-        return;
-      }
-    } catch {
-      // fall through to the save-response fallback below
-    }
-    setDrawElo({
-      oldElo: prevElo,
-      newElo: prevElo + (apiDelta ?? 0),
-      delta: apiDelta ?? 0,
-    });
+    const { before, after, apiDelta } = await refreshElo(saveRes);
+    const delta = apiDelta ?? after - before;
+    const newElo = apiDelta !== null ? before + apiDelta : after;
+    setDrawElo({ oldElo: newElo - delta, newElo, delta });
   };
 
   const handleSaveLog = async () => {
@@ -2102,7 +2084,19 @@ export default function PlayingPage() {
     };
     setIsSaving(true);
     // handleSave();
-    const res = await postVSAILogs(body);
+    // The save can fail on its own (401 "Session expired or inactive", offline,
+    // a 5xx) and it must not take the rest of the end-of-game flow with it: the
+    // result modal, the streak and the analysis all work off the local game. It
+    // used to reject straight out of this fire-and-forget call, which surfaced
+    // as an unhandled rejection instead of anything the player could act on.
+    let res: any = null;
+    let saveFailed = false;
+    try {
+      res = await postVSAILogs(body);
+    } catch {
+      saveFailed = true;
+      toast.error("Couldn't save this game — please check your connection or sign in again.");
+    }
     try {
       const vsAiPgn =
         (res as any)?.data?.pgn && typeof (res as any).data.pgn === "string"
@@ -2116,7 +2110,7 @@ export default function PlayingPage() {
     // The finished game moves the player's ELO, so the training plan's cached
     // rating and progress are now stale.
     invalidateRatingCaches();
-    setIsSaved(true);
+    setIsSaved(!saveFailed);
     setIsSaving(false);
     loadLogs();
     if (statusGame === "Win") {
@@ -2263,7 +2257,9 @@ export default function PlayingPage() {
       statusGame === "Loss" ||
       statusGame === "Draw"
     ) {
-      handleSaveLog();
+      // Nothing awaits this, so a rejection anywhere inside would land as an
+      // unhandled rejection (a full-screen error in dev) rather than a message.
+      handleSaveLog().catch(() => {});
     }
   }, [statusGame]);
 
@@ -2849,8 +2845,8 @@ export default function PlayingPage() {
       )}
       {showWinModal && !isTutorialPlay && (
         <PlayVsAiWinModal
-          oldElo={winElo?.oldElo ?? leaderboard?.my_elo ?? 0}
-          newElo={winElo?.newElo ?? leaderboard?.my_elo ?? 0}
+          oldElo={winElo?.oldElo ?? readElo(leaderboard, leaderboardMe)}
+          newElo={winElo?.newElo ?? readElo(leaderboard, leaderboardMe)}
           delta={winElo?.delta ?? 0}
           opponentName={AIChoosed?.opponent?.name}
           opponentElo={AIChoosed?.opponent?.elo}
@@ -2860,8 +2856,8 @@ export default function PlayingPage() {
       )}
       {showLoseModal && !isTutorialPlay && (
         <PlayVsAiLoseModal
-          oldElo={loseElo?.oldElo ?? leaderboard?.my_elo ?? 0}
-          newElo={loseElo?.newElo ?? leaderboard?.my_elo ?? 0}
+          oldElo={loseElo?.oldElo ?? readElo(leaderboard, leaderboardMe)}
+          newElo={loseElo?.newElo ?? readElo(leaderboard, leaderboardMe)}
           delta={loseElo?.delta ?? 0}
           opponentName={AIChoosed?.opponent?.name}
           opponentElo={AIChoosed?.opponent?.elo}
@@ -2877,8 +2873,8 @@ export default function PlayingPage() {
       )}
       {showDrawModal && !isTutorialPlay && (
         <PlayVsAiDrawModal
-          oldElo={drawElo?.oldElo ?? leaderboard?.my_elo ?? 0}
-          newElo={drawElo?.newElo ?? leaderboard?.my_elo ?? 0}
+          oldElo={drawElo?.oldElo ?? readElo(leaderboard, leaderboardMe)}
+          newElo={drawElo?.newElo ?? readElo(leaderboard, leaderboardMe)}
           delta={drawElo?.delta ?? 0}
           opponentName={AIChoosed?.opponent?.name}
           opponentElo={AIChoosed?.opponent?.elo}
