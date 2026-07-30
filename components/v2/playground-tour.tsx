@@ -115,6 +115,18 @@ const visibleHeight = (): number => {
  *  viewport that short gets a clipped card rather than a microscopic one. */
 const MIN_CARD_SCALE = 0.45;
 
+/**
+ * Visible height below which the tour switches to its tightest type and
+ * padding.
+ *
+ * The tooltip is the one part of a step that can't scale itself — it's the
+ * fixed cost every step pays before the spotlight target or the demo card gets
+ * any room at all. On a small phone (SE, mini, or any handset whose browser
+ * chrome is showing) those ~40px are the difference between the Start Game
+ * button being on screen and being under the fold.
+ */
+const COMPACT_VH = 740;
+
 /** px of padding the spotlight leaves around the anchor it cuts out */
 const PAD = 8;
 /** px the spotlight keeps clear of the screen edges (its horizontal padding
@@ -177,7 +189,7 @@ const STEPS: TourStep[] = [
       anchors: ["opponent-panel"],
       include: [],
       scrollAnchor: undefined,
-      scrollMargin: 330,
+      scrollMargin: 270,
       tooltipUnderHeader: true,
       tooltipBottomAt: undefined,
     },
@@ -191,11 +203,17 @@ const STEPS: TourStep[] = [
     tooltipBottomAt: -14,
     scrollShowcase: true,
     // Mobile narrows the spotlight to the opponent section + Start Game, so
-    // "Choose Your Color" stays dimmed.
+    // "Choose Your Color" stays dimmed. tooltipUnderHeader derives the scroll
+    // margin from the measured tooltip rather than the hand-tuned 300 that used
+    // to live here — that number was fitted to a tooltip ~55px taller than the
+    // current one, and left the list sitting that far below where it belongs
+    // (with Start Game pushed off the bottom). scrollMargin is now only the
+    // first-frame fallback, used until the tooltip has been measured.
     mobile: {
       anchors: ["opponent-list"],
       include: ["start-game"],
-      scrollMargin: 300,
+      scrollMargin: 240,
+      tooltipUnderHeader: true,
       tooltipBottomAt: undefined,
       scrollShowcase: true,
     },
@@ -283,6 +301,7 @@ function TourTooltip({
   onNext,
   caret,
   widthPx,
+  compact,
   onHeight,
 }: {
   step: TourStep;
@@ -293,11 +312,19 @@ function TourTooltip({
   caret?: "top" | "bottom";
   /** overrides the default width — mobile matches the spotlight below it */
   widthPx?: number;
+  /** short viewport: drop to the tightest type and padding (see COMPACT_VH) */
+  compact?: boolean;
   /** reports the rendered height, which drives the placement math above */
   onHeight?: (height: number) => void;
   }) {
   const isLast = index === STEPS.length - 1;
   const boxRef = useRef<HTMLDivElement>(null);
+  // Mobile keeps its own look (pill buttons, blue ring, black title) but not
+  // its own scale — it used to run a size up from desktop, which is exactly
+  // the room the steps below it were missing.
+  const button =
+    "font-semibold transition-colors rounded-full sm:px-4 sm:h-auto sm:py-[6px] sm:rounded-[8px] sm:text-[13px] " +
+    (compact ? "px-3 h-7 text-[12px]" : "px-4 h-8 text-[13px]");
 
   useEffect(() => {
     const el = boxRef.current;
@@ -313,7 +340,9 @@ function TourTooltip({
     <div
       ref={boxRef}
       style={widthPx ? { width: widthPx } : undefined}
-      className="relative w-[min(430px,calc(100vw-24px))] rounded-[16px] sm:rounded-[14px] bg-white shadow-2xl ring-2 ring-[#221AE9] sm:ring-[#7CC0F2] p-4 sm:p-[16px] pointer-events-auto"
+      className={`relative w-[min(430px,calc(100vw-24px))] rounded-[14px] bg-white shadow-2xl ring-2 ring-[#221AE9] sm:ring-[#7CC0F2] sm:p-[16px] pointer-events-auto ${
+        compact ? "p-[10px]" : "p-3"
+      }`}
     >
       {caret && (
         <>
@@ -346,21 +375,37 @@ function TourTooltip({
         </>
       )}
       <div className="flex items-start justify-between gap-3">
-        <p className="font-bold text-[17px] sm:text-[14px] text-[#040404] sm:text-[#221AE9] leading-snug">
+        <p
+          className={`font-bold sm:text-[14px] text-[#040404] sm:text-[#221AE9] leading-snug ${
+            compact ? "text-[13px]" : "text-[14px]"
+          }`}
+        >
           {step.title}
         </p>
-        <span className="text-[13px] sm:text-[12px] text-gray-500 sm:text-gray-400 font-medium shrink-0 pt-[3px] sm:pt-[1px]">
+        <span
+          className={`sm:text-[12px] text-gray-500 sm:text-gray-400 font-medium shrink-0 pt-[2px] sm:pt-[1px] ${
+            compact ? "text-[11px]" : "text-[12px]"
+          }`}
+        >
           {index + 1}/{STEPS.length}
         </span>
       </div>
-      <p className="text-[15px] sm:text-[13px] text-gray-600 mt-[8px] sm:mt-[6px] leading-relaxed">
+      <p
+        className={`sm:text-[13px] text-gray-600 mt-[6px] leading-[1.4] sm:leading-relaxed ${
+          compact ? "text-[12px]" : "text-[13px]"
+        }`}
+      >
         {step.content}
       </p>
-      <div className="flex items-center justify-between mt-[16px] sm:mt-[12px]">
+      <div
+        className={`flex items-center justify-between sm:mt-[12px] ${
+          compact ? "mt-[8px]" : "mt-[10px]"
+        }`}
+      >
         <button
           type="button"
           onClick={onSkip}
-          className="px-5 h-9 rounded-full border border-[#7CC0F2] bg-[#D9F1FF] text-[#221AE9] text-[15px] font-semibold hover:bg-[#c4e9ff] transition-colors sm:px-4 sm:h-auto sm:py-[6px] sm:rounded-[8px] sm:border-0 sm:text-[13px]"
+          className={`${button} border border-[#7CC0F2] bg-[#D9F1FF] text-[#221AE9] hover:bg-[#c4e9ff] sm:border-0`}
         >
           Skip
         </button>
@@ -369,7 +414,7 @@ function TourTooltip({
             <button
               type="button"
               onClick={onPrev}
-              className="px-5 h-9 rounded-full border border-[#7CC0F2] bg-[#D9F1FF] text-[#221AE9] text-[15px] font-semibold hover:bg-[#c4e9ff] transition-colors sm:px-4 sm:h-auto sm:py-[6px] sm:rounded-[8px] sm:border-0 sm:text-[13px]"
+              className={`${button} border border-[#7CC0F2] bg-[#D9F1FF] text-[#221AE9] hover:bg-[#c4e9ff] sm:border-0`}
             >
               Prev
             </button>
@@ -377,7 +422,7 @@ function TourTooltip({
           <button
             type="button"
             onClick={onNext}
-            className="px-5 h-9 rounded-full bg-[#221AE9] text-white text-[15px] font-semibold hover:bg-[#2d25ea] transition-colors sm:px-4 sm:h-auto sm:py-[6px] sm:rounded-[8px] sm:text-[13px]"
+            className={`${button} bg-[#221AE9] text-white hover:bg-[#2d25ea]`}
           >
             {isLast ? "Finish" : "Next"}
           </button>
@@ -1376,35 +1421,37 @@ function DemoAnalyzeCard({ maxHeight }: { maxHeight?: number }) {
 
 function FinaleCard({ onPrev, onDone }: { onPrev: () => void; onDone: () => void }) {
   return (
-    <div className="relative w-full bg-white rounded-2xl shadow-2xl pt-[26px] pb-[20px] px-[24px] pointer-events-auto">
-      <div className="absolute -top-[16px] sm:-top-[14px] left-1/2 -translate-x-1/2 bg-[#34C759] text-white text-[16px] sm:text-[13px] font-bold px-[20px] sm:px-[18px] py-[7px] sm:py-[6px] rounded-full whitespace-nowrap shadow-md">
+    <div className="relative w-full bg-white rounded-2xl shadow-2xl pt-[22px] pb-[16px] px-[18px] sm:pt-[26px] sm:pb-[20px] sm:px-[24px] pointer-events-auto">
+      <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#34C759] text-white text-[13px] font-bold px-[18px] py-[6px] rounded-full whitespace-nowrap shadow-md">
         You&apos;re All Set!
       </div>
+      {/* The image is the only part with slack, so a short viewport takes it
+          out of the image rather than out of the copy or the buttons. */}
       <Image
         src={FINALE_IMG}
         alt="Ready to play"
         width={991}
         height={640}
-        className="w-[80%] mx-auto h-auto rounded-[8px] mt-[6px]"
+        className="w-[68%] sm:w-[80%] mx-auto h-auto rounded-[8px] mt-[6px]"
       />
-      <p className="text-center font-bold text-[22px] sm:text-[17px] text-[#111827] mt-[16px] sm:mt-[14px]">
+      <p className="text-center font-bold text-[17px] text-[#111827] mt-[14px]">
         Everything&apos;s ready!
       </p>
-      <p className="text-center text-[15px] sm:text-[12px] text-gray-500 mt-[4px] sm:mt-[2px]">
+      <p className="text-center text-[12px] text-gray-500 mt-[2px]">
         Your chess journey starts now.
       </p>
-      <div className="flex items-center justify-center gap-[12px] sm:gap-[10px] mt-[20px] sm:mt-[16px]">
+      <div className="flex items-center justify-center gap-[10px] mt-[16px]">
         <button
           type="button"
           onClick={onPrev}
-          className="flex-1 max-w-[150px] sm:max-w-[140px] py-[11px] sm:py-[9px] rounded-full bg-[#AEE0FB] text-[#0B3B66] font-semibold text-[16px] sm:text-[13px] hover:bg-[#9ad7fa] transition-colors"
+          className="flex-1 max-w-[140px] py-[9px] rounded-full bg-[#AEE0FB] text-[#0B3B66] font-semibold text-[13px] hover:bg-[#9ad7fa] transition-colors"
         >
           Prev
         </button>
         <button
           type="button"
           onClick={onDone}
-          className="flex-1 max-w-[150px] sm:max-w-[140px] py-[11px] sm:py-[9px] rounded-full bg-[#221AE9] text-white font-semibold text-[16px] sm:text-[13px] hover:bg-[#2d25ea] transition-colors"
+          className="flex-1 max-w-[140px] py-[9px] rounded-full bg-[#221AE9] text-white font-semibold text-[13px] hover:bg-[#2d25ea] transition-colors"
         >
           Play Now
         </button>
@@ -1464,6 +1511,11 @@ export function PlaygroundTour({
 
   // viewport.vw is 0 until the first rAF tick, so fall back to a live read.
   const isMobile = viewport.vw > 0 ? viewport.vw < MOBILE_BP : isMobileViewport();
+  // Keyed off the *visible* height, so a phone browser dropping its toolbar
+  // back in mid-tour tightens the tooltip instead of pushing the step's target
+  // under the fold. vh is 0 until the first rAF tick — assume roomy, since the
+  // measured height replaces the estimate a frame later either way.
+  const compact = isMobile && viewport.vh > 0 && viewport.vh < COMPACT_VH;
   const rawStep = interlude ? undefined : (STEPS[index] as TourStep | undefined);
   const step = rawStep ? resolveStep(rawStep, isMobile) : undefined; // undefined on finale/interlude
   const anchored = !!step?.anchors;
@@ -1881,9 +1933,10 @@ export function PlaygroundTour({
   const TOOLTIP_W = anchoredTooltipW ?? BASE_TOOLTIP_W;
 
   // Real rendered height once TourTooltip has reported it; the estimate only
-  // covers the very first frame of a step (mobile runs larger type and pill
-  // buttons, so its card is the taller of the two).
-  const TOOLTIP_H = tooltipH || (isMobile ? 235 : 180);
+  // covers the very first frame of a step. Mobile now runs desktop's type at
+  // desktop's padding, so the two estimates are within a line of each other —
+  // the remaining gap is mobile's taller pill buttons.
+  const TOOLTIP_H = tooltipH || (isMobile ? 190 : 180);
   let mode: "edge" | "above" | "below" | "over" = "over";
   if (
     step?.tooltipBottomAt !== undefined &&
@@ -1994,6 +2047,7 @@ export function PlaygroundTour({
                 onNext={next}
                 caret={rect ? (mode === "below" ? "top" : "bottom") : undefined}
                 widthPx={anchoredTooltipW}
+                compact={compact}
                 onHeight={reportTooltipHeight}
               />
             </div>
@@ -2024,6 +2078,7 @@ export function PlaygroundTour({
                 onPrev={prev}
                 onNext={next}
                 caret="bottom"
+                compact={compact}
                 onHeight={reportTooltipHeight}
               />
               {/* the analyze demo keeps overflow visible so the swiper card
