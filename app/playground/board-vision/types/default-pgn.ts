@@ -30,12 +30,18 @@ export interface Position {
   url: string;
   /** The player's name in this game (matches the PGN White/Black header). */
   username?: string;
+  /** Which side the player was, resolved from the game record's colour. */
+  userColor?: "white" | "black";
 }
 
-/** A game fed into the Board Vision quiz: its PGN plus the player's name in it. */
+/** A game fed into the Board Vision quiz: its PGN, the player's name in it, and
+ *  the game record's colour/opponent, which is what actually decides the
+ *  player's side (see resolveUserSide). */
 export interface QuizGame {
   pgn: string;
   username: string;
+  playerColor?: string;
+  opponent?: string;
 }
 
 export interface GameQuestion {

@@ -377,7 +377,11 @@ export const useBoardVisionStore = create<BoardVisionState>()(
           }
 
           set({
-            username: games[0]?.username || get().username,
+            // The resolved player name for the first game, not the raw row's
+            // username — that field isn't always the player's name in the PGN,
+            // and this value is the fallback for positions that carry none.
+            username:
+              positions[0]?.username || games[0]?.username || get().username,
             userGame: {
               ...createInitialGameState(),
               positions: positions.map(({ gameIndex, ...rest }) => ({

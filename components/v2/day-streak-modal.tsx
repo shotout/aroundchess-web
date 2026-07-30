@@ -68,9 +68,17 @@ export function DayStreakModal({
           to claim your{" "}
           <span className="font-bold">10 Free Analysis Tokens</span>.
         </>
+      ) : staticFlame === "off" ? (
+        // Streak running, but today's game isn't in yet (unlit flame) — the
+        // count only holds if they play today, so the nudge says so.
+        <>
+          Keep it up! Play Today - only {daysLeft} more days
+          <br />
+          to get <span className="font-bold">10 Free Analysis Tokens</span>.
+        </>
       ) : (
         <>
-          Keep it up! Play Today – only {daysLeft} more days
+          Keep it up! Play {daysLeft} more days
           <br />
           to get <span className="font-bold">10 Free Analysis Tokens</span>.
         </>
@@ -79,7 +87,7 @@ export function DayStreakModal({
       <>
         You have received 10 Tokens
         <br />
-        for <span className="font-bold">Free Analysis</span>.
+        for <span className="font-bold">Free Analyses</span>.
       </>
     ) : null;
   // Static login-style shows: nudge to play while the flame is still off;

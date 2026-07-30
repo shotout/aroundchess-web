@@ -61,6 +61,32 @@ interface PlayRecentGamesProps {
   isLoading: boolean;
 }
 
+/** Source column labels. The API sends a handful of spellings per source ("VS AI
+ *  Game", "vs_ai", "other game", …); this row is narrow, so vs-AI games read
+ *  just "AI" and everything hand-added or uploaded reads "Import" — same
+ *  grouping the game-history table uses, shorter wording. */
+function displaySource(src: string): string {
+  if (!src) return "";
+  const map: Record<string, string> = {
+    ai: "AI",
+    vs_ai: "AI",
+    "vs ai": "AI",
+    vs_ai_game: "AI",
+    "vs ai game": "AI",
+    "against ai": "AI",
+    import: "Import",
+    other: "Import",
+    other_game: "Import",
+    "other game": "Import",
+    pgn_upload: "Import",
+    "pgn upload": "Import",
+    "pdn upload": "Import",
+    chesscom: "Chess.com",
+    "chess.com": "Chess.com",
+  };
+  return map[src.toLowerCase().trim()] ?? src;
+}
+
 function formatDateTime(dateStr: string): { date: string; time: string } {
   try {
     const d = new Date(dateStr);
@@ -146,7 +172,9 @@ function GameRow({ game }: { game: Game }) {
         </div>
 
         {/* Source */}
-        <span className="text-[12px] text-[#6B7280] shrink-0">{game.source}</span>
+        <span className="text-[12px] text-[#6B7280] shrink-0">
+          {displaySource(game.source)}
+        </span>
 
         {/* Action button — desktop only */}
         <button

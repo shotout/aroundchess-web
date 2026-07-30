@@ -43,35 +43,13 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
     preloadLottie(CELEBRATION_LOTTIE);
   }, []);
 
-  // Demo/testing hook: /playground/play-vs-ai?streakDemo=login&streak=2
-  // (also celebration / reward / broken) previews any variant without
-  // waiting for the real once-per-day and streak conditions. Add
-  // &flame=on|off to preview the static-image (no lottie) celebration
-  // variants.
+  // ?streakDemo= previews are opened by DayStreakModalHost in the root layout
+  // (so they work on every page, and &streak=0 works). All this needs to do is
+  // stand down, or the preview and the daily check-in would stack.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const demo = params.get("streakDemo");
-    if (
-      demo === "login" ||
-      demo === "celebration" ||
-      demo === "reward" ||
-      demo === "broken"
-    ) {
+    if (new URLSearchParams(window.location.search).get("streakDemo")) {
       isDemoRef.current = true;
-      const fallback =
-        demo === "reward" ? 7 : demo === "celebration" ? 3 : demo === "broken" ? 0 : 2;
-      const flame = params.get("flame");
-      setVariant(demo);
-      setStaticFlame(
-        demo === "broken"
-          ? undefined
-          : flame === "on" || flame === "off"
-            ? flame
-            : undefined
-      );
-      setStreakToShow(parseInt(params.get("streak") ?? "", 10) || fallback);
-      setOpen(true);
     }
   }, []);
 
