@@ -8,24 +8,8 @@ import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { AI_OPPONENT_ROSTER, AiRosterOpponent } from "./play-vs-ai-roster-data";
 import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
-import { usePlaygroundTourHeroCompact } from "./playground-tour-active";
 
 type Opponent = { name: string; elo: number; img: string };
-
-/**
- * Mobile sizing has two modes, picked by whether the tour is on screen.
- *
- * The tour spotlights this hero rather than drawing its own copy of it, so the
- * one element has to serve both: the page wants the roomy design, the tour
- * needs the whole card plus Start Game inside the ~669px Safari actually hands
- * a phone. Shrinking it permanently made the real page pay for a walkthrough
- * most users see once.
- *
- * Only the mobile (base) classes differ — every pair below keeps the same `sm:`
- * values, so desktop renders identically in both modes.
- */
-const pick = (tour: boolean) => (tourCls: string, pageCls: string) =>
-  tour ? tourCls : pageCls;
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
