@@ -55,8 +55,11 @@ export default function Article() {
 
   const key = selectedTab === null ? "all" : String(selectedTab);
   const allArticles = chessNews[key]?.data || [];
-  const { currentData } = usePagination(allArticles);
-  
+  // One state for the grid and the controls: `pagination` is spread into
+  // <Pagination> below so clicking a page actually re-slices this list.
+  const pagination = usePagination(allArticles);
+  const { currentData } = pagination;
+
 
   return (
     <div className="flex flex-col w-full p-4 sm:p-6 lg:p-8">
@@ -170,7 +173,7 @@ export default function Article() {
           )}
           {!isLoading && currentData.length > 0 && (
             <div className="mt-6">
-              <Pagination data={currentData} />
+              <Pagination {...pagination} />
             </div>
           )}
         </div>

@@ -10,21 +10,27 @@ import {
 } from "../ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
-import { usePagination } from "./hook/usePagination";
-interface PaginationProps {
-  data: any[];
-}
-export const Pagination = ({ data }: PaginationProps) => {
-  const {
-    currentPage,
-    setCurrentPage,
-    itemsPerPage,
-    setItemsPerPage,
-    currentData,
-    totalPages,
-    goToNextPage,
-    goToPreviousPage,
-  } = usePagination(data);
+import type { UsePaginationResult } from "./hook/usePagination";
+
+/**
+ * Controls only — the pagination state belongs to whoever renders the list.
+ *
+ * This used to take the array and call usePagination() itself, which meant two
+ * independent states: the caller sliced its list with one instance and these
+ * buttons drove a second. Clicking a page moved the buttons and nothing else.
+ * Callers now pass the same usePagination() result they render from, so there is
+ * one source of truth. Matches PaginationControls, which was already built this
+ * way.
+ */
+export const Pagination = ({
+  currentPage,
+  setCurrentPage,
+  itemsPerPage,
+  setItemsPerPage,
+  totalPages,
+  goToNextPage,
+  goToPreviousPage,
+}: UsePaginationResult) => {
   return (
     <div className="flex flex-col md:flex-col lg:flex-row justify-center items-center mt-4 mb-4 lg:relative">
       <div className="flex items-center gap-2 text-[14px] --sm text-gray-500 mb-3 md:mb-3 lg:mb-0 lg:absolute lg:right-0">
@@ -60,7 +66,6 @@ export const Pagination = ({ data }: PaginationProps) => {
         </Button>
 
         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-          const indexOfFirstGame = (currentPage - 1) * itemsPerPage;
           let pageNum;
           if (totalPages <= 5) {
             pageNum = i + 1;

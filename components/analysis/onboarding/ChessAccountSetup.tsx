@@ -154,13 +154,27 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     setShowConnectDialog(false);
     setUsername(username);
 
-    // Re-read /profile so isChessComConnected flips to true right away: the
-    // "account is not connected" banners on Game History and /profile read that
-    // flag, and without this they stayed up until the next full page load.
+    // The "Connect Chess.com Account" banners on Game History and /profile read
+    // isChessComConnected (see useChessComConnected), and reaching this point
+    // means ChessApiService.setUsername already resolved — the account IS linked.
+    // So assert the flag rather than wait to be told: the banner hides the
+    // instant the connect succeeds, with no round-trip in between.
+    //
+    // Forced on the refetched payload too, not just optimistically. A /profile
+    // read issued this soon can still answer from before the link landed, and
+    // letting a stale `false` through would pop the banner back up a moment
+    // after it disappeared — the exact flicker this replaces.
+    const markConnected = (base: any) => ({
+      ...base,
+      isChessComConnected: true,
+      is_chesscom_connected: true,
+    });
+
+    setProfile(markConnected(profile));
     profileApi()
       .then((res: any) => {
         const data = res?.data ?? res;
-        if (data && typeof data === "object") setProfile(data);
+        if (data && typeof data === "object") setProfile(markConnected(data));
       })
       .catch(() => {});
 

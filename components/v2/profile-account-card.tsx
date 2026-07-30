@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { ChessApiService } from "@/components/analysis/onboarding/store/APIService";
 import { usePlayerStatsStore } from "@/components/analysis/onboarding/store/usePlayerStatsStore";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { useChessComConnected } from "@/components/v2/hooks/useChessComConnected";
 import { formatTimePgn } from "@/functions/format-date";
 import { usechangePassword } from "@/app/store/changePassword";
 
@@ -91,13 +92,20 @@ const ProfileAccountCard = ({
   } = usePlayerStatsStore();
 
   const isEmailProvider = providerType === "email";
-  // Either signal counts as connected — same rule as the Game History banner.
-  // `??` let a stale `isChessComConnected: false` outrank the handle the connect
-  // flow had just stored, so the "not connected" state lingered until a reload.
-  const isConnected = profile?.isChessComConnected === true || Boolean(username);
+  // The backend flag decides, nothing else — see useChessComConnected for why the
+  // old `|| Boolean(username)` fallback made this true for every signed-in user.
+  const isConnected = useChessComConnected();
   // Once the Chess.com account is actually linked, the sync game type is fixed
   // and can no longer be changed.
-  const chesscomLocked = profile?.isChessComConnected === true;
+  const chesscomLocked = isConnected;
+
+  // The linked Chess.com handle, from /profile — deliberately NOT the pgn store's
+  // `username`. That one holds the *AroundChess* account name (useProfileFetch
+  // sets it from /profile.username), which is why the linked-account field used
+  // to echo the Username input directly above it. No fallback to `username`: an
+  // empty field is honest, showing the wrong handle is not.
+  const chesscomUsername =
+    profile?.chesscomUsername ?? profile?.chesscom_username ?? "";
 
   const [usernameStatus, setUsernameStatus] = useState<
     "idle" | "checking" | "available" | "unavailable"
@@ -540,7 +548,7 @@ const ProfileAccountCard = ({
                 name="chesscomUsername"
                 type="text"
                 className="w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px] disabled:cursor-not-allowed"
-                value={username}
+                value={chesscomUsername}
                 onChange={() => {}}
               />
             </div>

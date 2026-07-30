@@ -12,23 +12,18 @@ import GameHistoryAiProgressBanner from "@/components/v2/game-history-ai-progres
 import GameHistoryConnectBanner from "@/components/v2/game-history-connect-banner";
 import { GameHistoryTable } from "@/components/v2/game-history-table";
 import { GameHistoryTabs } from "@/components/v2/game-history-tabs";
+import { useChessComConnected } from "@/components/v2/hooks/useChessComConnected";
 
 const GameHistoryPageV2: React.FC = () => {
-  const { username, isOpenTutorial } = usePgnStore();
-  const { sessionId, profile } = useProfileStore();
+  const { isOpenTutorial } = usePgnStore();
+  const { sessionId } = useProfileStore();
   const { isTutorialPlay, dataTutorial } = useTutorial();
 
-  // Same rule as the profile page (see profile-account-card): trust the
-  // backend's explicit flag and fall back to the legacy username heuristic.
-  // Testing `username` alone hid the banner from anyone who had an AroundChess
-  // username — which is everyone — since that store value is the account's
-  // name, not the linked Chess.com one.
-  // Either signal counts as connected. With `??` an explicit `false` from a
-  // profile payload fetched before the link won, so the banner stayed up after a
-  // successful connect until the next page load — even though the store already
-  // held the linked handle. ChessAccountSetup also refetches /profile on success.
-  const isChessComConnected =
-    profile?.isChessComConnected === true || Boolean(username);
+  // Drives whether the "Connect Chess.com Account" banner shows. One shared rule
+  // with the profile page — the backend flag and nothing else. The old
+  // `|| Boolean(username)` fallback was true for every signed-in user, so the
+  // banner was hidden from people who had never linked an account.
+  const isChessComConnected = useChessComConnected();
 
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [openAccountConnected, setOpenAccountConnected] = useState(false);
