@@ -8,8 +8,8 @@ import { useEffect } from "react";
 import { trackCustomEvent } from "../utils/facebookPixel";
 
 /**
- * Shown after /auth/delete-account succeeds. Desktop keeps the glass card on
- * the auth artwork; mobile is a plain white screen per the mockup.
+ * Shown after /auth/delete-account succeeds. Desktop puts a white card on the
+ * auth artwork; mobile is a plain white screen per the mockup.
  */
 export default function DeleteAccountDonePage() {
   const route = useRouter();
@@ -49,8 +49,13 @@ export default function DeleteAccountDonePage() {
             <div className="absolute inset-0 bg-black/5"></div>
           </div>
 
+          {/* Solid white card on the artwork: glassmorphismLogin's 20%-white fill
+              disappeared against the light-blue background, leaving the message
+              floating over the chessboard. Mobile is already a white page, so the
+              card styling only kicks in from sm up. */}
           <div
-            className="w-full md:max-w-2xl z-10 sm:glassmorphismLogin
+            className="w-full md:max-w-2xl z-10
+                       sm:bg-white sm:rounded-2xl sm:shadow-xl
                        px-2 pt-10 pb-6 sm:p-6 md:p-8
                        flex flex-col my-0 sm:my-4 max-h-full overflow-y-auto"
           >

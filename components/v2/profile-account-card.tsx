@@ -91,9 +91,10 @@ const ProfileAccountCard = ({
   } = usePlayerStatsStore();
 
   const isEmailProvider = providerType === "email";
-  // Prefer the explicit flag from the profile response; fall back to the
-  // legacy "has a username" heuristic while the backend field rolls out.
-  const isConnected = profile?.isChessComConnected ?? Boolean(username);
+  // Either signal counts as connected — same rule as the Game History banner.
+  // `??` let a stale `isChessComConnected: false` outrank the handle the connect
+  // flow had just stored, so the "not connected" state lingered until a reload.
+  const isConnected = profile?.isChessComConnected === true || Boolean(username);
   // Once the Chess.com account is actually linked, the sync game type is fixed
   // and can no longer be changed.
   const chesscomLocked = profile?.isChessComConnected === true;

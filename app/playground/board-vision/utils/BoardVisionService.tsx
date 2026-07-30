@@ -23,6 +23,9 @@ export interface QuizGame {
   playerColor?: string;
   /** The opponent's name from the same row, used when colour is missing. */
   opponent?: string;
+  /** The opponent's rating from the same row — vs-AI and uploaded PGNs carry no
+   *  Elo headers, so this is the only rating those games have. */
+  rating?: string | number;
 }
 
 const sameName = (a?: string, b?: string) =>
@@ -119,8 +122,9 @@ export const ChessService = {
       userCountry?: string;
       opponentCountry?: string;
     },
-    /** The game-history row's own fields, used to resolve the player's side. */
-    record?: { playerColor?: string; opponent?: string }
+    /** The game-history row's own fields, used to resolve the player's side and
+     *  to fill in a rating the PGN never carried. */
+    record?: { playerColor?: string; opponent?: string; rating?: string | number }
   ): Promise<Position[]> {
     try {
       const fenList = this.pgnToFenList(pgn, false);
@@ -182,6 +186,20 @@ export const ChessService = {
             ? white
             : profileInfo?.opponentName || record?.opponent || black;
 
+      // vs-AI games and uploaded PGNs usually carry no WhiteElo/BlackElo header,
+      // which left both player rows without a rating. The game-history row knows
+      // the opponent's, so fill that side in when the header is silent.
+      const recordRating =
+        record?.rating !== undefined &&
+        record?.rating !== null &&
+        String(record.rating).trim() !== ""
+          ? String(record.rating)
+          : undefined;
+      if (recordRating) {
+        if (userColor === "white" && !blackElo) blackElo = recordRating;
+        if (userColor === "black" && !whiteElo) whiteElo = recordRating;
+      }
+
       const whiteProfilePic = sameName(playerName, white)
         ? profileInfo?.userProfilePic
         : profileInfo?.opponentProfilePic;
@@ -221,7 +239,7 @@ export const ChessService = {
         const opponents = new Set<string>();
 
         for (let i = 0; i < games.length; i++) {
-          const { pgn, username, playerColor, opponent } = games[i];
+          const { pgn, username, playerColor, opponent, rating } = games[i];
           try {
             const chess = new Chess();
             try {
@@ -240,7 +258,7 @@ export const ChessService = {
               username,
               i,
               undefined,
-              { playerColor, opponent }
+              { playerColor, opponent, rating }
             );
             if (positions.length > 0) {
               opponents.add(positions[0].opponentName || "Opponent");

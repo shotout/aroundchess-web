@@ -66,6 +66,7 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
         username: g.username || globalUsername || "",
         playerColor: g.color || g.playerColor || "",
         opponent: g.opponent || "",
+        rating: g.rating ?? "",
       }));
 
   useEffect(() => {

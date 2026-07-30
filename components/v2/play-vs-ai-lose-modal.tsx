@@ -54,16 +54,18 @@ export function LoseModalCard({
       <div
         className={
           tour
-            ? "w-[95%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
-            : "w-[68%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
+            ? "relative w-[95%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
+            : "relative w-[68%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         }
       >
+        {/* Out of flow — see the win modal: an in-flow height:100% child can
+            outgrow an aspect-ratio box in Safari and push the card body away. */}
         {animationData && (
           <Lottie
             animationData={animationData}
             loop={false}
             rendererSettings={{ preserveAspectRatio: "xMidYMin slice" }}
-            className="w-full h-full"
+            className="absolute inset-0 w-full h-full"
           />
         )}
       </div>
