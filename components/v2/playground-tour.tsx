@@ -18,12 +18,10 @@ import { preloadLottie } from "@/components/v2/hooks/useLottieData";
 import { WinModalCard } from "@/components/v2/play-vs-ai-win-modal";
 import { LoseModalCard } from "@/components/v2/play-vs-ai-lose-modal";
 import { openDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
-import {
-  setPlaygroundTourActive,
-  setPlaygroundTourHeroCompact,
-} from "@/components/v2/playground-tour-active";
+import { setPlaygroundTourActive } from "@/components/v2/playground-tour-active";
 import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
+import { HeroPlayVSAIPreview } from "@/components/v2/hero-play-vs-ai-preview";
 
 // Interactive remake of the playground tutorial video (tutorial.json).
 // Fully self-contained: renders in a portal above everything (win/lose
@@ -175,6 +173,17 @@ const HEADER_GAP = 12;
 const CARET_GAP = 14;
 /** px kept clear of the viewport edges */
 const VIEWPORT_MARGIN = 12;
+/**
+ * Room held above the tour's hero panel for the step's tooltip, which sits
+ * wholly above it on step 1.
+ *
+ * A constant, deliberately, and not the measured tooltip height: the panel is
+ * centred in what's left below this, so deriving it from a measurement that
+ * lands a frame late would shift the panel — and the ring with it — immediately
+ * after both appeared. That shift is precisely the "highlight doesn't lock on"
+ * symptom. A fixed reserve makes the panel's box correct on its first frame.
+ */
+const HERO_COPY_TOOLTIP_RESERVE = 104;
 /** the demo column's own padding (p-4), top + bottom */
 const DEMO_COLUMN_PAD = 32;
 
@@ -280,11 +289,19 @@ const FINALE_INDEX = STEPS.length; // virtual "You're All Set" screen
 type Rect = { top: number; left: number; width: number; height: number };
 type Viewport = { vw: number; vh: number };
 
-function findAnchor(anchors: string[] | undefined): HTMLElement | null {
+/**
+ * @param root When the tour is showing its own copy of the hero, the search is
+ *   confined to it. Both copies carry the same [data-tour-anchor] attributes,
+ *   and the page's are earlier in the document — an unscoped query would find
+ *   those and ring an element the tour isn't presenting.
+ */
+function findAnchor(
+  anchors: string[] | undefined,
+  root?: HTMLElement | null
+): HTMLElement | null {
+  const scope: ParentNode = root ?? document;
   for (const anchor of anchors ?? []) {
-    const el = document.querySelector<HTMLElement>(
-      `[data-tour-anchor="${anchor}"]`
-    );
+    const el = scope.querySelector<HTMLElement>(`[data-tour-anchor="${anchor}"]`);
     if (!el) continue;
     const r = el.getBoundingClientRect();
     if (r.width > 0 && r.height > 0) return el;
@@ -532,6 +549,73 @@ function TourTooltip({
       </div>
       </div>
     </div>
+  );
+}
+
+/* --------------------------- hero copy ---------------------------------- */
+
+/**
+ * The tour's own Play VS AI panel, for steps 1-2 on mobile.
+ *
+ * The tour used to spotlight the page's hero directly, which forced one element
+ * to serve two jobs: the page's roomy design and a walkthrough that has to fit
+ * the whole card plus Start Game into the ~669px a phone really offers. Owning a
+ * copy settles it — the page is never touched, and this renders at tour sizing.
+ *
+ * Three things fall out of it for free:
+ *  - no scrollIntoView on mobile. The copy is placed by the tour, so the target
+ *    rects are already on screen and already still. The ring's old habit of
+ *    trailing a smooth scroll simply has nowhere to come from.
+ *  - it stays mounted for the whole run, so the layout keeps showing (dimmed)
+ *    behind the demo cards on steps 3-5 instead of the screen going black.
+ *  - the content is the real component, not a mock, so it can't drift.
+ *
+ * Centred by CSS between HERO_COPY_TOOLTIP_RESERVE and the bottom margin, with
+ * no measurement anywhere: the panel's box is final on its first frame, so the
+ * ring locks on immediately instead of settling into place afterwards.
+ */
+function TourHeroCopy({
+  innerRef,
+  width,
+  left,
+  hidden,
+}: {
+  innerRef: React.RefObject<HTMLDivElement>;
+  width: number;
+  left: number;
+  /** faded out from the step 2 -> 3 interlude onward — every step past 2 brings
+   *  its own screen, and the panel behind them read as leftover */
+  hidden: boolean;
+}) {
+  return (
+    <motion.div
+      // Faded, never unmounted: unmounting would re-run the preview's roster
+      // shuffle and re-decode ~40 avatars every time the interlude plays or the
+      // user steps back through it.
+      animate={{ opacity: hidden ? 0 : 1 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      // The anchor scope root, so it has to be an *ancestor* of the anchors:
+      // querySelector only walks descendants, and putting this on the panel
+      // itself would hide the panel's own anchor from step 1's lookup.
+      ref={innerRef}
+      className="fixed pointer-events-none flex items-center"
+      style={{
+        left,
+        width,
+        top: VIEWPORT_MARGIN + HERO_COPY_TOOLTIP_RESERVE,
+        bottom: VIEWPORT_MARGIN,
+      }}
+    >
+      <div
+        data-tour-anchor="opponent-panel"
+        className="w-full bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-2 flex flex-col"
+      >
+        <h1 className="text-center font-bold text-[22px] text-[#221AE9] mb-[6px]">
+          Play VS AI
+        </h1>
+        <HeroPlayVSAIPreview tour />
+      </div>
+    </motion.div>
   );
 }
 
@@ -929,6 +1013,15 @@ const WON_SQUARE_STYLES: Record<string, { backgroundColor: string }> =
 // silently shrinks instead of the chrome.
 const M_SHEET_CHROME = 362;
 
+/**
+ * Fraction of the available column the mobile interlude card takes.
+ *
+ * Full height made it read as a screen takeover rather than one beat in a run of
+ * cards. The board absorbs the difference — it's sized from whatever the chrome
+ * leaves — so turning this down trades board size for a shorter card.
+ */
+const M_SHEET_HEIGHT_RATIO = 0.8;
+
 function MobileCapturedRow({
   icons,
   align,
@@ -999,7 +1092,7 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
   return (
     <div
       ref={sheetRef}
-      className="fixed bg-white rounded-[18px] overflow-hidden pointer-events-none flex flex-col"
+      className="fixed bg-white rounded-2xl overflow-hidden pointer-events-none flex flex-col"
       style={{
         top: box.top,
         left: box.left,
@@ -1588,7 +1681,13 @@ export function PlaygroundTour({
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null); // primary anchor (tooltip)
-  const [spot, setSpot] = useState<Rect | null>(null); // spotlight union (hole)
+  const [spot, setSpot] = useState<Rect | null>(null); // spotlight union, eased
+  // The same union *unedased*. Everything about the tooltip is measured from
+  // this, never from `spot`: sizing it off the easing rect fed a loop — the
+  // width changed every frame, so the copy re-wrapped, so the reported height
+  // changed, so the scroll effect (which depends on that height) re-scrolled,
+  // which moved the rect again. Step 2's three lines of copy made it worst.
+  const [spotTarget, setSpotTarget] = useState<Rect | null>(null);
   // won-board interlude between step 2 and step 3, shown on the page's board
   const [interlude, setInterlude] = useState(false);
   const [boardImgRect, setBoardImgRect] = useState<Rect | null>(null);
@@ -1600,15 +1699,19 @@ export function PlaygroundTour({
   const [viewport, setViewport] = useState<Viewport>({ vw: 0, vh: 0 });
   const rectRef = useRef<Rect | null>(null);
   const spotRef = useRef<Rect | null>(null);
+  const spotTargetRef = useRef<Rect | null>(null);
   // The spotlight's eased position, kept at sub-pixel precision between frames.
   const spotAnimRef = useRef<Rect | null>(null);
-  // Which step the auto-scroll has already run for, so a tooltip remeasure
-  // can't restart it mid-flight.
-  const scrollKeyRef = useRef("");
   const boardImgRef = useRef<Rect | null>(null);
   const topBarRef = useRef<Rect | null>(null);
   const bottomBarRef = useRef<Rect | null>(null);
   const panelRef = useRef<Rect | null>(null);
+  // Which (step, measured-yet?) pass the scroll effect has already run, so a
+  // stream of tooltip-height updates can't turn into a stream of smooth scrolls.
+  const scrollPassRef = useRef("");
+  // Root of the tour's own hero panel, and the scope every anchor lookup uses
+  // while it's mounted.
+  const heroCopyRef = useRef<HTMLDivElement>(null);
   // true when this open is the browser's first-ever tour run (drives the
   // one-time day-streak greeting on close)
   const firstRunRef = useRef(false);
@@ -1629,6 +1732,10 @@ export function PlaygroundTour({
 
   // viewport.vw is 0 until the first rAF tick, so fall back to a live read.
   const isMobile = viewport.vw > 0 ? viewport.vw < MOBILE_BP : isMobileViewport();
+  // Mobile presents its own hero panel; desktop still spotlights the live one,
+  // where the roomier viewport makes a copy unnecessary.
+  const useHeroCopy = isMobile;
+  const anchorRoot = () => (useHeroCopy ? heroCopyRef.current : null);
   // Keyed off the *visible* height, so a phone browser dropping its toolbar
   // back in mid-tour tightens the tooltip instead of pushing the step's target
   // under the fold. vh is 0 until the first rAF tick — assume roomy, since the
@@ -1646,25 +1753,7 @@ export function PlaygroundTour({
   // Never leave the "tour on screen" flag stuck true if the tour unmounts
   // (navigation) without finish() running — otherwise queued modals would
   // stay suppressed forever.
-  useEffect(
-    () => () => {
-      setPlaygroundTourActive(false);
-      setPlaygroundTourHeroCompact(false);
-    },
-    []
-  );
-
-  // The hero only shrinks while it is actually the spotlight target. Steps 3-5
-  // and the finale float their own cards over it, so it goes back to the real
-  // page layout for those — a compact hero behind them just looked like the
-  // page had emptied out.
-  useEffect(() => {
-    // While closed this is begin()'s and finish()'s to set — begin() flips it a
-    // frame before `open` so the hero has resized by the tour's first
-    // measurement, and this effect must not undo that in between.
-    if (!open) return;
-    setPlaygroundTourHeroCompact(anchored && !interlude);
-  }, [open, anchored, interlude]);
+  useEffect(() => () => setPlaygroundTourActive(false), []);
 
   // Opens the tour. The pending flag is consumed immediately — not on finish
   // — so a mid-tour refresh doesn't restart it: the tour auto-runs exactly
@@ -1676,13 +1765,8 @@ export function PlaygroundTour({
       localStorage.removeItem(PENDING_KEY);
     } catch {}
     setIndex(0);
-    // Tour sizing first, overlay a frame later. The hero swaps to its compact
-    // mobile set the moment this flips, and opening in the same frame meant the
-    // spotlight took its first measurement off the page-sized hero and then had
-    // to chase the resize. A frame's head start lets it open already on target.
+    setOpen(true);
     setPlaygroundTourActive(true);
-    setPlaygroundTourHeroCompact(true); // step 0 is an anchored step
-    requestAnimationFrame(() => setOpen(true));
     preloadLottie(WIN_LOTTIE);
     preloadLottie(LOSE_LOTTIE);
   };
@@ -1733,7 +1817,6 @@ export function PlaygroundTour({
     setOpen(false);
     setInterlude(false);
     setPlaygroundTourActive(false);
-    setPlaygroundTourHeroCompact(false);
     const firstCompletion = firstRunRef.current;
     firstRunRef.current = false;
     try {
@@ -1806,10 +1889,22 @@ export function PlaygroundTour({
   // The scroll margin keeps the element's top clear of the fixed navbar (and
   // leaves room above it when the step's tooltip sits above the target).
   useEffect(() => {
-    if (!open) {
-      scrollKeyRef.current = "";
-      return;
-    }
+    if (!open) return;
+    // This effect depends on tooltipH so a tooltipUnderHeader step can redo its
+    // margin once the tooltip has actually been measured. It must not re-scroll
+    // on every *subsequent* change though: each call restarts a smooth scroll,
+    // and a string of them is what made the ring look like it was hunting for
+    // the section. Two passes per step is the whole budget — the rough one, then
+    // the measured one.
+    // Nothing to scroll when the tour owns the panel: it's already placed on
+    // screen and already still. This is what finally settles the ring — no
+    // smooth scroll running underneath means nothing for it to trail.
+    if (useHeroCopy) return;
+
+    const pass = `${index}:${interlude}:${tooltipH > 0 ? "measured" : "raw"}`;
+    if (scrollPassRef.current === pass) return;
+    scrollPassRef.current = pass;
+
     const el = interlude
       ? findAnchor(["board-preview"])
       : step?.anchors
@@ -1818,19 +1913,6 @@ export function PlaygroundTour({
           )
         : null;
     if (!el) return;
-    // One scrollIntoView per step. This effect depends on tooltipH, which the
-    // ResizeObserver refines a frame or two after each step renders — and every
-    // refinement was kicking off another *smooth* scroll to a slightly
-    // different offset. Two or three of those chasing each other is exactly the
-    // "highlight hunting for the section before locking on": the ring was glued
-    // to the target the whole time, but the target itself was being re-scrolled.
-    //
-    // The key distinguishes only estimate-vs-measured, so a step gets at most
-    // two scrolls (and usually one: tooltipH carries over from the previous
-    // step, so it's already measured by the time step 2 mounts).
-    const scrollKey = `${index}-${interlude}-${tooltipH > 0 ? "measured" : "estimate"}`;
-    if (scrollKeyRef.current === scrollKey) return;
-    scrollKeyRef.current = scrollKey;
     // tooltipUnderHeader steps derive their margin instead of hard-coding one.
     // Ideally the tooltip parks just below the navbar, but a target taller than
     // the room that leaves (the Play VS AI card on a phone) would have its
@@ -1859,7 +1941,7 @@ export function PlaygroundTour({
     const raw = STEPS[index];
     const showcaseStep = raw ? resolveStep(raw, isMobileViewport()) : undefined;
     if (!open || interlude || !showcaseStep?.scrollShowcase) return;
-    const panel = findAnchor(showcaseStep.anchors);
+    const panel = findAnchor(showcaseStep.anchors, anchorRoot());
     const list = panel?.querySelector<HTMLElement>(".overflow-y-auto");
     if (!list || list.scrollHeight <= list.clientHeight) return;
     // The category tab strip scrolls along with the list, so the visible
@@ -1902,14 +1984,15 @@ export function PlaygroundTour({
       const current = interlude
         ? { anchors: ["board-preview"] }
         : STEPS[index] && resolveStep(STEPS[index], isMobileViewport());
-      const el = findAnchor(current?.anchors);
+      const root = anchorRoot();
+      const el = findAnchor(current?.anchors, root);
       let nextRect: Rect | null = null;
       let nextSpot: Rect | null = null;
       if (el) {
         nextRect = toRect(el.getBoundingClientRect());
         nextSpot = nextRect;
         for (const extra of (current as TourStep | undefined)?.include ?? []) {
-          const extraEl = findAnchor([extra]);
+          const extraEl = findAnchor([extra], root);
           if (extraEl) {
             nextSpot = unionRects(nextSpot, toRect(extraEl.getBoundingClientRect()));
           }
@@ -1918,6 +2001,12 @@ export function PlaygroundTour({
       if (!sameRect(nextRect, rectRef.current)) {
         rectRef.current = nextRect;
         setRect(nextRect);
+      }
+      // Target first — the tooltip reads this, so it settles the moment the step
+      // does and never chases the ease below.
+      if (!sameRect(nextSpot, spotTargetRef.current)) {
+        spotTargetRef.current = nextSpot;
+        setSpotTarget(nextSpot);
       }
       // The spotlight eases toward its target instead of being pinned to it
       // (see SPOT_FOLLOW). Sub-pixel work stays on spotAnimRef; state only ever
@@ -2056,27 +2145,30 @@ export function PlaygroundTour({
   const mobileInterlude = interlude && !boardImgRect && isMobile && viewport.vw > 0;
 
   const BASE_TOOLTIP_W = Math.min(430, Math.max(viewport.vw - 24, 0));
+  const tourCardWidth = Math.round(BASE_TOOLTIP_W * scale);
 
   // The mobile interlude is a card, not a full-bleed sheet: same width as the
   // five steps (so the run doesn't jump to a different format halfway through)
   // and ringed and dimmed like them, rather than the bare screen it used to
   // paint over the app. Sized here because the ring is drawn from the same
   // geometry the card is positioned by.
-  //
-  // Height is a fraction of what's available rather than all of it: filling the
-  // screen made this one beat read as a different screen again, where the five
-  // steps around it are cards floating on the page. Centred, so it sits where
-  // the demo cards do.
-  const interludeW = Math.round(BASE_TOOLTIP_W * scale);
+  // Every card the tour owns on mobile shares this width and centre line: the
+  // five steps, the interlude, and the hero copy behind them.
+  const tourCardW = tourCardWidth;
+  const tourCardLeft = Math.round((viewport.vw - tourCardW) / 2);
   const interludeH = Math.max(
-    280,
-    Math.round((viewport.vh - (VIEWPORT_MARGIN + PAD) * 2) * 0.86)
+    300,
+    Math.round(
+      (viewport.vh - (VIEWPORT_MARGIN + PAD) * 2) * M_SHEET_HEIGHT_RATIO
+    )
   );
   const interludeCard: Rect = {
-    width: interludeW,
+    width: tourCardW,
     height: interludeH,
-    left: Math.round((viewport.vw - interludeW) / 2),
-    top: Math.round((viewport.vh - interludeH) / 2),
+    left: tourCardLeft,
+    // Centred rather than parked at the top, now that it no longer fills the
+    // column — a short card pinned high left all its slack under it.
+    top: Math.max(VIEWPORT_MARGIN + PAD, Math.round((viewport.vh - interludeH) / 2)),
   };
 
   // Spotlight geometry: pads the union of anchor rects; collapses to a point
@@ -2086,34 +2178,51 @@ export function PlaygroundTour({
   // a plain dim backdrop (no cutout, no ring) so nothing jumps to the board.
   // The mobile one does get a ring — it's a card of its own, not the live page.
   const showSpotlight = mobileInterlude || (anchored && !!spotRect);
+
+  // No padding at all once the tour owns what it's ringing. The 8px gap made
+  // sense against the live page, where the ring had to stand off content it
+  // didn't control — but the tour's own panel already carries a
+  // border-2 border-[#81CFF3], so an 8px stand-off drew a second, near-identical
+  // blue line with a dark gap between the two. Hugging the target exactly
+  // collapses them into one crisp edge.
+  const spotPad = useHeroCopy ? 0 : PAD;
+
   // Sideways the padding gives way once the target already reaches the screen
   // edges — the mobile Play VS AI card sits 8px off them, so a full 8px pad put
   // the ring past the viewport and made the card look wider than the tooltip
   // above it. Vertically there's always room, so that pad never changes.
-  const padX = spotRect
-    ? Math.max(
-        0,
-        Math.min(
-          PAD,
-          Math.round((viewport.vw - SPOTLIGHT_EDGE * 2 - spotRect.width) / 2)
-        )
+  const holeFor = (r: Rect | null): Rect => {
+    if (mobileInterlude) {
+      return {
+        top: interludeCard.top - spotPad,
+        left: interludeCard.left - spotPad,
+        width: interludeCard.width + spotPad * 2,
+        height: interludeCard.height + spotPad * 2,
+      };
+    }
+    if (!showSpotlight || !r) {
+      return { top: viewport.vh / 2, left: viewport.vw / 2, width: 0, height: 0 };
+    }
+    const padX = Math.max(
+      0,
+      Math.min(
+        spotPad,
+        Math.round((viewport.vw - SPOTLIGHT_EDGE * 2 - r.width) / 2)
       )
-    : PAD;
-  const hole: Rect = mobileInterlude
-    ? {
-        top: interludeCard.top - PAD,
-        left: interludeCard.left - PAD,
-        width: interludeCard.width + PAD * 2,
-        height: interludeCard.height + PAD * 2,
-      }
-    : showSpotlight && spotRect
-      ? {
-          top: spotRect.top - PAD,
-          left: spotRect.left - padX,
-          width: spotRect.width + padX * 2,
-          height: spotRect.height + PAD * 2,
-        }
-      : { top: viewport.vh / 2, left: viewport.vw / 2, width: 0, height: 0 };
+    );
+    return {
+      top: r.top - spotPad,
+      left: r.left - padX,
+      width: r.width + padX * 2,
+      height: r.height + spotPad * 2,
+    };
+  };
+
+  /** Drives the ring — eased, so it glides. */
+  const hole = holeFor(spotRect);
+  /** Drives every tooltip measurement — settles with the step, so the tooltip's
+   *  width and placement can't oscillate while the ring is still easing. */
+  const targetHole = holeFor(spotTarget ?? rect);
 
   // Anchored tooltip: a step can pin its bottom edge relative to the primary
   // anchor's top (tooltipBottomAt); otherwise it goes above the target when
@@ -2134,10 +2243,10 @@ export function PlaygroundTour({
   // now that the hero has come down 20% too.
   const minTooltipW = Math.round(BASE_TOOLTIP_W * scale);
   const anchoredTooltipW =
-    isMobile && anchored && spotRect
+    isMobile && anchored && spotTarget
       ? Math.round(
           Math.min(
-            Math.max(hole.width, minTooltipW),
+            Math.max(targetHole.width, minTooltipW),
             Math.max(viewport.vw - SPOTLIGHT_EDGE * 2, minTooltipW)
           )
         )
@@ -2156,9 +2265,10 @@ export function PlaygroundTour({
     rect.top + step.tooltipBottomAt - TOOLTIP_H >= VIEWPORT_MARGIN
   ) {
     mode = "edge";
-  } else if (hole.top - CARET_GAP - TOOLTIP_H >= VIEWPORT_MARGIN) mode = "above";
+  } else if (targetHole.top - CARET_GAP - TOOLTIP_H >= VIEWPORT_MARGIN)
+    mode = "above";
   else if (
-    hole.top + hole.height + CARET_GAP + TOOLTIP_H <=
+    targetHole.top + targetHole.height + CARET_GAP + TOOLTIP_H <=
     viewport.vh - VIEWPORT_MARGIN
   )
     mode = "below";
@@ -2166,10 +2276,10 @@ export function PlaygroundTour({
     mode === "edge" && rect && step?.tooltipBottomAt !== undefined
       ? rect.top + step.tooltipBottomAt
       : mode === "above"
-        ? hole.top - CARET_GAP
+        ? targetHole.top - CARET_GAP
         : mode === "below"
-          ? hole.top + hole.height + CARET_GAP
-          : Math.max(hole.top + CARET_GAP, VIEWPORT_MARGIN);
+          ? targetHole.top + targetHole.height + CARET_GAP
+          : Math.max(targetHole.top + CARET_GAP, VIEWPORT_MARGIN);
   // Keep the whole card on screen whatever the mode picked. The modes reason
   // from the last measured height, so a step whose copy re-wraps at a narrower
   // mobile width — or a phone toolbar appearing — could otherwise leave the top
@@ -2194,7 +2304,7 @@ export function PlaygroundTour({
     : 210;
   const anchorCenterX = rect
     ? rect.left + rect.width / 2
-    : hole.left + hole.width / 2;
+    : targetHole.left + targetHole.width / 2;
   // Edge clamp: normally 12px, but a tooltip matched to a near-full-width
   // spotlight has less room than that, and clamping it to 12 would knock it out
   // of line with the highlight it belongs to.
@@ -2209,6 +2319,20 @@ export function PlaygroundTour({
 
   return createPortal(
     <div className="fixed inset-0 z-[700] overscroll-contain" role="dialog" aria-modal="true" aria-label="Playground tutorial">
+      {/* The tour's own hero panel, first so the spotlight's shadow dims it like
+          anything else and it is lit through the cutout on steps 1-2. It clears
+          out from the step 2 -> 3 interlude onward — those steps present screens
+          of their own, and leaving the panel behind them read as leftover rather
+          than as background. `anchored` is true for exactly steps 1-2. */}
+      {useHeroCopy && (
+        <TourHeroCopy
+          innerRef={heroCopyRef}
+          width={tourCardW}
+          left={tourCardLeft}
+          hidden={interlude || !anchored}
+        />
+      )}
+
       {/* Spotlight (the huge shadow doubles as the backdrop). The desktop
           step 2 -> 3 interlude shows the live page layout instead, with no dim
           and no highlight, so the backdrop is skipped during it — but the
@@ -2227,10 +2351,24 @@ export function PlaygroundTour({
             left: hole.left,
             width: hole.width,
             height: hole.height,
-            borderRadius: 18,
-            boxShadow: showSpotlight
-              ? "0 0 0 2px rgba(124,192,242,0.95), 0 0 0 200vmax rgba(9,14,40,0.62)"
-              : "0 0 0 200vmax rgba(9,14,40,0.62)",
+            // Flush against the target now (spotPad 0), so the corners have to
+            // agree with it: the panel and the interlude card are both
+            // rounded-2xl. 18 left a hair of dark showing at each corner.
+            borderRadius: useHeroCopy ? 16 : 18,
+            // Deeper dim when the tour has its own panel: the page's real hero
+            // is still behind it at full size, and at 0.62 the two read as a
+            // double image. At 0.8 the page is texture, the copy is the content.
+            //
+            // The ring is thicker and fully opaque there too — against that
+            // darker backdrop a 2px 95% line was soft enough that step 1's
+            // highlight didn't read as gripping the card.
+            boxShadow: `${
+              showSpotlight
+                ? useHeroCopy
+                  ? "0 0 0 3px rgba(124,192,242,1), "
+                  : "0 0 0 2px rgba(124,192,242,0.95), "
+                : ""
+            }0 0 0 200vmax rgba(9,14,40,${useHeroCopy ? 0.8 : 0.62})`,
           }}
         />
       )}

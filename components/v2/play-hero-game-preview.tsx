@@ -9,7 +9,6 @@ import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import { GamePlayerAvatar } from "@/components/v2/game-player-avatar";
 import { AiOpponentPreviewBar } from "@/components/v2/ai-opponent-preview-bar";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
-import { usePlaygroundTourHeroCompact } from "@/components/v2/playground-tour-active";
 
 // Standard starting position for the (non-interactive) board preview.
 const START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -23,12 +22,6 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
   const elo = leaderboard?.my_elo ?? 0;
   // Same seed recipe as the sidebar so the placeholder color is stable per user.
   const avatarSeed = profile?.username || profile?.name || profile?.email || "user";
-
-  // The tour spotlights this hero instead of drawing its own copy, so the same
-  // element serves both: compact mobile sizing while it's the spotlight target
-  // (steps 1-2), the roomy design otherwise — including behind the tour's own
-  // demo cards. See hero-play-vs-ai-preview's `pick`.
-  const tour = usePlaygroundTourHeroCompact();
 
   // react-chessboard needs a pixel width; track the container so the preview
   // board stays responsive with the panel.
@@ -70,17 +63,9 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
   }, []);
 
   return (
-    // The 80% width is the tour's mobile sizing only — the spotlight ring is
-    // measured straight off this element, and the step-1/2 tooltip is sized to
-    // match it. The real page keeps its full-width design. Desktop is untouched
-    // in both modes.
-    <div
-      id="play-vs-ai"
-      data-tour-anchor="playground-hero"
-      className={`w-full ${
-        tour ? "max-sm:w-[80%] max-sm:mx-auto" : ""
-      } transition-[width] duration-300 ease-out flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3`}
-    >
+    // Untouched by the tour: it renders its own copy of the panel below
+    // (TourHeroCopy in playground-tour.tsx) rather than resizing this one.
+    <div id="play-vs-ai" data-tour-anchor="playground-hero" className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
       <div ref={boardCardRef} data-tour-anchor="board-preview" className="hidden sm:flex sm:w-[70%] self-start bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex-col gap-2">
         <AiOpponentPreviewBar />
         <div ref={boardWrapRef} data-preview-board className="w-full">
@@ -117,15 +102,9 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
       <div
         data-tour-anchor="opponent-panel"
         style={{ height: panelHeight }}
-        className={`w-full sm:w-[42%] max-sm:!h-auto bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] ${
-          tour ? "p-2" : "p-3"
-        } sm:p-4 transition-[padding] duration-300 ease-out flex flex-col`}
+        className="w-full sm:w-[42%] max-sm:!h-auto bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-3 sm:p-4 flex flex-col"
       >
-        <h1
-          className={`sm:hidden text-center font-bold text-[#221AE9] ${
-            tour ? "text-[22px] mb-[6px]" : "text-[28px] mb-[8px]"
-          }`}
-        >
+        <h1 className="sm:hidden text-center font-bold text-[28px] text-[#221AE9] mb-[8px]">
           Play VS AI
         </h1>
         <HeroPlayVSAIPreview recommendedListHeightClass={recommendedListHeightClass} />

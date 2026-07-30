@@ -11,6 +11,21 @@ import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 
 type Opponent = { name: string; elo: number; img: string };
 
+/**
+ * Mobile sizing has two modes, chosen by the `tour` prop.
+ *
+ * The playground tour renders its own instance of this component rather than
+ * resizing the page's, so the real hero is never touched: the page keeps the
+ * roomy design while the tour's copy fits the whole card plus Start Game inside
+ * the ~669px Safari actually hands a phone. It's a prop and not a global flag
+ * precisely because both are on screen at once during a run.
+ *
+ * Only the mobile (base) classes differ — every pair below keeps the same `sm:`
+ * values, so desktop renders identically in both modes.
+ */
+const pick = (tour: boolean) => (tourCls: string, pageCls: string) =>
+  tour ? tourCls : pageCls;
+
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // Difficulty tabs list the real roster bots inside the tier's ELO range,
@@ -97,12 +112,20 @@ function OpponentCard({
   opponent: Opponent;
   selected: boolean;
   onClick: () => void;
+  /** compact sizing while the playground tour is on screen */
+  tour: boolean;
 }) {
+  // Passed down rather than read per card: there are ~40 of these, and each
+  // calling the hook would mean 40 window listeners for one boolean.
+  const p = pick(tour);
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center gap-1 p-1.5 rounded-lg border transition-colors ${
+      className={`flex flex-col items-center ${p(
+        "gap-0.5 p-1",
+        "gap-1 p-1.5"
+      )} sm:gap-1 sm:p-1.5 rounded-lg border transition-colors ${
         selected ? "border-blue-base bg-blue-base/5" : "border-transparent"
       }`}
     >
@@ -111,19 +134,37 @@ function OpponentCard({
         alt={opponent.name}
         width={76}
         height={76}
-        className="w-14 h-14 sm:w-[68px] sm:h-[68px] rounded-full object-cover"
+        className={`${p(
+          "w-11 h-11",
+          "w-14 h-14"
+        )} sm:w-[68px] sm:h-[68px] rounded-full object-cover`}
       />
       <div className="text-center">
-        <div className={`text-[12px] sm:text-[14px] font-medium ${selected ? "text-blue-base" : "text-gray-900"}`}>
+        <div
+          className={`${p("text-[11px] max-sm:leading-tight", "text-[12px]")} sm:text-[14px] font-medium ${
+            selected ? "text-blue-base" : "text-gray-900"
+          }`}
+        >
           {opponent.name}
         </div>
-        <div className="text-[10px] sm:text-[12px] text-gray-500">ELO {opponent.elo}</div>
+        <div
+          className={`${p("text-[9px] max-sm:leading-tight", "text-[10px]")} sm:text-[12px] text-gray-500`}
+        >
+          ELO {opponent.elo}
+        </div>
       </div>
     </button>
   );
 }
 
-export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }: { recommendedListHeightClass?: string }) {
+export function HeroPlayVSAIPreview({
+  recommendedListHeightClass = "h-[350px]",
+  tour = false,
+}: {
+  recommendedListHeightClass?: string;
+  /** compact mobile sizing — set only by the playground tour's own copy */
+  tour?: boolean;
+}) {
   const router = useRouter();
   const { setAIChoosed, setSelectedOpponent: setStoreOpponent, setSelectedColor: setStoreColor } = usePlayVSAIStore();
   // Leaderboard ELO once they have played, otherwise the level they picked in
@@ -132,6 +173,8 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   const effectiveElo = useEffectiveElo();
   const hasUserElo = effectiveElo > 0;
   const userElo = effectiveElo || DEFAULT_USER_ELO;
+
+  const p = pick(tour);
 
   // Deterministic on first render (SSR-safe), shuffled after mount so ties
   // between same-ELO bots resolve to a random pick.
@@ -258,7 +301,10 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
             key={color}
             type="button"
             onClick={() => setSelectedColor(color)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-[13px] sm:text-sm font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 ${p(
+              "py-1.5 text-[12px]",
+              "py-2 text-[13px]"
+            )} sm:py-2 rounded-full sm:text-sm font-medium transition-colors ${
               selectedColor === color
                 ? "bg-white shadow text-gray-900 max-sm:bg-[#DED9F8] max-sm:shadow-none"
                 : "text-gray-500 max-sm:text-gray-900"
@@ -358,7 +404,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
           className={`${recommendedListHeightClass} ${p(
             "max-sm:h-[198px] mb-1",
             "max-sm:h-[248px] mb-2"
-          )} sm:mb-2 grow transition-[height] duration-300 ease-out overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}
+          )} sm:mb-2 grow overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}
         >
           <div
             ref={(el) => {
@@ -411,7 +457,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         <div className={`${recommendedListHeightClass} ${p(
           "max-sm:h-[224px] mb-1",
           "max-sm:h-[280px] mb-2"
-        )} sm:mb-2 grow transition-[height] duration-300 ease-out overflow-y-auto overflow-x-hidden pr-0.5`}>
+        )} sm:mb-2 grow overflow-y-auto overflow-x-hidden pr-0.5`}>
           <div className={`flex items-center gap-3 ${p("pb-0.5", "pb-1")} sm:pb-1`}>
             <div className="h-px flex-1 bg-gray-200" />
             <span className={`${p("text-[10px]", "text-[12px]")} sm:text-sm text-gray-500`}>
