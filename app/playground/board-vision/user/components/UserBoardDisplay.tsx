@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
+import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
+import { findRosterOpponentByName } from "@/components/v2/play-vs-ai-roster-data";
 import PlayerInfo from "./PlayerInfo";
 import { UserBoardDisplayProps } from "../../types/default-pgn";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
@@ -51,6 +53,8 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
   // "TyoSndr".
   const { profile } = useProfileStore();
   const { username: chessComUsername, usernameAnalysis } = usePgnStore();
+  /** The account's own rating, for a player row the PGN gave no Elo for. */
+  const accountElo = useEffectiveElo() || undefined;
   const normalize = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
   const accountNames = [
     profile?.username,
@@ -77,12 +81,20 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
     ? userProfilePic
     : profile?.imageUrl || userProfilePic;
 
-  const userElo = isUserPlayingWhite
-    ? currentPosition?.whiteElo
-    : currentPosition?.blackElo;
-  const opponentElo = isUserPlayingWhite
-    ? currentPosition?.blackElo
-    : currentPosition?.whiteElo;
+  // Ratings come from the PGN's WhiteElo/BlackElo headers, which vs-AI games and
+  // uploaded files don't carry — both rows then showed a bare name. Fall back to
+  // the AI roster for a known opponent, and to the account's own rating for the
+  // player's row (the service already fills the opponent's side from the game
+  // record when it has one).
+  const userElo =
+    (isUserPlayingWhite ? currentPosition?.whiteElo : currentPosition?.blackElo) ||
+    findRosterOpponentByName(username)?.elo ||
+    accountElo ||
+    undefined;
+  const opponentElo =
+    (isUserPlayingWhite ? currentPosition?.blackElo : currentPosition?.whiteElo) ||
+    findRosterOpponentByName(opponentName)?.elo ||
+    undefined;
 
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;

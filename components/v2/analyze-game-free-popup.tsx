@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { X } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface Props {
   visible: boolean;
@@ -10,7 +11,40 @@ interface Props {
 
 const HEADLINE = ["Play against AI:", "Analyze the Mistakes of your", "first game for free"];
 
+/** Below this the mobile full-screen banner is used (matches the sm: classes). */
+const MOBILE_BP = 640;
+
 export default function AnalyzeGameFreePopup({ visible, onClose }: Props) {
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
+
+  // Mobile: this banner is positioned inside the page rather than the viewport,
+  // so scrolling the page behind it slides the whole thing away. Freeze the page
+  // while it's up — body overflow for the scrollbar/desktop-style scroll, and a
+  // non-passive touchmove block for iOS, which ignores overflow:hidden and would
+  // otherwise still rubber-band. The panel itself keeps its own scrolling, so a
+  // short screen can always reach the CTA.
+  useEffect(() => {
+    if (!visible) return;
+    if (typeof window === "undefined" || window.innerWidth >= MOBILE_BP) return;
+
+    const { body } = document;
+    const previousOverflow = body.style.overflow;
+    body.style.overflow = "hidden";
+
+    const blockPageScroll = (e: TouchEvent) => {
+      const panel = mobilePanelRef.current;
+      const target = e.target;
+      if (panel && target instanceof Node && panel.contains(target)) return;
+      e.preventDefault();
+    };
+    window.addEventListener("touchmove", blockPageScroll, { passive: false });
+
+    return () => {
+      body.style.overflow = previousOverflow;
+      window.removeEventListener("touchmove", blockPageScroll);
+    };
+  }, [visible]);
+
   if (!visible) return null;
 
   return (
@@ -22,7 +56,10 @@ export default function AnalyzeGameFreePopup({ visible, onClose }: Props) {
       />
 
       {/* ---------- mobile: the banner ships as one flattened asset ---------- */}
-      <div className="relative z-10 sm:hidden w-full h-full flex flex-col items-center overflow-y-auto bg-gradient-to-b from-[#DCF0FB] via-white to-white">
+      <div
+        ref={mobilePanelRef}
+        className="relative z-10 sm:hidden w-full h-full flex flex-col items-center overflow-y-auto overscroll-contain bg-gradient-to-b from-[#DCF0FB] via-white to-white"
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-20 text-[#101828] hover:opacity-70 transition-opacity"

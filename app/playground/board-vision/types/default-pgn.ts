@@ -42,6 +42,9 @@ export interface QuizGame {
   username: string;
   playerColor?: string;
   opponent?: string;
+  /** The opponent's rating from the row — the only one a vs-AI or uploaded PGN
+   *  has, since those carry no Elo headers. */
+  rating?: string | number;
 }
 
 export interface GameQuestion {

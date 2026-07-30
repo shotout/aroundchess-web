@@ -40,9 +40,9 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 }) => {
   const { setUsername, setIsOpenTutorial } = usePgnStore();
   const { setCallFetch } = useProfileFetch();
-  const { setToken, sessionId, profile } = useProfileStore();
+  const { setToken, sessionId, profile, setProfile } = useProfileStore();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
-  const { getTokenBalance } = useApiClient();
+  const { getTokenBalance, profile: profileApi } = useApiClient();
   const { startTutorial, isTutorialPlay } = useTutorial();
   const {
     tutorialType,
@@ -153,6 +153,16 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const handleConnectSuccess = async (username: string) => {
     setShowConnectDialog(false);
     setUsername(username);
+
+    // Re-read /profile so isChessComConnected flips to true right away: the
+    // "account is not connected" banners on Game History and /profile read that
+    // flag, and without this they stayed up until the next full page load.
+    profileApi()
+      .then((res: any) => {
+        const data = res?.data ?? res;
+        if (data && typeof data === "object") setProfile(data);
+      })
+      .catch(() => {});
 
     // Always fetch token balance
     getTokenBalance({}).then((response) => {

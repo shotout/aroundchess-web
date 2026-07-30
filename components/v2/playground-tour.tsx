@@ -91,6 +91,30 @@ const MOBILE_BP = 640;
 const isMobileViewport = () =>
   typeof window !== "undefined" && window.innerWidth < MOBILE_BP;
 
+/**
+ * Height of the area the user can actually see.
+ *
+ * On a phone innerHeight is the layout viewport, which ignores the browser's own
+ * chrome — iOS Safari's bottom toolbar included. Sizing the tour from it put the
+ * bottom of every card (and the Start Game button under the spotlight) behind
+ * that toolbar. visualViewport reports what's really visible, and the tour's rAF
+ * tracker re-reads it every frame, so a toolbar collapsing mid-tour resizes the
+ * step with it.
+ *
+ * Desktop deliberately stays on innerHeight: there's no such chrome, and the two
+ * differ there by the horizontal scrollbar — enough to nudge every measurement.
+ */
+const visibleHeight = (): number => {
+  if (typeof window === "undefined") return 0;
+  if (!isMobileViewport()) return window.innerHeight;
+  const visual = window.visualViewport?.height;
+  return Math.round(visual && visual > 0 ? visual : window.innerHeight);
+};
+
+/** Smallest a demo card may be scaled on mobile: past this it's unreadable, so a
+ *  viewport that short gets a clipped card rather than a microscopic one. */
+const MIN_CARD_SCALE = 0.45;
+
 /** px of padding the spotlight leaves around the anchor it cuts out */
 const PAD = 8;
 /** px the spotlight keeps clear of the screen edges (its horizontal padding
@@ -410,8 +434,10 @@ function ScaleToFit({
       if (!natural) return;
       onMeasure?.(natural);
       const basis = referenceHeight && referenceHeight > 0 ? referenceHeight : natural;
-      const avail = window.innerHeight - reserve;
-      const next = Math.min(1, avail / basis);
+      const avail = visibleHeight() - reserve;
+      // The floor is mobile-only so desktop keeps exactly the scale it had.
+      const floor = isMobileViewport() ? MIN_CARD_SCALE : 0;
+      const next = Math.max(floor, Math.min(1, avail / basis));
       // The counter-stretch below feeds the new layout width back into this
       // measurement, so ignore hair-thin changes: they'd keep the observer
       // firing without moving anything.
@@ -425,9 +451,13 @@ function ScaleToFit({
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     window.addEventListener("resize", measure);
+    // A phone browser hiding/showing its toolbars changes the visible height
+    // without firing window resize, and the card has to shrink or grow with it.
+    window.visualViewport?.addEventListener("resize", measure);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", measure);
+      window.visualViewport?.removeEventListener("resize", measure);
     };
   }, [reserve, referenceHeight, onMeasure]);
 
@@ -768,6 +798,12 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
   const { PieceChoosed } = useChessBoardThemeStore();
   const sheetRef = useRef<HTMLDivElement>(null);
   const [boardW, setBoardW] = useState(0);
+  // Sized from the visible viewport rather than pinned to bottom:0 — a phone
+  // browser's bottom toolbar sits over that edge, which cut the move boxes off
+  // and made the board a size that couldn't fit.
+  const [sheetBox, setSheetBox] = useState<{ top: number; height: number } | null>(
+    null
+  );
 
   useEffect(() => {
     const t = setTimeout(onDone, INTERLUDE_HOLD_MS);
@@ -779,6 +815,8 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
     const el = sheetRef.current;
     if (!el) return;
     const measure = () => {
+      const top = headerBottom();
+      setSheetBox({ top, height: Math.max(240, visibleHeight() - top) });
       const byWidth = el.clientWidth - 32;
       const byHeight = el.clientHeight - M_SHEET_CHROME;
       setBoardW(Math.max(180, Math.min(byWidth, byHeight, 420)));
@@ -786,7 +824,11 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
-    return () => ro.disconnect();
+    window.visualViewport?.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.visualViewport?.removeEventListener("resize", measure);
+    };
   }, []);
 
   // The final moves only — the design shows the tail of the game with the WIN
@@ -797,10 +839,15 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
   return (
     <div
       ref={sheetRef}
-      className="fixed inset-x-0 bottom-0 bg-white overflow-hidden pointer-events-none flex flex-col"
-      style={{
-        top: "calc(var(--banner-height, 0px) + var(--current-header-height, 0px))",
-      }}
+      className="fixed inset-x-0 bg-white overflow-hidden pointer-events-none flex flex-col"
+      style={
+        sheetBox
+          ? { top: sheetBox.top, height: sheetBox.height }
+          : {
+              top: "calc(var(--banner-height, 0px) + var(--current-header-height, 0px))",
+              bottom: 0,
+            }
+      }
     >
       {/* header: back + "You (White) VS Lisa (250)" + board controls */}
       <div className="w-full flex justify-between items-center px-[16px] pt-[12px]">
@@ -1583,7 +1630,7 @@ export function PlaygroundTour({
       const above = tooltipH + CARET_GAP + PAD; // room the tooltip needs
       const underHeader = headerBottom() + HEADER_GAP + above;
       const wholeTargetFits =
-        window.innerHeight - VIEWPORT_MARGIN - el.offsetHeight - PAD;
+        visibleHeight() - VIEWPORT_MARGIN - el.offsetHeight - PAD;
       margin = Math.max(VIEWPORT_MARGIN + above, Math.min(underHeader, wholeTargetFits));
     }
     el.style.scrollMarginTop = `${Math.round(margin)}px`;
@@ -1705,10 +1752,11 @@ export function PlaygroundTour({
         panelRef.current = nextPanel;
         setPanelRect(nextPanel);
       }
+      const vh = visibleHeight();
       setViewport((v) =>
-        v.vw === window.innerWidth && v.vh === window.innerHeight
+        v.vw === window.innerWidth && v.vh === vh
           ? v
-          : { vw: window.innerWidth, vh: window.innerHeight }
+          : { vw: window.innerWidth, vh }
       );
       raf = requestAnimationFrame(tick);
     };
@@ -1849,7 +1897,7 @@ export function PlaygroundTour({
     viewport.vh - VIEWPORT_MARGIN
   )
     mode = "below";
-  const tooltipTop =
+  const rawTooltipTop =
     mode === "edge" && rect && step?.tooltipBottomAt !== undefined
       ? rect.top + step.tooltipBottomAt
       : mode === "above"
@@ -1857,6 +1905,21 @@ export function PlaygroundTour({
         : mode === "below"
           ? hole.top + hole.height + CARET_GAP
           : Math.max(hole.top + CARET_GAP, VIEWPORT_MARGIN);
+  // Keep the whole card on screen whatever the mode picked. The modes reason
+  // from the last measured height, so a step whose copy re-wraps at a narrower
+  // mobile width — or a phone toolbar appearing — could otherwise leave the top
+  // or bottom of the tooltip outside the frame. "above"/"edge" position the
+  // bottom edge (the card is translated up by its own height), the others the top.
+  const bottomAnchored = mode === "above" || mode === "edge";
+  const tooltipTop = bottomAnchored
+    ? Math.min(
+        Math.max(rawTooltipTop, VIEWPORT_MARGIN + TOOLTIP_H),
+        Math.max(viewport.vh - VIEWPORT_MARGIN, VIEWPORT_MARGIN + TOOLTIP_H)
+      )
+    : Math.min(
+        Math.max(rawTooltipTop, VIEWPORT_MARGIN),
+        Math.max(viewport.vh - VIEWPORT_MARGIN - TOOLTIP_H, VIEWPORT_MARGIN)
+      );
 
   // Demo steps (3-5): the card gets whatever the tooltip, its gap and the
   // column's padding leave, and scales itself into it — the column can't be

@@ -23,7 +23,12 @@ const GameHistoryPageV2: React.FC = () => {
   // Testing `username` alone hid the banner from anyone who had an AroundChess
   // username — which is everyone — since that store value is the account's
   // name, not the linked Chess.com one.
-  const isChessComConnected = profile?.isChessComConnected ?? Boolean(username);
+  // Either signal counts as connected. With `??` an explicit `false` from a
+  // profile payload fetched before the link won, so the banner stayed up after a
+  // successful connect until the next page load — even though the store already
+  // held the linked handle. ChessAccountSetup also refetches /profile on success.
+  const isChessComConnected =
+    profile?.isChessComConnected === true || Boolean(username);
 
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [openAccountConnected, setOpenAccountConnected] = useState(false);

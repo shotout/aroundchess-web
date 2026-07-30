@@ -87,16 +87,20 @@ export function WinModalCard({
       <div
         className={
           tour
-            ? "w-[95%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
-            : "w-[68%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
+            ? "relative w-[95%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
+            : "relative w-[68%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         }
       >
+        {/* Absolute, not in flow: Safari lets an in-flow child with height:100%
+            outgrow an aspect-ratio box, and the Lottie's own SVG then stretched
+            this one until it pushed the whole card body off screen. Out of flow
+            it can only ever fill the height the aspect ratio (or max-h) gives. */}
         {animationData && (
           <Lottie
             animationData={animationData}
             loop={false}
             rendererSettings={{ preserveAspectRatio: "xMidYMin slice" }}
-            className="w-full h-full"
+            className="absolute inset-0 w-full h-full"
           />
         )}
       </div>
