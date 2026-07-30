@@ -129,10 +129,19 @@ const STEPS: TourStep[] = [
   {
     title: "Tutorial: Welcome to The Playground",
     content: "Start your Game against one of our many AI opponents.",
+    // Desktop cuts out the two hero cards and nothing else, so the highlight
+    // starts at the top edge of the chessboard card. It used to merge in the top
+    // bar (include: ["play-top-bar"]), and that union reached from the top bar
+    // down past the board — up under the fixed navbar — lighting both. The board
+    // card stays the primary anchor, so the tooltip keeps its position over it.
     anchors: ["board-preview", "opponent-panel"],
-    include: ["play-top-bar"],
+    include: ["opponent-panel"],
     scrollAnchor: "play-top-bar",
-    tooltipBottomAt: 96,
+    // No tooltipBottomAt: that pinned the tooltip 96px *into* the board card, so
+    // it sat over the pieces. Without it the placement math puts it wholly above
+    // the cutout with the caret pointing down at the card's top edge (it lands
+    // over the dimmed top bar, which is the only room there is at the top of the
+    // page). A viewport too short for that still falls back to over-the-target.
     // Mobile spotlights the Play VS AI card alone (no leaderboard), with the
     // tooltip entirely above it and the caret pointing down at the card's top
     // edge — so the card's "Play VS AI" heading stays visible above Choose Your

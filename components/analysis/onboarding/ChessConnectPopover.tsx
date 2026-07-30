@@ -385,11 +385,6 @@ export const ChessConnectDialog = ({
                 </SelectContent>
               </Select>
 
-              <div className="hidden sm:flex items-center gap-x-2 text-blue-base">
-                <Info className="w-4 h-4 flex-shrink-0 text-blue-base" />
-                <p className="text-[14px]">You can still change the Game type later in the Profile Settings</p>
-              </div>
-
               {errorMessage && (
                 <p className="text-[14px] text-red-500">{errorMessage}</p>
               )}
