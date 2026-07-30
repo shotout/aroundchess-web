@@ -18,7 +18,10 @@ import { preloadLottie } from "@/components/v2/hooks/useLottieData";
 import { WinModalCard } from "@/components/v2/play-vs-ai-win-modal";
 import { LoseModalCard } from "@/components/v2/play-vs-ai-lose-modal";
 import { openDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
-import { setPlaygroundTourActive } from "@/components/v2/playground-tour-active";
+import {
+  setPlaygroundTourActive,
+  setPlaygroundTourHeroCompact,
+} from "@/components/v2/playground-tour-active";
 import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 
@@ -141,6 +144,25 @@ const MOBILE_SCALE = 0.8;
  * (a landscape phone, an SE with every bar showing).
  */
 const COMPACT_VH = 560;
+
+/**
+ * How far the spotlight closes the gap to its target each frame.
+ *
+ * A CSS transition can't do this job, because the rAF tracker rewrites the
+ * target every frame: any duration long enough to smooth a step change leaves
+ * the ring trailing the whole way through that step's smooth scroll (it reads
+ * as the highlight hunting for the section), and a duration short enough to
+ * track the scroll doesn't smooth anything.
+ *
+ * A follower serves both at once. A target that creeps — a scroll, the hero
+ * resizing into its tour sizing — is matched near-exactly, because each frame's
+ * gap is tiny. A target that jumps — step 1's card to step 2's opponent list —
+ * is eased into over ~10 frames. Same mechanism, no mode to get wrong.
+ */
+const SPOT_FOLLOW = 0.22;
+/** px gap below which the follower snaps, so it stops re-rendering on sub-pixel
+ *  deltas it would otherwise chase forever */
+const SPOT_SNAP = 0.6;
 
 /** px of padding the spotlight leaves around the anchor it cuts out */
 const PAD = 8;
@@ -297,6 +319,29 @@ function unionRects(a: Rect, b: Rect): Rect {
   const right = Math.max(a.left + a.width, b.left + b.width);
   const bottom = Math.max(a.top + a.height, b.top + b.height);
   return { top, left, width: right - left, height: bottom - top };
+}
+
+/** One frame of the spotlight's ease toward `to`. Works in floats — the caller
+ *  keeps this on a ref and only rounds when handing it to state. */
+function followRect(from: Rect | null, to: Rect, amount: number): Rect {
+  if (!from) return to; // first frame of a run: appear on target, don't fly in
+  const ease = (a: number, b: number) =>
+    Math.abs(b - a) < SPOT_SNAP ? b : a + (b - a) * amount;
+  return {
+    top: ease(from.top, to.top),
+    left: ease(from.left, to.left),
+    width: ease(from.width, to.width),
+    height: ease(from.height, to.height),
+  };
+}
+
+function roundRect(r: Rect): Rect {
+  return {
+    top: Math.round(r.top),
+    left: Math.round(r.left),
+    width: Math.round(r.width),
+    height: Math.round(r.height),
+  };
 }
 
 function sameRect(a: Rect | null, b: Rect | null): boolean {
@@ -914,16 +959,10 @@ function MobileCapturedRow({
   );
 }
 
-function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
+function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) {
   const { PieceChoosed } = useChessBoardThemeStore();
   const sheetRef = useRef<HTMLDivElement>(null);
   const [boardW, setBoardW] = useState(0);
-  // Sized from the visible viewport rather than pinned to bottom:0 — a phone
-  // browser's bottom toolbar sits over that edge, which cut the move boxes off
-  // and made the board a size that couldn't fit.
-  const [sheetBox, setSheetBox] = useState<{ top: number; height: number } | null>(
-    null
-  );
 
   useEffect(() => {
     const t = setTimeout(onDone, INTERLUDE_HOLD_MS);
@@ -931,15 +970,16 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // The card's box comes from the tour now (it has to match the ring drawn
+  // around it), so all that's left to work out is the board: the largest that
+  // fits both the card's width and whatever height the chrome leaves.
   useEffect(() => {
     const el = sheetRef.current;
     if (!el) return;
     const measure = () => {
-      const top = headerBottom();
-      setSheetBox({ top, height: Math.max(240, visibleHeight() - top) });
-      const byWidth = el.clientWidth - 32;
+      const byWidth = el.clientWidth - 24;
       const byHeight = el.clientHeight - M_SHEET_CHROME;
-      setBoardW(Math.max(180, Math.min(byWidth, byHeight, 420)));
+      setBoardW(Math.max(140, Math.min(byWidth, byHeight, 420)));
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -959,15 +999,13 @@ function MobileWonGameSheet({ onDone }: { onDone: () => void }) {
   return (
     <div
       ref={sheetRef}
-      className="fixed inset-x-0 bg-white overflow-hidden pointer-events-none flex flex-col"
-      style={
-        sheetBox
-          ? { top: sheetBox.top, height: sheetBox.height }
-          : {
-              top: "calc(var(--banner-height, 0px) + var(--current-header-height, 0px))",
-              bottom: 0,
-            }
-      }
+      className="fixed bg-white rounded-[18px] overflow-hidden pointer-events-none flex flex-col"
+      style={{
+        top: box.top,
+        left: box.left,
+        width: box.width,
+        height: box.height,
+      }}
     >
       {/* header: back + "You (White) VS Lisa (250)" + board controls */}
       <div className="w-full flex justify-between items-center px-[13px] pt-[10px]">
@@ -1562,6 +1600,11 @@ export function PlaygroundTour({
   const [viewport, setViewport] = useState<Viewport>({ vw: 0, vh: 0 });
   const rectRef = useRef<Rect | null>(null);
   const spotRef = useRef<Rect | null>(null);
+  // The spotlight's eased position, kept at sub-pixel precision between frames.
+  const spotAnimRef = useRef<Rect | null>(null);
+  // Which step the auto-scroll has already run for, so a tooltip remeasure
+  // can't restart it mid-flight.
+  const scrollKeyRef = useRef("");
   const boardImgRef = useRef<Rect | null>(null);
   const topBarRef = useRef<Rect | null>(null);
   const bottomBarRef = useRef<Rect | null>(null);
@@ -1603,7 +1646,25 @@ export function PlaygroundTour({
   // Never leave the "tour on screen" flag stuck true if the tour unmounts
   // (navigation) without finish() running — otherwise queued modals would
   // stay suppressed forever.
-  useEffect(() => () => setPlaygroundTourActive(false), []);
+  useEffect(
+    () => () => {
+      setPlaygroundTourActive(false);
+      setPlaygroundTourHeroCompact(false);
+    },
+    []
+  );
+
+  // The hero only shrinks while it is actually the spotlight target. Steps 3-5
+  // and the finale float their own cards over it, so it goes back to the real
+  // page layout for those — a compact hero behind them just looked like the
+  // page had emptied out.
+  useEffect(() => {
+    // While closed this is begin()'s and finish()'s to set — begin() flips it a
+    // frame before `open` so the hero has resized by the tour's first
+    // measurement, and this effect must not undo that in between.
+    if (!open) return;
+    setPlaygroundTourHeroCompact(anchored && !interlude);
+  }, [open, anchored, interlude]);
 
   // Opens the tour. The pending flag is consumed immediately — not on finish
   // — so a mid-tour refresh doesn't restart it: the tour auto-runs exactly
@@ -1615,8 +1676,13 @@ export function PlaygroundTour({
       localStorage.removeItem(PENDING_KEY);
     } catch {}
     setIndex(0);
-    setOpen(true);
+    // Tour sizing first, overlay a frame later. The hero swaps to its compact
+    // mobile set the moment this flips, and opening in the same frame meant the
+    // spotlight took its first measurement off the page-sized hero and then had
+    // to chase the resize. A frame's head start lets it open already on target.
     setPlaygroundTourActive(true);
+    setPlaygroundTourHeroCompact(true); // step 0 is an anchored step
+    requestAnimationFrame(() => setOpen(true));
     preloadLottie(WIN_LOTTIE);
     preloadLottie(LOSE_LOTTIE);
   };
@@ -1667,6 +1733,7 @@ export function PlaygroundTour({
     setOpen(false);
     setInterlude(false);
     setPlaygroundTourActive(false);
+    setPlaygroundTourHeroCompact(false);
     const firstCompletion = firstRunRef.current;
     firstRunRef.current = false;
     try {
@@ -1739,7 +1806,10 @@ export function PlaygroundTour({
   // The scroll margin keeps the element's top clear of the fixed navbar (and
   // leaves room above it when the step's tooltip sits above the target).
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      scrollKeyRef.current = "";
+      return;
+    }
     const el = interlude
       ? findAnchor(["board-preview"])
       : step?.anchors
@@ -1748,6 +1818,19 @@ export function PlaygroundTour({
           )
         : null;
     if (!el) return;
+    // One scrollIntoView per step. This effect depends on tooltipH, which the
+    // ResizeObserver refines a frame or two after each step renders — and every
+    // refinement was kicking off another *smooth* scroll to a slightly
+    // different offset. Two or three of those chasing each other is exactly the
+    // "highlight hunting for the section before locking on": the ring was glued
+    // to the target the whole time, but the target itself was being re-scrolled.
+    //
+    // The key distinguishes only estimate-vs-measured, so a step gets at most
+    // two scrolls (and usually one: tooltipH carries over from the previous
+    // step, so it's already measured by the time step 2 mounts).
+    const scrollKey = `${index}-${interlude}-${tooltipH > 0 ? "measured" : "estimate"}`;
+    if (scrollKeyRef.current === scrollKey) return;
+    scrollKeyRef.current = scrollKey;
     // tooltipUnderHeader steps derive their margin instead of hard-coding one.
     // Ideally the tooltip parks just below the navbar, but a target taller than
     // the room that leaves (the Play VS AI card on a phone) would have its
@@ -1836,9 +1919,23 @@ export function PlaygroundTour({
         rectRef.current = nextRect;
         setRect(nextRect);
       }
-      if (!sameRect(nextSpot, spotRef.current)) {
-        spotRef.current = nextSpot;
-        setSpot(nextSpot);
+      // The spotlight eases toward its target instead of being pinned to it
+      // (see SPOT_FOLLOW). Sub-pixel work stays on spotAnimRef; state only ever
+      // sees whole pixels, so a settled ring stops re-rendering entirely.
+      if (!nextSpot) {
+        spotAnimRef.current = null;
+        if (spotRef.current !== null) {
+          spotRef.current = null;
+          setSpot(null);
+        }
+      } else {
+        const eased = followRect(spotAnimRef.current, nextSpot, SPOT_FOLLOW);
+        spotAnimRef.current = eased;
+        const rounded = roundRect(eased);
+        if (!sameRect(rounded, spotRef.current)) {
+          spotRef.current = rounded;
+          setSpot(rounded);
+        }
       }
       // the inner board image and the two player bars, tracked for the
       // interlude's won-board + capture-bar overlays
@@ -1958,12 +2055,37 @@ export function PlaygroundTour({
   // won game screen (MobileWonGameSheet) instead of tracking page elements.
   const mobileInterlude = interlude && !boardImgRect && isMobile && viewport.vw > 0;
 
+  const BASE_TOOLTIP_W = Math.min(430, Math.max(viewport.vw - 24, 0));
+
+  // The mobile interlude is a card, not a full-bleed sheet: same width as the
+  // five steps (so the run doesn't jump to a different format halfway through)
+  // and ringed and dimmed like them, rather than the bare screen it used to
+  // paint over the app. Sized here because the ring is drawn from the same
+  // geometry the card is positioned by.
+  //
+  // Height is a fraction of what's available rather than all of it: filling the
+  // screen made this one beat read as a different screen again, where the five
+  // steps around it are cards floating on the page. Centred, so it sits where
+  // the demo cards do.
+  const interludeW = Math.round(BASE_TOOLTIP_W * scale);
+  const interludeH = Math.max(
+    280,
+    Math.round((viewport.vh - (VIEWPORT_MARGIN + PAD) * 2) * 0.86)
+  );
+  const interludeCard: Rect = {
+    width: interludeW,
+    height: interludeH,
+    left: Math.round((viewport.vw - interludeW) / 2),
+    top: Math.round((viewport.vh - interludeH) / 2),
+  };
+
   // Spotlight geometry: pads the union of anchor rects; collapses to a point
   // when a step has no anchor so the 200vmax shadow dims the whole screen.
   const spotRect = spot ?? rect;
-  // The step 2 -> 3 interlude no longer spotlights the board: it plays with a
-  // plain dim backdrop (no cutout, no ring) so nothing jumps to the board.
-  const showSpotlight = anchored && !!spotRect;
+  // The desktop step 2 -> 3 interlude doesn't spotlight the board: it plays with
+  // a plain dim backdrop (no cutout, no ring) so nothing jumps to the board.
+  // The mobile one does get a ring — it's a card of its own, not the live page.
+  const showSpotlight = mobileInterlude || (anchored && !!spotRect);
   // Sideways the padding gives way once the target already reaches the screen
   // edges — the mobile Play VS AI card sits 8px off them, so a full 8px pad put
   // the ring past the viewport and made the card look wider than the tooltip
@@ -1977,8 +2099,14 @@ export function PlaygroundTour({
         )
       )
     : PAD;
-  const hole: Rect =
-    showSpotlight && spotRect
+  const hole: Rect = mobileInterlude
+    ? {
+        top: interludeCard.top - PAD,
+        left: interludeCard.left - PAD,
+        width: interludeCard.width + PAD * 2,
+        height: interludeCard.height + PAD * 2,
+      }
+    : showSpotlight && spotRect
       ? {
           top: spotRect.top - PAD,
           left: spotRect.left - padX,
@@ -1991,8 +2119,8 @@ export function PlaygroundTour({
   // anchor's top (tooltipBottomAt); otherwise it goes above the target when
   // there's room, below when there's room underneath, or pinned over the
   // target's top edge (tall targets like the chessboard card). Always inside
-  // the viewport, so it can never hide behind the fixed navbar.
-  const BASE_TOOLTIP_W = Math.min(430, Math.max(viewport.vw - 24, 0));
+  // the viewport, so it can never hide behind the fixed navbar. (BASE_TOOLTIP_W
+  // is defined above, alongside the interlude card that shares its width.)
 
   // On mobile the tooltip stretches out to the spotlight ring when the card it
   // points at is wider than the default — sitting a few px inside the ring made
@@ -2081,11 +2209,18 @@ export function PlaygroundTour({
 
   return createPortal(
     <div className="fixed inset-0 z-[700] overscroll-contain" role="dialog" aria-modal="true" aria-label="Playground tutorial">
-      {/* Spotlight (the huge shadow doubles as the backdrop). The step 2 -> 3
-          interlude shows the live page layout instead, with no dim and no
-          highlight, so the backdrop is skipped entirely during it. */}
-      {!interlude && (
-        <div
+      {/* Spotlight (the huge shadow doubles as the backdrop). The desktop
+          step 2 -> 3 interlude shows the live page layout instead, with no dim
+          and no highlight, so the backdrop is skipped during it — but the
+          mobile one is a card of the tour's own and is ringed like a step. */}
+      {(!interlude || mobileInterlude) && (
+        <motion.div
+          // Only the fade is animated here. Position and size are already eased
+          // frame by frame by the follower (SPOT_FOLLOW) — a CSS transition on
+          // top of that would just be a second, slower lag stacked on the first.
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
           className="fixed pointer-events-none"
           style={{
             top: hole.top,
@@ -2096,7 +2231,6 @@ export function PlaygroundTour({
             boxShadow: showSpotlight
               ? "0 0 0 2px rgba(124,192,242,0.95), 0 0 0 200vmax rgba(9,14,40,0.62)"
               : "0 0 0 200vmax rgba(9,14,40,0.62)",
-            transition: "all 350ms cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         />
       )}
@@ -2244,7 +2378,7 @@ export function PlaygroundTour({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <MobileWonGameSheet onDone={next} />
+            <MobileWonGameSheet box={interludeCard} onDone={next} />
           </motion.div>
         )}
 

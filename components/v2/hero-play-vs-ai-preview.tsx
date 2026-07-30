@@ -8,8 +8,24 @@ import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { AI_OPPONENT_ROSTER, AiRosterOpponent } from "./play-vs-ai-roster-data";
 import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
+import { usePlaygroundTourHeroCompact } from "./playground-tour-active";
 
 type Opponent = { name: string; elo: number; img: string };
+
+/**
+ * Mobile sizing has two modes, picked by whether the tour is on screen.
+ *
+ * The tour spotlights this hero rather than drawing its own copy of it, so the
+ * one element has to serve both: the page wants the roomy design, the tour
+ * needs the whole card plus Start Game inside the ~669px Safari actually hands
+ * a phone. Shrinking it permanently made the real page pay for a walkthrough
+ * most users see once.
+ *
+ * Only the mobile (base) classes differ — every pair below keeps the same `sm:`
+ * values, so desktop renders identically in both modes.
+ */
+const pick = (tour: boolean) => (tourCls: string, pageCls: string) =>
+  tour ? tourCls : pageCls;
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -92,16 +108,25 @@ function OpponentCard({
   opponent,
   selected,
   onClick,
+  tour,
 }: {
   opponent: Opponent;
   selected: boolean;
   onClick: () => void;
+  /** compact sizing while the playground tour is on screen */
+  tour: boolean;
 }) {
+  // Passed down rather than read per card: there are ~40 of these, and each
+  // calling the hook would mean 40 window listeners for one boolean.
+  const p = pick(tour);
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-1.5 rounded-lg border transition-colors ${
+      className={`flex flex-col items-center ${p(
+        "gap-0.5 p-1",
+        "gap-1 p-1.5"
+      )} sm:gap-1 sm:p-1.5 rounded-lg border transition-colors ${
         selected ? "border-blue-base bg-blue-base/5" : "border-transparent"
       }`}
     >
@@ -110,13 +135,24 @@ function OpponentCard({
         alt={opponent.name}
         width={76}
         height={76}
-        className="w-11 h-11 sm:w-[68px] sm:h-[68px] rounded-full object-cover"
+        className={`${p(
+          "w-11 h-11",
+          "w-14 h-14"
+        )} sm:w-[68px] sm:h-[68px] rounded-full object-cover`}
       />
       <div className="text-center">
-        <div className={`text-[11px] sm:text-[14px] font-medium max-sm:leading-tight ${selected ? "text-blue-base" : "text-gray-900"}`}>
+        <div
+          className={`${p("text-[11px] max-sm:leading-tight", "text-[12px]")} sm:text-[14px] font-medium ${
+            selected ? "text-blue-base" : "text-gray-900"
+          }`}
+        >
           {opponent.name}
         </div>
-        <div className="text-[9px] sm:text-[12px] max-sm:leading-tight text-gray-500">ELO {opponent.elo}</div>
+        <div
+          className={`${p("text-[9px] max-sm:leading-tight", "text-[10px]")} sm:text-[12px] text-gray-500`}
+        >
+          ELO {opponent.elo}
+        </div>
       </div>
     </button>
   );
@@ -131,6 +167,12 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   const effectiveElo = useEffectiveElo();
   const hasUserElo = effectiveElo > 0;
   const userElo = effectiveElo || DEFAULT_USER_ELO;
+
+  // Compact mobile sizing, on only while the tour is spotlighting this card —
+  // not for the whole run. On the demo steps this is just the background, and
+  // it should look like the real page.
+  const tour = usePlaygroundTourHeroCompact();
+  const p = pick(tour);
 
   // Deterministic on first render (SSR-safe), shuffled after mount so ties
   // between same-ELO bots resolve to a random pick.
@@ -246,11 +288,8 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
   };
 
   return (
-    // Mobile runs ~20% tighter than desktop throughout: the tour spotlights
-    // this whole card on a phone, and at the ~669px Safari actually hands the
-    // page it was overflowing the fold with Start Game below it.
-    <div className="flex flex-col flex-1 min-h-0 gap-2 sm:gap-3">
-      <h2 className="text-[13px] sm:text-lg font-semibold text-gray-900 text-center">
+    <div className={`flex flex-col flex-1 min-h-0 ${p("gap-2", "gap-3")} sm:gap-3`}>
+      <h2 className={`${p("text-[13px]", "text-base")} sm:text-lg font-semibold text-gray-900 text-center`}>
         Choose Your Color
       </h2>
 
@@ -260,7 +299,10 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
             key={color}
             type="button"
             onClick={() => setSelectedColor(color)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 sm:py-2 rounded-full text-[12px] sm:text-sm font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 ${p(
+              "py-1.5 text-[12px]",
+              "py-2 text-[13px]"
+            )} sm:py-2 rounded-full sm:text-sm font-medium transition-colors ${
               selectedColor === color
                 ? "bg-white shadow text-gray-900 max-sm:bg-[#DED9F8] max-sm:shadow-none"
                 : "text-gray-500 max-sm:text-gray-900"
@@ -275,7 +317,7 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
               alt={color}
               width={16}
               height={16}
-              className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+              className={`${p("w-3.5 h-3.5", "w-4 h-4")} sm:w-4 sm:h-4`}
             />
             {capitalize(color)}
           </button>
@@ -286,9 +328,9 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
           on desktop the wrapper is invisible and keeps the same column gap. */}
       <div
         data-tour-anchor="opponent-list"
-        className="flex flex-col gap-2 sm:gap-3 grow min-h-0 max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)] max-sm:p-2"
+        className={`flex flex-col ${p("gap-2 max-sm:p-2", "gap-3 max-sm:p-3")} sm:gap-3 grow min-h-0 max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)]`}
       >
-      <h2 className="text-[13px] sm:text-lg font-semibold text-gray-900 text-center pt-0.5 sm:pt-1">
+      <h2 className={`${p("text-[13px] pt-0.5", "text-base pt-1")} sm:text-lg font-semibold text-gray-900 text-center sm:pt-1`}>
         Choose Your Opponent
       </h2>
 
@@ -314,16 +356,19 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
                 setActiveSection(tab.key);
                 setSelectedOpponent(opponentsFor(tab.key)[0]);
               }}
-              className={`flex-shrink-0 min-w-[88px] sm:min-w-[110px] px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg border text-center transition-colors ${
+              className={`flex-shrink-0 ${p(
+                "min-w-[88px] px-2 py-1.5",
+                "min-w-[110px] px-3 py-2"
+              )} sm:min-w-[110px] sm:px-3 sm:py-2 rounded-lg border text-center transition-colors ${
                 highlightKey === tab.key
                   ? "border-blue-base text-blue-base"
                   : "border-gray-200 text-gray-700"
               }`}
             >
-              <div className="text-[11px] sm:text-[13px] font-semibold leading-tight">
+              <div className={`${p("text-[11px]", "text-[12px]")} sm:text-[13px] font-semibold leading-tight`}>
                 {tab.label}
               </div>
-              <div className="text-[9px] sm:text-[11px] text-gray-500 leading-tight">
+              <div className={`${p("text-[9px]", "text-[10px]")} sm:text-[11px] text-gray-500 leading-tight`}>
                 {tab.sub}
               </div>
             </button>
@@ -354,18 +399,22 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         <div
           ref={listRef}
           onScroll={handleListScroll}
-          className={`${recommendedListHeightClass} max-sm:h-[198px] grow mb-1 sm:mb-2 overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}
+          className={`${recommendedListHeightClass} ${p(
+            "max-sm:h-[198px] mb-1",
+            "max-sm:h-[248px] mb-2"
+          )} sm:mb-2 grow transition-[height] duration-300 ease-out overflow-y-auto overflow-x-hidden space-y-2 pr-0.5`}
         >
           <div
             ref={(el) => {
               sectionRefs.current["recommended"] = el;
             }}
-            className="grid grid-cols-4 gap-1.5 sm:gap-2"
+            className={`grid grid-cols-4 ${p("gap-1.5", "gap-2")} sm:gap-2`}
           >
             {recommendedOpponents.map((opponent) => (
               <OpponentCard
                 key={`rec-${opponent.name}-${opponent.elo}`}
                 opponent={opponent}
+                tour={tour}
                 selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
                 onClick={() => setSelectedOpponent(opponent)}
               />
@@ -382,16 +431,17 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
                 sectionRefs.current[tab.key] = el;
               }}
             >
-              <div className="flex items-center gap-3 py-0.5 sm:py-1">
+              <div className={`flex items-center gap-3 ${p("py-0.5", "py-1")} sm:py-1`}>
                 <div className="h-px flex-1 bg-gray-200" />
-                <span className="text-[10px] sm:text-sm text-gray-500">{tab.label}</span>
+                <span className={`${p("text-[10px]", "text-[12px]")} sm:text-sm text-gray-500`}>{tab.label}</span>
                 <div className="h-px flex-1 bg-gray-200" />
               </div>
-              <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+              <div className={`grid grid-cols-4 ${p("gap-1.5", "gap-2")} sm:gap-2`}>
                 {opponentsByTab[tab.key].map((opponent) => (
                   <OpponentCard
                     key={`${tab.key}-${opponent.name}-${opponent.elo}`}
                     opponent={opponent}
+                    tour={tour}
                     selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
                     onClick={() => setSelectedOpponent(opponent)}
                   />
@@ -402,19 +452,23 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
           </div>
         </div>
       ) : (
-        <div className={`${recommendedListHeightClass} max-sm:h-[224px] grow mb-1 sm:mb-2 overflow-y-auto overflow-x-hidden pr-0.5`}>
-          <div className="flex items-center gap-3 pb-0.5 sm:pb-1">
+        <div className={`${recommendedListHeightClass} ${p(
+          "max-sm:h-[224px] mb-1",
+          "max-sm:h-[280px] mb-2"
+        )} sm:mb-2 grow transition-[height] duration-300 ease-out overflow-y-auto overflow-x-hidden pr-0.5`}>
+          <div className={`flex items-center gap-3 ${p("pb-0.5", "pb-1")} sm:pb-1`}>
             <div className="h-px flex-1 bg-gray-200" />
-            <span className="text-[10px] sm:text-sm text-gray-500">
+            <span className={`${p("text-[10px]", "text-[12px]")} sm:text-sm text-gray-500`}>
               {tabs.find((t) => t.key === selectedTab)?.label}
             </span>
             <div className="h-px flex-1 bg-gray-200" />
           </div>
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2 content-start">
+          <div className={`grid grid-cols-4 ${p("gap-1.5", "gap-2")} sm:gap-2 content-start`}>
             {currentOpponents.map((opponent) => (
               <OpponentCard
                 key={`${selectedTab}-${opponent.name}-${opponent.elo}`}
                 opponent={opponent}
+                tour={tour}
                 selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
                 onClick={() => setSelectedOpponent(opponent)}
               />
@@ -429,10 +483,13 @@ export function HeroPlayVSAIPreview({ recommendedListHeightClass = "h-[350px]" }
         onClick={handlePlayNow}
         data-tutorial="play-vs-ai-step-2"
         data-tour-anchor="start-game"
-        className="mt-auto w-full py-1 px-4 sm:px-5 btn-primary text-white font-semibold rounded-full flex items-center justify-between text-[13px] sm:text-base"
+        className={`mt-auto w-full py-1 ${p(
+          "px-4 text-[13px]",
+          "px-5 text-base"
+        )} sm:px-5 sm:text-base btn-primary text-white font-semibold rounded-full flex items-center justify-between`}
       >
         Start Game
-        <span className=" rounded-full w-5 h-5 sm:w-5 sm:h-5 py-3 sm:py-4 flex items-center justify-center flex-shrink-0">
+        <span className={` rounded-full w-5 h-5 sm:w-5 sm:h-5 ${p("py-3", "py-4")} sm:py-4 flex items-center justify-center flex-shrink-0`}>
           <ChevronRight size={19} className="text-white " />
         </span>
       </button>

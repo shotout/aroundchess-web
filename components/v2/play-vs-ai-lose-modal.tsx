@@ -113,7 +113,10 @@ export function LoseModalCard({
             className={`flex items-center justify-between gap-[10px] sm:gap-[16px] bg-[#DC2626] rounded-[10px] ${m(
               "pl-[12px] pr-[10px] py-[6px]",
               "pl-[14px] pr-[12px] py-[8px]"
-            )} sm:pl-[20px] sm:pr-[16px] sm:py-[10px] flex-1 min-w-0 max-w-[300px]`}
+            )} sm:pl-[20px] sm:pr-[16px] sm:py-[10px] flex-1 min-w-0 ${m(
+              "max-w-[210px]",
+              "max-w-[300px]"
+            )} sm:max-w-[300px]`}
           >
             <span
               className={`text-white font-semibold ${m(
