@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import Lottie from "lottie-react";
 import { motion } from "framer-motion";
 import { EloOdometer } from "@/components/v2/elo-odometer";
+import { eloDeltaColorClass, formatEloDelta } from "@/components/v2/format-number";
 import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 import { useLottieData } from "@/components/v2/hooks/useLottieData";
 import {
@@ -29,9 +30,8 @@ interface WinModalCardProps {
   onStartGame?: (opponent: AiRosterOpponent) => void;
   /**
    * "modal" (default) is the real in-game screen. "tour" renders the exact
-   * same card inert for the playground tutorial: no interactivity, and the
-   * animation is allowed to shrink (full-width flex child) so the card always
-   * fits under the tour tooltip without cutting off or showing side gaps.
+   * same card inert for the playground tutorial: no interactivity, no 96vh
+   * cap (the tour sizes the room it gets), and a wider animation on mobile.
    */
   variant?: "modal" | "tour";
 }
@@ -79,13 +79,15 @@ export function WinModalCard({
       }
     >
       {/* Celebration animation — the square Lottie is top-anchored so only
-          the canvas' empty bottom strip gets cropped. Narrower on mobile so
-          the whole modal fits the viewport without scrolling. The tour keeps
-          the full aspect (never cropped short) and scales the whole card. */}
+          the canvas' empty bottom strip gets cropped. It's the card's elastic
+          part: capped on mobile and shrunk on short desktop viewports so the
+          card always fits the room it has (96vh for the modal, whatever the
+          tour tooltip leaves) at full width, instead of the card scaling down
+          and ending up narrower than the tooltip above it. */}
       <div
         className={
           tour
-            ? "w-[95%] sm:w-[74%] mx-auto aspect-[540/400]"
+            ? "w-[95%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
             : "w-[68%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         }
       >
@@ -136,16 +138,17 @@ export function WinModalCard({
               </span>
             </span>
           </div>
-          {delta > 0 && (
-            <motion.span
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: ODOMETER_DELAY + ODOMETER_DURATION, duration: 0.35 }}
-              className="text-[#34C759] font-bold text-[20px] sm:text-[24px] shrink-0"
-            >
-              +{delta}
-            </motion.span>
-          )}
+          {/* Always rendered, including the 0 an account that is still
+              calibrating gets: the badge is the modal's statement about the
+              rating, so hiding it read as "this win did nothing". */}
+          <motion.span
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: ODOMETER_DELAY + ODOMETER_DURATION, duration: 0.35 }}
+            className={`font-bold text-[20px] sm:text-[24px] shrink-0 ${eloDeltaColorClass(delta)}`}
+          >
+            {formatEloDelta(delta)}
+          </motion.span>
         </div>
 
         <p className="text-center font-bold text-[15px] sm:text-[17px] text-[#111827]">

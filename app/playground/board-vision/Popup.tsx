@@ -54,10 +54,19 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose }) => {
   );
 
   // Both the raw API shape and the UI-shaped cached Game carry pgn + username.
+  // colour and opponent come along too: `username` isn't always the player's
+  // name in that game's PGN, so the quiz resolves the player's side from these
+  // instead (see resolveUserSide). The raw row spells colour `color`, the cached
+  // UI shape `playerColor`.
   const toQuizGames = (items: any[]): QuizGame[] =>
     items
       .filter((g) => typeof g?.pgn === "string" && g.pgn.trim() !== "")
-      .map((g) => ({ pgn: g.pgn, username: g.username || globalUsername || "" }));
+      .map((g) => ({
+        pgn: g.pgn,
+        username: g.username || globalUsername || "",
+        playerColor: g.color || g.playerColor || "",
+        opponent: g.opponent || "",
+      }));
 
   useEffect(() => {
     if (!isOpen) return;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useProfileStore } from "@/app/store/profile";
+import { usePgnStore } from "@/app/store/zustandStore";
 import PlayerInfo from "./PlayerInfo";
 import { UserBoardDisplayProps } from "../../types/default-pgn";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
@@ -30,13 +31,51 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
   const [mounted, _] = useState<boolean>(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isUserPlayingWhite =
-    currentPosition?.white?.toLowerCase() === username?.toLowerCase();
+  // Same rule as UserPGN: the side resolved from the game record's colour wins,
+  // with the name match as the fallback for positions that predate it.
+  const isUserPlayingWhite = currentPosition?.userColor
+    ? currentPosition.userColor === "white"
+    : currentPosition?.white?.toLowerCase() === username?.toLowerCase();
 
-  // The player's own row uses the account's profile picture, like the vs-AI
-  // board and the sidebar; whatever the game data carried is the fallback.
+  // The account's profile picture follows its own name to whichever row that
+  // name is in, like the vs-AI board and the sidebar; whatever the game data
+  // carried is the fallback. It used to be pinned to the bottom row on the
+  // assumption that the bottom row is always the signed-in player — but the
+  // rows are assigned from the game record's own username (see below), so when
+  // that names the other side, the account's own handle shows in the top row
+  // and its picture stayed behind next to the opponent's name.
+  //
+  // Row names come from PGN headers, so they can be a chess.com handle, the
+  // account's display name or its username. Match loosely (letters and digits
+  // only) against every identity we hold, so "Tyo Sndr" still matches
+  // "TyoSndr".
   const { profile } = useProfileStore();
-  const ownProfilePic = profile?.imageUrl || userProfilePic;
+  const { username: chessComUsername, usernameAnalysis } = usePgnStore();
+  const normalize = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const accountNames = [
+    profile?.username,
+    profile?.name,
+    typeof profile?.email === "string" ? profile.email.split("@")[0] : "",
+    chessComUsername,
+    usernameAnalysis,
+  ]
+    .filter((name): name is string => typeof name === "string" && name.trim() !== "")
+    .map(normalize)
+    .filter((name) => name !== "");
+  const isAccount = (name?: string) =>
+    !!name && accountNames.includes(normalize(name));
+  // Only trust the top row as the account's when the bottom row isn't: with the
+  // side resolved from the game record the bottom row is the player, and both
+  // rows can carry an account identity (display name vs chess.com handle).
+  const topIsAccount = isAccount(opponentName) && !isAccount(username);
+  // When neither row matches (a PGN imported under some other handle) the
+  // bottom row is still the player's own row, so it keeps the account picture.
+  const topProfilePic = topIsAccount
+    ? profile?.imageUrl || opponentProfilePic
+    : opponentProfilePic;
+  const bottomProfilePic = topIsAccount
+    ? userProfilePic
+    : profile?.imageUrl || userProfilePic;
 
   const userElo = isUserPlayingWhite
     ? currentPosition?.whiteElo
@@ -99,7 +138,7 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
           plain "white vs black" caption under the board instead. */}
       <div className="hidden xl:block">
         <PlayerInfo
-          profilePic={opponentProfilePic}
+          profilePic={topProfilePic}
           playerName={opponentName}
           elo={opponentElo}
         />
@@ -139,7 +178,7 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
       </div>
       <div className="hidden xl:block">
         <PlayerInfo
-          profilePic={ownProfilePic}
+          profilePic={bottomProfilePic}
           playerName={username}
           elo={userElo}
         />

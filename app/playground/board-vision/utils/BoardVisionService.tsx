@@ -8,6 +8,8 @@ export interface Position {
   black: string;
   url: string;
   username?: string;
+  /** Which side the signed-in player was, resolved once per game. */
+  userColor?: "white" | "black";
   whiteProfilePic?: string;
   blackProfilePic?: string;
   gameIndex?: number;
@@ -16,6 +18,45 @@ export interface Position {
 export interface QuizGame {
   pgn: string;
   username: string;
+  /** "white"/"black" from the game-history row — the reliable signal for which
+   *  side the player was (see resolveUserSide). */
+  playerColor?: string;
+  /** The opponent's name from the same row, used when colour is missing. */
+  opponent?: string;
+}
+
+const sameName = (a?: string, b?: string) =>
+  !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
+
+/**
+ * Which side of a game the signed-in player was.
+ *
+ * The PGN names alone can't answer this: `username` on a game-history row is
+ * not always the player's name in that game's headers (app-generated PGNs carry
+ * the account's display name, imports carry whatever handle the file used, and
+ * an empty field falls back to the connected chess.com handle — which can even
+ * match the opponent). Getting it wrong swaps the two player rows and flips the
+ * board, so trust the row's own `color` first, then the opponent's name, and
+ * only then fall back to matching the username.
+ *
+ * Returns null when nothing resolves, so callers keep their previous behaviour.
+ */
+export function resolveUserSide(
+  white: string,
+  black: string,
+  username?: string,
+  playerColor?: string,
+  opponent?: string
+): "white" | "black" | null {
+  const color = (playerColor || "").trim().toLowerCase();
+  if (color === "white" || color === "w") return "white";
+  if (color === "black" || color === "b") return "black";
+
+  if (sameName(opponent, white)) return "black";
+  if (sameName(opponent, black)) return "white";
+  if (sameName(username, white)) return "white";
+  if (sameName(username, black)) return "black";
+  return null;
 }
 
 export interface PositionAnalysis {
@@ -77,7 +118,9 @@ export const ChessService = {
       opponentName?: string;
       userCountry?: string;
       opponentCountry?: string;
-    }
+    },
+    /** The game-history row's own fields, used to resolve the player's side. */
+    record?: { playerColor?: string; opponent?: string }
   ): Promise<Position[]> {
     try {
       const fenList = this.pgnToFenList(pgn, false);
@@ -120,25 +163,43 @@ export const ChessService = {
         console.error("Error extracting PGN headers:", e);
       }
 
-      const whiteProfilePic =
-        username.toLowerCase() === white.toLowerCase()
-          ? profileInfo?.userProfilePic
-          : profileInfo?.opponentProfilePic;
+      // Which side the player was — from the game record, not the raw username
+      // (see resolveUserSide). Everything else on the row follows from it: the
+      // player's name, the opponent's name, and which picture belongs where.
+      const userColor = resolveUserSide(
+        white,
+        black,
+        username,
+        record?.playerColor,
+        record?.opponent
+      );
+      const playerName =
+        userColor === "white" ? white : userColor === "black" ? black : username;
+      const opponentName =
+        userColor === "white"
+          ? black
+          : userColor === "black"
+            ? white
+            : profileInfo?.opponentName || record?.opponent || black;
 
-      const blackProfilePic =
-        username.toLowerCase() === black.toLowerCase()
-          ? profileInfo?.userProfilePic
-          : profileInfo?.opponentProfilePic;
+      const whiteProfilePic = sameName(playerName, white)
+        ? profileInfo?.userProfilePic
+        : profileInfo?.opponentProfilePic;
+
+      const blackProfilePic = sameName(playerName, black)
+        ? profileInfo?.userProfilePic
+        : profileInfo?.opponentProfilePic;
 
       const positions = selectedFens.map((fen) => ({
-        opponentName: profileInfo?.opponentName || black,
+        opponentName,
         fen,
         white,
         black,
         whiteElo,
         blackElo,
         url,
-        username,
+        username: playerName,
+        userColor: userColor ?? undefined,
         gameIndex,
         whiteProfilePic:
           whiteProfilePic || this.getProfilePicUrl({ username: white }),
@@ -160,7 +221,7 @@ export const ChessService = {
         const opponents = new Set<string>();
 
         for (let i = 0; i < games.length; i++) {
-          const { pgn, username } = games[i];
+          const { pgn, username, playerColor, opponent } = games[i];
           try {
             const chess = new Chess();
             try {
@@ -170,33 +231,20 @@ export const ChessService = {
               continue;
             }
 
-            let opponent = "";
-            try {
-              const headers = chess.header();
-              if (
-                headers.White &&
-                headers.White.toLowerCase() === username.toLowerCase()
-              ) {
-                opponent = headers.Black || "Opponent";
-              } else {
-                opponent = headers.White || "Opponent";
-              }
-              opponents.add(opponent);
-            } catch (e) {
-              console.error("Error extracting PGN headers:", e);
-            }
-
+            // getUserGameFromPgn resolves the player's side (colour first, then
+            // the row's opponent, then the username) and names both rows from
+            // it, so the opponent it reports is the one used for grouping below
+            // — this loop no longer second-guesses it from the headers.
             const positions = await this.getUserGameFromPgn(
               pgn,
               username,
-              i
+              i,
+              undefined,
+              { playerColor, opponent }
             );
             if (positions.length > 0) {
-              const positionsWithOpponent = positions.map((pos) => ({
-                ...pos,
-                opponentName: opponent,
-              }));
-              allPositions.push(...positionsWithOpponent);
+              opponents.add(positions[0].opponentName || "Opponent");
+              allPositions.push(...positions);
             }
           } catch (error) {
             console.error(`Error processing game ${i}:`, error);

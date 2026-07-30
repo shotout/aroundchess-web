@@ -13,6 +13,9 @@ export interface DayStreakModalRequest {
   /** Set to render the static flame image instead of playing the lottie —
    * "off" when the user hasn't played today, "on" when they already have. */
   staticFlame?: DayStreakStaticFlame;
+  /** A ?streakDemo= URL preview rather than a real check-in: the host skips the
+   * once-per-day stamp so looking at the modal can't suppress the real one. */
+  preview?: boolean;
 }
 
 interface DayStreakModalState {

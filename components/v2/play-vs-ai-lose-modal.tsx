@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import Lottie from "lottie-react";
 import { motion } from "framer-motion";
 import { EloOdometer } from "@/components/v2/elo-odometer";
+import { eloDeltaColorClass, formatEloDelta } from "@/components/v2/format-number";
 import { useLottieData } from "@/components/v2/hooks/useLottieData";
 
 const ODOMETER_DELAY = 0.6;
@@ -22,9 +23,8 @@ interface LoseModalCardProps {
   onDiscoverMistakes?: () => void;
   /**
    * "modal" (default) is the real in-game screen. "tour" renders the exact
-   * same card inert for the playground tutorial: no interactivity, and the
-   * animation is allowed to shrink (full-width flex child) so the card always
-   * fits under the tour tooltip without cutting off or showing side gaps.
+   * same card inert for the playground tutorial: no interactivity, no 96vh
+   * cap (the tour sizes the room it gets), and a wider animation on mobile.
    */
   variant?: "modal" | "tour";
 }
@@ -54,7 +54,7 @@ export function LoseModalCard({
       <div
         className={
           tour
-            ? "w-[95%] sm:w-[74%] mx-auto aspect-[540/400]"
+            ? "w-[95%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
             : "w-[68%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         }
       >
@@ -105,16 +105,16 @@ export function LoseModalCard({
               </span>
             </span>
           </div>
-          {delta < 0 && (
-            <motion.span
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: ODOMETER_DELAY + ODOMETER_DURATION, duration: 0.35 }}
-              className="text-[#DC2626] font-bold text-[20px] sm:text-[24px] shrink-0"
-            >
-              {delta}
-            </motion.span>
-          )}
+          {/* Always rendered, same as the win modal: a calibrating account's 0
+              is still the modal's statement about the rating. */}
+          <motion.span
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: ODOMETER_DELAY + ODOMETER_DURATION, duration: 0.35 }}
+            className={`font-bold text-[20px] sm:text-[24px] shrink-0 ${eloDeltaColorClass(delta)}`}
+          >
+            {formatEloDelta(delta)}
+          </motion.span>
         </div>
 
         <p className="text-center font-bold text-[15px] sm:text-[17px] text-[#111827]">

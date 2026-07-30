@@ -91,12 +91,17 @@ const UserPGN: React.FC = () => {
       currentPosition.black?.toLowerCase() === effectiveUsername.toLowerCase();
 
     // If username matches neither player, you might want to handle this case
-    if (!isWhiteUser && !isBlackUser) {
+    if (!isWhiteUser && !isBlackUser && !currentPosition.userColor) {
       console.warn("Username does not match either player in the position");
       // You could default to white or show an error
     }
 
-    const actuallyWhiteUser = isWhiteUser;
+    // The side resolved when the game was loaded (from the game record's colour)
+    // wins: `username` alone mis-identifies the player whenever the record's
+    // username isn't their name in that PGN.
+    const actuallyWhiteUser = currentPosition.userColor
+      ? currentPosition.userColor === "white"
+      : isWhiteUser;
 
     return {
       isWhiteUser: actuallyWhiteUser,

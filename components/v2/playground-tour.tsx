@@ -69,6 +69,12 @@ type TourStep = {
   /** px kept clear above the scrolled anchor (defaults to 110, the navbar) */
   scrollMargin?: number;
   /**
+   * Parks the tooltip right under the app header and scrolls the anchor to sit
+   * just below it, so no dead space is left between the two. Computed from the
+   * measured header and tooltip, which beats hand-tuning scrollMargin per step.
+   */
+  tooltipUnderHeader?: boolean;
+  /**
    * pins the tooltip's bottom edge at primaryRect.top + this offset instead
    * of the automatic above/below/over placement (falls back to "over" when
    * the tooltip would leave the viewport)
@@ -85,6 +91,36 @@ const MOBILE_BP = 640;
 const isMobileViewport = () =>
   typeof window !== "undefined" && window.innerWidth < MOBILE_BP;
 
+/** px of padding the spotlight leaves around the anchor it cuts out */
+const PAD = 8;
+/** px the spotlight keeps clear of the screen edges (its horizontal padding
+ *  gives way rather than running off-screen) */
+const SPOTLIGHT_EDGE = 8;
+/** px kept clear between the app header and a tooltip parked under it */
+const HEADER_GAP = 12;
+/** px between a tooltip and the anchor its caret points at */
+const CARET_GAP = 14;
+/** px kept clear of the viewport edges */
+const VIEWPORT_MARGIN = 12;
+/** the demo column's own padding (p-4), top + bottom */
+const DEMO_COLUMN_PAD = 32;
+
+/** Bottom edge of the app's fixed header (banner included) — where a tooltip
+ *  parked at the top of the screen has to start. Falls back to the mobile
+ *  navbar height if the header can't be found. */
+function headerBottom(): number {
+  const el = document.querySelector<HTMLElement>("header");
+  if (el) {
+    const position = getComputedStyle(el).position;
+    const bottom = el.getBoundingClientRect().bottom;
+    // in-page <header> elements scroll away and must not be mistaken for it
+    if ((position === "fixed" || position === "sticky") && bottom > 0 && bottom < 240) {
+      return Math.round(bottom);
+    }
+  }
+  return 72;
+}
+
 function resolveStep(step: TourStep, mobile: boolean): TourStep {
   return mobile && step.mobile ? { ...step, ...step.mobile } : step;
 }
@@ -97,16 +133,19 @@ const STEPS: TourStep[] = [
     include: ["play-top-bar"],
     scrollAnchor: "play-top-bar",
     tooltipBottomAt: 96,
-    // Mobile spotlights the Play VS AI card alone (no leaderboard) and parks it
-    // low enough for the tooltip to clear the navbar and sit entirely above the
-    // card — so the card's "Play VS AI" heading stays visible above Choose Your
-    // Color, with the caret pointing down at the card's top edge. No
+    // Mobile spotlights the Play VS AI card alone (no leaderboard), with the
+    // tooltip entirely above it and the caret pointing down at the card's top
+    // edge — so the card's "Play VS AI" heading stays visible above Choose Your
+    // Color. tooltipUnderHeader pulls the pair as high as the navbar allows
+    // instead of leaving dead space above the tooltip; scrollMargin is only the
+    // first-frame fallback, used until the tooltip has been measured. No
     // tooltipBottomAt: that would pin the tooltip over the heading instead.
     mobile: {
       anchors: ["opponent-panel"],
       include: [],
       scrollAnchor: undefined,
       scrollMargin: 330,
+      tooltipUnderHeader: true,
       tooltipBottomAt: undefined,
     },
   },
@@ -211,6 +250,7 @@ function TourTooltip({
   onNext,
   caret,
   widthPx,
+  onHeight,
 }: {
   step: TourStep;
   index: number;
@@ -218,12 +258,27 @@ function TourTooltip({
   onPrev: () => void;
   onNext: () => void;
   caret?: "top" | "bottom";
-  /** Overrides the default width — demo steps match the scaled card below. */
+  /** overrides the default width — mobile matches the spotlight below it */
   widthPx?: number;
+  /** reports the rendered height, which drives the placement math above */
+  onHeight?: (height: number) => void;
   }) {
   const isLast = index === STEPS.length - 1;
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el || !onHeight) return;
+    const report = () => onHeight(el.offsetHeight);
+    report();
+    const ro = new ResizeObserver(report);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [onHeight]);
+
   return (
     <div
+      ref={boxRef}
       style={widthPx ? { width: widthPx } : undefined}
       className="relative w-[min(430px,calc(100vw-24px))] rounded-[16px] sm:rounded-[14px] bg-white shadow-2xl ring-2 ring-[#221AE9] sm:ring-[#7CC0F2] p-4 sm:p-[16px] pointer-events-auto"
     >
@@ -301,33 +356,38 @@ function TourTooltip({
 
 /* ------------------------- demo result cards ---------------------------- */
 // The tour reuses the real win/lose modal cards (WinModalCard / LoseModalCard,
-// variant="tour"). Those render at the modal's full proportions — including
-// the celebration animation at its natural aspect, so it's never cropped
-// short. This wrapper measures the card and, only when the viewport is too
-// short to show it at full size, scales the whole card down uniformly so it
-// stays fully in view under the tour tooltip (animation included).
+// variant="tour") and its own analyze card. This wrapper measures a card and,
+// when the viewport is too short to show it at full size, scales it down so it
+// stays fully in view under the tour tooltip — the tour never scrolls.
+//
+// A CSS scale shrinks width along with height, which would leave the card
+// narrower than the tooltip above it. So the card is laid out *wider* by the
+// same factor it's scaled down by: 100%/scale in, scale out, and the visual
+// width lands back on the column's — the tooltip's — width. Cards whose height
+// is capped (the mobile animation) settle in one pass; ones that grow with
+// width (the analyze board) would need an unbounded stretch, so it's capped at
+// MAX_STRETCH and they end up a couple of percent narrow instead.
+const MAX_STRETCH = 1.35;
+
 function ScaleToFit({
   children,
   reserve = 210,
   referenceHeight,
   onMeasure,
-  onScale,
 }: {
   children: React.ReactNode;
-  /** px kept clear for the tooltip + gaps above the card */
+  /** px kept clear for the tooltip + gaps above the card (measured by the tour
+      once its tooltip has rendered; the default only covers that first frame) */
   reserve?: number;
   /**
    * When set, the scale is computed from this height instead of the card's
    * own — used so the win and lose demo cards share one scale factor and
-   * therefore render at exactly the same width. The box still sizes to the
-   * card's own scaled height.
+   * therefore render their contents at exactly the same size. The box still
+   * sizes to the card's own scaled height.
    */
   referenceHeight?: number;
   /** reports this card's natural (untransformed) height once measured */
   onMeasure?: (height: number) => void;
-  /** reports the applied scale, so the tooltip above can match the card's
-      visual width (a CSS scale shrinks width as well as height) */
-  onScale?: (scale: number) => void;
 }) {
   const innerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -340,21 +400,17 @@ function ScaleToFit({
       const natural = el.offsetHeight; // untransformed layout height
       if (!natural) return;
       onMeasure?.(natural);
-      // Mobile never scales: the transform shrinks width as well as height, so
-      // any scale < 1 would make the card narrower than the tooltip above it.
-      // It renders at full container width and the column scrolls instead.
-      if (window.innerWidth < MOBILE_BP) {
-        setScale(1);
-        onScale?.(1);
-        setBoxHeight(undefined);
-        return;
-      }
       const basis = referenceHeight && referenceHeight > 0 ? referenceHeight : natural;
       const avail = window.innerHeight - reserve;
       const next = Math.min(1, avail / basis);
-      setScale(next);
-      onScale?.(next);
-      setBoxHeight(natural * next);
+      // The counter-stretch below feeds the new layout width back into this
+      // measurement, so ignore hair-thin changes: they'd keep the observer
+      // firing without moving anything.
+      setScale((current) => (Math.abs(current - next) < 0.004 ? current : next));
+      setBoxHeight((current) => {
+        const height = Math.round(natural * next);
+        return current !== undefined && Math.abs(current - height) < 1 ? current : height;
+      });
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -364,13 +420,24 @@ function ScaleToFit({
       ro.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [reserve, referenceHeight, onMeasure, onScale]);
+  }, [reserve, referenceHeight, onMeasure]);
+
+  // The stretched box is wider than the container, so it's pulled back by half
+  // the excess and scaled about its own centre. That keeps it centred whatever
+  // the scale — including when MAX_STRETCH caps the compensation and the card
+  // ends up a shade narrower than the column.
+  const widthPct = Math.min(MAX_STRETCH, 1 / scale) * 100;
 
   return (
     <div style={{ height: boxHeight, width: "100%" }}>
       <div
         ref={innerRef}
-        style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
+        style={{
+          width: `${widthPct}%`,
+          marginLeft: `${(100 - widthPct) / 2}%`,
+          transform: `scale(${scale})`,
+          transformOrigin: "top center",
+        }}
       >
         {children}
       </div>
@@ -1021,32 +1088,36 @@ function useShortViewport() {
   return short;
 }
 
+// Height of everything in the card except the board — title, slide chrome,
+// board controls, the detail box and the pager. The mobile board is sized from
+// what's left of the card's height budget, so the card fits at full width
+// instead of scaling down and ending up narrower than the tooltip.
+const ANALYZE_CHROME = 410;
+const ANALYZE_BOARD_MIN = 200;
+
 // Mini replica of the real Game Analysis modal (GameAnalysis.tsx): same card
 // deck swipe (Swiper cards effect), same slide layout, auto-playing.
-function DemoAnalyzeCard() {
+function DemoAnalyzeCard({ maxHeight }: { maxHeight?: number }) {
   const swiperRef = useRef<SwiperType>();
   const [activeIndex, setActiveIndex] = useState(0);
   const shortViewport = useShortViewport();
-  // The board fills the card's inner width, as in the design. Mobile always
-  // fills (the tour column scrolls); desktop also caps by viewport height,
-  // since a full-width board there would push the card past the fold.
+  // Mobile fills the card with the board (design), capped by the height it has
+  // to play with; desktop keeps the compact fixed sizes the tour has always
+  // used there — a full-width board would push the card past the fold.
   const cardRef = useRef<HTMLDivElement>(null);
-  const [boardW, setBoardW] = useState(0);
+  const [mobileBoardW, setMobileBoardW] = useState(0);
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const measure = () => {
       // card padding (16 x2) + slide padding (16 x2) + slide border
       const inner = el.clientWidth - 66;
-      if (inner <= 0) return;
-      if (window.innerWidth < MOBILE_BP) {
-        setBoardW(inner);
+      if (window.innerWidth >= MOBILE_BP || inner <= 0) {
+        setMobileBoardW(0);
         return;
       }
-      // Everything else in the column: tooltip, gap, title, board controls and
-      // the detail box below the board.
-      const heightCap = window.innerHeight - 520;
-      setBoardW(Math.max(180, Math.min(inner, heightCap, 320)));
+      const byHeight = maxHeight ? maxHeight - ANALYZE_CHROME : inner;
+      setMobileBoardW(Math.min(inner, Math.max(ANALYZE_BOARD_MIN, byHeight)));
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -1056,8 +1127,8 @@ function DemoAnalyzeCard() {
       ro.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, []);
-  const BOARD_W = boardW || (shortViewport ? 190 : 225);
+  }, [maxHeight]);
+  const BOARD_W = mobileBoardW || (shortViewport ? 190 : 225);
 
   // Auto-advance staged as a fake finger drag: translate frames are fed to
   // the swiper by hand (the cards effect rotates the top card exactly like a
@@ -1100,18 +1171,18 @@ function DemoAnalyzeCard() {
   return (
     <div
       ref={cardRef}
-      className="relative w-full bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] p-[16px] select-none pointer-events-none"
+      className="relative w-full bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] p-[16px] sm:p-[10px] select-none pointer-events-none"
     >
       {/* Modal chrome from the real Game Analysis dialog — the close button is
           decorative here; the tour's own controls drive the step. */}
-      <span className="absolute top-[16px] right-[16px]">
-        <svg width="24" height="24" viewBox="0 0 40 40" fill="none">
+      <span className="absolute top-[16px] right-[16px] sm:top-[10px] sm:right-[10px]">
+        <svg width="24" height="24" viewBox="0 0 40 40" fill="none" className="sm:w-[18px] sm:h-[18px]">
           <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" />
           <path d="M10 10L30 30" stroke="black" strokeWidth="4" strokeLinecap="round" />
         </svg>
       </span>
 
-      <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px]">
+      <h3 className="text-[18px] sm:text-[16px] text-center font-bold text-[#121212] mb-[16px] sm:mb-[10px]">
         Game Analysis
       </h3>
 
@@ -1128,8 +1199,8 @@ function DemoAnalyzeCard() {
       >
         {DEMO_MISTAKES.map((mistake, index) => (
           <SwiperSlide key={index}>
-            <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25)]">
-              <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px]">
+            <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] sm:p-[12px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25)]">
+              <div className="w-full flex flex-col gap-[10px] sm:gap-[6px] items-center justify-center mb-[16px] sm:mb-[10px]">
                 <div
                   style={{ width: BOARD_W }}
                   className="flex flex-row justify-end items-center gap-3"
@@ -1139,71 +1210,71 @@ function DemoAnalyzeCard() {
                     alt="switch"
                     width={20}
                     height={20}
-                    className="w-[20px] h-[20px] rounded-full object-contain"
+                    className="w-[20px] h-[20px] sm:w-[18px] sm:h-[18px] rounded-full object-contain"
                   />
-                  <Settings size={18} className="text-[#221AE9]" />
+                  <Settings size={18} className="text-[#221AE9] sm:w-[16px] sm:h-[16px]" />
                 </div>
                 <DemoSlideBoard mistake={mistake} boardWidth={BOARD_W} />
               </div>
 
               <div className="w-full border border-[#221AE9] rounded-[8px]">
                 <div className="flex items-center justify-between py-[4px] rounded-t-[7px] px-[10px] bg-gradient-to-tr from-[#2327EB] to-[#25CADC]">
-                  <div className="flex items-center gap-[8px] min-w-0">
-                    <div className="flex items-center gap-[6px] px-[8px] py-[3px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px] shrink-0">
+                  <div className="flex items-center gap-[8px] sm:gap-[6px] min-w-0">
+                    <div className="flex items-center gap-[6px] sm:gap-[4px] px-[8px] py-[3px] sm:px-[6px] sm:py-[2px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px] shrink-0">
                       <Image
                         src="/images/analysis/icon_miss.png"
                         alt="miss"
                         width={18}
                         height={18}
-                        className="w-[18px] h-[18px] object-contain"
+                        className="w-[18px] h-[18px] sm:w-[14px] sm:h-[14px] object-contain"
                       />
-                      <span className="font-semibold text-[13px]">{mistake.type}</span>
+                      <span className="font-semibold text-[13px] sm:text-[11px]">{mistake.type}</span>
                     </div>
-                    <span className="font-bold text-white text-[14px] truncate">
+                    <span className="font-bold text-white text-[14px] sm:text-[12px] truncate">
                       Move {mistake.moveNumber}: {mistake.move}
                     </span>
                   </div>
-                  <div className="flex gap-[8px] items-center shrink-0">
+                  <div className="flex gap-[8px] sm:gap-[6px] items-center shrink-0">
                     {/* same sign rule as the real modal: losses red, gains green */}
                     <span
                       className={`${
                         mistake.keyEvaluation < 0
                           ? "text-[#E22B32] border-[#E22B32]"
                           : "text-[#00B427] border-[#00B427]"
-                      } border font-medium text-[14px] bg-white rounded-full py-[2px] px-[10px]`}
+                      } border font-medium text-[14px] sm:text-[11px] bg-white rounded-full py-[2px] px-[10px] sm:py-[1px] sm:px-[8px]`}
                     >
                       {mistake.keyEvaluation}
                     </span>
-                    <span className="w-[32px] h-[32px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] rounded-[8px]">
-                      <Bookmark className="w-[14px] h-[14px]" color="#221AE9" />
+                    <span className="w-[32px] h-[32px] sm:w-[24px] sm:h-[24px] flex items-center justify-center bg-[#E6F7FE] border border-[#C6EEFE] rounded-[8px] sm:rounded-[6px]">
+                      <Bookmark className="w-[14px] h-[14px] sm:w-[12px] sm:h-[12px]" color="#221AE9" />
                     </span>
                   </div>
                 </div>
                 {/* fixed height keeps every card identical so the swiper
                     doesn't reserve extra room under the shorter slides */}
-                <div className="p-[10px] pt-[8px] h-[178px] overflow-hidden">
-                  <h3 className="flex items-center gap-[8px] mb-[4px]">
+                <div className="p-[10px] pt-[8px] h-[178px] sm:p-[8px] sm:h-[136px] overflow-hidden">
+                  <h3 className="flex items-center gap-[8px] sm:gap-[6px] mb-[4px] sm:mb-[2px]">
                     <Image
                       src="/images/analysis/icon_analysis.svg"
                       alt="analysis"
                       width={28}
                       height={28}
-                      className="w-[28px] h-[28px] object-contain"
+                      className="w-[28px] h-[28px] sm:w-[20px] sm:h-[20px] object-contain"
                     />
-                    <span className="font-bold text-[18px] text-[#040404]">Analysis</span>
+                    <span className="font-bold text-[18px] sm:text-[14px] text-[#040404]">Analysis</span>
                   </h3>
-                  <p className="text-[15px] leading-[130%] text-[#585858] mb-[8px] min-h-[40px]">
+                  <p className="text-[15px] sm:text-[12px] leading-[130%] text-[#585858] mb-[8px] sm:mb-[6px] min-h-[40px] sm:min-h-[32px]">
                     {mistake.analysis}
                   </p>
-                  <div className="flex w-full items-center bg-[#1C17A6] gap-[16px] p-[8px] rounded-[8px]">
+                  <div className="flex w-full items-center bg-[#1C17A6] gap-[16px] sm:gap-[10px] p-[8px] sm:p-[6px] rounded-[8px]">
                     <Image
                       src="/images/analysis/icon_union.svg"
                       alt="analysis"
                       width={44}
                       height={44}
-                      className="w-[44px] h-[44px] object-contain"
+                      className="w-[44px] h-[44px] sm:w-[30px] sm:h-[30px] object-contain"
                     />
-                    <div className="relative leading-[120%] flex items-center min-h-[44px] w-full rounded-[8px] text-[14px] text-white px-[10px] py-[8px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
+                    <div className="relative leading-[120%] flex items-center min-h-[44px] sm:min-h-[34px] w-full rounded-[8px] text-[14px] sm:text-[11px] text-white px-[10px] py-[8px] sm:px-[8px] sm:py-[6px] bg-gradient-to-br from-[#2327EB] to-[#25CADC] before:content-[''] before:w-[16px] before:h-[16px] before:absolute before:top-[50%] before:left-[-16px] before:-translate-y-[50%] sm:before:w-[12px] sm:before:h-[12px] sm:before:left-[-12px] before:bg-[url(/images/analysis/tail.svg)] before:bg-cover before:bg-no-repeat before:bg-center">
                       {mistake.solution}
                     </div>
                   </div>
@@ -1327,11 +1398,13 @@ export function PlaygroundTour({
     winCardHeightRef.current = h;
   }).current;
 
-  // ScaleToFit shrinks the demo card to fit short viewports, and a CSS scale
-  // narrows it as well as shortening it. Track that factor so the tooltip
-  // above can be narrowed to the same visual width.
-  const [demoScale, setDemoScale] = useState(1);
-  const reportDemoScale = useRef((value: number) => setDemoScale(value)).current;
+  // Rendered tooltip height, reported by TourTooltip. The placement math needs
+  // it to know whether a step's tooltip fits above its target and where its
+  // bottom edge lands, and mobile step 1 sizes its scroll margin from it.
+  const [tooltipH, setTooltipH] = useState(0);
+  const reportTooltipHeight = useRef((height: number) =>
+    setTooltipH((current) => (current === height ? current : height))
+  ).current;
 
   // viewport.vw is 0 until the first rAF tick, so fall back to a live read.
   const isMobile = viewport.vw > 0 ? viewport.vw < MOBILE_BP : isMobileViewport();
@@ -1457,12 +1530,12 @@ export function PlaygroundTour({
     }
     setIndex((i) => Math.max(i - 1, 0));
   };
-
-  // A scale measured on the win/lose card must not leak into the next step
-  // (the analyze demo sizes itself and never scales).
-  useEffect(() => {
-    setDemoScale(1);
-  }, [index]);
+  // Skip doesn't step forward — it jumps to the closing "You're All Set" card,
+  // so one tap ends the walkthrough on the screen that hands the user the page.
+  const skip = () => {
+    setInterlude(false);
+    setIndex(FINALE_INDEX);
+  };
 
   // The interlude is advanced by whichever overlay renders (the tracked board on
   // desktop, the won-game sheet on mobile). If neither can — no visible board
@@ -1489,10 +1562,25 @@ export function PlaygroundTour({
           )
         : null;
     if (!el) return;
-    el.style.scrollMarginTop = `${(!interlude && step?.scrollMargin) || 110}px`;
+    // tooltipUnderHeader steps derive their margin instead of hard-coding one.
+    // Ideally the tooltip parks just below the navbar, but a target taller than
+    // the room that leaves (the Play VS AI card on a phone) would have its
+    // bottom cut off, so the pair rides higher — up to the viewport edge, over
+    // the dimmed navbar — until the whole target fits. On the first frame the
+    // tooltip isn't measured yet and the step's static scrollMargin stands in
+    // until it is (this effect re-runs then).
+    let margin = (!interlude && step?.scrollMargin) || 110;
+    if (!interlude && step?.tooltipUnderHeader && tooltipH) {
+      const above = tooltipH + CARET_GAP + PAD; // room the tooltip needs
+      const underHeader = headerBottom() + HEADER_GAP + above;
+      const wholeTargetFits =
+        window.innerHeight - VIEWPORT_MARGIN - el.offsetHeight - PAD;
+      margin = Math.max(VIEWPORT_MARGIN + above, Math.min(underHeader, wholeTargetFits));
+    }
+    el.style.scrollMarginTop = `${Math.round(margin)}px`;
     el.scrollIntoView({ behavior: "smooth", block: "start" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, index, interlude]);
+  }, [open, index, interlude, tooltipH]);
 
   // Step-2 showcase: gently auto-scroll the opponent list (categories +
   // players) like the tutorial video does. Pure DOM scrolling on the list
@@ -1619,6 +1707,51 @@ export function PlaygroundTour({
     return () => cancelAnimationFrame(raf);
   }, [open, index, interlude]);
 
+  // Nothing scrolls while the tour is on screen — not the page behind it (the
+  // tooltip and spotlight are pinned to live element rects, so a stray wheel or
+  // swipe would slide the target out from under them) and not the demo column,
+  // whose cards scale themselves down to fit instead. Only user-initiated
+  // scrolling is blocked: the tour's own scrollIntoView and the step-2 showcase
+  // sweep still run.
+  useEffect(() => {
+    if (!open) return;
+    const block = (e: Event) => {
+      e.preventDefault();
+    };
+    const SCROLL_KEYS = new Set([
+      "ArrowUp",
+      "ArrowDown",
+      "PageUp",
+      "PageDown",
+      "Home",
+      "End",
+      " ",
+      "Spacebar",
+    ]);
+    const blockKeys = (e: KeyboardEvent) => {
+      if (!SCROLL_KEYS.has(e.key)) return;
+      // Space still has to press a focused tour button (Skip/Prev/Next), which
+      // a cancelled keydown would swallow.
+      const target = e.target;
+      if (
+        (e.key === " " || e.key === "Spacebar") &&
+        target instanceof Element &&
+        target.closest("button, a, input, textarea, select")
+      ) {
+        return;
+      }
+      e.preventDefault();
+    };
+    window.addEventListener("wheel", block, { passive: false });
+    window.addEventListener("touchmove", block, { passive: false });
+    window.addEventListener("keydown", blockKeys);
+    return () => {
+      window.removeEventListener("wheel", block);
+      window.removeEventListener("touchmove", block);
+      window.removeEventListener("keydown", blockKeys);
+    };
+  }, [open]);
+
   // Keyboard: Esc skips, arrows navigate.
   useEffect(() => {
     if (!open) return;
@@ -1640,17 +1773,29 @@ export function PlaygroundTour({
 
   // Spotlight geometry: pads the union of anchor rects; collapses to a point
   // when a step has no anchor so the 200vmax shadow dims the whole screen.
-  const PAD = 8;
   const spotRect = spot ?? rect;
   // The step 2 -> 3 interlude no longer spotlights the board: it plays with a
   // plain dim backdrop (no cutout, no ring) so nothing jumps to the board.
   const showSpotlight = anchored && !!spotRect;
+  // Sideways the padding gives way once the target already reaches the screen
+  // edges — the mobile Play VS AI card sits 8px off them, so a full 8px pad put
+  // the ring past the viewport and made the card look wider than the tooltip
+  // above it. Vertically there's always room, so that pad never changes.
+  const padX = spotRect
+    ? Math.max(
+        0,
+        Math.min(
+          PAD,
+          Math.round((viewport.vw - SPOTLIGHT_EDGE * 2 - spotRect.width) / 2)
+        )
+      )
+    : PAD;
   const hole: Rect =
     showSpotlight && spotRect
       ? {
           top: spotRect.top - PAD,
-          left: spotRect.left - PAD,
-          width: spotRect.width + PAD * 2,
+          left: spotRect.left - padX,
+          width: spotRect.width + padX * 2,
           height: spotRect.height + PAD * 2,
         }
       : { top: viewport.vh / 2, left: viewport.vw / 2, width: 0, height: 0 };
@@ -1660,49 +1805,69 @@ export function PlaygroundTour({
   // there's room, below when there's room underneath, or pinned over the
   // target's top edge (tall targets like the chessboard card). Always inside
   // the viewport, so it can never hide behind the fixed navbar.
-  const TOOLTIP_W = Math.min(430, viewport.vw - 24);
+  const BASE_TOOLTIP_W = Math.min(430, Math.max(viewport.vw - 24, 0));
 
-  // Steps 3 and 4: match the tooltip to the demo card's on-screen width. The
-  // column below is w-[min(430px, 92vw)] (min(430px, 100vw-24px) on mobile),
-  // then ScaleToFit may scale it down — so multiply by that same factor.
-  const demoColumnWidth =
-    viewport.vw <= 0
-      ? 0
-      : viewport.vw >= MOBILE_BP
-        ? Math.min(430, viewport.vw * 0.92)
-        : Math.min(430, viewport.vw - 24);
-  const demoTooltipWidth =
-    demoColumnWidth > 0 && (step?.demo === "win" || step?.demo === "lose")
-      ? Math.round(demoColumnWidth * demoScale)
+  // On mobile the tooltip stretches out to the spotlight ring when the card it
+  // points at is wider than the default — sitting a few px inside the ring made
+  // it read as narrow for the screen. Never narrower than the demo steps' width,
+  // so all five steps stay the same size. Desktop keeps the default: its step-1
+  // spotlight spans the whole hero, which would blow the tooltip up.
+  const anchoredTooltipW =
+    isMobile && anchored && spotRect
+      ? Math.round(
+          Math.min(
+            Math.max(hole.width, BASE_TOOLTIP_W),
+            Math.max(viewport.vw - SPOTLIGHT_EDGE * 2, BASE_TOOLTIP_W)
+          )
+        )
       : undefined;
-  // The mobile tooltip runs larger type and pill buttons, so it needs a
-  // taller estimate than the desktop card for the placement math below.
-  const EST_TOOLTIP_H = viewport.vw > 0 && viewport.vw < 640 ? 235 : 180;
-  const MARGIN = 12;
+  const TOOLTIP_W = anchoredTooltipW ?? BASE_TOOLTIP_W;
+
+  // Real rendered height once TourTooltip has reported it; the estimate only
+  // covers the very first frame of a step (mobile runs larger type and pill
+  // buttons, so its card is the taller of the two).
+  const TOOLTIP_H = tooltipH || (isMobile ? 235 : 180);
   let mode: "edge" | "above" | "below" | "over" = "over";
   if (
     step?.tooltipBottomAt !== undefined &&
     rect &&
-    rect.top + step.tooltipBottomAt - EST_TOOLTIP_H >= MARGIN
+    rect.top + step.tooltipBottomAt - TOOLTIP_H >= VIEWPORT_MARGIN
   ) {
     mode = "edge";
-  } else if (hole.top - 14 - EST_TOOLTIP_H >= MARGIN) mode = "above";
-  else if (hole.top + hole.height + 14 + EST_TOOLTIP_H <= viewport.vh - MARGIN)
+  } else if (hole.top - CARET_GAP - TOOLTIP_H >= VIEWPORT_MARGIN) mode = "above";
+  else if (
+    hole.top + hole.height + CARET_GAP + TOOLTIP_H <=
+    viewport.vh - VIEWPORT_MARGIN
+  )
     mode = "below";
   const tooltipTop =
     mode === "edge" && rect && step?.tooltipBottomAt !== undefined
       ? rect.top + step.tooltipBottomAt
       : mode === "above"
-        ? hole.top - 14
+        ? hole.top - CARET_GAP
         : mode === "below"
-          ? hole.top + hole.height + 14
-          : Math.max(hole.top + 14, MARGIN);
+          ? hole.top + hole.height + CARET_GAP
+          : Math.max(hole.top + CARET_GAP, VIEWPORT_MARGIN);
+
+  // Demo steps (3-5): the card gets whatever the tooltip, its gap and the
+  // column's padding leave, and scales itself into it — the column can't be
+  // scrolled, so anything that doesn't fit would be lost.
+  const demoReserve = tooltipH
+    ? tooltipH + CARET_GAP + DEMO_COLUMN_PAD + VIEWPORT_MARGIN
+    : 210;
   const anchorCenterX = rect
     ? rect.left + rect.width / 2
     : hole.left + hole.width / 2;
+  // Edge clamp: normally 12px, but a tooltip matched to a near-full-width
+  // spotlight has less room than that, and clamping it to 12 would knock it out
+  // of line with the highlight it belongs to.
+  const edgeGap = Math.max(
+    0,
+    Math.min(VIEWPORT_MARGIN, Math.round((viewport.vw - TOOLTIP_W) / 2))
+  );
   const tooltipLeft = Math.min(
-    Math.max(anchorCenterX - TOOLTIP_W / 2, 12),
-    Math.max(viewport.vw - TOOLTIP_W - 12, 12)
+    Math.max(anchorCenterX - TOOLTIP_W / 2, edgeGap),
+    Math.max(viewport.vw - TOOLTIP_W - edgeGap, edgeGap)
   );
 
   return createPortal(
@@ -1752,10 +1917,12 @@ export function PlaygroundTour({
               <TourTooltip
                 step={step}
                 index={index}
-                onSkip={next}
+                onSkip={skip}
                 onPrev={prev}
                 onNext={next}
                 caret={rect ? (mode === "below" ? "top" : "bottom") : undefined}
+                widthPx={anchoredTooltipW}
+                onHeight={reportTooltipHeight}
               />
             </div>
           </motion.div>
@@ -1768,20 +1935,24 @@ export function PlaygroundTour({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 180 }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
-            className="fixed inset-0 flex flex-col items-center overflow-y-auto overscroll-contain p-4"
+            /* py only: the tooltip and card are already inset from the screen
+               edges by their own width (100vw-24px), and horizontal padding on
+               top of that made them wider than this box's content area, so they
+               overflowed it and stopped centring evenly */
+            className="fixed inset-0 flex flex-col items-center overscroll-contain py-4"
           >
-            {/* m-auto centers the column when it fits (same as the old
-                justify-center) and top-aligns + scrolls when the viewport is
-                too short (14" laptops), instead of clipping both edges */}
+            {/* m-auto centers the column; every card inside scales to the room
+                the tooltip leaves, so the column never overflows (it can't be
+                scrolled) */}
             <div className="m-auto flex flex-col items-center">
               <TourTooltip
                 step={step}
                 index={index}
-                onSkip={next}
+                onSkip={skip}
                 onPrev={prev}
                 onNext={next}
                 caret="bottom"
-                widthPx={demoTooltipWidth}
+                onHeight={reportTooltipHeight}
               />
               {/* the analyze demo keeps overflow visible so the swiper card
                   deck can rotate outside its own bounds, like the real modal */}
@@ -1789,7 +1960,7 @@ export function PlaygroundTour({
               <div className="w-[min(430px,calc(100vw-24px))] sm:w-[min(430px,92vw)] mt-[14px] rounded-2xl">
 
                 {step.demo === "win" && (
-                  <ScaleToFit onMeasure={reportWinCardHeight} onScale={reportDemoScale}>
+                  <ScaleToFit reserve={demoReserve} onMeasure={reportWinCardHeight}>
                     <WinModalCard
                       variant="tour"
                       oldElo={375}
@@ -1802,8 +1973,8 @@ export function PlaygroundTour({
                 )}
                 {step.demo === "lose" && (
                   <ScaleToFit
+                    reserve={demoReserve}
                     referenceHeight={winCardHeightRef.current || undefined}
-                    onScale={reportDemoScale}
                   >
                     <LoseModalCard
                       variant="tour"
@@ -1815,7 +1986,13 @@ export function PlaygroundTour({
                     />
                   </ScaleToFit>
                 )}
-                {step.demo === "analyze" && <DemoAnalyzeCard />}
+                {step.demo === "analyze" && (
+                  <ScaleToFit reserve={demoReserve}>
+                    <DemoAnalyzeCard
+                      maxHeight={Math.max(360, viewport.vh - demoReserve)}
+                    />
+                  </ScaleToFit>
+                )}
               </div>
             </div>
           </motion.div>

@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import Lottie from "lottie-react";
 import { motion } from "framer-motion";
 import { EloOdometer } from "@/components/v2/elo-odometer";
+import { eloDeltaColorClass, formatEloDelta } from "@/components/v2/format-number";
 import { useLottieData } from "@/components/v2/hooks/useLottieData";
 
 const ODOMETER_DELAY = 0.6;
@@ -36,7 +37,6 @@ export function PlayVsAiDrawModal({
   // A draw can move ELO either way; the pill follows the direction.
   const gained = delta >= 0;
   const accentBg = gained ? "bg-[#34C759]" : "bg-[#DC2626]";
-  const accentText = gained ? "text-[#34C759]" : "text-[#DC2626]";
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/50 p-4">
@@ -108,16 +108,16 @@ export function PlayVsAiDrawModal({
                 </span>
               </span>
             </div>
-            {delta !== 0 && (
-              <motion.span
-                initial={{ opacity: 0, y: gained ? 8 : -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: ODOMETER_DELAY + ODOMETER_DURATION, duration: 0.35 }}
-                className={`${accentText} font-bold text-[20px] sm:text-[24px] shrink-0`}
-              >
-                {delta > 0 ? `+${delta}` : delta}
-              </motion.span>
-            )}
+            {/* Always rendered, same as the win/lose modals: a calibrating
+                account's 0 is still the modal's statement about the rating. */}
+            <motion.span
+              initial={{ opacity: 0, y: gained ? 8 : -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: ODOMETER_DELAY + ODOMETER_DURATION, duration: 0.35 }}
+              className={`font-bold text-[20px] sm:text-[24px] shrink-0 ${eloDeltaColorClass(delta)}`}
+            >
+              {formatEloDelta(delta)}
+            </motion.span>
           </div>
 
           <p className="text-center font-bold text-[15px] sm:text-[17px] text-[#111827]">
