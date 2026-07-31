@@ -370,7 +370,7 @@ const STEPS: TourStep[] = [
     // 0, not -15: panelTuck translates the whole column, tooltip included, and
     // the tooltip is meant to sit on the same line on every step. matchPanel
     // places the card on its own now, so there's nothing left for it to do here.
-    panelTuck: 0,
+    panelTuck: 5,
     // Let the celebration play out before the copy arrives.
     tooltipAfterLottie: true,
     panelFull: true,
