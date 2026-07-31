@@ -85,9 +85,14 @@ export function WinModalCard({
 
   return (
     <div
+      // flex column + justify-center in tour mode, same as the lose card: the
+      // tour stretches this to the hero panel's height so all five steps present
+      // one box, and centring puts any surplus outside the content rather than
+      // piling it under the last button. Inert on desktop, where nothing
+      // stretches the card.
       className={
         tour
-          ? "relative w-full max-w-[545px] overflow-hidden bg-white rounded-2xl shadow-2xl select-none pointer-events-none"
+          ? "relative w-full max-w-[545px] overflow-hidden bg-white rounded-2xl shadow-2xl select-none pointer-events-none flex flex-col justify-center"
           : "relative w-full max-w-[545px] max-h-[96vh] overflow-hidden bg-white rounded-2xl shadow-2xl"
       }
     >
@@ -107,7 +112,7 @@ export function WinModalCard({
           beyond the empty bottom strip the ratio itself trims. */}
       <div
         className={m(
-          "relative w-[57%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400]",
+          "relative w-[57%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] shrink-0",
           "relative w-[68%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         )}
       >
