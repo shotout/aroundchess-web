@@ -83,6 +83,20 @@ type TourStep = {
   tooltipBottomAt?: number;
   /** auto-scroll the opponent list inside the target, like the video demo */
   scrollShowcase?: boolean;
+  /**
+   * px this step moves its card up. Higher is always "further up"; what it acts
+   * on depends on the kind of step.
+   *
+   * Anchored steps (1-2): slides the mobile hero panel up behind the tooltip,
+   * overriding HERO_PANEL_TUCK. More of the panel's top is hidden and, since its
+   * bottom edge is fixed, it gains that much height. The tooltip stays put.
+   *
+   * Demo steps (3-5): lifts the tooltip and its card off the centred position
+   * they share. Nothing is hidden — the whole column moves. The cards size
+   * themselves from the viewport, not from this, so a large value can push the
+   * top of the column off screen.
+   */
+  panelTuck?: number;
   demo?: "win" | "lose" | "analyze";
   /** fields replaced below 640px, where the design spotlights tighter targets */
   mobile?: Omit<TourStep, "title" | "content" | "demo" | "mobile">;
@@ -173,7 +187,7 @@ const HERO_COPY_TOOLTIP_RESERVE = 150;
  * tooltip is drawn after the panel in the portal, so it covers whatever the tuck
  * pulls under it — including the top of the step-1 spotlight ring.
  */
-const HERO_PANEL_TUCK = 56;
+const HERO_PANEL_TUCK = 16;
 /** the demo column's own padding (p-4), top + bottom */
 const DEMO_COLUMN_PAD = 32;
 
@@ -245,13 +259,25 @@ const STEPS: TourStep[] = [
     // current one, and left the list sitting that far below where it belongs
     // (with Start Game pushed off the bottom). scrollMargin is now only the
     // first-frame fallback, used until the tooltip has been measured.
+    // Mobile rings the whole panel, exactly as step 1 does. It used to narrow to
+    // the opponent section + Start Game so "Choose Your Color" stayed dimmed, but
+    // that box starts well below the tooltip and is shorter than step 1's — so
+    // stepping 1 -> 2 resized the highlight and dropped the tuck that hides the
+    // panel's heading behind the tooltip. One anchor for both steps means one
+    // geometry: same top, same height, same tuck, and only the copy changes.
     mobile: {
-      anchors: ["opponent-list"],
-      include: ["start-game"],
+      anchors: ["opponent-panel"],
+      include: [],
       scrollMargin: 240,
       tooltipUnderHeader: true,
       tooltipBottomAt: undefined,
       scrollShowcase: true,
+      // Deeper than step 1's, so "Choose Your Color" goes behind the tooltip too
+      // and the colour toggle is the first visible row on the step that's about
+      // picking an opponent. The panel therefore moves between steps 1 and 2 —
+      // it eases rather than snaps (the wrapper transitions `top`), so it stays
+      // with the spotlight ring, which has always eased toward its target.
+      panelTuck: 86,
     },
   },
   {
@@ -259,18 +285,23 @@ const STEPS: TourStep[] = [
     content:
       "Winning games can increase your ELO score. Every match affects your ELO score based on the skill level of your opponent.",
     demo: "win",
+    // On a demo step panelTuck lifts the tooltip + card column off its centred
+    // position. 0 leaves it centred; raise to move the pair up.
+    panelTuck: -25,
   },
   {
     title: "Tutorial: When you lose a game, your ELO decreases.",
     content:
       "But don't worry – tap Discover Mistakes to review where the game went wrong and learn how to play better next time.",
     demo: "lose",
+    panelTuck: 0,
   },
   {
     title: "Tutorial: Analyze Game",
     content:
       "Here you can discover your biggest mistakes and get a suggestion how to avoid them in the future.",
     demo: "analyze",
+    panelTuck: 0,
   },
 ];
 
@@ -483,29 +514,40 @@ function TourTooltip({
           />
         </>
       )}
-      <div className="flex items-start justify-between gap-3">
-        <p
-          className={`font-bold sm:text-[14px] text-[#040404] sm:text-[#221AE9] leading-snug ${
-            compact ? "text-[13px]" : "text-[14px]"
-          }`}
-        >
-          {step.title}
-        </p>
-        <span
-          className={`sm:text-[12px] text-gray-500 sm:text-gray-400 font-medium shrink-0 pt-[2px] sm:pt-[1px] ${
-            compact ? "text-[11px]" : "text-[12px]"
-          }`}
-        >
-          {index + 1}/{STEPS.length}
-        </span>
-      </div>
-      <p
-        className={`sm:text-[13px] text-gray-600 mt-[6px] leading-[1.4] sm:leading-relaxed ${
-          compact ? "text-[12px]" : "text-[13px]"
-        }`}
+      {/* Keyed on the step so the copy fades in when the card is reused across
+          steps 1 and 2 (the anchored card is no longer torn down between them).
+          Only the text is keyed — the buttons below stay mounted, so Skip/Next
+          don't blink while the step changes under them. */}
+      <motion.div
+        key={index}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
       >
-        {step.content}
-      </p>
+        <div className="flex items-start justify-between gap-3">
+          <p
+            className={`font-bold sm:text-[14px] text-[#040404] sm:text-[#221AE9] leading-snug ${
+              compact ? "text-[13px]" : "text-[14px]"
+            }`}
+          >
+            {step.title}
+          </p>
+          <span
+            className={`sm:text-[12px] text-gray-500 sm:text-gray-400 font-medium shrink-0 pt-[2px] sm:pt-[1px] ${
+              compact ? "text-[11px]" : "text-[12px]"
+            }`}
+          >
+            {index + 1}/{STEPS.length}
+          </span>
+        </div>
+        <p
+          className={`sm:text-[13px] text-gray-600 mt-[6px] leading-[1.4] sm:leading-relaxed ${
+            compact ? "text-[12px]" : "text-[13px]"
+          }`}
+        >
+          {step.content}
+        </p>
+      </motion.div>
       <div
         className={`flex items-center justify-between sm:mt-[12px] ${
           compact ? "mt-[8px]" : "mt-[10px]"
@@ -601,6 +643,12 @@ function TourHeroCopy({
         width,
         top,
         bottom: VIEWPORT_MARGIN,
+        // The panel is CSS-positioned, so a step that moves it would snap while
+        // the spotlight ring — which eases toward its target a frame at a time
+        // (SPOT_FOLLOW) — glided after it, and the two came apart for ~10
+        // frames. Easing `top` on roughly the ring's own curve keeps them
+        // together. Named property, not `all`: framer owns opacity here.
+        transition: "top 220ms cubic-bezier(0.22, 1, 0.36, 1)",
       }}
     >
       {/* max-h-full so a short viewport takes its shortfall out of the opponent
@@ -2166,7 +2214,8 @@ export function PlaygroundTour({
     VIEWPORT_MARGIN + Math.max(HERO_COPY_TOOLTIP_RESERVE, anchored ? tooltipH : 0);
   // The panel then starts a caret-gap below that, less the tuck that slides its
   // "Play VS AI" heading up behind the tooltip.
-  const heroPanelTop = heroTooltipBottom + HERO_CARET_GAP - HERO_PANEL_TUCK;
+  const heroPanelTop =
+    heroTooltipBottom + HERO_CARET_GAP - (step?.panelTuck ?? HERO_PANEL_TUCK);
   const interludeH = Math.max(
     300,
     Math.round(
@@ -2408,13 +2457,30 @@ export function PlaygroundTour({
       <AnimatePresence mode="wait">
         {step && anchored && (
           <motion.div
-            key={`anchored-${index}`}
+            // One key for both anchored steps, not one per index: keying by step
+            // made mode="wait" tear the whole card down and build it again, so
+            // stepping 1 -> 2 left a ~0.22s hole where no tooltip was on screen
+            // at all. Now the card stays put across the pair and only its copy
+            // crossfades (see TourTooltip) — the enter/exit below is reserved
+            // for arriving from, and leaving for, the demo steps.
+            key="anchored"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.22 }}
             className="fixed"
-            style={rect ? { top: tooltipTop, left: tooltipLeft } : { top: "20%", left: "50%" }}
+            style={
+              rect
+                ? {
+                    top: tooltipTop,
+                    left: tooltipLeft,
+                    // Now that the card outlives a step change, a step that
+                    // moves it has to ease rather than teleport. Named property:
+                    // framer drives opacity and the y transform.
+                    transition: "top 220ms cubic-bezier(0.22, 1, 0.36, 1)",
+                  }
+                : { top: "20%", left: "50%" }
+            }
           >
             {/* framer-motion owns the outer transform, so the placement
                 translate lives on this inner wrapper */}
@@ -2459,8 +2525,17 @@ export function PlaygroundTour({
           >
             {/* m-auto centers the column; every card inside scales to the room
                 the tooltip leaves, so the column never overflows (it can't be
-                scrolled) */}
-            <div className="m-auto flex flex-col items-center">
+                scrolled). panelTuck then lifts the whole centred column — a
+                transform, so the centring maths underneath it is untouched and
+                the cards keep sizing themselves from the real viewport. */}
+            <div
+              className="m-auto flex flex-col items-center"
+              style={
+                step.panelTuck
+                  ? { transform: `translateY(${-step.panelTuck}px)` }
+                  : undefined
+              }
+            >
               <TourTooltip
                 step={step}
                 index={index}
