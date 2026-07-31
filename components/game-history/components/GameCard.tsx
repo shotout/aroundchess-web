@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   ChartNoAxesColumn,
   Loader2,
-  CheckCircle,
+  Eye,
   AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -154,7 +154,9 @@ const GameCard: React.FC<GameCardProps> = ({
     } else if (isTutorialPlay && stepFocused == 5 && isNewlyImported) {
       return {
         text: "View Analysis",
-        icon: <CheckCircle className="h-4 w-4 mr-2" />,
+        // Eye, matching the desktop table's button for the same state
+        // (GameList's analysed row). CheckCircle was this card's alone.
+        icon: <Eye className="h-4 w-4 mr-2" />,
         className:
           "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
         onClick: async () => {
@@ -176,7 +178,9 @@ const GameCard: React.FC<GameCardProps> = ({
     } else if (gameData.isAnalysis || (job && job.status === "completed")) {
       return {
         text: "View Analysis",
-        icon: <CheckCircle className="h-4 w-4 mr-2" />,
+        // Eye, matching the desktop table's button for the same state
+        // (GameList's analysed row). CheckCircle was this card's alone.
+        icon: <Eye className="h-4 w-4 mr-2" />,
         className:
           "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
         onClick: async () => {
@@ -249,7 +253,7 @@ const GameCard: React.FC<GameCardProps> = ({
           // Show "View Analysis" button (green) to indicate analysis is in progress
           return {
             text: "View Analysis",
-            icon: <CheckCircle className="h-4 w-4 mr-2" />,
+            icon: <Eye className="h-4 w-4 mr-2" />,
             className:
               "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
             onClick: () => {
@@ -427,10 +431,16 @@ const GameCard: React.FC<GameCardProps> = ({
               disabled={buttonContent.disabled}
             >
               {buttonContent.icon}
+              {/* v2 relabels these two to match the desktop table, which calls
+                  them "See Mistakes" and "Analyze Mistakes". Renamed here rather
+                  than in getButtonContent so the branch conditions above keep
+                  reading against the original, version-neutral names. */}
               <h1 className="text-[14px] --xs">
                 {isV2 && buttonContent.text === "View Analysis"
                   ? "See Mistakes"
-                  : buttonContent.text}
+                  : isV2 && buttonContent.text === "Analyze"
+                    ? "Analyze Mistakes"
+                    : buttonContent.text}
               </h1>
             </Button>
           );

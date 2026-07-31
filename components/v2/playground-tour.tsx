@@ -132,17 +132,17 @@ type TourStep = {
    */
   cardFill?: boolean;
   /**
-   * Gives a demo step one fixed box: top attached to the tooltip's caret,
-   * bottom on the screen edge — the same line the hero panel ends on, so the run
-   * keeps one shape from step 1 through step 5.
+   * Tucks a demo step's card behind the tooltip by exactly what step 1 tucks the
+   * hero panel — HERO_PANEL_TUCK, tuckBoost included — instead of taking a
+   * hand-set cardTuck. One number then governs the overlap on every step that
+   * opts in, and a short screen deepens all of them together.
    *
-   * The step's cardTuck is derived rather than declared, so the box can't drift
-   * as the copy changes length between steps, and it stays responsive for free:
-   * the tooltip is pinned at VIEWPORT_MARGIN and the card hangs off its measured
-   * height, so a shorter screen squeezes the card and not the copy.
+   * Derived rather than declared, so it can't drift as the copy changes length
+   * between steps: the tooltip is pinned at VIEWPORT_MARGIN and the card hangs
+   * off its measured height.
    *
-   * Needs cardFill to be set too — this fixes where the card starts and ends,
-   * cardFill is what makes it actually reach.
+   * Pair with cardFill to also run the card to the bottom of the screen; on its
+   * own this only fixes where the card starts.
    */
   matchPanel?: boolean;
   demo?: "win" | "lose" | "analyze";
@@ -257,16 +257,6 @@ const TUCK_SHORTFALL_RATIO = 0.5;
 /** ceiling on that, so a very short viewport can't swallow the card's heading */
 const TUCK_MAX_BOOST = 96;
 
-/**
- * Where a matchPanel card's top edge sits below the tooltip's bottom.
- *
- * Two less than the mobile caret's 17px height, so the tail's point lands just
- * inside the card and the two read as attached. Deriving the top from
- * heroPanelTop instead left a ~35px gap under the point — the reserve the panel
- * is placed from is longer than the tooltip actually is, and that surplus fell
- * straight into the gap.
- */
-const MATCH_CARET_ATTACH = 15;
 
 /** Bottom edge of the app's fixed header (banner included) — where a tooltip
  *  parked at the top of the screen has to start. Falls back to the mobile
@@ -374,9 +364,11 @@ const STEPS: TourStep[] = [
     // Let the celebration play out before the copy arrives.
     tooltipAfterLottie: true,
     panelFull: true,
-    // Same box as steps 1-2 — matchPanel derives the tuck, so no cardTuck here.
+    // matchPanel for the top edge only — it attaches the card under the
+    // tooltip's caret, the same overlap every other step has. No cardFill: the
+    // card keeps its natural height rather than being stretched to the bottom of
+    // the screen, which left a band of empty card under the content.
     matchPanel: true,
-    cardFill: true,
   },
   {
     title: "Tutorial: When you lose a game, your ELO decreases.",
@@ -386,11 +378,10 @@ const STEPS: TourStep[] = [
     panelTuck: 0,
     tooltipAfterLottie: true,
     panelFull: true,
-    // Same box as steps 1-2. That also settles the old problem of this card
-    // being stubbier than step 3's — both now stretch to the panel's height, so
-    // they match each other without step 4 having to chase step 3's measurement.
+    // As step 3: attached under the caret, natural height. The two stay the same
+    // size through referenceHeight, which makes this card scale by the win
+    // card's factor — not by stretching either of them.
     matchPanel: true,
-    cardFill: true,
   },
   {
     title: "Tutorial: Analyze Game",
@@ -2626,19 +2617,21 @@ export function PlaygroundTour({
   // what lets a step ask for more tuck than it can have (step 5's 999) and
   // simply take everything that's going.
   const cardTuck = Math.min(
-    matchPanel ? -MATCH_CARET_ATTACH : requestedCardTuck,
+    // matchPanel takes step 1's tuck verbatim — the same number of px behind the
+    // tooltip that the hero panel sits, boost included, so the three read as one
+    // treatment rather than three hand-set overlaps.
+    matchPanel ? HERO_PANEL_TUCK + tuckBoost : requestedCardTuck,
     TOOLTIP_H
   );
   // A cardTuck step overlaps its tooltip instead of clearing it, so the gap it
   // has to reserve is negative — without this the card would be sized as if the
   // 14px gap were still there and end up that much shorter than it can be.
   const demoGap = cardTuck ? -cardTuck : CARET_GAP;
-  // matchPanel reserves exactly its card's top edge, so `avail` inside
-  // ScaleToFit comes out as everything from under the caret to the bottom of the
-  // screen — which is what fill then stretches the card to, landing its bottom
-  // on the same line the hero panel's sits on.
+  // matchPanel reserves exactly its card's top edge — the tooltip's bottom less
+  // the tuck — so `avail` inside ScaleToFit is everything from there to the
+  // bottom of the screen.
   const demoReserve = matchPanel
-    ? VIEWPORT_MARGIN + TOOLTIP_H + MATCH_CARET_ATTACH
+    ? VIEWPORT_MARGIN + TOOLTIP_H - cardTuck
     : tooltipH
       ? tooltipH +
         demoGap +
@@ -2892,12 +2885,10 @@ export function PlaygroundTour({
                     reserve={demoReserve}
                     maxScale={demoMaxScale}
                     fill={cardFill}
-                    /* Not needed once both cards stretch to the panel's height —
-                       they match each other by construction, without step 4
-                       having to chase a measurement taken on step 3. */
-                    referenceHeight={
-                      matchPanel ? undefined : winCardHeightRef.current || undefined
-                    }
+                    /* Back in play now that neither card stretches: it makes
+                       this one scale by the win card's factor, so the two render
+                       their contents at the same size. */
+                    referenceHeight={winCardHeightRef.current || undefined}
                   >
                     <LoseModalCard
                       variant="tour"
