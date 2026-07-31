@@ -97,6 +97,18 @@ type TourStep = {
    * top of the column off screen.
    */
   panelTuck?: number;
+  /**
+   * px a demo step's card slides up *behind* its tooltip, the same overlap the
+   * anchored steps get from panelTuck. Replaces the default 14px gap between the
+   * two. The tooltip is lifted above the card to receive it.
+   */
+  cardTuck?: number;
+  /**
+   * Holds this step's tooltip hidden until the card's Lottie has played out, so
+   * the animation isn't competing with the copy. Falls back to a timer if the
+   * animation never reports (its JSON failed to load).
+   */
+  tooltipAfterLottie?: boolean;
   demo?: "win" | "lose" | "analyze";
   /** fields replaced below 640px, where the design spotlights tighter targets */
   mobile?: Omit<TourStep, "title" | "content" | "demo" | "mobile">;
@@ -190,6 +202,9 @@ const HERO_COPY_TOOLTIP_RESERVE = 150;
 const HERO_PANEL_TUCK = 16;
 /** the demo column's own padding (p-4), top + bottom */
 const DEMO_COLUMN_PAD = 32;
+/** how long a tooltipAfterLottie step waits before showing its copy anyway —
+ *  the Lottie only reports completion if its JSON actually loaded */
+const LOTTIE_FALLBACK_MS = 4000;
 
 /** Bottom edge of the app's fixed header (banner included) — where a tooltip
  *  parked at the top of the screen has to start. Falls back to the mobile
@@ -288,6 +303,10 @@ const STEPS: TourStep[] = [
     // On a demo step panelTuck lifts the tooltip + card column off its centred
     // position. 0 leaves it centred; raise to move the pair up.
     panelTuck: -15,
+    // Overlap the tooltip the way steps 1-2 do, and let the celebration play out
+    // before the copy arrives.
+    cardTuck: 24,
+    tooltipAfterLottie: true,
   },
   {
     title: "Tutorial: When you lose a game, your ELO decreases.",
@@ -295,6 +314,8 @@ const STEPS: TourStep[] = [
       "But don't worry – tap Discover Mistakes to review where the game went wrong and learn how to play better next time.",
     demo: "lose",
     panelTuck: 0,
+    cardTuck: 14,
+    tooltipAfterLottie: true,
   },
   {
     title: "Tutorial: Analyze Game",
@@ -302,6 +323,8 @@ const STEPS: TourStep[] = [
       "Here you can discover your biggest mistakes and get a suggestion how to avoid them in the future.",
     demo: "analyze",
     panelTuck: 0,
+    // Overlap only — the analyze card has no Lottie to wait on.
+    cardTuck: 124,
   },
 ];
 
@@ -1779,6 +1802,12 @@ export function PlaygroundTour({
     setTooltipH((current) => (current === height ? current : height))
   ).current;
 
+  // Set once the current demo card's Lottie has played out — the gate for a
+  // tooltipAfterLottie step. Reset on every step change, so stepping back and
+  // forth replays the hold rather than showing the copy immediately.
+  const [lottieDone, setLottieDone] = useState(false);
+  const reportLottieDone = useRef(() => setLottieDone(true)).current;
+
   // viewport.vw is 0 until the first rAF tick, so fall back to a live read.
   const isMobile = viewport.vw > 0 ? viewport.vw < MOBILE_BP : isMobileViewport();
   // Mobile presents its own hero panel; desktop still spotlights the live one,
@@ -1796,6 +1825,9 @@ export function PlaygroundTour({
   const rawStep = interlude ? undefined : (STEPS[index] as TourStep | undefined);
   const step = rawStep ? resolveStep(rawStep, isMobile) : undefined; // undefined on finale/interlude
   const anchored = !!step?.anchors;
+  // A tooltipAfterLottie step keeps its copy hidden until the card's animation
+  // has played (or the fallback timer fires).
+  const tooltipHeld = !!step?.tooltipAfterLottie && !lottieDone;
 
   useEffect(() => setMounted(true), []);
 
@@ -1921,6 +1953,20 @@ export function PlaygroundTour({
     setInterlude(false);
     setIndex(FINALE_INDEX);
   };
+
+  // Arm the Lottie gate for the current step. A step that doesn't ask for it is
+  // never held; one that does starts hidden and gets a fallback timer, so a card
+  // whose animation JSON failed to load can't strand its tooltip permanently.
+  useEffect(() => {
+    if (!open) return;
+    if (interlude || !STEPS[index]?.tooltipAfterLottie) {
+      setLottieDone(true);
+      return;
+    }
+    setLottieDone(false);
+    const t = setTimeout(() => setLottieDone(true), LOTTIE_FALLBACK_MS);
+    return () => clearTimeout(t);
+  }, [open, index, interlude]);
 
   // The interlude is advanced by whichever overlay renders (the tracked board on
   // desktop, the won-game sheet on mobile). If neither can — no visible board
@@ -2374,8 +2420,12 @@ export function PlaygroundTour({
   // Demo steps (3-5): the card gets whatever the tooltip, its gap and the
   // column's padding leave, and scales itself into it — the column can't be
   // scrolled, so anything that doesn't fit would be lost.
+  // A cardTuck step overlaps its tooltip instead of clearing it, so the gap it
+  // has to reserve is negative — without this the card would be sized as if the
+  // 14px gap were still there and end up that much shorter than it can be.
+  const demoGap = step?.cardTuck ? -step.cardTuck : CARET_GAP;
   const demoReserve = tooltipH
-    ? tooltipH + CARET_GAP + DEMO_COLUMN_PAD + VIEWPORT_MARGIN
+    ? tooltipH + demoGap + DEMO_COLUMN_PAD + VIEWPORT_MARGIN
     : 210;
   const anchorCenterX = rect
     ? rect.left + rect.width / 2
@@ -2536,21 +2586,37 @@ export function PlaygroundTour({
                   : undefined
               }
             >
-              <TourTooltip
-                step={step}
-                index={index}
-                onSkip={skip}
-                onPrev={prev}
-                onNext={next}
-                caret="bottom"
-                compact={compact}
-                scale={scale}
-                onHeight={reportTooltipHeight}
-              />
+              {/* Lifted above the card so a cardTuck slides under it rather than
+                  over it — the card is the later sibling and would otherwise
+                  win. Opacity-gated for a tooltipAfterLottie step: hiding it
+                  rather than unmounting keeps its height reported, so the card
+                  below is sized for the copy that is about to arrive and doesn't
+                  resize when it does. */}
+              <motion.div
+                className="relative z-10"
+                animate={{ opacity: tooltipHeld ? 0 : 1 }}
+                initial={false}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              >
+                <TourTooltip
+                  step={step}
+                  index={index}
+                  onSkip={skip}
+                  onPrev={prev}
+                  onNext={next}
+                  caret="bottom"
+                  compact={compact}
+                  scale={scale}
+                  onHeight={reportTooltipHeight}
+                />
+              </motion.div>
               {/* the analyze demo keeps overflow visible so the swiper card
                   deck can rotate outside its own bounds, like the real modal */}
               {/* same width as the tooltip above it on mobile */}
-              <div className="w-[min(430px,calc(100vw-24px))] sm:w-[min(430px,92vw)] mt-[14px] rounded-2xl">
+              <div
+                className="w-[min(430px,calc(100vw-24px))] sm:w-[min(430px,92vw)] rounded-2xl"
+                style={{ marginTop: step.cardTuck ? -step.cardTuck : 14 }}
+              >
 
                 {step.demo === "win" && (
                   <ScaleToFit
@@ -2565,6 +2631,7 @@ export function PlaygroundTour({
                       delta={25}
                       opponentName="Lisa"
                       opponentElo={250}
+                      onAnimationComplete={reportLottieDone}
                     />
                   </ScaleToFit>
                 )}
@@ -2581,6 +2648,7 @@ export function PlaygroundTour({
                       delta={-25}
                       opponentName="Lisa"
                       opponentElo={250}
+                      onAnimationComplete={reportLottieDone}
                     />
                   </ScaleToFit>
                 )}

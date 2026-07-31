@@ -34,6 +34,13 @@ interface WinModalCardProps {
    * cap (the tour sizes the room it gets), and a wider animation on mobile.
    */
   variant?: "modal" | "tour";
+  /**
+   * Fires once the celebration Lottie has played out (it doesn't loop). The
+   * playground tour holds its tooltip back until then so the animation isn't
+   * competing with the copy for attention. Never fires if the animation JSON
+   * fails to load, so callers that gate UI on it need their own fallback.
+   */
+  onAnimationComplete?: () => void;
 }
 
 // Shared visual body of the "You Won" screen. The real modal wraps this in a
@@ -46,6 +53,7 @@ export function WinModalCard({
   opponentElo,
   onStartGame,
   variant = "modal",
+  onAnimationComplete,
 }: WinModalCardProps) {
   const tour = variant === "tour";
   const animationData = useLottieData(WIN_LOTTIE);
@@ -111,6 +119,7 @@ export function WinModalCard({
           <Lottie
             animationData={animationData}
             loop={false}
+            onComplete={onAnimationComplete}
             rendererSettings={{ preserveAspectRatio: "xMidYMin slice" }}
             className="absolute inset-0 w-full h-full"
           />
