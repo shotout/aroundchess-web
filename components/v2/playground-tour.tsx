@@ -287,7 +287,7 @@ const STEPS: TourStep[] = [
     demo: "win",
     // On a demo step panelTuck lifts the tooltip + card column off its centred
     // position. 0 leaves it centred; raise to move the pair up.
-    panelTuck: -25,
+    panelTuck: -15,
   },
   {
     title: "Tutorial: When you lose a game, your ELO decreases.",
