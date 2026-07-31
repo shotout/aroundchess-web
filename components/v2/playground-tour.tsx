@@ -101,6 +101,9 @@ type TourStep = {
    * px a demo step's card slides up *behind* its tooltip, the same overlap the
    * anchored steps get from panelTuck. Replaces the default 14px gap between the
    * two. The tooltip is lifted above the card to receive it.
+   *
+   * Mobile only — ignored at and above MOBILE_BP, where the viewport has the
+   * height to keep the two apart and the overlap only crowds them.
    */
   cardTuck?: number;
   /**
@@ -109,6 +112,25 @@ type TourStep = {
    * animation never reports (its JSON failed to load).
    */
   tooltipAfterLottie?: boolean;
+  /**
+   * Runs the mobile hero panel all the way to the bottom of the screen and
+   * stretches it to fill, instead of stopping a VIEWPORT_MARGIN short and taking
+   * only the height its content needs.
+   *
+   * The extra height lands in the opponent list, which is the panel's only
+   * growing child — so the step shows more of the roster the taller the phone,
+   * rather than banking the difference as dim space under Start Game.
+   *
+   * Mobile only, like cardTuck.
+   */
+  panelFull?: boolean;
+  /**
+   * Stretches a demo step's card down to the bottom of the screen instead of
+   * letting it stop at its natural height. The card grows; its contents stay
+   * where they are, so the extra shows as card rather than as dim backdrop.
+   * Mobile only, like the rest of these.
+   */
+  cardFill?: boolean;
   demo?: "win" | "lose" | "analyze";
   /** fields replaced below 640px, where the design spotlights tighter targets */
   mobile?: Omit<TourStep, "title" | "content" | "demo" | "mobile">;
@@ -206,6 +228,21 @@ const DEMO_COLUMN_PAD = 32;
  *  the Lottie only reports completion if its JSON actually loaded */
 const LOTTIE_FALLBACK_MS = 4000;
 
+/**
+ * Visible height the hand-tuned tucks were set against.
+ *
+ * The tooltip sits at a fixed place on every step, so a shorter phone can't be
+ * answered by moving it — the card underneath has to give. Below this height
+ * every tuck deepens, and the tooltip covers correspondingly more of the card,
+ * which is the one part of it that's pure repetition of what the copy says.
+ */
+const TUCK_REFERENCE_VH = 700;
+/** how much of the shortfall the tuck absorbs. 1 would hold the card's *bottom*
+ *  perfectly still and take the whole difference out of its top. */
+const TUCK_SHORTFALL_RATIO = 0.5;
+/** ceiling on that, so a very short viewport can't swallow the card's heading */
+const TUCK_MAX_BOOST = 96;
+
 /** Bottom edge of the app's fixed header (banner included) — where a tooltip
  *  parked at the top of the screen has to start. Falls back to the mobile
  *  navbar height if the header can't be found. */
@@ -257,6 +294,8 @@ const STEPS: TourStep[] = [
       scrollMargin: 270,
       tooltipUnderHeader: true,
       tooltipBottomAt: undefined,
+      // Same full-height panel as step 2, so the pair reads as one screen.
+      panelFull: true,
     },
   },
   {
@@ -293,6 +332,9 @@ const STEPS: TourStep[] = [
       // it eases rather than snaps (the wrapper transitions `top`), so it stays
       // with the spotlight ring, which has always eased toward its target.
       panelTuck: 86,
+      // Runs to the bottom edge and stretches, so the roster fills whatever the
+      // phone has rather than leaving dim space under Start Game.
+      panelFull: true,
     },
   },
   {
@@ -307,6 +349,7 @@ const STEPS: TourStep[] = [
     // before the copy arrives.
     cardTuck: 24,
     tooltipAfterLottie: true,
+    panelFull: true,
   },
   {
     title: "Tutorial: When you lose a game, your ELO decreases.",
@@ -316,6 +359,12 @@ const STEPS: TourStep[] = [
     panelTuck: 0,
     cardTuck: 14,
     tooltipAfterLottie: true,
+    panelFull: true,
+    // The lose card's content is shorter than the win card's, so fitting alone
+    // left it visibly stubbier than step 3. Stretched to the win card's height
+    // (referenceHeight) the two steps are the same size, and the run doesn't
+    // change shape as you move between them.
+    cardFill: true,
   },
   {
     title: "Tutorial: Analyze Game",
@@ -323,8 +372,14 @@ const STEPS: TourStep[] = [
       "Here you can discover your biggest mistakes and get a suggestion how to avoid them in the future.",
     demo: "analyze",
     panelTuck: 0,
-    // Overlap only — the analyze card has no Lottie to wait on.
-    cardTuck: 124,
+    // Take every px of tuck the cap allows — the clamp holds the card's top edge
+    // level with the tooltip's, so this can't climb past it however large it is.
+    // The tuck is what buys the board its width: cardTuck comes straight off the
+    // reserve, the reserve sets the card's height budget, and the mobile board
+    // is sized from what that budget leaves after the card's chrome. Growing the
+    // card upward and widening the board are the same lever here.
+    cardTuck: 999,
+    panelFull: true,
   },
 ];
 
@@ -634,6 +689,7 @@ function TourHeroCopy({
   width,
   left,
   top,
+  fill,
   hidden,
 }: {
   innerRef: React.RefObject<HTMLDivElement>;
@@ -641,6 +697,8 @@ function TourHeroCopy({
   left: number;
   /** first pixel below the tooltip parked above it (see HERO_COPY_TOOLTIP_RESERVE) */
   top: number;
+  /** run to the bottom edge of the screen and stretch to fill (step.panelFull) */
+  fill?: boolean;
   /** faded out from the step 2 -> 3 interlude onward — every step past 2 brings
    *  its own screen, and the panel behind them read as leftover */
   hidden: boolean;
@@ -659,19 +717,25 @@ function TourHeroCopy({
       // items-start, not items-center: the box runs from `top` to the bottom
       // margin, so centring let a panel shorter than its box drift down and open
       // a gap under the tooltip's caret. Hugging the top puts the panel exactly
-      // where `top` says, and any slack collects at the bottom instead.
-      className="fixed pointer-events-none flex items-start"
+      // where `top` says, and any slack collects at the bottom instead. `fill`
+      // takes the other route — stretch to the box, so the slack goes into the
+      // opponent list rather than under Start Game.
+      className={`fixed pointer-events-none flex ${
+        fill ? "items-stretch" : "items-start"
+      }`}
       style={{
         left,
         width,
         top,
-        bottom: VIEWPORT_MARGIN,
+        bottom: fill ? 0 : VIEWPORT_MARGIN,
         // The panel is CSS-positioned, so a step that moves it would snap while
         // the spotlight ring — which eases toward its target a frame at a time
         // (SPOT_FOLLOW) — glided after it, and the two came apart for ~10
         // frames. Easing `top` on roughly the ring's own curve keeps them
-        // together. Named property, not `all`: framer owns opacity here.
-        transition: "top 220ms cubic-bezier(0.22, 1, 0.36, 1)",
+        // together. `bottom` rides along for steps that toggle `fill`. Named
+        // properties, not `all`: framer owns opacity here.
+        transition:
+          "top 220ms cubic-bezier(0.22, 1, 0.36, 1), bottom 220ms cubic-bezier(0.22, 1, 0.36, 1)",
       }}
     >
       {/* max-h-full so a short viewport takes its shortfall out of the opponent
@@ -711,6 +775,7 @@ function ScaleToFit({
   reserve = 210,
   referenceHeight,
   maxScale = 1,
+  fill = false,
   onMeasure,
 }: {
   children: React.ReactNode;
@@ -731,12 +796,24 @@ function ScaleToFit({
    * sizes to the card's own scaled height.
    */
   referenceHeight?: number;
+  /**
+   * Stretch the card past its natural height instead of letting it stop short
+   * and leaving the rest of its slot dim.
+   *
+   * The target is referenceHeight when one is given — so the card matches
+   * whichever card set it, rather than the viewport — and otherwise every px the
+   * reserve leaves. Works by giving the card a min-height in *unscaled* units
+   * and laying it out as a grid item, which stretches. That feeds back into the
+   * measurement below and settles in one pass.
+   */
+  fill?: boolean;
   /** reports this card's natural (untransformed) height once measured */
   onMeasure?: (height: number) => void;
 }) {
   const innerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [boxHeight, setBoxHeight] = useState<number | undefined>(undefined);
+  const [minHeight, setMinHeight] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     const el = innerRef.current;
@@ -747,6 +824,18 @@ function ScaleToFit({
       onMeasure?.(natural);
       const basis = referenceHeight && referenceHeight > 0 ? referenceHeight : natural;
       const avail = visibleHeight() - reserve;
+      if (fill) {
+        // With a referenceHeight, fill means "match that card" — the two end up
+        // exactly the same height, since they then share a natural height *and*
+        // a scale. Without one it falls back to filling the room available.
+        const target =
+          referenceHeight && referenceHeight > 0
+            ? Math.round(referenceHeight)
+            : Math.max(0, Math.round(avail / (maxScale || 1)));
+        setMinHeight((current) =>
+          current !== undefined && Math.abs(current - target) < 1 ? current : target
+        );
+      }
       // The floor is mobile-only so desktop keeps exactly the scale it had.
       const floor = isMobileViewport() ? MIN_CARD_SCALE : 0;
       const next = Math.max(floor, Math.min(maxScale, avail / basis));
@@ -771,7 +860,7 @@ function ScaleToFit({
       window.removeEventListener("resize", measure);
       window.visualViewport?.removeEventListener("resize", measure);
     };
-  }, [reserve, referenceHeight, maxScale, onMeasure]);
+  }, [reserve, referenceHeight, maxScale, fill, onMeasure]);
 
   // The stretched box is wider than the container, so it's pulled back by half
   // the excess and scaled about its own centre. That keeps it centred whatever
@@ -793,6 +882,10 @@ function ScaleToFit({
           marginLeft: `${(100 - widthPct) / 2}%`,
           transform: `scale(${scale})`,
           transformOrigin: "top center",
+          // grid, not block: a single grid item stretches to the row by default,
+          // so the card itself grows to the min-height rather than sitting at
+          // its natural height inside a taller wrapper.
+          ...(fill ? { display: "grid", minHeight } : null),
         }}
       >
         {children}
@@ -1086,13 +1179,14 @@ const WON_SQUARE_STYLES: Record<string, { backgroundColor: string }> =
 const M_SHEET_CHROME = 362;
 
 /**
- * Fraction of the available column the mobile interlude card takes.
+ * Fraction of the viewport height the mobile interlude takes.
  *
- * Full height made it read as a screen takeover rather than one beat in a run of
- * cards. The board absorbs the difference — it's sized from whatever the chrome
- * leaves — so turning this down trades board size for a shorter card.
+ * 1 is the design reference: the won-game screen is a full takeover, the same
+ * screen the user would really be looking at after a win, not one card in a run
+ * of cards. The board absorbs whatever this leaves — it's sized from what the
+ * chrome doesn't use — so turning it down trades board size for a shorter sheet.
  */
-const M_SHEET_HEIGHT_RATIO = 0.8;
+const M_SHEET_HEIGHT_RATIO = 1;
 
 function MobileCapturedRow({
   icons,
@@ -1164,7 +1258,9 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
   return (
     <div
       ref={sheetRef}
-      className="fixed bg-white rounded-2xl overflow-hidden pointer-events-none flex flex-col"
+      // Square corners: the sheet is full-bleed now, so rounding would cut
+      // notches out of the screen corners rather than shaping a card.
+      className="fixed bg-white overflow-hidden pointer-events-none flex flex-col"
       style={{
         top: box.top,
         left: box.left,
@@ -1808,6 +1904,12 @@ export function PlaygroundTour({
   const [lottieDone, setLottieDone] = useState(false);
   const reportLottieDone = useRef(() => setLottieDone(true)).current;
 
+  // Bottom edge of the app's fixed header, where the mobile interlude starts.
+  // Measured in an effect rather than read during render: headerBottom() runs
+  // getComputedStyle + getBoundingClientRect, and this component re-renders on
+  // rAF ticks while the spotlight eases — a forced reflow per frame.
+  const [headerH, setHeaderH] = useState(0);
+
   // viewport.vw is 0 until the first rAF tick, so fall back to a live read.
   const isMobile = viewport.vw > 0 ? viewport.vw < MOBILE_BP : isMobileViewport();
   // Mobile presents its own hero panel; desktop still spotlights the live one,
@@ -1828,6 +1930,44 @@ export function PlaygroundTour({
   // A tooltipAfterLottie step keeps its copy hidden until the card's animation
   // has played (or the fallback timer fires).
   const tooltipHeld = !!step?.tooltipAfterLottie && !lottieDone;
+  // Mobile only. The overlap exists to buy a phone height it doesn't have;
+  // desktop has room to spare, where pulling the card under the tooltip just
+  // crowds two things that were sitting comfortably apart.
+  // Extra overlap bought by a short screen. The tooltip never moves, so this is
+  // the only place the shortfall can come from.
+  const tuckBoost = isMobile
+    ? Math.min(
+        TUCK_MAX_BOOST,
+        Math.max(
+          0,
+          Math.round((TUCK_REFERENCE_VH - viewport.vh) * TUCK_SHORTFALL_RATIO)
+        )
+      )
+    : 0;
+  // Boosted only when the step opted into overlapping at all — a step with no
+  // cardTuck wants its gap, however short the screen.
+  //
+  // Capped at the tooltip's own height, which is the point where the card's top
+  // edge meets the tooltip's. Past that the card would be climbing out from
+  // behind the tooltip and back into the open above it — visible card with no
+  // copy over it, which reads as a rendering fault rather than an overlap. The
+  // cap is what lets a step ask for more tuck than it can have and simply take
+  // everything that's going.
+  const requestedCardTuck =
+    isMobile && step?.cardTuck ? step.cardTuck + tuckBoost : 0;
+  const cardTuck = Math.min(
+    requestedCardTuck,
+    tooltipH || (isMobile ? 130 : 180)
+  );
+  const cardFill = isMobile && !!step?.cardFill;
+  // Same rule: only a phone is short enough for the panel to be worth running to
+  // the screen edge.
+  const panelFull = isMobile && !!step?.panelFull;
+  // The demo steps' version of it: the column stops being centred, so the
+  // tooltip parks at the top of the screen exactly as it does on steps 1-2, and
+  // the card takes everything below rather than rendering at MOBILE_SCALE with
+  // the remainder split above and below it.
+  const demoFull = panelFull && !!step?.demo;
 
   useEffect(() => setMounted(true), []);
 
@@ -1953,6 +2093,25 @@ export function PlaygroundTour({
     setInterlude(false);
     setIndex(FINALE_INDEX);
   };
+
+  // Re-measure the header whenever the tour opens or the interlude starts, and
+  // on the two events that can move it (a rotation, a phone browser's toolbars
+  // collapsing). Nothing else changes it mid-run.
+  useEffect(() => {
+    if (!open) return;
+    const measure = () =>
+      setHeaderH((current) => {
+        const next = headerBottom();
+        return current === next ? current : next;
+      });
+    measure();
+    window.addEventListener("resize", measure);
+    window.visualViewport?.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.visualViewport?.removeEventListener("resize", measure);
+    };
+  }, [open, interlude]);
 
   // Arm the Lottie gate for the current step. A step that doesn't ask for it is
   // never held; one that does starts hidden and gets a fallback timer, so a card
@@ -2256,25 +2415,33 @@ export function PlaygroundTour({
   // this one line rather than off their own anchor, so the card sits in the same
   // place on each and can't drift into the panel however long the step's copy
   // runs. The measured height only enters if a tooltip overflows the reserve.
-  const heroTooltipBottom =
-    VIEWPORT_MARGIN + Math.max(HERO_COPY_TOOLTIP_RESERVE, anchored ? tooltipH : 0);
+  // Bottom of the *reserve*, not of the measured card. The tooltip's top is
+  // pinned at VIEWPORT_MARGIN on every step, so its bottom moves with the length
+  // of the copy — deriving the panel from that would shuffle it step to step.
+  // Off the reserve, the panel is fixed and a longer tooltip simply overlaps
+  // more of it, which is exactly what should happen.
+  const heroTooltipBottom = VIEWPORT_MARGIN + HERO_COPY_TOOLTIP_RESERVE;
   // The panel then starts a caret-gap below that, less the tuck that slides its
   // "Play VS AI" heading up behind the tooltip.
   const heroPanelTop =
-    heroTooltipBottom + HERO_CARET_GAP - (step?.panelTuck ?? HERO_PANEL_TUCK);
+    heroTooltipBottom +
+    HERO_CARET_GAP -
+    ((step?.panelTuck ?? HERO_PANEL_TUCK) + tuckBoost);
+  // Full-bleed from the app header down, per the design reference: the won-game
+  // screen reads as the real screen the user just came from, which means the
+  // app's own navbar stays showing above it rather than being painted over.
+  // Everything comes from the live viewport (visualViewport on a phone), so it
+  // tracks a rotation or a browser toolbar collapsing mid-interlude.
+  const interludeTop = isMobile ? headerH : 0;
   const interludeH = Math.max(
     300,
-    Math.round(
-      (viewport.vh - (VIEWPORT_MARGIN + PAD) * 2) * M_SHEET_HEIGHT_RATIO
-    )
+    Math.round((viewport.vh - interludeTop) * M_SHEET_HEIGHT_RATIO)
   );
   const interludeCard: Rect = {
-    width: tourCardW,
+    width: viewport.vw,
     height: interludeH,
-    left: tourCardLeft,
-    // Centred rather than parked at the top, now that it no longer fills the
-    // column — a short card pinned high left all its slack under it.
-    top: Math.max(VIEWPORT_MARGIN + PAD, Math.round((viewport.vh - interludeH) / 2)),
+    left: 0,
+    top: interludeTop,
   };
 
   // Spotlight geometry: pads the union of anchor rects; collapses to a point
@@ -2378,7 +2545,12 @@ export function PlaygroundTour({
   // anchor is what put its card over the "Choose Your Color" heading and colour
   // toggle just above the opponent list, and step 1 — whose anchor is the whole
   // panel — found no room above at all and fell back to sitting *on* the panel.
-  if (heroPinned) mode = "above";
+  // "over" rather than "above": over is the top-anchored branch, so the card's
+  // TOP lands on rawTooltipTop and stays there whatever the copy runs to. Above
+  // would anchor its bottom, and step 1's two lines would then start lower down
+  // the screen than step 2's four. The caret still points down — only "below"
+  // flips it.
+  if (heroPinned) mode = "over";
   else if (
     step?.tooltipBottomAt !== undefined &&
     rect &&
@@ -2393,7 +2565,7 @@ export function PlaygroundTour({
   )
     mode = "below";
   const rawTooltipTop = heroPinned
-    ? heroTooltipBottom
+    ? VIEWPORT_MARGIN
     : mode === "edge" && rect && step?.tooltipBottomAt !== undefined
       ? rect.top + step.tooltipBottomAt
       : mode === "above"
@@ -2423,10 +2595,19 @@ export function PlaygroundTour({
   // A cardTuck step overlaps its tooltip instead of clearing it, so the gap it
   // has to reserve is negative — without this the card would be sized as if the
   // 14px gap were still there and end up that much shorter than it can be.
-  const demoGap = step?.cardTuck ? -step.cardTuck : CARET_GAP;
+  const demoGap = cardTuck ? -cardTuck : CARET_GAP;
   const demoReserve = tooltipH
-    ? tooltipH + demoGap + DEMO_COLUMN_PAD + VIEWPORT_MARGIN
+    ? tooltipH +
+      demoGap +
+      (demoFull ? VIEWPORT_MARGIN * 2 : DEMO_COLUMN_PAD) +
+      VIEWPORT_MARGIN
     : 210;
+  // ScaleToFit stops at maxScale even when there's room to spare, so on a tall
+  // phone a demo card rendered at MOBILE_SCALE and banked the rest as empty
+  // column. A full-bleed step lifts that ceiling to 1: the card grows into the
+  // whole height the reserve leaves, and its counter-stretch takes the width out
+  // to the column with it.
+  const demoMaxScale = demoFull ? 1 : scale;
   const anchorCenterX = rect
     ? rect.left + rect.width / 2
     : targetHole.left + targetHole.width / 2;
@@ -2460,6 +2641,7 @@ export function PlaygroundTour({
           width={tourCardW}
           left={tourCardLeft}
           top={heroPanelTop}
+          fill={panelFull}
           hidden={interlude || !anchored}
         />
       )}
@@ -2485,7 +2667,9 @@ export function PlaygroundTour({
             // Flush against the target now (spotPad 0), so the corners have to
             // agree with it: the panel and the interlude card are both
             // rounded-2xl. 18 left a hair of dark showing at each corner.
-            borderRadius: useHeroCopy ? 16 : 18,
+            // The full-bleed interlude has square corners, so a radius here
+            // would leave four dark notches at the screen corners.
+            borderRadius: mobileInterlude ? 0 : useHeroCopy ? 16 : 18,
             // Deeper dim when the tour has its own panel: the page's real hero
             // is still behind it at full size, and at 0.62 the two read as a
             // double image. At 0.8 the page is texture, the copy is the content.
@@ -2571,15 +2755,32 @@ export function PlaygroundTour({
                edges by their own width (100vw-24px), and horizontal padding on
                top of that made them wider than this box's content area, so they
                overflowed it and stopped centring evenly */
-            className="fixed inset-0 flex flex-col items-center overscroll-contain py-4"
+            className={`fixed inset-0 flex flex-col items-center overscroll-contain ${
+              demoFull ? "" : "py-4"
+            }`}
+            /* A full-bleed step drops py-4 for the tour's own VIEWPORT_MARGIN,
+               so its tooltip starts on exactly the same line as the anchored
+               steps' — 16 vs 12 is small, but it's the difference between the
+               card looking pinned and looking nearly pinned. */
+            style={
+              demoFull
+                ? { paddingTop: VIEWPORT_MARGIN, paddingBottom: VIEWPORT_MARGIN }
+                : undefined
+            }
           >
             {/* m-auto centers the column; every card inside scales to the room
                 the tooltip leaves, so the column never overflows (it can't be
                 scrolled). panelTuck then lifts the whole centred column — a
                 transform, so the centring maths underneath it is untouched and
-                the cards keep sizing themselves from the real viewport. */}
+                the cards keep sizing themselves from the real viewport.
+
+                demoFull swaps the centring for mb-auto: the column pins to the
+                top, so the tooltip lands where steps 1-2 put theirs instead of
+                floating mid-screen, and the card fills everything under it. */}
             <div
-              className="m-auto flex flex-col items-center"
+              className={`${
+                demoFull ? "mb-auto" : "m-auto"
+              } flex flex-col items-center`}
               style={
                 step.panelTuck
                   ? { transform: `translateY(${-step.panelTuck}px)` }
@@ -2607,6 +2808,13 @@ export function PlaygroundTour({
                   caret="bottom"
                   compact={compact}
                   scale={scale}
+                  // Full-bleed steps widen the card to the column, so the
+                  // tooltip has to widen with it or it reads as a narrow label
+                  // floating over a full-width card. stretch keeps its type at
+                  // MOBILE_SCALE while the box goes full width — the same
+                  // treatment the anchored steps get against their panel.
+                  widthPx={demoFull ? BASE_TOOLTIP_W : undefined}
+                  stretch={demoFull}
                   onHeight={reportTooltipHeight}
                 />
               </motion.div>
@@ -2615,13 +2823,13 @@ export function PlaygroundTour({
               {/* same width as the tooltip above it on mobile */}
               <div
                 className="w-[min(430px,calc(100vw-24px))] sm:w-[min(430px,92vw)] rounded-2xl"
-                style={{ marginTop: step.cardTuck ? -step.cardTuck : 14 }}
+                style={{ marginTop: cardTuck ? -cardTuck : 14 }}
               >
 
                 {step.demo === "win" && (
                   <ScaleToFit
                     reserve={demoReserve}
-                    maxScale={scale}
+                    maxScale={demoMaxScale}
                     onMeasure={reportWinCardHeight}
                   >
                     <WinModalCard
@@ -2638,7 +2846,8 @@ export function PlaygroundTour({
                 {step.demo === "lose" && (
                   <ScaleToFit
                     reserve={demoReserve}
-                    maxScale={scale}
+                    maxScale={demoMaxScale}
+                    fill={cardFill}
                     referenceHeight={winCardHeightRef.current || undefined}
                   >
                     <LoseModalCard
@@ -2653,13 +2862,16 @@ export function PlaygroundTour({
                   </ScaleToFit>
                 )}
                 {step.demo === "analyze" && (
-                  <ScaleToFit reserve={demoReserve} maxScale={scale}>
+                  <ScaleToFit reserve={demoReserve} maxScale={demoMaxScale}>
                     <DemoAnalyzeCard
                       /* the board sizes itself from the room the card gets, so
                          it has to be told about the scale too — otherwise it
                          picks a board for the full height and the card grows
-                         back the fifth the scale just took off */
-                      maxHeight={Math.max(360, (viewport.vh - demoReserve) / scale)}
+                         back the fifth the scale just took off. demoMaxScale,
+                         not scale: a full-bleed step renders at 1, and dividing
+                         by 0.8 there would hand the board a quarter more height
+                         than the card actually has. */
+                      maxHeight={Math.max(360, (viewport.vh - demoReserve) / demoMaxScale)}
                     />
                   </ScaleToFit>
                 )}

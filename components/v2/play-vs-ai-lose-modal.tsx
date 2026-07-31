@@ -51,15 +51,25 @@ export function LoseModalCard({
   const tour = variant === "tour";
   const animationData = useLottieData(LOSE_LOTTIE);
 
-  // See the win modal: the tour gets a step-down in mobile type and spacing
-  // because it renders into the slot its tooltip leaves. Desktop is unchanged.
+  // The tour used to take a step down in mobile type and spacing here, because
+  // it rendered into whatever slot its tooltip left. It no longer needs to: the
+  // tour stretches this card to the win card's height, and at the smaller sizing
+  // the content sat in the middle of it with white above and below. Both modes
+  // now run the modal's mobile sizing, and the pair only differ in the animation
+  // (wider here — it's the one elastic thing left to absorb the height).
+  // Desktop is unchanged either way.
   const m = (tourCls: string, modalCls: string) => (tour ? tourCls : modalCls);
 
   return (
     <div
+      // flex column + justify-center in tour mode: the tour stretches this card
+      // to the bottom of the screen, and centring means the surplus splits above
+      // and below the content rather than piling up under the button or forcing
+      // a child to absorb it. Every internal gap keeps its designed value.
+      // Inert on desktop, where nothing stretches the card in the first place.
       className={
         tour
-          ? "relative w-full max-w-[545px] overflow-hidden bg-white rounded-2xl shadow-2xl select-none pointer-events-none"
+          ? "relative w-full max-w-[545px] overflow-hidden bg-white rounded-2xl shadow-2xl select-none pointer-events-none flex flex-col justify-center"
           : "relative w-full max-w-[545px] max-h-[96vh] overflow-hidden bg-white rounded-2xl shadow-2xl"
       }
     >
@@ -67,8 +77,13 @@ export function LoseModalCard({
           slices (covers + crops), so a max-h under aspect-[540/400] cut the
           arrows down to two tips on a phone instead of scaling them. */}
       <div
+        // Never grows. The renderer covers the box, so a taller box is scaled to
+        // fill its height — which shows *more* of the source canvas, empty
+        // bottom strip included, straight into the gap above "You Lost". Holding
+        // the aspect ratio keeps that strip cropped; the root centres the whole
+        // stack instead, so surplus height goes outside the content, not inside.
         className={m(
-          "relative w-[57%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400]",
+          "relative w-[72%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] shrink-0",
           "relative w-[68%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         )}
       >
@@ -86,14 +101,16 @@ export function LoseModalCard({
       </div>
 
       <div
+        // No flex-1 here — the animation above takes the surplus, so the copy
+        // keeps its designed spacing instead of being spread out to fill.
         className={`${m(
-          "px-[14px] pb-[14px]",
+          "px-[20px] pb-[20px] shrink-0",
           "px-[20px] pb-[20px]"
         )} sm:px-[36px] sm:pb-[28px] sm:[@media(max-height:920px)]:pb-[18px]`}
       >
         <h2
           className={`text-center font-bold ${m(
-            "text-[19px] mt-[4px] mb-[2px]",
+            "text-[24px] mt-[8px] mb-[4px]",
             "text-[24px] mt-[8px] mb-[4px]"
           )} sm:text-[30px] text-[#DC2626] sm:mt-[12px] sm:mb-[6px] sm:[@media(max-height:920px)]:mt-[4px] sm:[@media(max-height:920px)]:mb-[2px]`}
         >
@@ -103,7 +120,7 @@ export function LoseModalCard({
         {opponentName && (
           <p
             className={`text-center ${m(
-              "text-[12px] mb-[6px]",
+              "text-[14px] mb-[10px]",
               "text-[14px] mb-[10px]"
             )} sm:text-[17px] text-[#374151] sm:mb-[14px] sm:[@media(max-height:920px)]:mb-[8px]`}
           >
@@ -114,22 +131,22 @@ export function LoseModalCard({
         {/* ELO pill + loss badge */}
         <div
           className={`flex items-center justify-center gap-[8px] sm:gap-[10px] ${m(
-            "mb-[10px]",
+            "mb-[14px]",
             "mb-[14px]"
           )} sm:mb-[20px] sm:[@media(max-height:920px)]:mb-[12px]`}
         >
           <div
             className={`flex items-center justify-between gap-[10px] sm:gap-[16px] bg-[#DC2626] rounded-[10px] ${m(
-              "pl-[12px] pr-[10px] py-[6px]",
+              "pl-[14px] pr-[12px] py-[8px]",
               "pl-[14px] pr-[12px] py-[8px]"
             )} sm:pl-[20px] sm:pr-[16px] sm:py-[10px] flex-1 min-w-0 ${m(
-              "max-w-[210px]",
+              "max-w-[300px]",
               "max-w-[300px]"
             )} sm:max-w-[300px]`}
           >
             <span
               className={`text-white font-semibold ${m(
-                "text-[12px]",
+                "text-[14px]",
                 "text-[14px]"
               )} sm:text-[17px] whitespace-nowrap`}
             >
@@ -141,7 +158,7 @@ export function LoseModalCard({
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className={`${m(
-                  "w-[13px] h-[13px]",
+                  "w-[16px] h-[16px]",
                   "w-[16px] h-[16px]"
                 )} sm:w-[20px] sm:h-[20px] shrink-0`}
               >
@@ -150,7 +167,7 @@ export function LoseModalCard({
               </svg>
               <span
                 className={`text-white font-bold ${m(
-                  "text-[18px]",
+                  "text-[22px]",
                   "text-[22px]"
                 )} sm:text-[28px] leading-none pt-1`}
               >
@@ -170,7 +187,7 @@ export function LoseModalCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: ODOMETER_DELAY + ODOMETER_DURATION, duration: 0.35 }}
             className={`font-bold ${m(
-              "text-[16px]",
+              "text-[20px]",
               "text-[20px]"
             )} sm:text-[24px] shrink-0 ${eloDeltaColorClass(delta)}`}
           >
@@ -180,7 +197,7 @@ export function LoseModalCard({
 
         <p
           className={`text-center font-bold ${m(
-            "text-[13px]",
+            "text-[15px]",
             "text-[15px]"
           )} sm:text-[17px] text-[#111827]`}
         >
@@ -188,7 +205,7 @@ export function LoseModalCard({
         </p>
         <p
           className={`text-center ${m(
-            "text-[11px] mb-[8px]",
+            "text-[13px] mb-[12px]",
             "text-[13px] mb-[12px]"
           )} sm:text-[15px] text-[#111827] sm:mb-[18px] sm:[@media(max-height:920px)]:mb-[12px]`}
         >
@@ -198,7 +215,7 @@ export function LoseModalCard({
         <button
           onClick={onDiscoverMistakes}
           className={`w-full ${m(
-            "py-[9px] text-[13px]",
+            "py-[12px] text-[15px]",
             "py-[12px] text-[15px]"
           )} sm:py-[14px] sm:[@media(max-height:920px)]:py-[12px] rounded-full bg-[#221AE9] text-white font-semibold sm:text-[16px] hover:bg-[#2d25ea] transition-colors`}
         >
