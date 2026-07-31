@@ -631,7 +631,7 @@ const GamesList: React.FC<GamesListProps> = ({
     }
 
     return {
-      text: "Analyze",
+      text: "Analyze Mistakes",
       icon: <ChartNoAxesColumn className="h-4 w-4 mr-2" />,
       className:
         "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
@@ -1283,7 +1283,7 @@ const DummyGameList = ({
                 style={isV2 ? v2GlowStyle(34, 26, 233) : undefined}
               >
                 <ChartNoAxesColumn className="h-4 w-4 mr-2" />
-                <span>Analyze</span>
+                <span>Analyze Mistakes</span>
               </button>
             )}
           </div>

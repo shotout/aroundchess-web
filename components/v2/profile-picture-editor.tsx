@@ -15,7 +15,19 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 /** Side of the square written to the server. */
 const OUTPUT_SIZE = 512;
-const MIN_ZOOM = 1;
+/**
+ * Zoom is a multiple of "fit" — the scale at which the whole image sits inside
+ * the crop stage, edge to edge, with nothing trimmed. Zoom 1 is therefore the
+ * picture exactly as the user supplied it, and where a freshly picked file
+ * lands: they see all of what they chose, then scale up or down from there.
+ *
+ * It used to be a multiple of *cover*, which fills the stage by cropping
+ * whatever doesn't fit the aspect ratio. That is why an upload arrived already
+ * trimmed and already at the slider's left stop — cover was both the starting
+ * point and the floor, so the control could only ever crop in further.
+ */
+const DEFAULT_ZOOM = 1;
+const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 3;
 const ZOOM_STEP = 0.1;
 /** Pixels moved per arrow-key press. */
@@ -49,18 +61,23 @@ const ProfilePictureEditor = ({
 
   const [file, setFile] = useState<File | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(MIN_ZOOM);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  /** Scale at which the whole image fits the stage; 0 until measured. */
+  const [baseScale, setBaseScale] = useState(0);
 
   const { uploadProfilePicture } = useApiClient();
   const { setAlreadyFetch, setAlreadyFetchProfile } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
 
   const resetEdits = useCallback(() => {
-    setZoom(MIN_ZOOM);
+    setZoom(DEFAULT_ZOOM);
     setOffset({ x: 0, y: 0 });
+    // Belongs to the outgoing image. Clearing it also hides the new one until it
+    // has been measured, so it can't flash at natural size first.
+    setBaseScale(0);
   }, []);
 
   // Drop the object URL and any pending edits whenever the dialog closes.
@@ -99,7 +116,42 @@ const ProfilePictureEditor = ({
     acceptFile(chosen);
   };
 
-  /** Keep the image covering the crop circle — no empty gaps at the edges. */
+  /**
+   * The scale that fits the whole image inside the stage — min, not max, of the
+   * two ratios. That is what makes zoom 1 the untouched picture: the larger side
+   * meets the stage's edge and the shorter one falls short, so nothing is cut.
+   */
+  const measureStage = useCallback(() => {
+    const viewport = viewportRef.current;
+    const img = imageRef.current;
+    if (!viewport || !img?.naturalWidth) return;
+
+    const box = viewport.getBoundingClientRect();
+    if (!box.width || !box.height) return;
+
+    const fit = Math.min(
+      box.width / img.naturalWidth,
+      box.height / img.naturalHeight
+    );
+    setBaseScale((prev) => (Math.abs(prev - fit) < 0.0001 ? prev : fit));
+  }, []);
+
+  // The stage is responsive, so its box — and with it the cover scale and the
+  // floor — changes with the window.
+  useEffect(() => {
+    if (!imageSrc) return;
+    const viewport = viewportRef.current;
+    measureStage();
+    const ro = new ResizeObserver(measureStage);
+    if (viewport) ro.observe(viewport);
+    window.addEventListener("resize", measureStage);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measureStage);
+    };
+  }, [imageSrc, measureStage]);
+
+  /** Keep the image covering the crop circle — no empty gaps inside it. */
   const clampOffset = useCallback(
     (next: { x: number; y: number }, atZoom: number) => {
       const viewport = viewportRef.current;
@@ -107,14 +159,20 @@ const ProfilePictureEditor = ({
       if (!viewport || !img?.naturalWidth) return next;
 
       const box = viewport.getBoundingClientRect();
-      const cover = Math.max(
+      const fit = Math.min(
         box.width / img.naturalWidth,
         box.height / img.naturalHeight
       );
-      const drawnW = img.naturalWidth * cover * atZoom;
-      const drawnH = img.naturalHeight * cover * atZoom;
-      const maxX = Math.max(0, (drawnW - box.width) / 2);
-      const maxY = Math.max(0, (drawnH - box.height) / 2);
+      const drawnW = img.naturalWidth * fit * atZoom;
+      const drawnH = img.naturalHeight * fit * atZoom;
+      // Bound by the circle, not the stage. At fit scale the image is smaller
+      // than the stage in one axis, and bounding by the stage would pin panning
+      // to dead centre even with slack either side of the circle. Where the
+      // image is smaller than the circle the bound is 0, which centres it —
+      // there is genuinely nothing to choose between.
+      const cropSide = Math.min(box.width, box.height);
+      const maxX = Math.max(0, (drawnW - cropSide) / 2);
+      const maxY = Math.max(0, (drawnH - cropSide) / 2);
 
       return {
         x: Math.min(maxX, Math.max(-maxX, next.x)),
@@ -189,11 +247,13 @@ const ProfilePictureEditor = ({
     const box = viewport.getBoundingClientRect();
     // The crop circle is the largest one that fits the viewport.
     const cropSide = Math.min(box.width, box.height);
-    const cover = Math.max(
+    // Same basis the stage draws with — fit, not cover — or the saved crop would
+    // not be the region the user framed.
+    const fit = Math.min(
       box.width / img.naturalWidth,
       box.height / img.naturalHeight
     );
-    const scale = cover * zoom;
+    const scale = fit * zoom;
 
     // Top-left of the crop square in source-image pixels.
     const sourceSide = cropSide / scale;
@@ -205,6 +265,11 @@ const ProfilePictureEditor = ({
     canvas.height = OUTPUT_SIZE;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
+    // The circle can now be wider than the picture — a portrait photo at fit
+    // scale doesn't reach its sides. Those pixels are never written, and a JPEG
+    // renders untouched canvas as black, so paint them white first.
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(
       img,
@@ -281,15 +346,29 @@ const ProfilePictureEditor = ({
                 className="relative w-full aspect-[4/3] sm:aspect-[16/9] overflow-hidden rounded-[12px] bg-[#0B1220] cursor-grab active:cursor-grabbing touch-none select-none outline-none focus-visible:ring-2 focus-visible:ring-[#221AE9]"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                {/* Natural size, scaled by baseScale * zoom — NOT w-full h-full
+                    object-cover. object-cover crops the image to the stage's
+                    aspect before any transform runs, so zooming below 1 shrank
+                    an already-cropped picture and the trimmed edges could never
+                    come back. At natural size the transform is the only thing
+                    sizing it, and zooming out genuinely reveals more. */}
                 <img
                   ref={imageRef}
                   src={imageSrc as string}
                   alt=""
                   draggable={false}
-                  onLoad={() => setOffset((prev) => clampOffset(prev, zoom))}
-                  className="absolute left-1/2 top-1/2 max-w-none w-full h-full object-cover"
+                  onLoad={() => {
+                    measureStage();
+                    setOffset((prev) => clampOffset(prev, zoom));
+                  }}
+                  className="absolute left-1/2 top-1/2 max-w-none w-auto h-auto"
                   style={{
-                    transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+                    transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${
+                      baseScale * zoom
+                    })`,
+                    // Hidden for the frame between decode and measurement —
+                    // otherwise a large photo paints once at full natural size.
+                    visibility: baseScale ? "visible" : "hidden",
                   }}
                 />
                 {/* Circular mask so it's obvious which part becomes the avatar:

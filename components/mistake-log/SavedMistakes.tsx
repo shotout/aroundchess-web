@@ -97,7 +97,9 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   } = usePgnStore();
   
   const { unsaveMistakeLog, getAnalysisByPgnHash } = useApiClient();
-  const { currentData } = usePagination(savedMistakes);
+  // One state for the list and the controls — see <Pagination> below.
+  const pagination = usePagination(savedMistakes);
+  const { currentData } = pagination;
   const { sessionId } = useProfileStore();
   const [loadingUnsave, setLoadingUnsave] = useState<boolean>(false);
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
@@ -485,7 +487,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
             );
           })}
       </div>
-      {currentData.length > 0 && <Pagination data={currentData} />}
+      {currentData.length > 0 && <Pagination {...pagination} />}
 
       {/* Dialog components for View Analysis flow */}
       <ChooseAnalysisMode
