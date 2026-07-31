@@ -23,23 +23,12 @@ import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { HeroPlayVSAIPreview } from "@/components/v2/hero-play-vs-ai-preview";
 
-// Interactive remake of the playground tutorial video (tutorial.json).
-// Fully self-contained: renders in a portal above everything (win/lose
-// modals sit at z-[500]), never mutates page state, and only reads the
-// two data-tour-anchor attributes on the play hero to draw its spotlight.
-
 const WIN_LOTTIE = "/images/v2/play-vs-ai/WON.min.json";
 const LOSE_LOTTIE = "/images/v2/play-vs-ai/LOSE.min.json";
 const FINALE_IMG = "/images/v2/tutorial/chessboard.png";
 
-// Set by sign-up onboarding (queuePlaygroundTour); the tour only auto-runs
-// while it's present and consumes it on start.
 const PENDING_KEY = "ac_playground_tour_pending_v1";
 
-// Programmatic trigger: call startPlaygroundTour() from any component (e.g.
-// a "Replay tutorial" button), or run __startPlaygroundTour() in the browser
-// console while on the play page — both replay the tour regardless of the
-// "already seen" flag.
 export const PLAYGROUND_TOUR_EVENT = "playground-tour:start";
 
 export function startPlaygroundTour() {
@@ -57,96 +46,20 @@ declare global {
 type TourStep = {
   title: string;
   content: string;
-  /**
-   * [data-tour-anchor] candidates to spotlight — the first one that is
-   * actually visible wins (the board preview is hidden on mobile, where the
-   * opponent panel takes its place). Demo steps have none.
-   */
   anchors?: string[];
-  /** extra anchors merged into the spotlight so they stay undimmed */
   include?: string[];
-  /** which anchor to scroll into view (defaults to the resolved primary) */
   scrollAnchor?: string;
-  /** px kept clear above the scrolled anchor (defaults to 110, the navbar) */
   scrollMargin?: number;
-  /**
-   * Parks the tooltip right under the app header and scrolls the anchor to sit
-   * just below it, so no dead space is left between the two. Computed from the
-   * measured header and tooltip, which beats hand-tuning scrollMargin per step.
-   */
   tooltipUnderHeader?: boolean;
-  /**
-   * pins the tooltip's bottom edge at primaryRect.top + this offset instead
-   * of the automatic above/below/over placement (falls back to "over" when
-   * the tooltip would leave the viewport)
-   */
   tooltipBottomAt?: number;
-  /** auto-scroll the opponent list inside the target, like the video demo */
   scrollShowcase?: boolean;
-  /**
-   * px this step moves its card up. Higher is always "further up"; what it acts
-   * on depends on the kind of step.
-   *
-   * Anchored steps (1-2): slides the mobile hero panel up behind the tooltip,
-   * overriding HERO_PANEL_TUCK. More of the panel's top is hidden and, since its
-   * bottom edge is fixed, it gains that much height. The tooltip stays put.
-   *
-   * Demo steps (3-5): lifts the tooltip and its card off the centred position
-   * they share. Nothing is hidden — the whole column moves. The cards size
-   * themselves from the viewport, not from this, so a large value can push the
-   * top of the column off screen.
-   */
   panelTuck?: number;
-  /**
-   * px a demo step's card slides up *behind* its tooltip, the same overlap the
-   * anchored steps get from panelTuck. Replaces the default 14px gap between the
-   * two. The tooltip is lifted above the card to receive it.
-   *
-   * Mobile only — ignored at and above MOBILE_BP, where the viewport has the
-   * height to keep the two apart and the overlap only crowds them.
-   */
   cardTuck?: number;
-  /**
-   * Holds this step's tooltip hidden until the card's Lottie has played out, so
-   * the animation isn't competing with the copy. Falls back to a timer if the
-   * animation never reports (its JSON failed to load).
-   */
   tooltipAfterLottie?: boolean;
-  /**
-   * Runs the mobile hero panel all the way to the bottom of the screen and
-   * stretches it to fill, instead of stopping a VIEWPORT_MARGIN short and taking
-   * only the height its content needs.
-   *
-   * The extra height lands in the opponent list, which is the panel's only
-   * growing child — so the step shows more of the roster the taller the phone,
-   * rather than banking the difference as dim space under Start Game.
-   *
-   * Mobile only, like cardTuck.
-   */
   panelFull?: boolean;
-  /**
-   * Stretches a demo step's card down to the bottom of the screen instead of
-   * letting it stop at its natural height. The card grows; its contents stay
-   * where they are, so the extra shows as card rather than as dim backdrop.
-   * Mobile only, like the rest of these.
-   */
   cardFill?: boolean;
-  /**
-   * Tucks a demo step's card behind the tooltip by exactly what step 1 tucks the
-   * hero panel — HERO_PANEL_TUCK, tuckBoost included — instead of taking a
-   * hand-set cardTuck. One number then governs the overlap on every step that
-   * opts in, and a short screen deepens all of them together.
-   *
-   * Derived rather than declared, so it can't drift as the copy changes length
-   * between steps: the tooltip is pinned at VIEWPORT_MARGIN and the card hangs
-   * off its measured height.
-   *
-   * Pair with cardFill to also run the card to the bottom of the screen; on its
-   * own this only fixes where the card starts.
-   */
   matchPanel?: boolean;
   demo?: "win" | "lose" | "analyze";
-  /** fields replaced below 640px, where the design spotlights tighter targets */
   mobile?: Omit<TourStep, "title" | "content" | "demo" | "mobile">;
 };
 
@@ -154,19 +67,6 @@ const MOBILE_BP = 640;
 const isMobileViewport = () =>
   typeof window !== "undefined" && window.innerWidth < MOBILE_BP;
 
-/**
- * Height of the area the user can actually see.
- *
- * On a phone innerHeight is the layout viewport, which ignores the browser's own
- * chrome — iOS Safari's bottom toolbar included. Sizing the tour from it put the
- * bottom of every card (and the Start Game button under the spotlight) behind
- * that toolbar. visualViewport reports what's really visible, and the tour's rAF
- * tracker re-reads it every frame, so a toolbar collapsing mid-tour resizes the
- * step with it.
- *
- * Desktop deliberately stays on innerHeight: there's no such chrome, and the two
- * differ there by the horizontal scrollbar — enough to nudge every measurement.
- */
 const visibleHeight = (): number => {
   if (typeof window === "undefined") return 0;
   if (!isMobileViewport()) return window.innerHeight;
@@ -174,99 +74,39 @@ const visibleHeight = (): number => {
   return Math.round(visual && visual > 0 ? visual : window.innerHeight);
 };
 
-/** Smallest a demo card may be scaled on mobile: past this it's unreadable, so a
- *  viewport that short gets a clipped card rather than a microscopic one. */
 const MIN_CARD_SCALE = 0.45;
 
 const MOBILE_SCALE = 1.0;
 
 const COMPACT_VH = 560;
 
-/**
- * How far the spotlight closes the gap to its target each frame.
- *
- * A CSS transition can't do this job, because the rAF tracker rewrites the
- * target every frame: any duration long enough to smooth a step change leaves
- * the ring trailing the whole way through that step's smooth scroll (it reads
- * as the highlight hunting for the section), and a duration short enough to
- * track the scroll doesn't smooth anything.
- *
- * A follower serves both at once. A target that creeps — a scroll, the hero
- * resizing into its tour sizing — is matched near-exactly, because each frame's
- * gap is tiny. A target that jumps — step 1's card to step 2's opponent list —
- * is eased into over ~10 frames. Same mechanism, no mode to get wrong.
- */
 const SPOT_FOLLOW = 0.22;
-/** px gap below which the follower snaps, so it stops re-rendering on sub-pixel
- *  deltas it would otherwise chase forever */
 const SPOT_SNAP = 0.6;
 
-/** px of padding the spotlight leaves around the anchor it cuts out */
 const PAD = 8;
-/** px the spotlight keeps clear of the screen edges (its horizontal padding
- *  gives way rather than running off-screen) */
+
 const SPOTLIGHT_EDGE = 8;
-/** px kept clear between the app header and a tooltip parked under it */
 const HEADER_GAP = 12;
-/** px between a tooltip and the anchor its caret points at */
+
 const CARET_GAP = 14;
-/**
- * The same, for the mobile steps parked above the tour's own hero panel.
- *
- * Wider than CARET_GAP because the mobile caret is a 17px speech-bubble tail
- * rather than desktop's 12px rotated square, and 14 left its tip 3px *inside*
- * the panel it points at. This clears it by the same 3.
- */
+
 const HERO_CARET_GAP = 20;
-/** px kept clear of the viewport edges */
 const VIEWPORT_MARGIN = 12;
 
-/** Room above the hero panel for the tooltip. Sets where the *tooltip* sits;
- *  the panel follows it via HERO_PANEL_TUCK. */
 const HERO_COPY_TOOLTIP_RESERVE = 150;
-/**
- * px the hero panel slides up *behind* the tooltip, hiding its "Play VS AI"
- * heading — the panel's p-2 (8) plus the h1 and its mb-[6px].
- *
- * This is the knob for moving the panel without moving the tooltip: raise it and
- * the panel rises and grows by the same amount (its bottom edge is fixed at the
- * viewport margin), tucking more of itself out of sight; drop it to 0 and the
- * panel sits a plain caret-gap below the tooltip with the heading showing. The
- * tooltip is drawn after the panel in the portal, so it covers whatever the tuck
- * pulls under it — including the top of the step-1 spotlight ring.
- */
 const HERO_PANEL_TUCK = 16;
-/** the demo column's own padding (p-4), top + bottom */
 const DEMO_COLUMN_PAD = 32;
-/** how long a tooltipAfterLottie step waits before showing its copy anyway —
- *  the Lottie only reports completion if its JSON actually loaded */
 const LOTTIE_FALLBACK_MS = 4000;
 
-/**
- * Visible height the hand-tuned tucks were set against.
- *
- * The tooltip sits at a fixed place on every step, so a shorter phone can't be
- * answered by moving it — the card underneath has to give. Below this height
- * every tuck deepens, and the tooltip covers correspondingly more of the card,
- * which is the one part of it that's pure repetition of what the copy says.
- */
 const TUCK_REFERENCE_VH = 700;
-/** how much of the shortfall the tuck absorbs. 1 would hold the card's *bottom*
- *  perfectly still and take the whole difference out of its top. */
 const TUCK_SHORTFALL_RATIO = 0.5;
-/** ceiling on that, so a very short viewport can't swallow the card's heading */
 const TUCK_MAX_BOOST = 96;
 
-
-/** Bottom edge of the app's fixed header (banner included) — where a tooltip
- *  parked at the top of the screen has to start. Falls back to the mobile
- *  navbar height if the header can't be found. */
 function headerBottom(): number {
   const el = document.querySelector<HTMLElement>("header");
   if (el) {
     const position = getComputedStyle(el).position;
     const bottom = el.getBoundingClientRect().bottom;
-    // in-page <header> elements scroll away and must not be mistaken for it
     if ((position === "fixed" || position === "sticky") && bottom > 0 && bottom < 240) {
       return Math.round(bottom);
     }
@@ -282,26 +122,9 @@ const STEPS: TourStep[] = [
   {
     title: "Tutorial: Welcome to The Playground",
     content: "Start your Game against one of our many AI opponents.",
-    // Desktop cuts out the two hero cards and nothing else, so the highlight
-    // starts at the top edge of the chessboard card. It used to merge in the top
-    // bar (include: ["play-top-bar"]), and that union reached from the top bar
-    // down past the board — up under the fixed navbar — lighting both. The board
-    // card stays the primary anchor, so the tooltip keeps its position over it.
     anchors: ["board-preview", "opponent-panel"],
     include: ["opponent-panel"],
     scrollAnchor: "play-top-bar",
-    // No tooltipBottomAt: that pinned the tooltip 96px *into* the board card, so
-    // it sat over the pieces. Without it the placement math puts it wholly above
-    // the cutout with the caret pointing down at the card's top edge (it lands
-    // over the dimmed top bar, which is the only room there is at the top of the
-    // page). A viewport too short for that still falls back to over-the-target.
-    // Mobile spotlights the Play VS AI card alone (no leaderboard), with the
-    // tooltip entirely above it and the caret pointing down at the card's top
-    // edge — so the card's "Play VS AI" heading stays visible above Choose Your
-    // Color. tooltipUnderHeader pulls the pair as high as the navbar allows
-    // instead of leaving dead space above the tooltip; scrollMargin is only the
-    // first-frame fallback, used until the tooltip has been measured. No
-    // tooltipBottomAt: that would pin the tooltip over the heading instead.
     mobile: {
       anchors: ["opponent-panel"],
       include: [],
@@ -309,7 +132,6 @@ const STEPS: TourStep[] = [
       scrollMargin: 270,
       tooltipUnderHeader: true,
       tooltipBottomAt: undefined,
-      // Same full-height panel as step 2, so the pair reads as one screen.
       panelFull: true,
     },
   },
@@ -321,19 +143,6 @@ const STEPS: TourStep[] = [
     scrollMargin: 224,
     tooltipBottomAt: -14,
     scrollShowcase: true,
-    // Mobile narrows the spotlight to the opponent section + Start Game, so
-    // "Choose Your Color" stays dimmed. tooltipUnderHeader derives the scroll
-    // margin from the measured tooltip rather than the hand-tuned 300 that used
-    // to live here — that number was fitted to a tooltip ~55px taller than the
-    // current one, and left the list sitting that far below where it belongs
-    // (with Start Game pushed off the bottom). scrollMargin is now only the
-    // first-frame fallback, used until the tooltip has been measured.
-    // Mobile rings the whole panel, exactly as step 1 does. It used to narrow to
-    // the opponent section + Start Game so "Choose Your Color" stayed dimmed, but
-    // that box starts well below the tooltip and is shorter than step 1's — so
-    // stepping 1 -> 2 resized the highlight and dropped the tuck that hides the
-    // panel's heading behind the tooltip. One anchor for both steps means one
-    // geometry: same top, same height, same tuck, and only the copy changes.
     mobile: {
       anchors: ["opponent-panel"],
       include: [],
@@ -341,14 +150,7 @@ const STEPS: TourStep[] = [
       tooltipUnderHeader: true,
       tooltipBottomAt: undefined,
       scrollShowcase: true,
-      // Deeper than step 1's, so "Choose Your Color" goes behind the tooltip too
-      // and the colour toggle is the first visible row on the step that's about
-      // picking an opponent. The panel therefore moves between steps 1 and 2 —
-      // it eases rather than snaps (the wrapper transitions `top`), so it stays
-      // with the spotlight ring, which has always eased toward its target.
       panelTuck: 86,
-      // Runs to the bottom edge and stretches, so the roster fills whatever the
-      // phone has rather than leaving dim space under Start Game.
       panelFull: true,
     },
   },
@@ -357,17 +159,9 @@ const STEPS: TourStep[] = [
     content:
       "Winning games can increase your ELO score. Every match affects your ELO score based on the skill level of your opponent.",
     demo: "win",
-    // 0, not -15: panelTuck translates the whole column, tooltip included, and
-    // the tooltip is meant to sit on the same line on every step. matchPanel
-    // places the card on its own now, so there's nothing left for it to do here.
     panelTuck: 5,
-    // Let the celebration play out before the copy arrives.
     tooltipAfterLottie: true,
     panelFull: true,
-    // matchPanel for step 1's tuck, cardFill to run the card to the bottom of
-    // the screen — otherwise the opponent roster behind it shows under the card.
-    // The card's own sizing was raised to match (see WinModalCard's tour values)
-    // so the extra height goes into the content rather than an empty band.
     matchPanel: true,
     cardFill: true,
   },
@@ -379,8 +173,6 @@ const STEPS: TourStep[] = [
     panelTuck: 0,
     tooltipAfterLottie: true,
     panelFull: true,
-    // As step 3, and identical in height because both fill the same box rather
-    // than one being measured off the other.
     matchPanel: true,
     cardFill: true,
   },
@@ -390,28 +182,16 @@ const STEPS: TourStep[] = [
       "Here you can discover your biggest mistakes and get a suggestion how to avoid them in the future.",
     demo: "analyze",
     panelTuck: 0,
-    // Take every px of tuck the cap allows — the clamp holds the card's top edge
-    // level with the tooltip's, so this can't climb past it however large it is.
-    // The tuck is what buys the board its width: cardTuck comes straight off the
-    // reserve, the reserve sets the card's height budget, and the mobile board
-    // is sized from what that budget leaves after the card's chrome. Growing the
-    // card upward and widening the board are the same lever here.
     cardTuck: 999,
     panelFull: true,
   },
 ];
 
-const FINALE_INDEX = STEPS.length; // virtual "You're All Set" screen
+const FINALE_INDEX = STEPS.length;
 
 type Rect = { top: number; left: number; width: number; height: number };
 type Viewport = { vw: number; vh: number };
 
-/**
- * @param root When the tour is showing its own copy of the hero, the search is
- *   confined to it. Both copies carry the same [data-tour-anchor] attributes,
- *   and the page's are earlier in the document — an unscoped query would find
- *   those and ring an element the tour isn't presenting.
- */
 function findAnchor(
   anchors: string[] | undefined,
   root?: HTMLElement | null
@@ -435,11 +215,6 @@ function toRect(r: DOMRect): Rect {
   };
 }
 
-/** Rect of an element only when it actually occupies space. A hidden element
- *  (the play page's board preview below 640px) still answers querySelector and
- *  still returns a DOMRect, just a 0x0 one — treating that as "present" is what
- *  made mobile take the desktop interlude path and draw its overlays at
- *  nonsense positions. */
 function visibleRect(el: HTMLElement | null): Rect | null {
   if (!el) return null;
   const r = el.getBoundingClientRect();
@@ -455,10 +230,8 @@ function unionRects(a: Rect, b: Rect): Rect {
   return { top, left, width: right - left, height: bottom - top };
 }
 
-/** One frame of the spotlight's ease toward `to`. Works in floats — the caller
- *  keeps this on a ref and only rounds when handing it to state. */
 function followRect(from: Rect | null, to: Rect, amount: number): Rect {
-  if (!from) return to; // first frame of a run: appear on target, don't fly in
+  if (!from) return to;
   const ease = (a: number, b: number) =>
     Math.abs(b - a) < SPOT_SNAP ? b : a + (b - a) * amount;
   return {
@@ -485,8 +258,6 @@ function sameRect(a: Rect | null, b: Rect | null): boolean {
   );
 }
 
-/* ------------------------------- tooltip -------------------------------- */
-
 function TourTooltip({
   step,
   index,
@@ -506,41 +277,19 @@ function TourTooltip({
   onPrev: () => void;
   onNext: () => void;
   caret?: "top" | "bottom";
-  /** overrides the default width — mobile matches the spotlight below it */
   widthPx?: number;
-  /** short viewport: drop to the tightest type and padding (see COMPACT_VH) */
   compact?: boolean;
-  /** renders the card at this fraction of its natural size (see MOBILE_SCALE) */
   scale?: number;
-  /**
-   * Counter-stretch the layout width by 1/scale so the card ends up exactly as
-   * wide as the box it was given, with only its type and spacing scaled down.
-   *
-   * On for anchored steps: their width is handed to them to match the spotlight
-   * ring, and a card narrower than its own ring reads as a mistake. Off for the
-   * free-floating demo steps, where the 20% takes the width down with
-   * everything else — there is nothing there to line up against.
-   */
   stretch?: boolean;
-  /** reports the rendered height, which drives the placement math above */
   onHeight?: (height: number) => void;
   }) {
   const isLast = index === STEPS.length - 1;
   const boxRef = useRef<HTMLDivElement>(null);
   const [boxHeight, setBoxHeight] = useState(0);
-  // Mobile keeps its own look (pill buttons, blue ring, black title) but not
-  // its own scale — it used to run a size up from desktop, which is exactly
-  // the room the steps below it were missing.
   const button =
     "font-semibold transition-colors rounded-full sm:px-4 sm:h-auto sm:py-[6px] sm:rounded-[8px] sm:text-[13px] " +
     (compact ? "px-3 h-7 text-[12px]" : "px-4 h-8 text-[13px]");
 
-  // A transform doesn't change layout, so the scaled card would still reserve
-  // its full natural height and leave 20% of it as dead space underneath. The
-  // outer box takes the *scaled* height instead, and that same number is what
-  // the tour's placement math is told about — it reasons in screen pixels, so
-  // reporting the natural height would put every caret and spotlight gap out
-  // by a fifth of a card.
   useEffect(() => {
     const el = boxRef.current;
     if (!el) return;
@@ -560,11 +309,6 @@ function TourTooltip({
       className="relative w-[min(430px,calc(100vw-24px))]"
       style={{ width: widthPx, height: boxHeight || undefined }}
     >
-      {/* Either laid out 1/scale wider and scaled back about its top-left so it
-          ends up exactly as wide as its box (stretch — keeps an anchored step
-          flush with its spotlight ring), or scaled about its top centre so the
-          width comes down with everything else. Either way the caret's
-          left-1/2 lands back on the box's true centre. */}
       <div
         ref={boxRef}
         style={
@@ -582,7 +326,6 @@ function TourTooltip({
       >
       {caret && (
         <>
-          {/* mobile: speech-bubble tail with the card's blue outline */}
           <span
             className={`sm:hidden absolute left-1/2 -translate-x-1/2 ${
               caret === "bottom" ? "top-full" : "bottom-full"
@@ -610,10 +353,6 @@ function TourTooltip({
           />
         </>
       )}
-      {/* Keyed on the step so the copy fades in when the card is reused across
-          steps 1 and 2 (the anchored card is no longer torn down between them).
-          Only the text is keyed — the buttons below stay mounted, so Skip/Next
-          don't blink while the step changes under them. */}
       <motion.div
         key={index}
         initial={{ opacity: 0 }}
@@ -680,28 +419,6 @@ function TourTooltip({
   );
 }
 
-/* --------------------------- hero copy ---------------------------------- */
-
-/**
- * The tour's own Play VS AI panel, for steps 1-2 on mobile.
- *
- * The tour used to spotlight the page's hero directly, which forced one element
- * to serve two jobs: the page's roomy design and a walkthrough that has to fit
- * the whole card plus Start Game into the ~669px a phone really offers. Owning a
- * copy settles it — the page is never touched, and this renders at tour sizing.
- *
- * Three things fall out of it for free:
- *  - no scrollIntoView on mobile. The copy is placed by the tour, so the target
- *    rects are already on screen and already still. The ring's old habit of
- *    trailing a smooth scroll simply has nowhere to come from.
- *  - it stays mounted for the whole run, so the layout keeps showing (dimmed)
- *    behind the demo cards on steps 3-5 instead of the screen going black.
- *  - the content is the real component, not a mock, so it can't drift.
- *
- * Centred by CSS between HERO_COPY_TOOLTIP_RESERVE and the bottom margin, with
- * no measurement anywhere: the panel's box is final on its first frame, so the
- * ring locks on immediately instead of settling into place afterwards.
- */
 function TourHeroCopy({
   innerRef,
   width,
@@ -713,31 +430,15 @@ function TourHeroCopy({
   innerRef: React.RefObject<HTMLDivElement>;
   width: number;
   left: number;
-  /** first pixel below the tooltip parked above it (see HERO_COPY_TOOLTIP_RESERVE) */
   top: number;
-  /** run to the bottom edge of the screen and stretch to fill (step.panelFull) */
   fill?: boolean;
-  /** faded out from the step 2 -> 3 interlude onward — every step past 2 brings
-   *  its own screen, and the panel behind them read as leftover */
   hidden: boolean;
 }) {
   return (
     <motion.div
-      // Faded, never unmounted: unmounting would re-run the preview's roster
-      // shuffle and re-decode ~40 avatars every time the interlude plays or the
-      // user steps back through it.
       animate={{ opacity: hidden ? 0 : 1 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      // The anchor scope root, so it has to be an *ancestor* of the anchors:
-      // querySelector only walks descendants, and putting this on the panel
-      // itself would hide the panel's own anchor from step 1's lookup.
       ref={innerRef}
-      // items-start, not items-center: the box runs from `top` to the bottom
-      // margin, so centring let a panel shorter than its box drift down and open
-      // a gap under the tooltip's caret. Hugging the top puts the panel exactly
-      // where `top` says, and any slack collects at the bottom instead. `fill`
-      // takes the other route — stretch to the box, so the slack goes into the
-      // opponent list rather than under Start Game.
       className={`fixed pointer-events-none flex ${
         fill ? "items-stretch" : "items-start"
       }`}
@@ -746,20 +447,10 @@ function TourHeroCopy({
         width,
         top,
         bottom: fill ? 0 : VIEWPORT_MARGIN,
-        // The panel is CSS-positioned, so a step that moves it would snap while
-        // the spotlight ring — which eases toward its target a frame at a time
-        // (SPOT_FOLLOW) — glided after it, and the two came apart for ~10
-        // frames. Easing `top` on roughly the ring's own curve keeps them
-        // together. `bottom` rides along for steps that toggle `fill`. Named
-        // properties, not `all`: framer owns opacity here.
         transition:
           "top 220ms cubic-bezier(0.22, 1, 0.36, 1), bottom 220ms cubic-bezier(0.22, 1, 0.36, 1)",
       }}
     >
-      {/* max-h-full so a short viewport takes its shortfall out of the opponent
-          list (the only scrollable child) instead of letting the panel overflow
-          its box top and bottom — the reserve above it is fixed, so the panel
-          can't answer a squeeze by moving up. */}
       <div
         data-tour-anchor="opponent-panel"
         className="w-full max-h-full bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-2 flex flex-col"
@@ -773,19 +464,6 @@ function TourHeroCopy({
   );
 }
 
-/* ------------------------- demo result cards ---------------------------- */
-// The tour reuses the real win/lose modal cards (WinModalCard / LoseModalCard,
-// variant="tour") and its own analyze card. This wrapper measures a card and,
-// when the viewport is too short to show it at full size, scales it down so it
-// stays fully in view under the tour tooltip — the tour never scrolls.
-//
-// A CSS scale shrinks width along with height, which would leave the card
-// narrower than the tooltip above it. So the card is laid out *wider* by the
-// same factor it's scaled down by: 100%/scale in, scale out, and the visual
-// width lands back on the column's — the tooltip's — width. Cards whose height
-// is capped (the mobile animation) settle in one pass; ones that grow with
-// width (the analyze board) would need an unbounded stretch, so it's capped at
-// MAX_STRETCH and they end up a couple of percent narrow instead.
 const MAX_STRETCH = 1.35;
 
 function ScaleToFit({
@@ -797,35 +475,10 @@ function ScaleToFit({
   onMeasure,
 }: {
   children: React.ReactNode;
-  /** px kept clear for the tooltip + gaps above the card (measured by the tour
-      once its tooltip has rendered; the default only covers that first frame) */
   reserve?: number;
-  /**
-   * Ceiling on the scale. Fitting alone stops at 1:1, so on a viewport with
-   * room to spare a card renders at full size — which on mobile is a fifth
-   * larger than the rest of the tour after MOBILE_SCALE. Capping here keeps
-   * every demo card in step with the tooltip above it.
-   */
   maxScale?: number;
-  /**
-   * When set, the scale is computed from this height instead of the card's
-   * own — used so the win and lose demo cards share one scale factor and
-   * therefore render their contents at exactly the same size. The box still
-   * sizes to the card's own scaled height.
-   */
   referenceHeight?: number;
-  /**
-   * Stretch the card past its natural height instead of letting it stop short
-   * and leaving the rest of its slot dim.
-   *
-   * The target is referenceHeight when one is given — so the card matches
-   * whichever card set it, rather than the viewport — and otherwise every px the
-   * reserve leaves. Works by giving the card a min-height in *unscaled* units
-   * and laying it out as a grid item, which stretches. That feeds back into the
-   * measurement below and settles in one pass.
-   */
   fill?: boolean;
-  /** reports this card's natural (untransformed) height once measured */
   onMeasure?: (height: number) => void;
 }) {
   const innerRef = useRef<HTMLDivElement>(null);
@@ -837,15 +490,12 @@ function ScaleToFit({
     const el = innerRef.current;
     if (!el) return;
     const measure = () => {
-      const natural = el.offsetHeight; // untransformed layout height
+      const natural = el.offsetHeight;
       if (!natural) return;
       onMeasure?.(natural);
       const basis = referenceHeight && referenceHeight > 0 ? referenceHeight : natural;
       const avail = visibleHeight() - reserve;
       if (fill) {
-        // With a referenceHeight, fill means "match that card" — the two end up
-        // exactly the same height, since they then share a natural height *and*
-        // a scale. Without one it falls back to filling the room available.
         const target =
           referenceHeight && referenceHeight > 0
             ? Math.round(referenceHeight)
@@ -854,12 +504,8 @@ function ScaleToFit({
           current !== undefined && Math.abs(current - target) < 1 ? current : target
         );
       }
-      // The floor is mobile-only so desktop keeps exactly the scale it had.
       const floor = isMobileViewport() ? MIN_CARD_SCALE : 0;
       const next = Math.max(floor, Math.min(maxScale, avail / basis));
-      // The counter-stretch below feeds the new layout width back into this
-      // measurement, so ignore hair-thin changes: they'd keep the observer
-      // firing without moving anything.
       setScale((current) => (Math.abs(current - next) < 0.004 ? current : next));
       setBoxHeight((current) => {
         const height = Math.round(natural * next);
@@ -870,8 +516,6 @@ function ScaleToFit({
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     window.addEventListener("resize", measure);
-    // A phone browser hiding/showing its toolbars changes the visible height
-    // without firing window resize, and the card has to shrink or grow with it.
     window.visualViewport?.addEventListener("resize", measure);
     return () => {
       ro.disconnect();
@@ -880,15 +524,6 @@ function ScaleToFit({
     };
   }, [reserve, referenceHeight, maxScale, fill, onMeasure]);
 
-  // The stretched box is wider than the container, so it's pulled back by half
-  // the excess and scaled about its own centre. That keeps it centred whatever
-  // the scale — including when MAX_STRETCH caps the compensation and the card
-  // ends up a shade narrower than the column.
-  //
-  // Compensating to maxScale rather than to 1 is what keeps the deliberate 20%
-  // in the width: the stretch only undoes the *extra* shrink a short viewport
-  // forces, so a card that needs no extra shrink lands at maxScale of the
-  // column — the same width the tooltip above it ends up at.
   const widthPct = Math.min(MAX_STRETCH, maxScale / scale) * 100;
 
   return (
@@ -900,9 +535,6 @@ function ScaleToFit({
           marginLeft: `${(100 - widthPct) / 2}%`,
           transform: `scale(${scale})`,
           transformOrigin: "top center",
-          // grid, not block: a single grid item stretches to the row by default,
-          // so the card itself grows to the min-height rather than sitting at
-          // its natural height inside a taller wrapper.
           ...(fill ? { display: "grid", minHeight } : null),
         }}
       >
@@ -911,8 +543,6 @@ function ScaleToFit({
     </div>
   );
 }
-
-/* ---------------------- demo positions (chess.js) ----------------------- */
 
 function isKnightMove(from: string, to: string): boolean {
   const fileDiff = Math.abs(from.charCodeAt(0) - to.charCodeAt(0));
@@ -930,16 +560,8 @@ const arrow = (from: string, to: string, color: string) => ({
 const BAD_ARROW = "rgba(239, 68, 68, 0.5)";
 const GOOD_ARROW = "rgba(34, 197, 94, 0.5)";
 
-/* -------------------- won-board interlude (step 2 -> 3) ----------------- */
-// Shows a decisive winning position for a moment before the You Won step.
-
 const INTERLUDE_HOLD_MS = 1000;
 
-// One real game drives everything the interlude shows — the final position, the
-// move list, both captured rows and the last-move highlight — so the piece
-// counts, colors and squares can never contradict each other (the old
-// hand-written lists even included a captured king). Morphy's Opera Game, 1858:
-// White mates on move 17 after a queen sacrifice.
 const INTERLUDE_SAN = [
   "e4", "e5", "Nf3", "d6", "d4", "Bg4", "dxe5", "Bxf3", "Qxf3", "dxe5",
   "Bc4", "Nf6", "Qb3", "Qe7", "Nc3", "c6", "Bg5", "b5", "Nxb5", "cxb5",
@@ -947,21 +569,32 @@ const INTERLUDE_SAN = [
   "Nxd7", "Qb8+", "Nxb8", "Rd8#",
 ];
 
-function buildInterludeGame() {
+const LOSE_SAN = [
+  "e4", "e5", "Nf3", "Nc6", "Bc4", "Nd4", "Nxe5", "Qg5", "Nxf7", "Qxg2",
+  "Rf1", "Qxe4+", "Be2", "Nf3#",
+];
+
+type DemoGame = {
+  fen: string;
+  whiteCaptures: string[];
+  blackCaptures: string[];
+  moves: [string, string][];
+  lastMove: [string, string] | null;
+};
+
+function buildDemoGame(sanList: string[]): DemoGame {
   const chess = new Chess();
-  // Each side's row lists the pieces it took, so the icon color is the
-  // opponent's — same convention as the real game screen's capture rows.
   const whiteCaptures: string[] = [];
   const blackCaptures: string[] = [];
   const moves: [string, string][] = [];
   let lastMove: [string, string] | null = null;
 
-  for (const san of INTERLUDE_SAN) {
+  for (const san of sanList) {
     let move;
     try {
       move = chess.move(san);
     } catch {
-      break; // a bad SAN shortens the demo game rather than taking the tour down
+      break;
     }
     if (!move) break;
     if (move.captured) {
@@ -976,22 +609,35 @@ function buildInterludeGame() {
   return { fen: chess.fen(), whiteCaptures, blackCaptures, moves, lastMove };
 }
 
-const INTERLUDE_GAME = buildInterludeGame();
+const INTERLUDE_GAME = buildDemoGame(INTERLUDE_SAN);
+const LOSE_GAME = buildDemoGame(LOSE_SAN);
 
 const WON_FEN = INTERLUDE_GAME.fen;
-/** Black pieces White captured — shown on White's (the winner's) row. */
+const LOST_FEN = LOSE_GAME.fen;
 const CAPTURED_BY_WHITE = INTERLUDE_GAME.whiteCaptures;
-/** White pieces Black captured — shown on Black's row. */
 const CAPTURED_BY_BLACK = INTERLUDE_GAME.blackCaptures;
 
-// Win/lose player bars drawn over the preview card's own bars during the
-// interlude — same colors and captured-piece treatment as the real game's
-// BlackPlayer/WhitePlayer rows, with the pieces popping in one by one.
-function InterludeCaptureBar({ rect, variant }: { rect: Rect; variant: "lost" | "won" }) {
+type DemoOutcome = "win" | "lose";
+
+const demoGame = (outcome: DemoOutcome) =>
+  outcome === "win" ? INTERLUDE_GAME : LOSE_GAME;
+
+function InterludeCaptureBar({
+  rect,
+  row,
+  outcome = "win",
+  animateIcons = true,
+}: {
+  rect: Rect;
+  row: "opponent" | "player";
+  outcome?: DemoOutcome;
+  animateIcons?: boolean;
+}) {
   const { PieceChoosed } = useChessBoardThemeStore();
-  const lost = variant === "lost";
-  // Each row shows that player's own captures, not their losses.
-  const icons = lost ? CAPTURED_BY_BLACK : CAPTURED_BY_WHITE;
+  const game = demoGame(outcome);
+  const opponent = row === "opponent";
+  const lost = outcome === "win" ? opponent : !opponent;
+  const icons = opponent ? game.blackCaptures : game.whiteCaptures;
   const pieceH = Math.max(18, Math.min(34, Math.round(rect.height * 0.52)));
   const avatarS = Math.max(28, Math.min(48, Math.round(rect.height * 0.72)));
   return (
@@ -1006,8 +652,8 @@ function InterludeCaptureBar({ rect, variant }: { rect: Rect; variant: "lost" | 
       >
         <div className="flex items-center gap-[10px] min-w-0">
           <Image
-            src={lost ? "/images/v2/AI avatar/Beginner/Number11.png" : "/images/homepage/v2/homepage_board_asset_4.png"}
-            alt={lost ? "Lisa" : "You"}
+            src={opponent ? "/images/v2/AI avatar/Beginner/Number11.png" : "/images/homepage/v2/homepage_board_asset_4.png"}
+            alt={opponent ? "Lisa" : "You"}
             width={96}
             height={96}
             className="rounded-full object-cover shrink-0"
@@ -1019,10 +665,10 @@ function InterludeCaptureBar({ rect, variant }: { rect: Rect; variant: "lost" | 
                 lost ? "text-[#FD0000]" : "text-[#040404]"
               }`}
             >
-              {lost ? "Lisa" : "You"}
+              {opponent ? "Lisa" : "You"}
             </span>
             <span className="text-[11px] sm:text-[13px] text-[#6B7280]">
-              {lost ? "ELO 250" : "ELO 400"}
+              {opponent ? "ELO 250" : "ELO 400"}
             </span>
           </div>
         </div>
@@ -1030,9 +676,9 @@ function InterludeCaptureBar({ rect, variant }: { rect: Rect; variant: "lost" | 
           {icons.map((icon, i) => (
             <motion.span
               key={i}
-              initial={{ opacity: 0, scale: 0.4 }}
+              initial={animateIcons ? { opacity: 0, scale: 0.4 } : false}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 + i * 0.03, duration: 0.18 }}
+              transition={{ delay: animateIcons ? 0.1 + i * 0.03 : 0, duration: 0.18 }}
               className={icon === icons[i + 1] ? "-mr-2" : ""}
             >
               <Image
@@ -1051,11 +697,21 @@ function InterludeCaptureBar({ rect, variant }: { rect: Rect; variant: "lost" | 
   );
 }
 
-function InterludeBoard({ rect, onDone }: { rect: Rect; onDone: () => void }) {
+function InterludeBoard({
+  rect,
+  outcome = "win",
+  onDone,
+}: {
+  rect: Rect;
+  outcome?: DemoOutcome;
+  onDone?: () => void;
+}) {
+  const doneRef = useRef(onDone);
+  doneRef.current = onDone;
   useEffect(() => {
-    const t = setTimeout(onDone, INTERLUDE_HOLD_MS);
+    if (!doneRef.current) return;
+    const t = setTimeout(() => doneRef.current?.(), INTERLUDE_HOLD_MS);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -1069,7 +725,7 @@ function InterludeBoard({ rect, onDone }: { rect: Rect; onDone: () => void }) {
           arePiecesDraggable={false}
           boardWidth={rect.width}
           orientation="white"
-          position={WON_FEN}
+          position={outcome === "win" ? WON_FEN : LOST_FEN}
           onPromotionPieceSelect={() => false}
           promotionToSquare={null}
           showPromotionDialog={false}
@@ -1083,19 +739,23 @@ function InterludeBoard({ rect, onDone }: { rect: Rect; onDone: () => void }) {
   );
 }
 
-// Move list shown over the opponent panel during the interlude so the right
-// column reads like the real vs-AI game screen (Movement Details + a won-game
-// banner). Same replay as the board, so the moves match the position.
 const INTERLUDE_MOVES: [string, string][] = INTERLUDE_GAME.moves;
 
-function InterludeMoveList({ rect }: { rect: Rect }) {
+function InterludeMoveList({
+  rect,
+  outcome = "win",
+}: {
+  rect: Rect;
+  outcome?: DemoOutcome;
+}) {
+  const won = outcome === "win";
+  const rows = demoGame(outcome).moves;
   return (
     <div
       className="fixed pointer-events-none"
       style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
     >
       <div className="w-full h-full bg-white rounded-2xl border-2 border-[#81CFF3] shadow-lg p-3 sm:p-4 flex flex-col overflow-hidden">
-        {/* header */}
         <div className="flex items-center gap-3 rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-3 mb-3 shrink-0">
           <ArrowLeft size={20} className="text-black" />
           <div className="flex items-center gap-2">
@@ -1110,7 +770,6 @@ function InterludeMoveList({ rect }: { rect: Rect }) {
           </div>
         </div>
 
-        {/* tabs */}
         <div className="grid grid-cols-2 gap-2 rounded-[8px] bg-[#FAFDFF] border border-[#DEDEDE] p-2 mb-3 shrink-0">
           <div className="flex items-center justify-center py-2 rounded-[6px] bg-white shadow-md border border-[#DEDEDE]">
             <span className="text-[14px] font-semibold text-[#221AE9]">Current Game</span>
@@ -1120,7 +779,6 @@ function InterludeMoveList({ rect }: { rect: Rect }) {
           </div>
         </div>
 
-        {/* movement details */}
         <div className="flex-1 min-h-0 rounded-[16px] border border-[#DEDEDE] p-3 flex flex-col overflow-hidden">
           <span className="font-semibold text-center text-[14px] mb-2 shrink-0">
             Movement Details
@@ -1135,7 +793,7 @@ function InterludeMoveList({ rect }: { rect: Rect }) {
                 </tr>
               </thead>
               <tbody>
-                {INTERLUDE_MOVES.map(([white, black], i) => (
+                {rows.map(([white, black], i) => (
                   <tr key={i} className="text-center">
                     <td className="p-1.5 border border-[#BDD0F9] text-[12px]">{i + 1}</td>
                     <td className="p-1.5 border border-[#BDD0F9] text-[12px]">{white}</td>
@@ -1155,16 +813,45 @@ function InterludeMoveList({ rect }: { rect: Rect }) {
           </div>
         </div>
 
-        {/* won-game banner + analyze */}
         <div className="mt-3 flex flex-col gap-2 shrink-0">
-          <div className="flex items-center gap-2 rounded-[8px] px-3 py-2 bg-gradient-to-r from-[#34C759] to-[#2FB350] text-white">
-            <Trophy size={16} className="shrink-0" />
+          <div
+            className={`flex items-center gap-2 rounded-[8px] px-3 py-2 text-white ${
+              won
+                ? "bg-gradient-to-r from-[#34C759] to-[#2FB350]"
+                : "bg-gradient-to-r from-[#C01B1B] to-[#8F1414]"
+            }`}
+          >
+            {won ? (
+              <Trophy size={16} className="shrink-0" />
+            ) : (
+              <Image
+                src="/images/play-vs-ai/you-loss.png"
+                alt=""
+                width={40}
+                height={40}
+                className="w-[16px] h-[16px] object-contain shrink-0"
+              />
+            )}
             <span className="text-[13px] font-semibold">
-              Congratulations! You have won this Game!
+              {won
+                ? "Congratulations! You have won this Game!"
+                : "Unfortunately, you have lost this Game!"}
             </span>
           </div>
-          <div className="w-full py-2 rounded-full bg-[#34C759] text-white font-semibold text-[13px] text-center">
-            Analyze Now
+          <div
+            className={`w-full py-2 rounded-full text-white font-semibold text-[13px] text-center ${
+              won ? "bg-[#34C759]" : "bg-[#221AE9]"
+            }`}
+          >
+            {won ? "Analyze Now" : "Discover Mistakes"}
+          </div>
+          <div className="flex gap-2">
+            <div className="flex-1 py-2 rounded-full bg-white border border-[#C0CED4] text-[#221AE9] font-medium text-[12px] text-center">
+              Share PGN/FEN
+            </div>
+            <div className="flex-1 py-2 rounded-full bg-[#C6EEFE] border border-[#7CC0F2] text-[#221AE9] font-medium text-[12px] text-center">
+              + New Game
+            </div>
           </div>
         </div>
       </div>
@@ -1172,14 +859,6 @@ function InterludeMoveList({ rect }: { rect: Rect }) {
   );
 }
 
-/* -------------- mobile interlude: the won game screen (step 2 -> 3) ------ */
-// Mobile has no board on the play page, so rather than floating a board over a
-// dim backdrop this replicates the vs-AI game screen in its won state, per
-// design: captured rows, board, legend, win banner, the finish buttons, the
-// tabs and the move boxes. It starts below the real navbar so the app frame
-// still shows through.
-
-// The mating move, highlighted with the board's own previous/current colors.
 const WON_SQUARE_STYLES: Record<string, { backgroundColor: string }> =
   INTERLUDE_GAME.lastMove
     ? {
@@ -1188,22 +867,8 @@ const WON_SQUARE_STYLES: Record<string, { backgroundColor: string }> =
       }
     : {};
 
-// Everything above and below the board inside the sheet. Used to pick a board
-// size that lets the whole screen fit without scrolling, like the design.
-// Trimmed alongside the sheet's own type and buttons (MOBILE_SCALE's 20%),
-// which is what hands the board back the room — the board is sized from
-// whatever this leaves, so the constant has to track the markup or the board
-// silently shrinks instead of the chrome.
 const M_SHEET_CHROME = 362;
 
-/**
- * Fraction of the viewport height the mobile interlude takes.
- *
- * 1 is the design reference: the won-game screen is a full takeover, the same
- * screen the user would really be looking at after a win, not one card in a run
- * of cards. The board absorbs whatever this leaves — it's sized from what the
- * chrome doesn't use — so turning it down trades board size for a shorter sheet.
- */
 const M_SHEET_HEIGHT_RATIO = 1;
 
 function MobileCapturedRow({
@@ -1244,12 +909,8 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
   useEffect(() => {
     const t = setTimeout(onDone, INTERLUDE_HOLD_MS);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The card's box comes from the tour now (it has to match the ring drawn
-  // around it), so all that's left to work out is the board: the largest that
-  // fits both the card's width and whatever height the chrome leaves.
   useEffect(() => {
     const el = sheetRef.current;
     if (!el) return;
@@ -1268,16 +929,12 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
     };
   }, []);
 
-  // The final moves only — the design shows the tail of the game with the WIN
-  // marker, and a narrow screen can't hold all ten columns anyway.
   const tailMoves = INTERLUDE_MOVES.slice(-6);
   const firstTailNumber = INTERLUDE_MOVES.length - tailMoves.length + 1;
 
   return (
     <div
       ref={sheetRef}
-      // Square corners: the sheet is full-bleed now, so rounding would cut
-      // notches out of the screen corners rather than shaping a card.
       className="fixed bg-white overflow-hidden pointer-events-none flex flex-col"
       style={{
         top: box.top,
@@ -1286,7 +943,6 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
         height: box.height,
       }}
     >
-      {/* header: back + "You (White) VS Lisa (250)" + board controls */}
       <div className="w-full flex justify-between items-center px-[13px] pt-[10px]">
         <div className="flex items-center gap-[6px] min-w-0">
           <ArrowLeft color="black" size={18} className="shrink-0" />
@@ -1304,8 +960,6 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
         </div>
       </div>
 
-      {/* Captured rows exactly as the game screen builds them: the left row is
-          what White took (black pieces), the right what Black took. */}
       <div className="flex justify-between items-center w-full px-4 py-[6px]">
         <MobileCapturedRow icons={CAPTURED_BY_WHITE} align="start" pieceTheme={PieceChoosed} />
         <div className="w-px mx-2" />
@@ -1332,7 +986,6 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
           </div>
         )}
 
-        {/* board legend */}
         <div className="flex flex-row flex-wrap items-center justify-center gap-1.5">
           <div className="flex items-center gap-1">
             <div className="w-[11px] h-[11px] bg-[#B9CA43]" />
@@ -1348,7 +1001,6 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
           </div>
         </div>
 
-        {/* win banner */}
         <div className="relative w-full overflow-hidden rounded-[8px] border border-[#00B427] bg-[linear-gradient(to_right,#E9F8EC,#CFF3D9)] h-[35px] flex items-center gap-[8px] px-[10px]">
           <Image
             src="/images/play-vs-ai/trophy-win.png"
@@ -1369,7 +1021,6 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
           />
         </div>
 
-        {/* finish buttons */}
         <div className="w-full flex flex-col gap-[6px]">
           <div className="w-full h-[32px] rounded-full border-[2px] border-[#19A23C] bg-[#34C759] flex items-center justify-center gap-[6px] font-medium text-[12px]">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
@@ -1397,7 +1048,6 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
         </div>
       </div>
 
-      {/* tabs + move boxes */}
       <div className="mt-[8px] flex bg-[#F7FCFF] border-b border-gray-200">
         <div className="flex-1 flex items-center justify-center gap-1.5 py-[8px] relative">
           <Image
@@ -1424,7 +1074,6 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
 
       <div className="px-4 pt-[8px] overflow-hidden">
         <div className="flex gap-1">
-          {/* sticky White/Black labels, as on the real screen */}
           <div className="flex flex-col gap-1 min-w-[48px] shrink-0">
             <div className="h-[18px]" />
             <div className="bg-[#E6F7FE] border border-[#C6EEFE] rounded-lg px-2 py-1.5 min-h-[29px] flex items-center justify-center">
@@ -1462,20 +1111,12 @@ function MobileWonGameSheet({ box, onDone }: { box: Rect; onDone: () => void }) 
   );
 }
 
-/* ----------------- analysis demo (mirrors GameAnalysis) ----------------- */
-
-// Three mistakes from the design (all "Mistake"). Each FEN is written out so
-// the played move (badMove, drawn as the red arrow) is legal in it and the
-// coached alternative (goodArrow) points at the squares the copy names.
 const DEMO_MISTAKES = [
   {
     type: "Mistake",
     moveNumber: 11,
     move: "e4",
     keyEvaluation: -2.26,
-    // Black rook on h7 (not h8), pawns on f5/g5, black pawn on h6, no d2 pawn —
-    // and e7 holds a WHITE pawn, since the coached move "e7d8r" is a promotion
-    // that takes the queen on d8.
     fen: "r2qkbn1/pp1bP2r/7p/5pP1/1n6/8/PPP1P1PP/RNBQKB1R w KQq - 0 11",
     badMove: "e4",
     goodArrow: ["e7", "d8"] as const,
@@ -1488,9 +1129,6 @@ const DEMO_MISTAKES = [
     moveNumber: 17,
     move: "exf5",
     keyEvaluation: 9.32,
-    // Same f5/g5 pawn pair as card 1 (the white pawn sits on g5, not e5), and
-    // the black king is on e8 — on f8 it stood in check from the d6 bishop
-    // while it was White's move, which can't happen.
     fen: "3rk1nr/p2b4/3B3p/5pP1/4P3/8/PPP2PPP/R1NQK2R w KQk - 0 17",
     badMove: "exf5",
     goodArrow: ["d1", "h5"] as const,
@@ -1503,10 +1141,6 @@ const DEMO_MISTAKES = [
     moveNumber: 27,
     move: "Rf1",
     keyEvaluation: 11.29,
-    // "f6 to f7" is a pawn push, so f6 holds a white PAWN and the queen stays on
-    // f5. The black king is on d8: from c8 it stood in check from that queen
-    // while it was White's move. Rf1 is unambiguous — the king blocks the a1
-    // rook from reaching f1.
     fen: "3k4/8/p1b2P2/5Q2/8/3N4/PPP2PPP/R3K2R w KQ - 0 27",
     badMove: "Rf1",
     goodArrow: ["f6", "f7"] as const,
@@ -1516,8 +1150,6 @@ const DEMO_MISTAKES = [
   },
 ];
 
-// One slide's board: shows the position, then animates the bad move being
-// played while the red (bad) and green (better) arrows stay visible.
 function DemoSlideBoard({
   mistake,
   boardWidth,
@@ -1525,8 +1157,6 @@ function DemoSlideBoard({
   mistake: (typeof DEMO_MISTAKES)[number];
   boardWidth: number;
 }) {
-  // Static position with the bad-move (red) and better-move (green) arrows.
-  // The pieces never move — only the arrows illustrate the mistake.
   const [badFromTo, setBadFromTo] = useState<[string, string] | null>(null);
 
   useEffect(() => {
@@ -1535,8 +1165,6 @@ function DemoSlideBoard({
       const preview = chess.move(mistake.badMove);
       setBadFromTo(preview ? [preview.from, preview.to] : null);
     } catch {
-      // chess.js throws on an illegal SAN; the slide still renders, just
-      // without the red arrow, rather than taking the whole tour down.
       setBadFromTo(null);
     }
   }, [mistake]);
@@ -1567,8 +1195,6 @@ function DemoSlideBoard({
   );
 }
 
-// Matches short viewports (14" laptops) so the demo cards can compact
-// themselves; 24"/27" screens never match and keep the original layout.
 function useShortViewport() {
   const [short, setShort] = useState(false);
   useEffect(() => {
@@ -1581,29 +1207,19 @@ function useShortViewport() {
   return short;
 }
 
-// Height of everything in the card except the board — title, slide chrome,
-// board controls, the detail box and the pager. The mobile board is sized from
-// what's left of the card's height budget, so the card fits at full width
-// instead of scaling down and ending up narrower than the tooltip.
 const ANALYZE_CHROME = 410;
 const ANALYZE_BOARD_MIN = 200;
 
-// Mini replica of the real Game Analysis modal (GameAnalysis.tsx): same card
-// deck swipe (Swiper cards effect), same slide layout, auto-playing.
 function DemoAnalyzeCard({ maxHeight }: { maxHeight?: number }) {
   const swiperRef = useRef<SwiperType>();
   const [activeIndex, setActiveIndex] = useState(0);
   const shortViewport = useShortViewport();
-  // Mobile fills the card with the board (design), capped by the height it has
-  // to play with; desktop keeps the compact fixed sizes the tour has always
-  // used there — a full-width board would push the card past the fold.
   const cardRef = useRef<HTMLDivElement>(null);
   const [mobileBoardW, setMobileBoardW] = useState(0);
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const measure = () => {
-      // card padding (16 x2) + slide padding (16 x2) + slide border
       const inner = el.clientWidth - 66;
       if (window.innerWidth >= MOBILE_BP || inner <= 0) {
         setMobileBoardW(0);
@@ -1623,10 +1239,6 @@ function DemoAnalyzeCard({ maxHeight }: { maxHeight?: number }) {
   }, [maxHeight]);
   const BOARD_W = mobileBoardW || (shortViewport ? 190 : 225);
 
-  // Auto-advance staged as a fake finger drag: translate frames are fed to
-  // the swiper by hand (the cards effect rotates the top card exactly like a
-  // real drag), then slideNext() releases it with momentum. activeIndex only
-  // flips on release, same as a genuine swipe.
   useEffect(() => {
     let raf = 0;
     const DRAG_MS = 450;
@@ -1634,13 +1246,11 @@ function DemoAnalyzeCard({ maxHeight }: { maxHeight?: number }) {
       const from = swiper.translate;
       const dist = swiper.width * 0.5;
       let t0: number | null = null;
-      // present at runtime, missing from swiper v12's public typings
       (swiper as unknown as { setTransition(ms: number): void }).setTransition(0);
       const step = (now: number) => {
         if (swiper.destroyed) return;
         if (t0 === null) t0 = now;
         const p = Math.min(1, (now - t0) / DRAG_MS);
-        // easeInOutQuad: the "finger" starts gently, pulls, then slows
         const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
         swiper.setTranslate(from - dist * eased);
         if (p < 1) raf = requestAnimationFrame(step);
@@ -1666,8 +1276,6 @@ function DemoAnalyzeCard({ maxHeight }: { maxHeight?: number }) {
       ref={cardRef}
       className="relative w-full bg-gradient-to-b from-white to-[#D0EFFF] rounded-[16px] p-[16px] sm:p-[10px] select-none pointer-events-none"
     >
-      {/* Modal chrome from the real Game Analysis dialog — the close button is
-          decorative here; the tour's own controls drive the step. */}
       <span className="absolute top-[16px] right-[16px] sm:top-[10px] sm:right-[10px]">
         <svg width="24" height="24" viewBox="0 0 40 40" fill="none" className="sm:w-[18px] sm:h-[18px]">
           <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" />
@@ -1728,7 +1336,6 @@ function DemoAnalyzeCard({ maxHeight }: { maxHeight?: number }) {
                     </span>
                   </div>
                   <div className="flex gap-[8px] sm:gap-[6px] items-center shrink-0">
-                    {/* same sign rule as the real modal: losses red, gains green */}
                     <span
                       className={`${
                         mistake.keyEvaluation < 0
@@ -1743,8 +1350,6 @@ function DemoAnalyzeCard({ maxHeight }: { maxHeight?: number }) {
                     </span>
                   </div>
                 </div>
-                {/* fixed height keeps every card identical so the swiper
-                    doesn't reserve extra room under the shorter slides */}
                 <div className="p-[10px] pt-[8px] h-[178px] sm:p-[8px] sm:h-[136px] overflow-hidden">
                   <h3 className="flex items-center gap-[8px] sm:gap-[6px] mb-[4px] sm:mb-[2px]">
                     <Image
@@ -1817,8 +1422,6 @@ function FinaleCard({ onPrev, onDone }: { onPrev: () => void; onDone: () => void
       <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#34C759] text-white text-[13px] font-bold px-[18px] py-[6px] rounded-full whitespace-nowrap shadow-md">
         You&apos;re All Set!
       </div>
-      {/* The image is the only part with slack, so a short viewport takes it
-          out of the image rather than out of the copy or the buttons. */}
       <Image
         src={FINALE_IMG}
         alt="Ready to play"
@@ -1852,107 +1455,60 @@ function FinaleCard({ onPrev, onDone }: { onPrev: () => void; onDone: () => void
   );
 }
 
-/* --------------------------------- tour --------------------------------- */
-
 export function PlaygroundTour({
   autoStart = true,
   forceStart = false,
 }: {
   autoStart?: boolean;
-  /** open immediately on mount — set by the gate when the lazy chunk was
-      loaded because of a manual trigger that already fired */
   forceStart?: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [rect, setRect] = useState<Rect | null>(null); // primary anchor (tooltip)
-  const [spot, setSpot] = useState<Rect | null>(null); // spotlight union, eased
-  // The same union *unedased*. Everything about the tooltip is measured from
-  // this, never from `spot`: sizing it off the easing rect fed a loop — the
-  // width changed every frame, so the copy re-wrapped, so the reported height
-  // changed, so the scroll effect (which depends on that height) re-scrolled,
-  // which moved the rect again. Step 2's three lines of copy made it worst.
+  const [rect, setRect] = useState<Rect | null>(null);
+  const [spot, setSpot] = useState<Rect | null>(null);
   const [spotTarget, setSpotTarget] = useState<Rect | null>(null);
-  // won-board interlude between step 2 and step 3, shown on the page's board
   const [interlude, setInterlude] = useState(false);
   const [boardImgRect, setBoardImgRect] = useState<Rect | null>(null);
   const [topBarRect, setTopBarRect] = useState<Rect | null>(null);
   const [bottomBarRect, setBottomBarRect] = useState<Rect | null>(null);
-  // the opponent panel on the right, covered by a mock move list during the
-  // interlude so the whole hero reads like a finished vs-AI game
   const [panelRect, setPanelRect] = useState<Rect | null>(null);
   const [viewport, setViewport] = useState<Viewport>({ vw: 0, vh: 0 });
   const rectRef = useRef<Rect | null>(null);
   const spotRef = useRef<Rect | null>(null);
   const spotTargetRef = useRef<Rect | null>(null);
-  // The spotlight's eased position, kept at sub-pixel precision between frames.
   const spotAnimRef = useRef<Rect | null>(null);
   const boardImgRef = useRef<Rect | null>(null);
   const topBarRef = useRef<Rect | null>(null);
   const bottomBarRef = useRef<Rect | null>(null);
   const panelRef = useRef<Rect | null>(null);
-  // Which (step, measured-yet?) pass the scroll effect has already run, so a
-  // stream of tooltip-height updates can't turn into a stream of smooth scrolls.
   const scrollPassRef = useRef("");
-  // Root of the tour's own hero panel, and the scope every anchor lookup uses
-  // while it's mounted.
   const heroCopyRef = useRef<HTMLDivElement>(null);
-  // true when this open is the browser's first-ever tour run (drives the
-  // one-time day-streak greeting on close)
   const firstRunRef = useRef(false);
-  // Natural height of the (taller) win demo card, measured on step 3, so the
-  // lose card on step 4 can scale by the same factor and match its width.
   const winCardHeightRef = useRef(0);
   const reportWinCardHeight = useRef((h: number) => {
     winCardHeightRef.current = h;
   }).current;
 
-  // Rendered tooltip height, reported by TourTooltip. The placement math needs
-  // it to know whether a step's tooltip fits above its target and where its
-  // bottom edge lands, and mobile step 1 sizes its scroll margin from it.
   const [tooltipH, setTooltipH] = useState(0);
   const reportTooltipHeight = useRef((height: number) =>
     setTooltipH((current) => (current === height ? current : height))
   ).current;
 
-  // Set once the current demo card's Lottie has played out — the gate for a
-  // tooltipAfterLottie step. Reset on every step change, so stepping back and
-  // forth replays the hold rather than showing the copy immediately.
   const [lottieDone, setLottieDone] = useState(false);
   const reportLottieDone = useRef(() => setLottieDone(true)).current;
 
-  // Bottom edge of the app's fixed header, where the mobile interlude starts.
-  // Measured in an effect rather than read during render: headerBottom() runs
-  // getComputedStyle + getBoundingClientRect, and this component re-renders on
-  // rAF ticks while the spotlight eases — a forced reflow per frame.
   const [headerH, setHeaderH] = useState(0);
 
-  // viewport.vw is 0 until the first rAF tick, so fall back to a live read.
   const isMobile = viewport.vw > 0 ? viewport.vw < MOBILE_BP : isMobileViewport();
-  // Mobile presents its own hero panel; desktop still spotlights the live one,
-  // where the roomier viewport makes a copy unnecessary.
   const useHeroCopy = isMobile;
   const anchorRoot = () => (useHeroCopy ? heroCopyRef.current : null);
-  // Keyed off the *visible* height, so a phone browser dropping its toolbar
-  // back in mid-tour tightens the tooltip instead of pushing the step's target
-  // under the fold. vh is 0 until the first rAF tick — assume roomy, since the
-  // measured height replaces the estimate a frame later either way.
   const compact = isMobile && viewport.vh > 0 && viewport.vh < COMPACT_VH;
-  // The one factor every part of the tour is drawn at on a phone — tooltip,
-  // all three demo cards and the finale. Desktop is untouched at 1.
   const scale = isMobile ? MOBILE_SCALE : 1;
   const rawStep = interlude ? undefined : (STEPS[index] as TourStep | undefined);
-  const step = rawStep ? resolveStep(rawStep, isMobile) : undefined; // undefined on finale/interlude
+  const step = rawStep ? resolveStep(rawStep, isMobile) : undefined;
   const anchored = !!step?.anchors;
-  // A tooltipAfterLottie step keeps its copy hidden until the card's animation
-  // has played (or the fallback timer fires).
   const tooltipHeld = !!step?.tooltipAfterLottie && !lottieDone;
-  // Mobile only. The overlap exists to buy a phone height it doesn't have;
-  // desktop has room to spare, where pulling the card under the tooltip just
-  // crowds two things that were sitting comfortably apart.
-  // Extra overlap bought by a short screen. The tooltip never moves, so this is
-  // the only place the shortfall can come from.
   const tuckBoost = isMobile
     ? Math.min(
         TUCK_MAX_BOOST,
@@ -1962,33 +1518,17 @@ export function PlaygroundTour({
         )
       )
     : 0;
-  // Boosted only when the step opted into overlapping at all — a step with no
-  // cardTuck wants its gap, however short the screen. Resolved further down,
-  // once heroPanelTop and the tooltip's measured height are both known.
   const requestedCardTuck =
     isMobile && step?.cardTuck ? step.cardTuck + tuckBoost : 0;
   const cardFill = isMobile && !!step?.cardFill;
   const matchPanel = isMobile && !!step?.matchPanel && !!step?.demo;
-  // Same rule: only a phone is short enough for the panel to be worth running to
-  // the screen edge.
   const panelFull = isMobile && !!step?.panelFull;
-  // The demo steps' version of it: the column stops being centred, so the
-  // tooltip parks at the top of the screen exactly as it does on steps 1-2, and
-  // the card takes everything below rather than rendering at MOBILE_SCALE with
-  // the remainder split above and below it.
   const demoFull = panelFull && !!step?.demo;
 
   useEffect(() => setMounted(true), []);
 
-  // Never leave the "tour on screen" flag stuck true if the tour unmounts
-  // (navigation) without finish() running — otherwise queued modals would
-  // stay suppressed forever.
   useEffect(() => () => setPlaygroundTourActive(false), []);
 
-  // Opens the tour. The pending flag is consumed immediately — not on finish
-  // — so a mid-tour refresh doesn't restart it: the tour auto-runs exactly
-  // once per new user (sign-up onboarding queues it), and replays happen
-  // only via ?tour=playground or the manual trigger.
   const begin = () => {
     try {
       if (localStorage.getItem(PENDING_KEY)) firstRunRef.current = true;
@@ -2001,14 +1541,12 @@ export function PlaygroundTour({
     preloadLottie(LOSE_LOTTIE);
   };
 
-  // Auto-start only when onboarding queued a run; ?tour=playground forces a replay.
   useEffect(() => {
     if (!mounted) return;
     let forced = false;
     try {
       forced = new URLSearchParams(window.location.search).get("tour") === "playground";
       if (!forced && (!autoStart || !localStorage.getItem(PENDING_KEY))) {
-        // eslint-disable-next-line no-console
         console.info(
           "[PlaygroundTour] not auto-playing (no onboarding run queued). Replay with __startPlaygroundTour() or ?tour=playground"
         );
@@ -2019,18 +1557,13 @@ export function PlaygroundTour({
     }
     const t = setTimeout(begin, 700);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, autoStart]);
 
-  // The gate mounts this chunk in response to a manual trigger that already
-  // fired — open right away instead of re-checking auto-start conditions.
   useEffect(() => {
     if (!mounted || !forceStart) return;
     begin();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, forceStart]);
 
-  // Manual trigger hook (window event + console helper).
   useEffect(() => {
     if (!mounted) return;
     const start = () => begin();
@@ -2040,7 +1573,6 @@ export function PlaygroundTour({
       window.removeEventListener(PLAYGROUND_TOUR_EVENT, start);
       if (window.__startPlaygroundTour === start) delete window.__startPlaygroundTour;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted]);
 
   const finish = () => {
@@ -2052,9 +1584,6 @@ export function PlaygroundTour({
     try {
       localStorage.removeItem(PENDING_KEY);
     } catch {}
-    // First-ever tutorial close: greet the new user with their day-streak
-    // status (streak 0, unlit flame) — static image, no lottie. Replays
-    // (Escape, ?tour=playground, manual trigger) skip it.
     if (firstCompletion) {
       const streakStore = useStreakStore.getState();
       openDayStreakModal({
@@ -2077,9 +1606,6 @@ export function PlaygroundTour({
       setIndex(2);
       return;
     }
-    // Leaving step 2: play the demo game on the board before the win step.
-    // Desktop plays it on the page's own board preview; mobile has no board on
-    // this page, so it gets a free-floating one over a dim backdrop.
     if (index === 1) {
       const img = findBoardImage();
       if ((img && img.getBoundingClientRect().width > 0) || isMobileViewport()) {
@@ -2096,16 +1622,11 @@ export function PlaygroundTour({
     }
     setIndex((i) => Math.max(i - 1, 0));
   };
-  // Skip doesn't step forward — it jumps to the closing "You're All Set" card,
-  // so one tap ends the walkthrough on the screen that hands the user the page.
   const skip = () => {
     setInterlude(false);
     setIndex(FINALE_INDEX);
   };
 
-  // Re-measure the header whenever the tour opens or the interlude starts, and
-  // on the two events that can move it (a rotation, a phone browser's toolbars
-  // collapsing). Nothing else changes it mid-run.
   useEffect(() => {
     if (!open) return;
     const measure = () =>
@@ -2122,9 +1643,6 @@ export function PlaygroundTour({
     };
   }, [open, interlude]);
 
-  // Arm the Lottie gate for the current step. A step that doesn't ask for it is
-  // never held; one that does starts hidden and gets a fallback timer, so a card
-  // whose animation JSON failed to load can't strand its tooltip permanently.
   useEffect(() => {
     if (!open) return;
     if (interlude || !STEPS[index]?.tooltipAfterLottie) {
@@ -2136,9 +1654,6 @@ export function PlaygroundTour({
     return () => clearTimeout(t);
   }, [open, index, interlude]);
 
-  // The interlude is advanced by whichever overlay renders (the tracked board on
-  // desktop, the won-game sheet on mobile). If neither can — no visible board
-  // and not a mobile layout — this keeps the tour from getting stuck on it.
   useEffect(() => {
     if (!interlude) return;
     const t = setTimeout(() => {
@@ -2148,20 +1663,8 @@ export function PlaygroundTour({
     return () => clearTimeout(t);
   }, [interlude]);
 
-  // Bring the spotlighted element into view when an anchored step starts.
-  // The scroll margin keeps the element's top clear of the fixed navbar (and
-  // leaves room above it when the step's tooltip sits above the target).
   useEffect(() => {
     if (!open) return;
-    // This effect depends on tooltipH so a tooltipUnderHeader step can redo its
-    // margin once the tooltip has actually been measured. It must not re-scroll
-    // on every *subsequent* change though: each call restarts a smooth scroll,
-    // and a string of them is what made the ring look like it was hunting for
-    // the section. Two passes per step is the whole budget — the rough one, then
-    // the measured one.
-    // Nothing to scroll when the tour owns the panel: it's already placed on
-    // screen and already still. This is what finally settles the ring — no
-    // smooth scroll running underneath means nothing for it to trail.
     if (useHeroCopy) return;
 
     const pass = `${index}:${interlude}:${tooltipH > 0 ? "measured" : "raw"}`;
@@ -2176,16 +1679,9 @@ export function PlaygroundTour({
           )
         : null;
     if (!el) return;
-    // tooltipUnderHeader steps derive their margin instead of hard-coding one.
-    // Ideally the tooltip parks just below the navbar, but a target taller than
-    // the room that leaves (the Play VS AI card on a phone) would have its
-    // bottom cut off, so the pair rides higher — up to the viewport edge, over
-    // the dimmed navbar — until the whole target fits. On the first frame the
-    // tooltip isn't measured yet and the step's static scrollMargin stands in
-    // until it is (this effect re-runs then).
     let margin = (!interlude && step?.scrollMargin) || 110;
     if (!interlude && step?.tooltipUnderHeader && tooltipH) {
-      const above = tooltipH + CARET_GAP + PAD; // room the tooltip needs
+      const above = tooltipH + CARET_GAP + PAD;
       const underHeader = headerBottom() + HEADER_GAP + above;
       const wholeTargetFits =
         visibleHeight() - VIEWPORT_MARGIN - el.offsetHeight - PAD;
@@ -2193,13 +1689,8 @@ export function PlaygroundTour({
     }
     el.style.scrollMarginTop = `${Math.round(margin)}px`;
     el.scrollIntoView({ behavior: "smooth", block: "start" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, index, interlude, tooltipH]);
 
-  // Step-2 showcase: gently auto-scroll the opponent list (categories +
-  // players) like the tutorial video does. Pure DOM scrolling on the list
-  // element — no component state is touched — and the original scroll
-  // position is restored when the step ends.
   useEffect(() => {
     const raw = STEPS[index];
     const showcaseStep = raw ? resolveStep(raw, isMobileViewport()) : undefined;
@@ -2207,26 +1698,22 @@ export function PlaygroundTour({
     const panel = findAnchor(showcaseStep.anchors, anchorRoot());
     const list = panel?.querySelector<HTMLElement>(".overflow-y-auto");
     if (!list || list.scrollHeight <= list.clientHeight) return;
-    // The category tab strip scrolls along with the list, so the visible
-    // categories track the tier the list is currently sweeping through.
     const tabs = panel?.querySelector<HTMLElement>(".overflow-x-auto");
     const initial = list.scrollTop;
     const initialTabs = tabs?.scrollLeft ?? 0;
     const range = list.scrollHeight - list.clientHeight;
     let raf = 0;
     let start: number | null = null;
-    const SWEEP_MS = 4500; // single downward sweep, then stop at the end
+    const SWEEP_MS = 4500;
     const tick = (now: number) => {
-      if (start === null) start = now + 900; // brief pause before moving
+      if (start === null) start = now + 900;
       const p = Math.min(1, Math.max(0, now - start) / SWEEP_MS);
-      // easeInOut one-way sweep: 0 -> 1 (no return trip)
       const phase = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
       list.scrollTop = phase * range;
       if (tabs) {
         const tabsRange = tabs.scrollWidth - tabs.clientWidth;
         if (tabsRange > 0) tabs.scrollLeft = phase * tabsRange;
       }
-      // Stop once the bottom of the list is reached — stay there.
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -2235,11 +1722,8 @@ export function PlaygroundTour({
       list.scrollTop = initial;
       if (tabs) tabs.scrollLeft = initialTabs;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, index, interlude]);
 
-  // Track the anchor's on-screen rect every frame while the tour is open so
-  // the spotlight stays glued through scrolling, resizes, and layout shifts.
   useEffect(() => {
     if (!open) return;
     let raf = 0;
@@ -2265,15 +1749,10 @@ export function PlaygroundTour({
         rectRef.current = nextRect;
         setRect(nextRect);
       }
-      // Target first — the tooltip reads this, so it settles the moment the step
-      // does and never chases the ease below.
       if (!sameRect(nextSpot, spotTargetRef.current)) {
         spotTargetRef.current = nextSpot;
         setSpotTarget(nextSpot);
       }
-      // The spotlight eases toward its target instead of being pinned to it
-      // (see SPOT_FOLLOW). Sub-pixel work stays on spotAnimRef; state only ever
-      // sees whole pixels, so a settled ring stops re-rendering entirely.
       if (!nextSpot) {
         spotAnimRef.current = null;
         if (spotRef.current !== null) {
@@ -2289,9 +1768,11 @@ export function PlaygroundTour({
           setSpot(rounded);
         }
       }
-      // the inner board image and the two player bars, tracked for the
-      // interlude's won-board + capture-bar overlays
-      const img = interlude
+      const demoNow = (current as TourStep | undefined)?.demo;
+      const gameScreen =
+        interlude ||
+        (!isMobileViewport() && (demoNow === "win" || demoNow === "lose"));
+      const img = gameScreen
         ? document.querySelector<HTMLElement>(
             '[data-tour-anchor="board-preview"] [data-preview-board]'
           )
@@ -2301,7 +1782,7 @@ export function PlaygroundTour({
         boardImgRef.current = nextImg;
         setBoardImgRect(nextImg);
       }
-      const topBar = interlude
+      const topBar = gameScreen
         ? document.querySelector<HTMLElement>(
             '[data-tour-anchor="board-preview"] [data-preview-bar="opponent"]'
           )
@@ -2311,7 +1792,7 @@ export function PlaygroundTour({
         topBarRef.current = nextTop;
         setTopBarRect(nextTop);
       }
-      const bottomBar = interlude
+      const bottomBar = gameScreen
         ? document.querySelector<HTMLElement>(
             '[data-tour-anchor="board-preview"] [data-preview-bar="player"]'
           )
@@ -2321,7 +1802,7 @@ export function PlaygroundTour({
         bottomBarRef.current = nextBottom;
         setBottomBarRect(nextBottom);
       }
-      const panel = interlude
+      const panel = gameScreen
         ? document.querySelector<HTMLElement>(
             '[data-tour-anchor="opponent-panel"]'
           )
@@ -2343,12 +1824,6 @@ export function PlaygroundTour({
     return () => cancelAnimationFrame(raf);
   }, [open, index, interlude]);
 
-  // Nothing scrolls while the tour is on screen — not the page behind it (the
-  // tooltip and spotlight are pinned to live element rects, so a stray wheel or
-  // swipe would slide the target out from under them) and not the demo column,
-  // whose cards scale themselves down to fit instead. Only user-initiated
-  // scrolling is blocked: the tour's own scrollIntoView and the step-2 showcase
-  // sweep still run.
   useEffect(() => {
     if (!open) return;
     const block = (e: Event) => {
@@ -2366,8 +1841,6 @@ export function PlaygroundTour({
     ]);
     const blockKeys = (e: KeyboardEvent) => {
       if (!SCROLL_KEYS.has(e.key)) return;
-      // Space still has to press a focused tour button (Skip/Prev/Next), which
-      // a cancelled keydown would swallow.
       const target = e.target;
       if (
         (e.key === " " || e.key === "Spacebar") &&
@@ -2388,7 +1861,6 @@ export function PlaygroundTour({
     };
   }, [open]);
 
-  // Keyboard: Esc skips, arrows navigate.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -2398,49 +1870,28 @@ export function PlaygroundTour({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, index, interlude]);
 
   if (!mounted || !open) return null;
 
-  // Mobile has no board on the play page, so the interlude renders the whole
-  // won game screen (MobileWonGameSheet) instead of tracking page elements.
   const mobileInterlude = interlude && !boardImgRect && isMobile && viewport.vw > 0;
+
+  const demoOutcome: DemoOutcome | null =
+    !isMobile && (step?.demo === "win" || step?.demo === "lose")
+      ? step.demo
+      : null;
 
   const BASE_TOOLTIP_W = Math.min(430, Math.max(viewport.vw - 24, 0));
   const tourCardWidth = Math.round(BASE_TOOLTIP_W * scale);
 
-  // The mobile interlude is a card, not a full-bleed sheet: same width as the
-  // five steps (so the run doesn't jump to a different format halfway through)
-  // and ringed and dimmed like them, rather than the bare screen it used to
-  // paint over the app. Sized here because the ring is drawn from the same
-  // geometry the card is positioned by.
-  // Every card the tour owns on mobile shares this width and centre line: the
-  // five steps, the interlude, and the hero copy behind them.
   const tourCardW = tourCardWidth;
   const tourCardLeft = Math.round((viewport.vw - tourCardW) / 2);
 
-  // Bottom edge of the tooltip on the two anchored mobile steps. Both hang off
-  // this one line rather than off their own anchor, so the card sits in the same
-  // place on each and can't drift into the panel however long the step's copy
-  // runs. The measured height only enters if a tooltip overflows the reserve.
-  // Bottom of the *reserve*, not of the measured card. The tooltip's top is
-  // pinned at VIEWPORT_MARGIN on every step, so its bottom moves with the length
-  // of the copy — deriving the panel from that would shuffle it step to step.
-  // Off the reserve, the panel is fixed and a longer tooltip simply overlaps
-  // more of it, which is exactly what should happen.
   const heroTooltipBottom = VIEWPORT_MARGIN + HERO_COPY_TOOLTIP_RESERVE;
-  // The panel then starts a caret-gap below that, less the tuck that slides its
-  // "Play VS AI" heading up behind the tooltip.
   const heroPanelTop =
     heroTooltipBottom +
     HERO_CARET_GAP -
     ((step?.panelTuck ?? HERO_PANEL_TUCK) + tuckBoost);
-  // Full-bleed from the app header down, per the design reference: the won-game
-  // screen reads as the real screen the user just came from, which means the
-  // app's own navbar stays showing above it rather than being painted over.
-  // Everything comes from the live viewport (visualViewport on a phone), so it
-  // tracks a rotation or a browser toolbar collapsing mid-interlude.
   const interludeTop = isMobile ? headerH : 0;
   const interludeH = Math.max(
     300,
@@ -2453,26 +1904,11 @@ export function PlaygroundTour({
     top: interludeTop,
   };
 
-  // Spotlight geometry: pads the union of anchor rects; collapses to a point
-  // when a step has no anchor so the 200vmax shadow dims the whole screen.
   const spotRect = spot ?? rect;
-  // The desktop step 2 -> 3 interlude doesn't spotlight the board: it plays with
-  // a plain dim backdrop (no cutout, no ring) so nothing jumps to the board.
-  // The mobile one does get a ring — it's a card of its own, not the live page.
   const showSpotlight = mobileInterlude || (anchored && !!spotRect);
 
-  // No padding at all once the tour owns what it's ringing. The 8px gap made
-  // sense against the live page, where the ring had to stand off content it
-  // didn't control — but the tour's own panel already carries a
-  // border-2 border-[#81CFF3], so an 8px stand-off drew a second, near-identical
-  // blue line with a dark gap between the two. Hugging the target exactly
-  // collapses them into one crisp edge.
   const spotPad = useHeroCopy ? 0 : PAD;
 
-  // Sideways the padding gives way once the target already reaches the screen
-  // edges — the mobile Play VS AI card sits 8px off them, so a full 8px pad put
-  // the ring past the viewport and made the card look wider than the tooltip
-  // above it. Vertically there's always room, so that pad never changes.
   const holeFor = (r: Rect | null): Rect => {
     if (mobileInterlude) {
       return {
@@ -2500,34 +1936,9 @@ export function PlaygroundTour({
     };
   };
 
-  /** Drives the ring — eased, so it glides. */
   const hole = holeFor(spotRect);
-  /** Drives every tooltip measurement — settles with the step, so the tooltip's
-   *  width and placement can't oscillate while the ring is still easing. */
   const targetHole = holeFor(spotTarget ?? rect);
 
-  // Anchored tooltip: a step can pin its bottom edge relative to the primary
-  // anchor's top (tooltipBottomAt); otherwise it goes above the target when
-  // there's room, below when there's room underneath, or pinned over the
-  // target's top edge (tall targets like the chessboard card). Always inside
-  // the viewport, so it can never hide behind the fixed navbar. (BASE_TOOLTIP_W
-  // is defined above, alongside the interlude card that shares its width.)
-
-  // On mobile the tooltip stretches out to the spotlight ring when the card it
-  // points at is wider than the default — sitting a few px inside the ring made
-  // it read as narrow for the screen. Desktop keeps the default: its step-1
-  // spotlight spans the whole hero, which would blow the tooltip up.
-  //
-  // The floor is the demo steps' *visual* width, so all five stay the same size.
-  // That has to be scaled: the demo cards come down to MOBILE_SCALE of the
-  // column, and flooring at the unscaled width would hold steps 1-2 a fifth
-  // wider than steps 3-5 — and wider than the ring they're supposed to match,
-  // now that the hero has come down 20% too.
-  //
-  // Steps 1-2 on mobile skip that entirely and take the panel's own width: they
-  // sit above the *panel* now, not above their own anchor, and step 2's anchor
-  // (the opponent list, inset by the panel's p-2) would have made its card 16px
-  // narrower than step 1's for no reason the user can see.
   const minTooltipW = Math.round(BASE_TOOLTIP_W * scale);
   const heroPinned = useHeroCopy && anchored;
   const anchoredTooltipW = heroPinned
@@ -2542,23 +1953,8 @@ export function PlaygroundTour({
       : undefined;
   const TOOLTIP_W = anchoredTooltipW ?? BASE_TOOLTIP_W;
 
-  // Real rendered height once TourTooltip has reported it; the estimate only
-  // covers the very first frame of a step. The mobile figure is the desktop card
-  // taken down by MOBILE_SCALE — the old 190 predated that scale and overshot by
-  // enough that a heroPinned tooltip spent its first frame clamped down over the
-  // panel before the measurement pulled it back up.
   const TOOLTIP_H = tooltipH || (isMobile ? 130 : 180);
   let mode: "edge" | "above" | "below" | "over" = "over";
-  // Steps 1-2 on mobile always sit above the panel: the tour owns both, so the
-  // placement is a decision, not a search for room. Placing step 2 from its own
-  // anchor is what put its card over the "Choose Your Color" heading and colour
-  // toggle just above the opponent list, and step 1 — whose anchor is the whole
-  // panel — found no room above at all and fell back to sitting *on* the panel.
-  // "over" rather than "above": over is the top-anchored branch, so the card's
-  // TOP lands on rawTooltipTop and stays there whatever the copy runs to. Above
-  // would anchor its bottom, and step 1's two lines would then start lower down
-  // the screen than step 2's four. The caret still points down — only "below"
-  // flips it.
   if (heroPinned) mode = "over";
   else if (
     step?.tooltipBottomAt !== undefined &&
@@ -2582,11 +1978,6 @@ export function PlaygroundTour({
         : mode === "below"
           ? targetHole.top + targetHole.height + CARET_GAP
           : Math.max(targetHole.top + CARET_GAP, VIEWPORT_MARGIN);
-  // Keep the whole card on screen whatever the mode picked. The modes reason
-  // from the last measured height, so a step whose copy re-wraps at a narrower
-  // mobile width — or a phone toolbar appearing — could otherwise leave the top
-  // or bottom of the tooltip outside the frame. "above"/"edge" position the
-  // bottom edge (the card is translated up by its own height), the others the top.
   const bottomAnchored = mode === "above" || mode === "edge";
   const tooltipTop = bottomAnchored
     ? Math.min(
@@ -2598,39 +1989,11 @@ export function PlaygroundTour({
         Math.max(viewport.vh - VIEWPORT_MARGIN - TOOLTIP_H, VIEWPORT_MARGIN)
       );
 
-  // Demo steps (3-5): the card gets whatever the tooltip, its gap and the
-  // column's padding leave, and scales itself into it — the column can't be
-  // scrolled, so anything that doesn't fit would be lost.
-  // Resolved here rather than with the other step flags, because both branches
-  // need TOOLTIP_H and the matched one needs heroPanelTop as well.
-  //
-  // matchPanel derives the tuck instead of taking it from the step: the demo
-  // column starts at VIEWPORT_MARGIN and the tooltip is the first thing in it,
-  // so the card's top lands on VIEWPORT_MARGIN + TOOLTIP_H - cardTuck. Solving
-  // that for heroPanelTop is the whole of it. A step whose panel sits *below*
-  // its tooltip gets a negative tuck, which the margin below turns back into a
-  // plain gap.
-  //
-  // Either way it's capped at the tooltip's own height, the point where the
-  // card's top edge meets the tooltip's. Past that the card climbs out from
-  // behind the tooltip into the open above it — visible card with no copy over
-  // it, which reads as a rendering fault rather than an overlap. The cap is also
-  // what lets a step ask for more tuck than it can have (step 5's 999) and
-  // simply take everything that's going.
   const cardTuck = Math.min(
-    // matchPanel takes step 1's tuck verbatim — the same number of px behind the
-    // tooltip that the hero panel sits, boost included, so the three read as one
-    // treatment rather than three hand-set overlaps.
     matchPanel ? HERO_PANEL_TUCK + tuckBoost : requestedCardTuck,
     TOOLTIP_H
   );
-  // A cardTuck step overlaps its tooltip instead of clearing it, so the gap it
-  // has to reserve is negative — without this the card would be sized as if the
-  // 14px gap were still there and end up that much shorter than it can be.
   const demoGap = cardTuck ? -cardTuck : CARET_GAP;
-  // matchPanel reserves exactly its card's top edge — the tooltip's bottom less
-  // the tuck — so `avail` inside ScaleToFit is everything from there to the
-  // bottom of the screen.
   const demoReserve = matchPanel
     ? VIEWPORT_MARGIN + TOOLTIP_H - cardTuck
     : tooltipH
@@ -2639,25 +2002,14 @@ export function PlaygroundTour({
         (demoFull ? VIEWPORT_MARGIN * 2 : DEMO_COLUMN_PAD) +
         VIEWPORT_MARGIN
       : 210;
-  // ScaleToFit stops at maxScale even when there's room to spare, so on a tall
-  // phone a demo card rendered at MOBILE_SCALE and banked the rest as empty
-  // column. A full-bleed step lifts that ceiling to 1: the card grows into the
-  // whole height the reserve leaves, and its counter-stretch takes the width out
-  // to the column with it.
   const demoMaxScale = demoFull ? 1 : scale;
   const anchorCenterX = rect
     ? rect.left + rect.width / 2
     : targetHole.left + targetHole.width / 2;
-  // Edge clamp: normally 12px, but a tooltip matched to a near-full-width
-  // spotlight has less room than that, and clamping it to 12 would knock it out
-  // of line with the highlight it belongs to.
   const edgeGap = Math.max(
     0,
     Math.min(VIEWPORT_MARGIN, Math.round((viewport.vw - TOOLTIP_W) / 2))
   );
-  // heroPinned shares the panel's centre line by construction — same width, same
-  // left — so the caret lands on the panel's midpoint rather than on whichever
-  // sub-rect the step happens to anchor.
   const tooltipLeft = heroPinned
     ? tourCardLeft
     : Math.min(
@@ -2667,11 +2019,6 @@ export function PlaygroundTour({
 
   return createPortal(
     <div className="fixed inset-0 z-[700] overscroll-contain" role="dialog" aria-modal="true" aria-label="Playground tutorial">
-      {/* The tour's own hero panel, first so the spotlight's shadow dims it like
-          anything else and it is lit through the cutout on steps 1-2. It clears
-          out from the step 2 -> 3 interlude onward — those steps present screens
-          of their own, and leaving the panel behind them read as leftover rather
-          than as background. `anchored` is true for exactly steps 1-2. */}
       {useHeroCopy && (
         <TourHeroCopy
           innerRef={heroCopyRef}
@@ -2683,15 +2030,31 @@ export function PlaygroundTour({
         />
       )}
 
-      {/* Spotlight (the huge shadow doubles as the backdrop). The desktop
-          step 2 -> 3 interlude shows the live page layout instead, with no dim
-          and no highlight, so the backdrop is skipped during it — but the
-          mobile one is a card of the tour's own and is ringed like a step. */}
+      {demoOutcome && boardImgRect && (
+        <>
+          <InterludeBoard rect={boardImgRect} outcome={demoOutcome} />
+          {topBarRect && (
+            <InterludeCaptureBar
+              rect={topBarRect}
+              row="opponent"
+              outcome={demoOutcome}
+              animateIcons={false}
+            />
+          )}
+          {bottomBarRect && (
+            <InterludeCaptureBar
+              rect={bottomBarRect}
+              row="player"
+              outcome={demoOutcome}
+              animateIcons={false}
+            />
+          )}
+          {panelRect && <InterludeMoveList rect={panelRect} outcome={demoOutcome} />}
+        </>
+      )}
+
       {(!interlude || mobileInterlude) && (
         <motion.div
-          // Only the fade is animated here. Position and size are already eased
-          // frame by frame by the follower (SPOT_FOLLOW) — a CSS transition on
-          // top of that would just be a second, slower lag stacked on the first.
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
@@ -2701,19 +2064,7 @@ export function PlaygroundTour({
             left: hole.left,
             width: hole.width,
             height: hole.height,
-            // Flush against the target now (spotPad 0), so the corners have to
-            // agree with it: the panel and the interlude card are both
-            // rounded-2xl. 18 left a hair of dark showing at each corner.
-            // The full-bleed interlude has square corners, so a radius here
-            // would leave four dark notches at the screen corners.
             borderRadius: mobileInterlude ? 0 : useHeroCopy ? 16 : 18,
-            // Deeper dim when the tour has its own panel: the page's real hero
-            // is still behind it at full size, and at 0.62 the two read as a
-            // double image. At 0.8 the page is texture, the copy is the content.
-            //
-            // The ring is thicker and fully opaque there too — against that
-            // darker backdrop a 2px 95% line was soft enough that step 1's
-            // highlight didn't read as gripping the card.
             boxShadow: `${
               showSpotlight
                 ? useHeroCopy
@@ -2728,12 +2079,6 @@ export function PlaygroundTour({
       <AnimatePresence mode="wait">
         {step && anchored && (
           <motion.div
-            // One key for both anchored steps, not one per index: keying by step
-            // made mode="wait" tear the whole card down and build it again, so
-            // stepping 1 -> 2 left a ~0.22s hole where no tooltip was on screen
-            // at all. Now the card stays put across the pair and only its copy
-            // crossfades (see TourTooltip) — the enter/exit below is reserved
-            // for arriving from, and leaving for, the demo steps.
             key="anchored"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -2745,16 +2090,11 @@ export function PlaygroundTour({
                 ? {
                     top: tooltipTop,
                     left: tooltipLeft,
-                    // Now that the card outlives a step change, a step that
-                    // moves it has to ease rather than teleport. Named property:
-                    // framer drives opacity and the y transform.
                     transition: "top 220ms cubic-bezier(0.22, 1, 0.36, 1)",
                   }
                 : { top: "20%", left: "50%" }
             }
           >
-            {/* framer-motion owns the outer transform, so the placement
-                translate lives on this inner wrapper */}
             <div
               style={{
                 transform: !rect
@@ -2788,32 +2128,16 @@ export function PlaygroundTour({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 180 }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
-            /* py only: the tooltip and card are already inset from the screen
-               edges by their own width (100vw-24px), and horizontal padding on
-               top of that made them wider than this box's content area, so they
-               overflowed it and stopped centring evenly */
             className={`fixed inset-0 flex flex-col items-center overscroll-contain ${
               demoFull ? "" : "py-4"
             }`}
-            /* A full-bleed step drops py-4 for the tour's own VIEWPORT_MARGIN,
-               so its tooltip starts on exactly the same line as the anchored
-               steps' — 16 vs 12 is small, but it's the difference between the
-               card looking pinned and looking nearly pinned. */
             style={
               demoFull
                 ? { paddingTop: VIEWPORT_MARGIN, paddingBottom: VIEWPORT_MARGIN }
                 : undefined
             }
           >
-            {/* m-auto centers the column; every card inside scales to the room
-                the tooltip leaves, so the column never overflows (it can't be
-                scrolled). panelTuck then lifts the whole centred column — a
-                transform, so the centring maths underneath it is untouched and
-                the cards keep sizing themselves from the real viewport.
 
-                demoFull swaps the centring for mb-auto: the column pins to the
-                top, so the tooltip lands where steps 1-2 put theirs instead of
-                floating mid-screen, and the card fills everything under it. */}
             <div
               className={`${
                 demoFull ? "mb-auto" : "m-auto"
@@ -2824,12 +2148,6 @@ export function PlaygroundTour({
                   : undefined
               }
             >
-              {/* Lifted above the card so a cardTuck slides under it rather than
-                  over it — the card is the later sibling and would otherwise
-                  win. Opacity-gated for a tooltipAfterLottie step: hiding it
-                  rather than unmounting keeps its height reported, so the card
-                  below is sized for the copy that is about to arrive and doesn't
-                  resize when it does. */}
               <motion.div
                 className="relative z-10"
                 animate={{ opacity: tooltipHeld ? 0 : 1 }}
@@ -2845,19 +2163,11 @@ export function PlaygroundTour({
                   caret="bottom"
                   compact={compact}
                   scale={scale}
-                  // Full-bleed steps widen the card to the column, so the
-                  // tooltip has to widen with it or it reads as a narrow label
-                  // floating over a full-width card. stretch keeps its type at
-                  // MOBILE_SCALE while the box goes full width — the same
-                  // treatment the anchored steps get against their panel.
                   widthPx={demoFull ? BASE_TOOLTIP_W : undefined}
                   stretch={demoFull}
                   onHeight={reportTooltipHeight}
                 />
               </motion.div>
-              {/* the analyze demo keeps overflow visible so the swiper card
-                  deck can rotate outside its own bounds, like the real modal */}
-              {/* same width as the tooltip above it on mobile */}
               <div
                 className="w-[min(430px,calc(100vw-24px))] sm:w-[min(430px,92vw)] rounded-2xl"
                 style={{ marginTop: cardTuck ? -cardTuck : 14 }}
@@ -2886,9 +2196,6 @@ export function PlaygroundTour({
                     reserve={demoReserve}
                     maxScale={demoMaxScale}
                     fill={cardFill}
-                    /* Skipped while filling: fill would then target the win
-                       card's natural height instead of the box, and the two
-                       already come out identical by both filling the same box. */
                     referenceHeight={
                       cardFill ? undefined : winCardHeightRef.current || undefined
                     }
@@ -2907,13 +2214,6 @@ export function PlaygroundTour({
                 {step.demo === "analyze" && (
                   <ScaleToFit reserve={demoReserve} maxScale={demoMaxScale}>
                     <DemoAnalyzeCard
-                      /* the board sizes itself from the room the card gets, so
-                         it has to be told about the scale too — otherwise it
-                         picks a board for the full height and the card grows
-                         back the fifth the scale just took off. demoMaxScale,
-                         not scale: a full-bleed step renders at 1, and dividing
-                         by 0.8 there would hand the board a quarter more height
-                         than the card actually has. */
                       maxHeight={Math.max(360, (viewport.vh - demoReserve) / demoMaxScale)}
                     />
                   </ScaleToFit>
@@ -2932,8 +2232,8 @@ export function PlaygroundTour({
             transition={{ duration: 0.3 }}
           >
             <InterludeBoard rect={boardImgRect} onDone={next} />
-            {topBarRect && <InterludeCaptureBar rect={topBarRect} variant="lost" />}
-            {bottomBarRect && <InterludeCaptureBar rect={bottomBarRect} variant="won" />}
+            {topBarRect && <InterludeCaptureBar rect={topBarRect} row="opponent" />}
+            {bottomBarRect && <InterludeCaptureBar rect={bottomBarRect} row="player" />}
             {panelRect && <InterludeMoveList rect={panelRect} />}
           </motion.div>
         )}
@@ -2959,10 +2259,6 @@ export function PlaygroundTour({
             transition={{ duration: 0.25 }}
             className="fixed inset-0 flex items-center justify-center p-4"
           >
-            {/* Scaled about its centre with no counter-stretch, so this one
-                comes down 20% in both dimensions. It's free-floating — no
-                spotlight ring to stay flush with, unlike the tooltip — and the
-                flex parent keeps it centred whatever the transform leaves. */}
             <div className="w-[min(400px,92vw)]">
               <div
                 style={

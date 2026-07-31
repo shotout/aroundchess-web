@@ -525,9 +525,9 @@ const GameAnalysisSlide = ({
     };
 
     return (
-        <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] xxl:max-h-[526px] 2xl:max-h-[568px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
+        <div className="bg-white border border-[#221AE9] rounded-[8px] p-[16px] lg:p-[10px] xxl:p-[16px] h-full lg:h-auto xxl:max-h-[526px] 2xl:max-h-[568px] flex flex-col overflow-hidden shadow-[0px_4px_10px_0px_rgba(23,28,183,.25]">
             {isTutorialPlay === true ? (
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center shrink-0">
                     <Image src={"/images/chessboard2d.png"}
                         alt="chessboard"
                         width={boardSize}
@@ -536,7 +536,7 @@ const GameAnalysisSlide = ({
                     />
                 </div>
             ) : (
-                <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px]">
+                <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px] shrink-0">
                     {/* <Image src="/images/analysis/chessboard2d.png" alt="analysis" width={320} height={320} className="mb-[10px]" /> */}
                     <div
                         style={{ width: boardSize }}
@@ -680,8 +680,8 @@ const GameAnalysisSlide = ({
                 </div>
             )}
 
-            <div className="w-full border border-[#221AE9] rounded-[8px]">
-                <div className="flex items-center justify-between py-[4px] rounded-t-[7px] px-[16px] bg-gradient-to-tr from-[#2327EB] to-[#25CADC]">
+            <div className="w-full border border-[#221AE9] rounded-[8px] min-h-0 flex flex-col overflow-hidden">
+                <div className="flex items-center justify-between py-[4px] rounded-t-[7px] px-[16px] bg-gradient-to-tr from-[#2327EB] to-[#25CADC] shrink-0">
                     <div className="flex items-center gap-[8px]">
                         <div className="flex gap-[6px] px-[8px] py-[3px] bg-white border border-[#FF7769] text-[#FF7769] rounded-[4px]">
                             <Image src="/images/analysis/icon_miss.png" alt="miss" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
@@ -724,7 +724,7 @@ const GameAnalysisSlide = ({
                         </button>
                     </div>
                 </div>
-                <div className="p-[10px] pt-[8px] overflow-y-scroll max-h-[166px]">
+                <div className="p-[10px] pt-[8px] overflow-y-scroll max-h-[166px] min-h-0">
                     <h3 className="flex items-center gap-[8px] mb-[4px]">
                         <Image src="/images/analysis/icon_analysis.svg" alt="analysis" width={28} height={28} className="w-[28px] h-[28px] object-contain" />
                         <span className="font-bold text-[18px] text-[#040404]">Analysis</span>
@@ -789,10 +789,10 @@ const AnalysisHelpfulSlide = (
     };
 
     return (
-        <div className="relative bg-white border min-h-[498px] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[560px] flex flex-col justify-between items-center border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
+        <div className="relative bg-white border h-full lg:h-auto min-h-[min(498px,calc(100dvh-148px))] lg:min-h-[456px] xxl:min-h-[526px] 2xl:min-h-[560px] flex flex-col justify-between items-center border-[#221AE9] rounded-[8px] p-[16px] shadow-[0px_4px_10px_0px_rgba(23,28,183,.25] overflow-hidden">
             <Image src={"/images/analysis/bg-big.svg"} alt="bg" width={640} height={640} className="w-full absolute top-[50%] translate-y-[-50%] lg:translate-y-0 lg:top-0 left-0 object-contain z-0" />
 
-            <div className="relative mb-[-56px] lg:mb-0 w-full h-[calc(100vh-240px)] lg:h-auto flex items-center justify-center flex-col z-10">
+            <div className="relative w-full flex-1 lg:flex-none h-auto flex items-center justify-center flex-col z-10">
                 <Image src="/images/analysis/icon_helpful.svg" alt="analysis" width={240} height={240} className="w-[160px] lg:w-[240px] h-[160px] lg:h-[240px] object-contain" />
                 <h3 className="font-bold text-[24px] text-[#040404]">
                     {feedbackSent ? "Thank you for your feedback!" : "Was this Analysis helpful?"}
@@ -822,7 +822,7 @@ const AnalysisHelpfulSlide = (
                 )}
             </div>
 
-            <button type="button" onClick={onOpenChange} className="relative mb-[56px] lg:mb-0 w-[148px] h-[32px] flex justify-center items-center gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
+            <button type="button" onClick={onOpenChange} className="relative z-20 w-[148px] h-[32px] shrink-0 flex justify-center items-center gap-[4px] p-[10px] text-[14px] font-medium leading-[20px] text-[#E6F7FE] bg-[#221AE9] rounded-full border border-[#1B14CC] shadow-[0px_0px_1px_2px_rgba(34,26,233,.2)] after:content-[''] after:w-full after:h-full after:absolute after:top-0 after:left-0 after:rounded-full after:shadow-inset after:shadow-[0px_0px_0px_2px_rgba(78,71,255,1)] before:content-[''] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:rounded-full before:shadow-inset before:shadow-[0px_2px_2px_0px_rgba(28,23,166,1)] before:z-10 hover:bg-[#2d25ea] hover:after:hidden hover:before:hidden">
                 Close
             </button>
         </div>
