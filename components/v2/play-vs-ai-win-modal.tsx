@@ -58,9 +58,13 @@ export function WinModalCard({
   const tour = variant === "tour";
   const animationData = useLottieData(WIN_LOTTIE);
 
-  // The tour renders this card into whatever slot its tooltip leaves, so its
-  // mobile type and spacing run a step below the full-screen modal's — there
-  // simply isn't the room. Desktop (sm:) is identical for both.
+  // The tour used to render this a step below the modal's mobile sizing, on the
+  // grounds that it only had whatever slot its tooltip left. It now fills from
+  // under the tooltip to the bottom of the screen, and at the smaller sizing the
+  // content floated in the middle of that with white at both ends — so both
+  // modes run the modal's mobile values, and the tour only departs on the
+  // animation, which is wider here to take up the remaining height.
+  // Desktop (sm:) is identical for both, as before.
   const m = (tourCls: string, modalCls: string) => (tour ? tourCls : modalCls);
 
   // While an account is still calibrating there is no rated ELO yet, so both
@@ -85,14 +89,15 @@ export function WinModalCard({
 
   return (
     <div
-      // flex column + justify-center in tour mode, same as the lose card: the
-      // tour stretches this to the hero panel's height so all five steps present
-      // one box, and centring puts any surplus outside the content rather than
-      // piling it under the last button. Inert on desktop, where nothing
-      // stretches the card.
+      // max-sm: flex column + justify-center. Only the mobile tour stretches this
+      // card (cardFill is mobile-only), and centring is what puts the surplus
+      // outside the content rather than under the last button. Prefixed rather
+      // than bare so the desktop tour keeps the plain block layout it has always
+      // had — it has no surplus to distribute, and this shouldn't be the reason
+      // it starts behaving like a flex container.
       className={
         tour
-          ? "relative w-full max-w-[545px] overflow-hidden bg-white rounded-2xl shadow-2xl select-none pointer-events-none flex flex-col justify-center"
+          ? "relative w-full max-w-[545px] overflow-hidden bg-white rounded-2xl shadow-2xl select-none pointer-events-none max-sm:flex max-sm:flex-col max-sm:justify-center"
           : "relative w-full max-w-[545px] max-h-[96vh] overflow-hidden bg-white rounded-2xl shadow-2xl"
       }
     >
@@ -112,7 +117,7 @@ export function WinModalCard({
           beyond the empty bottom strip the ratio itself trims. */}
       <div
         className={m(
-          "relative w-[57%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] shrink-0",
+          "relative w-[72%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-sm:shrink-0",
           "relative w-[68%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         )}
       >
@@ -133,13 +138,13 @@ export function WinModalCard({
 
       <div
         className={`${m(
-          "px-[14px] pb-[14px]",
+          "px-[20px] pb-[20px]",
           "px-[20px] pb-[20px]"
         )} sm:px-[36px] sm:pb-[28px] sm:[@media(max-height:920px)]:pb-[18px]`}
       >
         <h2
           className={`text-center font-bold ${m(
-            "text-[19px] mt-[4px] mb-[2px]",
+            "text-[24px] mt-[8px] mb-[4px]",
             "text-[24px] mt-[8px] mb-[4px]"
           )} sm:text-[30px] text-[#34C759] sm:mt-[12px] sm:mb-[6px] sm:[@media(max-height:920px)]:mt-[4px] sm:[@media(max-height:920px)]:mb-[2px]`}
         >
@@ -149,7 +154,7 @@ export function WinModalCard({
         {opponentName && (
           <p
             className={`text-center ${m(
-              "text-[12px] mb-[6px]",
+              "text-[14px] mb-[10px]",
               "text-[14px] mb-[10px]"
             )} sm:text-[17px] text-[#374151] sm:mb-[14px] sm:[@media(max-height:920px)]:mb-[8px]`}
           >
@@ -160,22 +165,22 @@ export function WinModalCard({
         {/* ELO pill + gain badge */}
         <div
           className={`flex items-center justify-center gap-[8px] sm:gap-[10px] ${m(
-            "mb-[10px]",
+            "mb-[14px]",
             "mb-[14px]"
           )} sm:mb-[20px] sm:[@media(max-height:920px)]:mb-[12px]`}
         >
           <div
             className={`flex items-center justify-between gap-[10px] sm:gap-[16px] bg-[#34C759] rounded-[10px] ${m(
-              "pl-[12px] pr-[10px] py-[6px]",
+              "pl-[14px] pr-[12px] py-[8px]",
               "pl-[14px] pr-[12px] py-[8px]"
             )} sm:pl-[20px] sm:pr-[16px] sm:py-[10px] flex-1 min-w-0 ${m(
-              "max-w-[210px]",
+              "max-w-[300px]",
               "max-w-[300px]"
             )} sm:max-w-[300px]`}
           >
             <span
               className={`text-white font-semibold ${m(
-                "text-[12px]",
+                "text-[14px]",
                 "text-[14px]"
               )} sm:text-[17px] whitespace-nowrap`}
             >
@@ -187,7 +192,7 @@ export function WinModalCard({
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className={`${m(
-                  "w-[13px] h-[13px]",
+                  "w-[16px] h-[16px]",
                   "w-[16px] h-[16px]"
                 )} sm:w-[20px] sm:h-[20px] shrink-0`}
               >
@@ -196,7 +201,7 @@ export function WinModalCard({
               </svg>
               <span
                 className={`text-white font-bold ${m(
-                  "text-[18px]",
+                  "text-[22px]",
                   "text-[22px]"
                 )} sm:text-[28px] leading-none pt-1`}
               >
@@ -217,7 +222,7 @@ export function WinModalCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: ODOMETER_DELAY + ODOMETER_DURATION, duration: 0.35 }}
             className={`font-bold ${m(
-              "text-[16px]",
+              "text-[20px]",
               "text-[20px]"
             )} sm:text-[24px] shrink-0 ${eloDeltaColorClass(delta)}`}
           >
@@ -227,7 +232,7 @@ export function WinModalCard({
 
         <p
           className={`text-center font-bold ${m(
-            "text-[13px]",
+            "text-[15px]",
             "text-[15px]"
           )} sm:text-[17px] text-[#111827]`}
         >
@@ -235,7 +240,7 @@ export function WinModalCard({
         </p>
         <p
           className={`text-center ${m(
-            "text-[11px] mb-[8px]",
+            "text-[13px] mb-[12px]",
             "text-[13px] mb-[12px]"
           )} sm:text-[15px] text-[#111827] sm:mb-[18px] sm:[@media(max-height:920px)]:mb-[10px]`}
         >
@@ -245,13 +250,13 @@ export function WinModalCard({
         {/* Challenge next opponents */}
         <div
           className={`rounded-[14px] border border-[#7CC0F2] ${m(
-            "p-[6px] mb-[8px]",
+            "p-[8px] mb-[10px]",
             "p-[8px] mb-[10px]"
           )} sm:p-[10px] sm:mb-[10px] sm:[@media(max-height:920px)]:mb-[8px]`}
         >
           <p
             className={`text-center ${m(
-              "text-[10px] mb-[2px]",
+              "text-[12px] mb-[4px]",
               "text-[12px] mb-[4px]"
             )} sm:text-[14px] font-medium text-[#111827] sm:mb-[6px]`}
           >
@@ -266,7 +271,7 @@ export function WinModalCard({
                   type="button"
                   onClick={() => setSelectedId(opponent.id)}
                   className={`flex flex-col items-center gap-[2px] ${m(
-                    "p-[3px]",
+                    "p-[4px]",
                     "p-[4px]"
                   )} sm:p-[6px] rounded-[10px] border transition-colors min-w-0 ${
                     isSelected
@@ -280,13 +285,13 @@ export function WinModalCard({
                     width={84}
                     height={84}
                     className={`${m(
-                      "w-[42px] h-[42px]",
+                      "w-[56px] h-[56px]",
                       "w-[56px] h-[56px]"
                     )} sm:w-[72px] sm:h-[72px] rounded-full object-cover`}
                   />
                   <span
                     className={`${m(
-                      "text-[11px]",
+                      "text-[12px]",
                       "text-[12px]"
                     )} sm:text-[13px] font-semibold truncate max-w-full ${
                       isSelected ? "text-[#221AE9]" : "text-[#111827]"
@@ -296,7 +301,7 @@ export function WinModalCard({
                   </span>
                   <span
                     className={`${m(
-                      "text-[10px]",
+                      "text-[11px]",
                       "text-[11px]"
                     )} sm:text-[12px] whitespace-nowrap ${
                       isSelected ? "text-[#221AE9]" : "text-[#6B7280]"
@@ -314,7 +319,7 @@ export function WinModalCard({
           onClick={() => selectedOpponent && onStartGame?.(selectedOpponent)}
           disabled={!selectedOpponent}
           className={`w-full ${m(
-            "py-[9px] text-[13px]",
+            "py-[12px] text-[15px]",
             "py-[12px] text-[15px]"
           )} sm:py-[14px] sm:[@media(max-height:920px)]:py-[12px] rounded-full bg-[#221AE9] text-white font-semibold sm:text-[16px] hover:bg-[#2d25ea] transition-colors disabled:opacity-50`}
         >

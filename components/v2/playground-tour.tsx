@@ -364,11 +364,12 @@ const STEPS: TourStep[] = [
     // Let the celebration play out before the copy arrives.
     tooltipAfterLottie: true,
     panelFull: true,
-    // matchPanel for the top edge only — it attaches the card under the
-    // tooltip's caret, the same overlap every other step has. No cardFill: the
-    // card keeps its natural height rather than being stretched to the bottom of
-    // the screen, which left a band of empty card under the content.
+    // matchPanel for step 1's tuck, cardFill to run the card to the bottom of
+    // the screen — otherwise the opponent roster behind it shows under the card.
+    // The card's own sizing was raised to match (see WinModalCard's tour values)
+    // so the extra height goes into the content rather than an empty band.
     matchPanel: true,
+    cardFill: true,
   },
   {
     title: "Tutorial: When you lose a game, your ELO decreases.",
@@ -378,10 +379,10 @@ const STEPS: TourStep[] = [
     panelTuck: 0,
     tooltipAfterLottie: true,
     panelFull: true,
-    // As step 3: attached under the caret, natural height. The two stay the same
-    // size through referenceHeight, which makes this card scale by the win
-    // card's factor — not by stretching either of them.
+    // As step 3, and identical in height because both fill the same box rather
+    // than one being measured off the other.
     matchPanel: true,
+    cardFill: true,
   },
   {
     title: "Tutorial: Analyze Game",
@@ -2885,10 +2886,12 @@ export function PlaygroundTour({
                     reserve={demoReserve}
                     maxScale={demoMaxScale}
                     fill={cardFill}
-                    /* Back in play now that neither card stretches: it makes
-                       this one scale by the win card's factor, so the two render
-                       their contents at the same size. */
-                    referenceHeight={winCardHeightRef.current || undefined}
+                    /* Skipped while filling: fill would then target the win
+                       card's natural height instead of the box, and the two
+                       already come out identical by both filling the same box. */
+                    referenceHeight={
+                      cardFill ? undefined : winCardHeightRef.current || undefined
+                    }
                   >
                     <LoseModalCard
                       variant="tour"
