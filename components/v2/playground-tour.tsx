@@ -116,31 +116,8 @@ const visibleHeight = (): number => {
  *  viewport that short gets a clipped card rather than a microscopic one. */
 const MIN_CARD_SCALE = 0.45;
 
-/**
- * Everything the tour draws renders at this fraction of its natural size on
- * mobile.
- *
- * A phone gives the page far less than its spec sheet suggests — an iPhone 15
- * advertises 852px but Safari hands the document 669 once the status bar,
- * address bar, toolbar and home indicator have taken their cut. The tour's
- * steps were laid out against the larger number and ran off the bottom.
- *
- * One factor beats another pass of hand-shrinking every font-size and padding:
- * it applies to all five steps at once, can't be partially applied, and is a
- * single number to turn if the type reads too small. Turn it up (0.85, 0.9) to
- * relax; the layout follows automatically.
- */
-const MOBILE_SCALE = 0.8;
+const MOBILE_SCALE = 1.0;
 
-/**
- * Visible height below which the tour switches to its tightest type and
- * padding, *on top of* MOBILE_SCALE.
- *
- * Deliberately below the ~669px a normal phone reports: at that size the 20%
- * scale is doing the work and stacking the compact tier on top would take the
- * body copy under 10px. This is the last resort for genuinely tiny viewports
- * (a landscape phone, an SE with every bar showing).
- */
 const COMPACT_VH = 560;
 
 /**
@@ -171,19 +148,32 @@ const SPOTLIGHT_EDGE = 8;
 const HEADER_GAP = 12;
 /** px between a tooltip and the anchor its caret points at */
 const CARET_GAP = 14;
+/**
+ * The same, for the mobile steps parked above the tour's own hero panel.
+ *
+ * Wider than CARET_GAP because the mobile caret is a 17px speech-bubble tail
+ * rather than desktop's 12px rotated square, and 14 left its tip 3px *inside*
+ * the panel it points at. This clears it by the same 3.
+ */
+const HERO_CARET_GAP = 20;
 /** px kept clear of the viewport edges */
 const VIEWPORT_MARGIN = 12;
+
+/** Room above the hero panel for the tooltip. Sets where the *tooltip* sits;
+ *  the panel follows it via HERO_PANEL_TUCK. */
+const HERO_COPY_TOOLTIP_RESERVE = 150;
 /**
- * Room held above the tour's hero panel for the step's tooltip, which sits
- * wholly above it on step 1.
+ * px the hero panel slides up *behind* the tooltip, hiding its "Play VS AI"
+ * heading — the panel's p-2 (8) plus the h1 and its mb-[6px].
  *
- * A constant, deliberately, and not the measured tooltip height: the panel is
- * centred in what's left below this, so deriving it from a measurement that
- * lands a frame late would shift the panel — and the ring with it — immediately
- * after both appeared. That shift is precisely the "highlight doesn't lock on"
- * symptom. A fixed reserve makes the panel's box correct on its first frame.
+ * This is the knob for moving the panel without moving the tooltip: raise it and
+ * the panel rises and grows by the same amount (its bottom edge is fixed at the
+ * viewport margin), tucking more of itself out of sight; drop it to 0 and the
+ * panel sits a plain caret-gap below the tooltip with the heading showing. The
+ * tooltip is drawn after the panel in the portal, so it covers whatever the tuck
+ * pulls under it — including the top of the step-1 spotlight ring.
  */
-const HERO_COPY_TOOLTIP_RESERVE = 104;
+const HERO_PANEL_TUCK = 56;
 /** the demo column's own padding (p-4), top + bottom */
 const DEMO_COLUMN_PAD = 32;
 
@@ -578,11 +568,14 @@ function TourHeroCopy({
   innerRef,
   width,
   left,
+  top,
   hidden,
 }: {
   innerRef: React.RefObject<HTMLDivElement>;
   width: number;
   left: number;
+  /** first pixel below the tooltip parked above it (see HERO_COPY_TOOLTIP_RESERVE) */
+  top: number;
   /** faded out from the step 2 -> 3 interlude onward — every step past 2 brings
    *  its own screen, and the panel behind them read as leftover */
   hidden: boolean;
@@ -598,17 +591,25 @@ function TourHeroCopy({
       // querySelector only walks descendants, and putting this on the panel
       // itself would hide the panel's own anchor from step 1's lookup.
       ref={innerRef}
-      className="fixed pointer-events-none flex items-center"
+      // items-start, not items-center: the box runs from `top` to the bottom
+      // margin, so centring let a panel shorter than its box drift down and open
+      // a gap under the tooltip's caret. Hugging the top puts the panel exactly
+      // where `top` says, and any slack collects at the bottom instead.
+      className="fixed pointer-events-none flex items-start"
       style={{
         left,
         width,
-        top: VIEWPORT_MARGIN + HERO_COPY_TOOLTIP_RESERVE,
+        top,
         bottom: VIEWPORT_MARGIN,
       }}
     >
+      {/* max-h-full so a short viewport takes its shortfall out of the opponent
+          list (the only scrollable child) instead of letting the panel overflow
+          its box top and bottom — the reserve above it is fixed, so the panel
+          can't answer a squeeze by moving up. */}
       <div
         data-tour-anchor="opponent-panel"
-        className="w-full bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-2 flex flex-col"
+        className="w-full max-h-full bg-white rounded-2xl shadow-lg border-2 border-[#81CFF3] p-2 flex flex-col"
       >
         <h1 className="text-center font-bold text-[22px] text-[#221AE9] mb-[6px]">
           Play VS AI
@@ -2156,6 +2157,16 @@ export function PlaygroundTour({
   // five steps, the interlude, and the hero copy behind them.
   const tourCardW = tourCardWidth;
   const tourCardLeft = Math.round((viewport.vw - tourCardW) / 2);
+
+  // Bottom edge of the tooltip on the two anchored mobile steps. Both hang off
+  // this one line rather than off their own anchor, so the card sits in the same
+  // place on each and can't drift into the panel however long the step's copy
+  // runs. The measured height only enters if a tooltip overflows the reserve.
+  const heroTooltipBottom =
+    VIEWPORT_MARGIN + Math.max(HERO_COPY_TOOLTIP_RESERVE, anchored ? tooltipH : 0);
+  // The panel then starts a caret-gap below that, less the tuck that slides its
+  // "Play VS AI" heading up behind the tooltip.
+  const heroPanelTop = heroTooltipBottom + HERO_CARET_GAP - HERO_PANEL_TUCK;
   const interludeH = Math.max(
     300,
     Math.round(
@@ -2241,9 +2252,16 @@ export function PlaygroundTour({
   // column, and flooring at the unscaled width would hold steps 1-2 a fifth
   // wider than steps 3-5 — and wider than the ring they're supposed to match,
   // now that the hero has come down 20% too.
+  //
+  // Steps 1-2 on mobile skip that entirely and take the panel's own width: they
+  // sit above the *panel* now, not above their own anchor, and step 2's anchor
+  // (the opponent list, inset by the panel's p-2) would have made its card 16px
+  // narrower than step 1's for no reason the user can see.
   const minTooltipW = Math.round(BASE_TOOLTIP_W * scale);
-  const anchoredTooltipW =
-    isMobile && anchored && spotTarget
+  const heroPinned = useHeroCopy && anchored;
+  const anchoredTooltipW = heroPinned
+    ? tourCardW
+    : isMobile && anchored && spotTarget
       ? Math.round(
           Math.min(
             Math.max(targetHole.width, minTooltipW),
@@ -2254,12 +2272,19 @@ export function PlaygroundTour({
   const TOOLTIP_W = anchoredTooltipW ?? BASE_TOOLTIP_W;
 
   // Real rendered height once TourTooltip has reported it; the estimate only
-  // covers the very first frame of a step. Mobile now runs desktop's type at
-  // desktop's padding, so the two estimates are within a line of each other —
-  // the remaining gap is mobile's taller pill buttons.
-  const TOOLTIP_H = tooltipH || (isMobile ? 190 : 180);
+  // covers the very first frame of a step. The mobile figure is the desktop card
+  // taken down by MOBILE_SCALE — the old 190 predated that scale and overshot by
+  // enough that a heroPinned tooltip spent its first frame clamped down over the
+  // panel before the measurement pulled it back up.
+  const TOOLTIP_H = tooltipH || (isMobile ? 130 : 180);
   let mode: "edge" | "above" | "below" | "over" = "over";
-  if (
+  // Steps 1-2 on mobile always sit above the panel: the tour owns both, so the
+  // placement is a decision, not a search for room. Placing step 2 from its own
+  // anchor is what put its card over the "Choose Your Color" heading and colour
+  // toggle just above the opponent list, and step 1 — whose anchor is the whole
+  // panel — found no room above at all and fell back to sitting *on* the panel.
+  if (heroPinned) mode = "above";
+  else if (
     step?.tooltipBottomAt !== undefined &&
     rect &&
     rect.top + step.tooltipBottomAt - TOOLTIP_H >= VIEWPORT_MARGIN
@@ -2272,8 +2297,9 @@ export function PlaygroundTour({
     viewport.vh - VIEWPORT_MARGIN
   )
     mode = "below";
-  const rawTooltipTop =
-    mode === "edge" && rect && step?.tooltipBottomAt !== undefined
+  const rawTooltipTop = heroPinned
+    ? heroTooltipBottom
+    : mode === "edge" && rect && step?.tooltipBottomAt !== undefined
       ? rect.top + step.tooltipBottomAt
       : mode === "above"
         ? targetHole.top - CARET_GAP
@@ -2312,10 +2338,15 @@ export function PlaygroundTour({
     0,
     Math.min(VIEWPORT_MARGIN, Math.round((viewport.vw - TOOLTIP_W) / 2))
   );
-  const tooltipLeft = Math.min(
-    Math.max(anchorCenterX - TOOLTIP_W / 2, edgeGap),
-    Math.max(viewport.vw - TOOLTIP_W - edgeGap, edgeGap)
-  );
+  // heroPinned shares the panel's centre line by construction — same width, same
+  // left — so the caret lands on the panel's midpoint rather than on whichever
+  // sub-rect the step happens to anchor.
+  const tooltipLeft = heroPinned
+    ? tourCardLeft
+    : Math.min(
+        Math.max(anchorCenterX - TOOLTIP_W / 2, edgeGap),
+        Math.max(viewport.vw - TOOLTIP_W - edgeGap, edgeGap)
+      );
 
   return createPortal(
     <div className="fixed inset-0 z-[700] overscroll-contain" role="dialog" aria-modal="true" aria-label="Playground tutorial">
@@ -2329,6 +2360,7 @@ export function PlaygroundTour({
           innerRef={heroCopyRef}
           width={tourCardW}
           left={tourCardLeft}
+          top={heroPanelTop}
           hidden={interlude || !anchored}
         />
       )}
