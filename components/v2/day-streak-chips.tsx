@@ -24,8 +24,6 @@ export function DayStreakChips({
   highlightNext = false,
 }: {
   streak: number;
-  /** Light up the day after the current streak as today's goal — used by
-   * the static (not-played-today) modal, e.g. Day 1 at streak 0. */
   highlightNext?: boolean;
 }) {
   const cycleStart = Math.floor(Math.max(streak - 1, 0) / 7) * 7 + 1;

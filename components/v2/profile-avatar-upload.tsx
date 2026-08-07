@@ -7,20 +7,11 @@ import { useProfileStore } from "@/app/store/profile";
 import ProfilePictureEditor from "@/components/v2/profile-picture-editor";
 
 interface ProfileAvatarUploadProps {
-  /** Sizing / border classes for the circular wrapper (e.g. "w-[80px] h-[80px]"). */
   className?: string;
-  /** Rendered when the user has no profile picture yet. */
   fallback: React.ReactNode;
-  /** Show the blue pencil badge on the bottom-right corner. */
   showEditBadge?: boolean;
 }
 
-/**
- * Circular profile avatar. Clicking opens the "Edit Profile Picture" dialog,
- * where the user picks a file and frames it before it is uploaded — the file
- * used to be sent straight to /profile/picture with no chance to crop it.
- * Used on the profile page and in the sidebar profile card.
- */
 const ProfileAvatarUpload = ({
   className = "",
   fallback,
@@ -31,7 +22,6 @@ const ProfileAvatarUpload = ({
   const { profile } = useProfileStore();
 
   const rawPictureUrl = profile?.imageUrl || null;
-  // Treat a URL that failed to load as no picture so the fallback renders
   const pictureUrl = rawPictureUrl === failedUrl ? null : rawPictureUrl;
 
   return (

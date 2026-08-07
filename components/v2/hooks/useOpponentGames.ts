@@ -9,7 +9,6 @@ import { useProfileStore } from "@/app/store/profile";
 
 const AI_SOURCES = new Set(["vs_ai", "ai", "against ai"]);
 
-/** Games against this opponent already sitting in the persisted PGN store. */
 function cachedOpponentGames(opponentUsername: string): Game[] {
   const raw = usePgnStore.getState().gamesData;
   if (!Array.isArray(raw) || raw.length === 0) return [];
@@ -21,12 +20,6 @@ function cachedOpponentGames(opponentUsername: string): Game[] {
   );
 }
 
-/**
- * Cache-first replacement for useGames({ sources: ["vs_ai"], opponent }) used by
- * the opponent detail panel: cached games render immediately, the fetch refreshes
- * them silently, and the global PGN store is left untouched (useGames would
- * overwrite it with just this opponent's games).
- */
 export function useOpponentGames(opponentUsername: string) {
   const { sessionId } = useProfileStore();
 

@@ -11,33 +11,16 @@ import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 
 type Opponent = { name: string; elo: number; img: string };
 
-/**
- * Mobile sizing has two modes, chosen by the `tour` prop.
- *
- * The playground tour renders its own instance of this component rather than
- * resizing the page's, so the real hero is never touched: the page keeps the
- * roomy design while the tour's copy fits the whole card plus Start Game inside
- * the ~669px Safari actually hands a phone. It's a prop and not a global flag
- * precisely because both are on screen at once during a run.
- *
- * Only the mobile (base) classes differ — every pair below keeps the same `sm:`
- * values, so desktop renders identically in both modes.
- */
 const pick = (tour: boolean) => (tourCls: string, pageCls: string) =>
   tour ? tourCls : pageCls;
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-// Difficulty tabs list the real roster bots inside the tier's ELO range,
-// with their true ELOs. Only the Recommended tab adapts to the user's ELO.
 const buildTier = (min: number, max: number): Opponent[] =>
   AI_OPPONENT_ROSTER.filter((o) => o.elo >= min && o.elo <= max).map(
     ({ name, elo, img }) => ({ name, elo, img })
   );
 
-// Recommended opponents are picked from the existing AI roster around the
-// user's ELO rounded UP to the nearest 50 (629 -> 650): targets are
-// rounded -50 / +0 / +50 / +100, each slot taking the nearest listed AI.
 const RECOMMENDED_ELO_OFFSETS = [-50, 0, 50, 100];
 const DEFAULT_USER_ELO = 300;
 
@@ -59,8 +42,6 @@ const buildRecommended = (roster: AiRosterOpponent[], userElo: number): Opponent
     .map(({ name, elo, img }) => ({ name, elo, img }));
 };
 
-// Default Recommended list for visitors with no ELO yet (not logged in): a
-// fixed beginner spread of 250 / 400 / 500 / 600, one bot per step.
 const DEFAULT_RECOMMENDED_ELOS = [250, 400, 500, 600];
 
 const buildDefaultRecommended = (roster: AiRosterOpponent[]): Opponent[] => {
@@ -112,11 +93,8 @@ function OpponentCard({
   opponent: Opponent;
   selected: boolean;
   onClick: () => void;
-  /** compact sizing while the playground tour is on screen */
   tour: boolean;
 }) {
-  // Passed down rather than read per card: there are ~40 of these, and each
-  // calling the hook would mean 40 window listeners for one boolean.
   const p = pick(tour);
   return (
     <button
@@ -162,22 +140,16 @@ export function HeroPlayVSAIPreview({
   tour = false,
 }: {
   recommendedListHeightClass?: string;
-  /** compact mobile sizing — set only by the playground tour's own copy */
   tour?: boolean;
 }) {
   const router = useRouter();
   const { setAIChoosed, setSelectedOpponent: setStoreOpponent, setSelectedColor: setStoreColor } = usePlayVSAIStore();
-  // Leaderboard ELO once they have played, otherwise the level they picked in
-  // onboarding — so Recommended matches a new user's self-assessment instead
-  // of falling back to the beginner spread.
   const effectiveElo = useEffectiveElo();
   const hasUserElo = effectiveElo > 0;
   const userElo = effectiveElo || DEFAULT_USER_ELO;
 
   const p = pick(tour);
 
-  // Deterministic on first render (SSR-safe), shuffled after mount so ties
-  // between same-ELO bots resolve to a random pick.
   const [rosterOrder, setRosterOrder] = useState<AiRosterOpponent[]>(AI_OPPONENT_ROSTER);
   useEffect(() => {
     setRosterOrder([...AI_OPPONENT_ROSTER].sort(() => Math.random() - 0.5));
@@ -200,9 +172,6 @@ export function HeroPlayVSAIPreview({
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0 });
 
-  // Scroll-spy for the Recommended tab's combined list: as the user scrolls
-  // past each tier's section, the matching tab highlights (without switching
-  // the rendered content — selectedTab is unchanged).
   const listRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -217,25 +186,19 @@ export function HeroPlayVSAIPreview({
     for (const key of keys) {
       const el = sectionRefs.current[key];
       if (!el) continue;
-      // A section counts as "current" once its top has scrolled up to near
-      // the container's top edge.
       if (el.getBoundingClientRect().top - contTop <= 48) current = key;
     }
     setActiveSection(current);
   };
 
-  // Mirror the live selection into the shared store so the opponent bar over
-  // the board preview (a sibling component) tracks whoever is highlighted here.
   useEffect(() => {
     setStoreOpponent(selectedOpponent);
   }, [selectedOpponent, setStoreOpponent]);
 
-  // Mirror the chosen color so the board preview (sibling) can flip orientation.
   useEffect(() => {
     setStoreColor(selectedColor);
   }, [selectedColor, setStoreColor]);
 
-  // Keep the selection valid when the recommended list changes (shuffle or ELO load).
   useEffect(() => {
     setSelectedOpponent((prev) => {
       if (selectedTab !== "recommended") return prev;
@@ -259,12 +222,8 @@ export function HeroPlayVSAIPreview({
   const stopDrag = () => { dragState.current.isDragging = false; };
 
   const currentOpponents = opponentsFor(selectedTab);
-  // On the Recommended tab the highlight follows the scrolled-to section;
-  // on a single-tier tab it just follows the selected tab.
   const highlightKey = selectedTab === "recommended" ? activeSection : selectedTab;
 
-  // Keep the highlighted tab in view: scroll the (horizontally scrollable) tab
-  // bar so the active tab is revealed as scroll-spy moves the highlight.
   useEffect(() => {
     const container = tabsScrollRef.current;
     const el = tabRefs.current[highlightKey];
@@ -326,8 +285,6 @@ export function HeroPlayVSAIPreview({
         ))}
       </div>
 
-      {/* On mobile this section renders as its own white shadow card (mockup);
-          on desktop the wrapper is invisible and keeps the same column gap. */}
       <div
         data-tour-anchor="opponent-list"
         className={`flex flex-col ${p("gap-2 max-sm:p-2", "gap-3 max-sm:p-3")} sm:gap-3 grow min-h-0 max-sm:bg-white max-sm:rounded-2xl max-sm:shadow-[0_2px_12px_rgba(0,0,0,0.10)]`}
@@ -377,7 +334,6 @@ export function HeroPlayVSAIPreview({
           ))}
         </div>
 
-        {/* Arrow pinned at right edge — always visible on mobile */}
         <button
           type="button"
           onClick={() => {
@@ -422,9 +378,6 @@ export function HeroPlayVSAIPreview({
               />
             ))}
           </div>
-          {/* Other tiers below the recommended row. Mobile keeps them too, so
-              the list is two rows deep and scrolls (the tour's step-2 sweep
-              needs something to scroll through). */}
           <div className="space-y-2">
           {tabs.slice(1).map((tab) => (
             <div

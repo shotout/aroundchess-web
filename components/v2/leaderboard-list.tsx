@@ -11,45 +11,23 @@ export interface LeaderboardEntry {
   score: number;
   rankChange?: number | null;
   isMe?: boolean;
-  /** profile picture URL; users without one get the pawn fallback avatar */
   avatarUrl?: string | null;
 }
 
 interface LeaderboardListProps {
   entries: LeaderboardEntry[];
   myRank: number;
-  /** Total ranked players, shown in the "out of N players" subtitle. */
   totalPlayers?: number | null;
   isLoading?: boolean;
-  /** Infinite scroll: whether more pages can be fetched. */
   hasMore?: boolean;
-  /** Infinite scroll: a next page is currently being fetched. */
   isLoadingMore?: boolean;
-  /** Infinite scroll: called when the user scrolls near the bottom. */
   onLoadMore?: () => void;
-  /**
-   * "My Rank": load + swap in the user's neighborhood when their row isn't
-   * paged in yet. Resolves true once the row is available to scroll to.
-   */
   onJumpToMyRank?: () => Promise<boolean> | void;
-  /** The neighborhood fetch triggered by "My Rank" is in flight. */
   isJumpingToMyRank?: boolean;
-  /**
-   * Scroll-to-top: reload the first page so the list restarts at rank #1 when
-   * the user is viewing a jumped-to neighborhood. Resolves true on success.
-   */
   onResetToTop?: () => Promise<boolean> | void;
-  /**
-   * Increments once the initial page fetch has settled. Entering the page
-   * auto-jumps to the user's own row when this ticks — keyed on the fetch
-   * rather than on `isLoading`, which is already false on first render when
-   * the store rehydrated a previous session's rows.
-   */
   autoJumpNonce?: number;
 }
 
-// The signed-in user's own row when they have no picture — same trophy
-// avatar the play page uses for "You".
 const MY_FALLBACK_AVATAR = "/images/homepage/v2/homepage_board_asset_4.png";
 
 const RANK_BADGE_ICON: Record<number, string> = {
@@ -58,8 +36,6 @@ const RANK_BADGE_ICON: Record<number, string> = {
   3: "/images/v2/leaderboard/3.png",
 };
 
-// Ordinal split so the suffix can render as a small superscript. Matches the
-// top-stats rule: only the top three ranks get st/nd/rd, the rest are "th".
 function ordinalParts(n: number): { value: string; suffix: string } {
   if (n <= 0) return { value: "—", suffix: "" };
   const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
@@ -80,16 +56,10 @@ function UserAvatar({ entry, index }: { entry: LeaderboardEntry; index: number }
       />
     );
   }
-  // Placeholder "[Username]" rows all share one name — seed by row instead
-  // so the mock list still shows varied colors like the real one.
   const seed = entry.username === "[Username]" ? `u${index}` : entry.username;
   return <PieceAvatar seed={seed} className="w-[32px] h-[32px]" pieceClassName="w-[14px] h-[18px]" />;
 }
 
-// Fixed column so ranks line up across rows and multi-digit changes (↑10)
-// don't spill onto the rank badge. It is reserved even on rows with no change,
-// so on mobile it stays as narrow as the smaller arrow type allows — every px
-// here is dead space on the left edge of every unchanged row.
 const RANK_CHANGE_WIDTH = "w-[22px] sm:w-[40px]";
 
 function RankChange({ value }: { value?: number | null }) {
@@ -109,10 +79,6 @@ function RankChange({ value }: { value?: number | null }) {
   );
 }
 
-// Rank column. Fixed width so every avatar lines up in the same vertical column
-// no matter how many digits the rank has. Content is right-aligned, so the rank
-// always sits a consistent gap from the avatar; a longer rank grows leftward
-// into the empty space instead of pushing the avatar over.
 const RANK_WIDTH = "w-[44px] sm:w-[56px]";
 
 function RankBadge({ rank }: { rank: number }) {
@@ -191,21 +157,13 @@ export function LeaderboardList({
 }: LeaderboardListProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  // The signed-in user's own row, so "My Rank" can scroll straight to it.
   const meRowRef = useRef<HTMLDivElement | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  // Set while waiting for a "My Rank" fetch to bring the user's row into the
-  // list; the effect below scrolls to it as soon as it mounts.
   const [pendingScrollToMe, setPendingScrollToMe] = useState(false);
-  // Set while waiting for a scroll-to-top reload to restart the list at rank #1.
   const [pendingScrollTop, setPendingScrollTop] = useState(false);
-  // Keep the latest callback in a ref so the observer isn't re-created on
-  // every render (loadMore's identity changes with its deps).
   const onLoadMoreRef = useRef(onLoadMore);
   onLoadMoreRef.current = onLoadMore;
 
-  // Center the user's row in the scroll viewport. getBoundingClientRect keeps
-  // this correct regardless of the container's positioning context.
   const scrollToMyRank = useCallback(() => {
     const container = scrollRef.current;
     const row = meRowRef.current;
@@ -218,13 +176,10 @@ export function LeaderboardList({
   }, []);
 
   const scrollToTop = useCallback(() => {
-    // Already showing from rank #1 (or no reload available) — just scroll up.
     if ((entries[0]?.rank ?? 1) === 1 || !onResetToTop) {
       scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    // Viewing a jumped-to neighborhood: reload the first page, then the effect
-    // below snaps to rank #1 once those rows are in.
     setPendingScrollTop(true);
     Promise.resolve(onResetToTop()).then((ok) => {
       if (ok === false) {
@@ -235,32 +190,23 @@ export function LeaderboardList({
   }, [entries, onResetToTop]);
 
   const handleMyRankClick = useCallback(() => {
-    // Fast path: the row is already paged in — center it right away.
     if (meRowRef.current) {
       scrollToMyRank();
       return;
     }
     if (!onJumpToMyRank) return;
-    // Deep rank: fetch the neighborhood, then let the effect below scroll to
-    // the row once it mounts. Clear the flag if the fetch couldn't find it.
     setPendingScrollToMe(true);
     Promise.resolve(onJumpToMyRank()).then((ok) => {
       if (ok === false) setPendingScrollToMe(false);
     });
   }, [scrollToMyRank, onJumpToMyRank]);
 
-  // Once a "My Rank" fetch swaps in the user's row, scroll to it.
   useEffect(() => {
     if (!pendingScrollToMe || !meRowRef.current) return;
     scrollToMyRank();
     setPendingScrollToMe(false);
   }, [entries, pendingScrollToMe, scrollToMyRank]);
 
-  // Opening the page should land the user on their own row without making them
-  // press "My Rank" — run that same jump once the initial fetch has settled.
-  // Waiting on the nonce (not on `isLoading`) matters: with rehydrated entries
-  // the list renders immediately, and jumping against those stale rows was
-  // being undone the moment fresh page-1 data replaced them.
   const autoJumpedForRef = useRef(0);
   useEffect(() => {
     if (autoJumpNonce === 0 || autoJumpedForRef.current === autoJumpNonce) return;
@@ -269,14 +215,12 @@ export function LeaderboardList({
     handleMyRankClick();
   }, [autoJumpNonce, entries, myRank, handleMyRankClick]);
 
-  // Once the scroll-to-top reload restarts the list at rank #1, snap up.
   useEffect(() => {
     if (!pendingScrollTop || (entries[0]?.rank ?? 1) !== 1) return;
     scrollRef.current?.scrollTo({ top: 0 });
     setPendingScrollTop(false);
   }, [entries, pendingScrollTop]);
 
-  // Only surface the scroll-to-top button once the list is scrolled down.
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
@@ -288,17 +232,12 @@ export function LeaderboardList({
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
-    // Hold off while a jump is landing: centering the user's row near the end
-    // of a fetched neighborhood puts the sentinel in view and would append the
-    // next page mid-scroll, shifting the row we just aimed at.
     if (!sentinel || !hasMore || pendingScrollToMe || isJumpingToMyRank) return;
 
     const observer = new IntersectionObserver(
       (observed) => {
         if (observed.some((e) => e.isIntersecting)) onLoadMoreRef.current?.();
       },
-      // Start fetching one screen early so new rows are ready before the
-      // user reaches the bottom — keeps the scroll feeling seamless.
       { root: scrollRef.current, rootMargin: "200px" }
     );
     observer.observe(sentinel);
@@ -379,7 +318,6 @@ export function LeaderboardList({
                   <SkeletonRow />
                 </>
               )}
-              {/* Invisible sentinel — scrolling it into view loads the next page. */}
               {hasMore && <div ref={sentinelRef} className="h-px shrink-0" aria-hidden />}
             </>
           )}

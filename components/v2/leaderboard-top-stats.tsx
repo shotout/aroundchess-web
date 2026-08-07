@@ -4,6 +4,7 @@ import Image from "next/image";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { ELO_INFO, RANK_INFO, MOVED_INFO } from "@/components/v2/stat-info-text";
 import { formatNumber } from "@/components/v2/format-number";
+import { ShareRankButton } from "@/components/v2/share-rank-button";
 
 interface LeaderboardTopStatsProps {
   elo: number;
@@ -13,8 +14,6 @@ interface LeaderboardTopStatsProps {
 
 function toOrdinal(n: number): string {
   if (n <= 0) return "—";
-  // Product rule: only the top three ranks get st/nd/rd — every other rank
-  // is plain "th" (4th, 21th, 10002th), per design.
   const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
   return formatNumber(n) + suffix;
 }
@@ -90,7 +89,6 @@ export function LeaderboardTopStats({ elo, rank, movedUp }: LeaderboardTopStatsP
 
   return (
     <>
-      {/* Mobile — compact, independently sized so it never overflows */}
       <div className="sm:hidden bg-white/70 rounded-xl sm:border border-[#E5E7EB] sm:shadow-sm px-[10px] py-[10px] flex items-center justify-between gap-[4px]">
         <MobileStatCard icon="/images/v2/leaderboard/your_elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left">
           <span className="text-[15px] font-bold text-[#111827]">{elo || "—"}</span>
@@ -124,9 +122,8 @@ export function LeaderboardTopStats({ elo, rank, movedUp }: LeaderboardTopStatsP
         </MobileStatCard>
       </div>
 
-      {/* Desktop — unchanged */}
       <div className="hidden sm:block bg-white/50 p-4 w-[80%] mx-auto rounded-xl">
-        <div className="w-auto mx-auto bg-white/70 rounded-xl border-[#E5E7EB] shadow-sm px-[26px] sm:px-[28px] py-[12px] sm:py-[14px] flex items-center justify-center gap-[180px]">
+        <div className="w-auto mx-auto bg-white/70 rounded-xl border-[#E5E7EB] shadow-sm px-[26px] sm:px-[28px] py-[12px] sm:py-[14px] flex items-center justify-center gap-[clamp(24px,6vw,110px)]">
           <StatCard icon="/images/v2/leaderboard/your_elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left">
             <span className="text-[18px] sm:text-[20px] font-bold text-[#111827]">{elo || "—"}</span>
           </StatCard>
@@ -157,6 +154,8 @@ export function LeaderboardTopStats({ elo, rank, movedUp }: LeaderboardTopStatsP
               <span className="text-[18px] sm:text-[20px] font-bold text-[#9CA3AF]">—</span>
             )}
           </StatCard>
+
+          <ShareRankButton label="Share your rank" />
         </div>
       </div>
     </>

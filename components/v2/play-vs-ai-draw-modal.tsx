@@ -6,12 +6,13 @@ import { motion } from "framer-motion";
 import { EloOdometer } from "@/components/v2/elo-odometer";
 import { eloDeltaColorClass, formatEloDelta } from "@/components/v2/format-number";
 import { useLottieData } from "@/components/v2/hooks/useLottieData";
+import { useState } from "react";
+import { ShareButton } from "@/components/v2/share-button";
+import { ShareImageSheet } from "@/components/v2/share-image-sheet";
 
 const ODOMETER_DELAY = 0.6;
 const ODOMETER_DURATION = 1.8;
 
-// Compressed copy of DRAW.json (embedded frames downscaled + recompressed,
-// 30MB -> 1.3MB) so it loads fast enough to play the moment the modal opens.
 export const DRAW_LOTTIE = "/images/v2/play-vs-ai/DRAW.min.json";
 
 interface PlayVsAiDrawModalProps {
@@ -34,13 +35,31 @@ export function PlayVsAiDrawModal({
   onDiscoverMistakes,
 }: PlayVsAiDrawModalProps) {
   const animationData = useLottieData(DRAW_LOTTIE);
-  // A draw can move ELO either way; the pill follows the direction.
+  const [sharing, setSharing] = useState(false);
   const gained = delta >= 0;
   const accentBg = gained ? "bg-[#34C759]" : "bg-[#DC2626]";
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/50 p-4">
+      {sharing && (
+        <ShareImageSheet
+          spec={{
+            kind: "result",
+            result: "draw",
+            elo: newElo,
+            delta,
+            opponentName,
+            opponentElo,
+          }}
+          onClose={() => setSharing(false)}
+        />
+      )}
       <div className="relative w-full max-w-[545px] max-h-[96vh] overflow-hidden bg-white rounded-2xl shadow-2xl">
+        <ShareButton
+          variant="pill"
+          onClick={() => setSharing(true)}
+          className="absolute top-[12px] left-[14px] sm:top-[16px] sm:left-[18px] z-10 bg-white"
+        />
         <button
           onClick={onClose}
           className="absolute top-[12px] right-[14px] sm:top-[16px] sm:right-[18px] z-10 text-[#111827] hover:text-[#374151]"
@@ -50,8 +69,6 @@ export function PlayVsAiDrawModal({
         </button>
 
         <div className="relative w-[68%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none">
-          {/* Out of flow — see the win modal: an in-flow height:100% child can
-              outgrow an aspect-ratio box in Safari and push the card body away. */}
           {animationData && (
             <Lottie
               animationData={animationData}
@@ -73,7 +90,6 @@ export function PlayVsAiDrawModal({
             </p>
           )}
 
-          {/* ELO pill + change badge */}
           <div className="flex items-center justify-center gap-[8px] sm:gap-[10px] mb-[14px] sm:mb-[20px] sm:[@media(max-height:920px)]:mb-[12px]">
             <div
               className={`flex items-center justify-between gap-[10px] sm:gap-[16px] ${accentBg} rounded-[10px] pl-[14px] pr-[12px] sm:pl-[20px] sm:pr-[16px] py-[8px] sm:py-[10px] flex-1 min-w-0 max-w-[300px]`}
@@ -110,8 +126,6 @@ export function PlayVsAiDrawModal({
                 </span>
               </span>
             </div>
-            {/* Always rendered, same as the win/lose modals: a calibrating
-                account's 0 is still the modal's statement about the rating. */}
             <motion.span
               initial={{ opacity: 0, y: gained ? 8 : -8 }}
               animate={{ opacity: 1, y: 0 }}

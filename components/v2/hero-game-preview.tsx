@@ -8,11 +8,9 @@ import { AiOpponentPreviewBar } from "@/components/v2/ai-opponent-preview-bar";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 
-// Standard starting position for the (non-interactive) board preview.
 const START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 export function HeroGamePreview({ recommendedListHeightClass }: { recommendedListHeightClass?: string }) {
-  // Flip the preview board when "Black" is chosen in the color picker.
   const selectedColor = usePlayVSAIStore((s) => s.selectedColor);
   const boardWrapRef = useRef<HTMLDivElement>(null);
   const [boardWidth, setBoardWidth] = useState(320);
@@ -28,9 +26,6 @@ export function HeroGamePreview({ recommendedListHeightClass }: { recommendedLis
     return () => ro.disconnect();
   }, []);
 
-  // Match the opponent panel's height to the board card so the AI list
-  // scrolls inside instead of stretching the whole column taller than the
-  // board. Measured on desktop; mobile keeps auto height.
   const boardCardRef = useRef<HTMLDivElement>(null);
   const [panelHeight, setPanelHeight] = useState<number | undefined>(undefined);
   useEffect(() => {

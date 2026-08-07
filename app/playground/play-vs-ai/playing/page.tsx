@@ -7,7 +7,7 @@ import { usePlayPageStore } from "@/app/store/playPage";
 import { useApiClient } from "@/functions/api-client";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import Navigation from "@/components/navigator/navigation";
-import { PlayTopBar } from "@/components/v2/play-top-bar";
+import { EloScoreLink, PlayTopBar } from "@/components/v2/play-top-bar";
 
 import PlayingPage from "@/components/playground/play-vs-ai/PlayingPage";
 
@@ -42,7 +42,18 @@ export default function Playing() {
   if (loadingAnalyze) return <LoadingPage />;
   return (
     <Navigation>
-      <div className="p-0 sm:p-[24px] flex flex-col max-w-[1200px] min-[1600px]:max-w-[1400px] mx-auto w-full">
+      {/* The 1200 cap left unused margin on either side between roughly 1430 and
+          1600, where the viewport has the width but the container refuses it —
+          the same band where the top bar was short of room. An intermediate step
+          hands that space back before the 1600 jump. */}
+      <div className="p-0 sm:p-[24px] flex flex-col max-w-[1200px] min-[1400px]:max-w-[1340px] min-[1600px]:max-w-[1400px] mx-auto w-full">
+        {/* Same affordance and position as the play page: top right, just above
+            the bordered card. There it shares that row with the greeting, which
+            this screen has no equivalent of, so it stands alone. Desktop only —
+            on mobile the stats card carries its own copy at its foot. */}
+        <div className="hidden sm:flex justify-end mb-[10px]">
+          <EloScoreLink />
+        </div>
         <div className="rounded-none border-0 sm:rounded-[24px] sm:border sm:border-[#7CC0F2] bg-white p-[8px] sm:p-[16px] flex flex-col gap-[8px]">
           <PlayTopBar
             streak={streak}

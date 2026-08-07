@@ -35,8 +35,6 @@ interface PlayVsAiGamesTableProps {
 
 const endpoint = process.env.BASE_URL;
 
-// Crisp white ring + a glow in the button's own color — same style as the
-// v2 Game History table buttons. Inline style so class-merging can't drop it.
 const v2GlowStyle = (r: number, g: number, b: number): React.CSSProperties => ({
   boxShadow: `0 0 0 2px #ffffff, 0 0 10px 3px rgba(${r}, ${g}, ${b}, 0.6)`,
 });
@@ -61,7 +59,6 @@ const fetchLastAnalysis = async (
   }
 };
 
-/** "YYYY-MM-DD" → "DD.MM.YYYY", plus the game's end time from the PGN when available. */
 const formatRowDate = (game: Game): string => {
   const [y, m, d] = (game.date || "").split("-");
   const date = y && m && d ? `${d}.${m}.${y}` : game.date || "—";
@@ -185,7 +182,6 @@ export function PlayVsAiGamesTable({
   const jobFailed = (game: Game) => getJobByGameId(game.id)?.status === "failed";
 
   const handleSeeMistakes = async (game: Game) => {
-    // Analysis still running — open the loading dialog directly.
     if (!isAnalyzed(game) && jobInProgress(game)) {
       setProcessingGameId(game.id);
       return;
@@ -204,14 +200,12 @@ export function PlayVsAiGamesTable({
 
       const job = getJobByGameId(game.id);
       if (v3Analysis?.success && v3Analysis.data?.summary) {
-        // Skip ChooseAnalysisMode — show the mistakes result right away
         setV3AnalysisResult({
           ...v3Analysis.data,
           analysisId: v3Analysis.data.analysisId || v3Analysis.data.id,
         });
         setGameAnalysisId(game.id);
       } else if (v3Analysis?.success && v3Analysis.data) {
-        // v3 data without a summary — the choose dialog still handles this shape
         setChooseGameId(game.id);
       } else if (job?.result) {
         setShortAnalysisData({ data: job.result });
@@ -273,9 +267,6 @@ export function PlayVsAiGamesTable({
   return (
     <>
       {analyzeGame && (
-        // Headless: open stays false so the depth dialog never shows; autoStart
-        // runs the Standard analysis on mount and the loading dialog opens at
-        // onAnalysisStarted. Cleared (unmounted) only in onAutoStartComplete.
         <AnalyzeGameHistory
           open={false}
           onOpenChange={(o: boolean) => setAnalyzeGameId(o ? analyzeGame.id : null)}
@@ -320,7 +311,6 @@ export function PlayVsAiGamesTable({
         v3Result={v3AnalysisResult}
       />
 
-      {/* No overflow-hidden here — it would cut the buttons' glow flat at the row edge. */}
       <div className="flex-1 min-h-0 flex flex-col divide-y divide-[#E5E7EB]">
         {currentGames.map((game) => {
           const analyzed = isAnalyzed(game) || jobInProgress(game);
@@ -332,7 +322,6 @@ export function PlayVsAiGamesTable({
               key={game.id}
               className="flex items-center justify-between gap-x-[8px] md:gap-x-[12px] py-[10px]"
             >
-              {/* Date + result */}
               <div className="flex flex-col gap-[2px] text-[12px] md:text-[14px] min-w-0">
                 <span className="text-[#9CA3AF] truncate min-w-0">
                   {formatRowDate(game)}
@@ -340,7 +329,6 @@ export function PlayVsAiGamesTable({
                 <ResultLabel game={game} />
               </div>
 
-              {/* Action */}
               {failed ? (
                 <button
                   type="button"
@@ -392,7 +380,6 @@ export function PlayVsAiGamesTable({
         })}
       </div>
 
-      {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between pt-[14px] border-t border-[#E5E7EB] mt-[2px]">
           <button

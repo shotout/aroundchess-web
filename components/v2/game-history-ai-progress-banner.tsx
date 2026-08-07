@@ -3,13 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 
-/**
- * Presentational banner shown on the revamped Game History page.
- * The artwork (headline text + CTA) is baked into the image, so the whole
- * banner is a single clickable image. A dedicated mobile crop is used below
- * the sm breakpoint since the desktop artwork is too wide/short to stay
- * legible at phone widths.
- */
 export default function GameHistoryAiProgressBanner() {
   return (
     <Link

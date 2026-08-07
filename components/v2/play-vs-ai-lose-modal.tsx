@@ -3,15 +3,16 @@
 import { X } from "lucide-react";
 import Lottie from "lottie-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { EloOdometer } from "@/components/v2/elo-odometer";
+import { ShareButton } from "@/components/v2/share-button";
+import { ShareImageSheet } from "@/components/v2/share-image-sheet";
 import { eloDeltaColorClass, formatEloDelta } from "@/components/v2/format-number";
 import { useLottieData } from "@/components/v2/hooks/useLottieData";
 
 const ODOMETER_DELAY = 0.6;
 const ODOMETER_DURATION = 1.8;
 
-// Compressed copy of LOSE.json (embedded frames downscaled + recompressed,
-// 44MB -> 0.8MB) so it loads fast enough to play the moment the modal opens.
 export const LOSE_LOTTIE = "/images/v2/play-vs-ai/LOSE.min.json";
 
 interface LoseModalCardProps {
@@ -21,23 +22,10 @@ interface LoseModalCardProps {
   opponentName?: string;
   opponentElo?: number;
   onDiscoverMistakes?: () => void;
-  /**
-   * "modal" (default) is the real in-game screen. "tour" renders the exact
-   * same card inert for the playground tutorial: no interactivity, no 96vh
-   * cap (the tour sizes the room it gets), and a wider animation on mobile.
-   */
   variant?: "modal" | "tour";
-  /**
-   * Fires once the Lottie has played out (it doesn't loop). The playground tour
-   * holds its tooltip back until then so the animation isn't competing with the
-   * copy. Never fires if the animation JSON fails to load, so callers that gate
-   * UI on it need their own fallback.
-   */
   onAnimationComplete?: () => void;
 }
 
-// Shared visual body of the "You Lost" screen. The real modal wraps this in a
-// full-screen overlay + close button; the playground tour renders it inline.
 export function LoseModalCard({
   oldElo,
   newElo,
@@ -51,39 +39,30 @@ export function LoseModalCard({
   const tour = variant === "tour";
   const animationData = useLottieData(LOSE_LOTTIE);
 
-  // See the win modal: both modes now run the modal's mobile sizing, because the
-  // tour fills this card from under the tooltip to the bottom of the screen and
-  // the old step-down left the content adrift in the middle of it. The tour only
-  // departs on the animation, which is wider to take up the remaining height.
-  // Desktop is unchanged.
   const m = (tourCls: string, modalCls: string) => (tour ? tourCls : modalCls);
 
   return (
     <div
-      // max-sm: only — see the win card. The mobile tour is the only thing that
-      // stretches this, so the desktop tour keeps its plain block layout.
       className={
         tour
           ? "relative w-full max-w-[545px] overflow-hidden bg-white rounded-2xl shadow-2xl select-none pointer-events-none max-sm:flex max-sm:flex-col max-sm:justify-center"
           : "relative w-full max-w-[545px] max-h-[96vh] overflow-hidden bg-white rounded-2xl shadow-2xl"
       }
     >
-      {/* Height comes from WIDTH, not max-h — see the win modal. The renderer
-          slices (covers + crops), so a max-h under aspect-[540/400] cut the
-          arrows down to two tips on a phone instead of scaling them. */}
+      {tour && (
+        <ShareButton
+          variant="pill"
+          onClick={() => {}}
+          className="absolute top-[12px] left-[14px] sm:top-[16px] sm:left-[18px] z-10 bg-white"
+        />
+      )}
+
       <div
-        // Never grows. The renderer covers the box, so a taller box is scaled to
-        // fill its height — which shows *more* of the source canvas, empty
-        // bottom strip included, straight into the gap above "You Lost". Holding
-        // the aspect ratio keeps that strip cropped; the root centres the whole
-        // stack instead, so surplus height goes outside the content, not inside.
         className={m(
           "relative w-[72%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-sm:shrink-0",
           "relative w-[68%] sm:w-[90%] sm:[@media(max-height:920px)]:w-[52%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         )}
       >
-        {/* Out of flow — see the win modal: an in-flow height:100% child can
-            outgrow an aspect-ratio box in Safari and push the card body away. */}
         {animationData && (
           <Lottie
             animationData={animationData}
@@ -96,8 +75,6 @@ export function LoseModalCard({
       </div>
 
       <div
-        // No flex-1 here — the animation above takes the surplus, so the copy
-        // keeps its designed spacing instead of being spread out to fill.
         className={`${m(
           "px-[20px] pb-[20px] max-sm:shrink-0",
           "px-[20px] pb-[20px]"
@@ -123,7 +100,6 @@ export function LoseModalCard({
           </p>
         )}
 
-        {/* ELO pill + loss badge */}
         <div
           className={`flex items-center justify-center gap-[8px] sm:gap-[10px] ${m(
             "mb-[14px]",
@@ -175,8 +151,6 @@ export function LoseModalCard({
               </span>
             </span>
           </div>
-          {/* Always rendered, same as the win modal: a calibrating account's 0
-              is still the modal's statement about the rating. */}
           <motion.span
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -240,9 +214,29 @@ export function PlayVsAiLoseModal({
   onClose,
   onDiscoverMistakes,
 }: PlayVsAiLoseModalProps) {
+  const [sharing, setSharing] = useState(false);
+
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/50 p-4">
+      {sharing && (
+        <ShareImageSheet
+          spec={{
+            kind: "result",
+            result: "lose",
+            elo: newElo,
+            delta,
+            opponentName,
+            opponentElo,
+          }}
+          onClose={() => setSharing(false)}
+        />
+      )}
       <div className="relative w-full max-w-[545px]">
+        <ShareButton
+          variant="pill"
+          onClick={() => setSharing(true)}
+          className="absolute top-[12px] left-[14px] sm:top-[16px] sm:left-[18px] z-10 bg-white"
+        />
         <button
           onClick={onClose}
           className="absolute top-[12px] right-[14px] sm:top-[16px] sm:right-[18px] z-10 text-[#111827] hover:text-[#374151]"
