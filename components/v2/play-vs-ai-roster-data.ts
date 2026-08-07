@@ -1,6 +1,3 @@
-// Flattened copy of the AI opponent roster defined in components/modal/StartPlayVSAI.tsx.
-// Duplicated (not imported) deliberately -- StartPlayVSAI.tsx is a large, unaudited modal
-// and this feature must not risk changing its behavior.
 
 export interface AiRosterOpponent {
   id: number;
@@ -109,12 +106,10 @@ export const AI_OPPONENT_ROSTER: AiRosterOpponent[] = [...RAW_ROSTER].sort(
   (a, b) => a.elo - b.elo
 );
 
-/** Strips a trailing "(AI)" marker from an opponent username, for display only. */
 export function stripAiSuffix(username: string): string {
   return username.replace(/\s*\(AI\)\s*$/i, "").trim();
 }
 
-/** Finds the roster entry (with the original bot image) matching an API username like "Sofia (AI)". */
 export function findRosterOpponentByName(username: string): AiRosterOpponent | undefined {
   const clean = stripAiSuffix(username).toLowerCase();
   return AI_OPPONENT_ROSTER.find((o) => o.name.toLowerCase() === clean);
@@ -131,12 +126,6 @@ function findTierForElo(elo: number): DifficultyTier {
   });
 }
 
-/**
- * Picks up to 4 recommended AI opponents relative to the user's current ELO:
- * 1 nearest below, 1 from the user's own difficulty tier, and 2 nearest above.
- * Mirrors the slot structure of the backend's real /recommended-opponents
- * algorithm, applied to this static bot roster instead of a DB query of users.
- */
 export function pickRecommendedOpponents(userElo: number): AiRosterOpponent[] {
   const picked: AiRosterOpponent[] = [];
   const usedIds = new Set<number>();
@@ -165,9 +154,6 @@ export function pickRecommendedOpponents(userElo: number): AiRosterOpponent[] {
   take(above[0]);
   take(above[1]);
 
-  // Backfill to a full row of 4 so the modal never shows a short list at the
-  // ladder extremes (e.g. bottom ELO has no "below" opponent, top ELO has no
-  // "above"). Pull the remaining nearest opponents by ELO distance.
   if (picked.length < 4) {
     const nearest = AI_OPPONENT_ROSTER.filter((o) => !usedIds.has(o.id)).sort(
       (a, b) => Math.abs(a.elo - userElo) - Math.abs(b.elo - userElo)

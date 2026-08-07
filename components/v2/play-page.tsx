@@ -15,10 +15,6 @@ import { useApiClient } from "@/functions/api-client";
 
 export function PlayPage() {
   const { sessionId } = useProfileStore();
-  // Same preview convention as the leaderboard page: append ?previewModal=join
-  // (uncalibrated) or ?previewModal=inactive (frozen) to force the top-bar
-  // states without touching the account. Render-time override only — the real
-  // API data is still fetched and left untouched.
   const previewModal = useSearchParams().get("previewModal");
   const { getStreakStatus, getLeaderboardData, getLeaderboardMe } = useApiClient();
   const {
@@ -31,8 +27,6 @@ export function PlayPage() {
   useEffect(() => {
     if (!sessionId) return;
 
-    // Shared once-per-page-load refresh (also syncs the streak store's status,
-    // so the badge click can detect a just-broken streak).
     refreshStreakStatus(sessionId, getStreakStatus).then((data: any) => {
       if (data?.success) setStreak(data.data?.currentStreak ?? 0);
     });

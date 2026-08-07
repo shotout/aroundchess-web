@@ -69,8 +69,6 @@ export function DayStreakModal({
           <span className="font-bold">10 Free Analysis Tokens</span>.
         </>
       ) : staticFlame === "off" ? (
-        // Streak running, but today's game isn't in yet (unlit flame) — the
-        // count only holds if they play today, so the nudge says so.
         <>
           Keep it up! Play Today - only {daysLeft} more days
           <br />
@@ -90,8 +88,6 @@ export function DayStreakModal({
         for <span className="font-bold">Free Analyses</span>.
       </>
     ) : null;
-  // Static login-style shows: nudge to play while the flame is still off;
-  // once today's game is in ("on") — or right after a celebration — just close.
   const cta =
     variant === "celebration" && !staticFlame
       ? "Close"
@@ -110,8 +106,6 @@ export function DayStreakModal({
           <X className="w-6 h-6" />
         </button>
 
-        {/* The close button gets its own row above the chips (design) — with
-            less top padding the last chip sits under it and swallows it. */}
         <div className="px-[16px] sm:px-[20px] pt-[46px] sm:pt-[40px] relative z-10">
           <DayStreakChips
             streak={streak}

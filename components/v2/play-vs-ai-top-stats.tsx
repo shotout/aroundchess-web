@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { formatNumber } from "@/components/v2/format-number";
+import { ShareRankButton } from "@/components/v2/share-rank-button";
 
 interface PlayVsAiTopStatsProps {
   elo: number;
@@ -12,8 +13,6 @@ interface PlayVsAiTopStatsProps {
 
 function toOrdinal(n: number): string {
   if (n <= 0) return "—";
-  // Product rule: only the top three ranks get st/nd/rd — every other rank
-  // is plain "th" (4th, 21th, 10002th), per design.
   const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
   return formatNumber(n) + suffix;
 }
@@ -40,7 +39,6 @@ function StatItem({
         height={32}
         className="w-[30px] h-[30px] sm:w-[32px] sm:h-[32px] object-contain shrink-0"
       />
-      {/* Mobile: label on top, value underneath. Desktop: everything on one line. */}
       <span className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-[8px] min-w-0 leading-tight">
         <span className="flex items-center gap-[3px] sm:gap-[4px]">
           <span className="text-[11px] sm:text-[13px] text-[#6B7280] whitespace-nowrap">{label}</span>
@@ -59,7 +57,7 @@ export function PlayVsAiTopStats({ elo, rank, movedUp }: PlayVsAiTopStatsProps) 
   const movedLabel = isDown ? "Moved Down" : "Moved Up";
 
   return (
-    <div className="bg-white/70 rounded-xl border border-[#E5E7EB] shadow-sm px-[10px] sm:px-[28px] py-[10px] sm:py-[14px] flex items-center justify-between sm:justify-center gap-[6px] sm:gap-[60px] lg:gap-[250px]">
+    <div className="bg-white/70 rounded-xl border border-[#E5E7EB] shadow-sm px-[10px] sm:px-[28px] py-[10px] sm:py-[14px] flex items-center justify-between sm:justify-center gap-[6px] sm:gap-[clamp(24px,5vw,140px)]">
       <StatItem
         icon="/images/v2/leaderboard/your_elo.png"
         label="Your ELO"
@@ -99,6 +97,10 @@ export function PlayVsAiTopStats({ elo, rank, movedUp }: PlayVsAiTopStatsProps) 
           <span className="text-[14px] sm:text-[20px] font-bold text-[#9CA3AF]">—</span>
         )}
       </StatItem>
+
+      <div className="hidden sm:block">
+        <ShareRankButton />
+      </div>
     </div>
   );
 }

@@ -49,10 +49,6 @@ const KnightIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
-/**
- * Revamped "My Account" section for the /profile page (avatar header, account
- * fields and the Chess.com linked info / connect banner).
- */
 const ProfileAccountCard = ({
   onLogoutStart,
   onConnectClicked,
@@ -92,18 +88,9 @@ const ProfileAccountCard = ({
   } = usePlayerStatsStore();
 
   const isEmailProvider = providerType === "email";
-  // The backend flag decides, nothing else — see useChessComConnected for why the
-  // old `|| Boolean(username)` fallback made this true for every signed-in user.
   const isConnected = useChessComConnected();
-  // Once the Chess.com account is actually linked, the sync game type is fixed
-  // and can no longer be changed.
   const chesscomLocked = isConnected;
 
-  // The linked Chess.com handle, from /profile — deliberately NOT the pgn store's
-  // `username`. That one holds the *AroundChess* account name (useProfileFetch
-  // sets it from /profile.username), which is why the linked-account field used
-  // to echo the Username input directly above it. No fallback to `username`: an
-  // empty field is honest, showing the wrong handle is not.
   const chesscomUsername =
     profile?.chesscomUsername ?? profile?.chesscom_username ?? "";
 
@@ -149,7 +136,6 @@ const ProfileAccountCard = ({
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Debounced availability check while the user types a desired username
   useEffect(() => {
     const desired = (form.defaultUsername ?? "").trim();
     if (!desired || desired === (username ?? "")) {
@@ -198,9 +184,6 @@ const ProfileAccountCard = ({
     }
   };
 
-  // Opens the in-page flow (modal -> OTP page -> modal) instead of sending the
-  // user off to /forgot-password. reset() first so an abandoned run can't drop
-  // them straight onto the "new password" step with a stale token.
   const handleChangePassword = () => {
     resetChangePassword();
     setChangePasswordStep("email");
@@ -269,8 +252,6 @@ const ProfileAccountCard = ({
       .then(() => {})
       .finally(() => {
         clearAll();
-        // Training-plan data is cached per account in localStorage; leaving it
-        // behind serves this user's progress to whoever logs in next.
         CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
@@ -287,7 +268,6 @@ const ProfileAccountCard = ({
   };
 
   const displayName = profile?.username || username || "";
-  // Seeds the pawn fallback's "random" background so it stays stable per user
   const avatarSeed = displayName || profile?.email || "user";
   const selectedGameData = gameTypesData.find(
     (game) => game.game_type === selectedGameType
@@ -295,12 +275,10 @@ const ProfileAccountCard = ({
 
   return (
     <div className={`flex flex-col gap-4`}>
-      {/* Section title — desktop only, per mobile mockup */}
       <div className="hidden md:flex flex-row items-center justify-between border-0 border-b-2 border-b-[#C0CED4] pb-1">
         <span className="text-[18px] font-semibold">My Account</span>
       </div>
 
-      {/* Avatar header — desktop */}
       <div className="hidden md:flex flex-row items-center justify-between gap-4 border-0 border-b border-b-[#E2E8F0] pb-4">
         <div className="flex flex-row items-center gap-4">
           <ProfileAvatarUpload
@@ -340,7 +318,6 @@ const ProfileAccountCard = ({
         </button>
       </div>
 
-      {/* Avatar header — mobile: compact identity row + centered upload avatar */}
       <div className="flex md:hidden flex-col gap-4 border-0 border-b border-b-[#E2E8F0] pb-4">
         <div className="flex flex-row items-center justify-between gap-3">
           <div className="flex flex-row items-center gap-3 min-w-0">
@@ -402,7 +379,6 @@ const ProfileAccountCard = ({
         </div>
       </div>
 
-      {/* Account fields */}
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] items-start gap-3">
         <div className="space-y-2 w-full">
           <label
@@ -459,7 +435,6 @@ const ProfileAccountCard = ({
             )}
           </div>
 
-          {/* Availability status — below the field per design */}
           {usernameStatus === "available" && (
             <span className="flex items-center gap-1 text-[12px] font-medium text-[#1B8354]">
               <Image
@@ -537,11 +512,6 @@ const ProfileAccountCard = ({
 
           <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
             <div className="w-full">
-              {/* Disabled rather than readOnly: a readOnly input still takes
-                  focus, so it drew a focus ring and read as editable even
-                  though the linked chess.com name can't be changed here.
-                  No disabled:opacity-100 override — the base disabled:opacity-50
-                  mutes it exactly like the locked game-type select beside it. */}
               <Input
                 disabled
                 id="chesscom-username"

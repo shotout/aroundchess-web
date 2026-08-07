@@ -13,12 +13,12 @@ import {
   AiRosterOpponent,
   pickRecommendedOpponents,
 } from "@/components/v2/play-vs-ai-roster-data";
+import { ShareButton } from "@/components/v2/share-button";
+import { ShareImageSheet } from "@/components/v2/share-image-sheet";
 
 const ODOMETER_DELAY = 0.6;
 const ODOMETER_DURATION = 1.8;
 
-// Compressed copy of WON.json (embedded frames downscaled + recompressed,
-// 64MB -> 1.2MB) so it loads fast enough to play the moment the modal opens.
 export const WIN_LOTTIE = "/images/v2/play-vs-ai/WON.min.json";
 
 interface WinModalCardProps {
@@ -28,23 +28,10 @@ interface WinModalCardProps {
   opponentName?: string;
   opponentElo?: number;
   onStartGame?: (opponent: AiRosterOpponent) => void;
-  /**
-   * "modal" (default) is the real in-game screen. "tour" renders the exact
-   * same card inert for the playground tutorial: no interactivity, no 96vh
-   * cap (the tour sizes the room it gets), and a wider animation on mobile.
-   */
   variant?: "modal" | "tour";
-  /**
-   * Fires once the celebration Lottie has played out (it doesn't loop). The
-   * playground tour holds its tooltip back until then so the animation isn't
-   * competing with the copy for attention. Never fires if the animation JSON
-   * fails to load, so callers that gate UI on it need their own fallback.
-   */
   onAnimationComplete?: () => void;
 }
 
-// Shared visual body of the "You Won" screen. The real modal wraps this in a
-// full-screen overlay + close button; the playground tour renders it inline.
 export function WinModalCard({
   oldElo,
   newElo,
@@ -58,20 +45,8 @@ export function WinModalCard({
   const tour = variant === "tour";
   const animationData = useLottieData(WIN_LOTTIE);
 
-  // The tour used to render this a step below the modal's mobile sizing, on the
-  // grounds that it only had whatever slot its tooltip left. It now fills from
-  // under the tooltip to the bottom of the screen, and at the smaller sizing the
-  // content floated in the middle of that with white at both ends — so both
-  // modes run the modal's mobile values, and the tour only departs on the
-  // animation, which is wider here to take up the remaining height.
-  // Desktop (sm:) is identical for both, as before.
   const m = (tourCls: string, modalCls: string) => (tour ? tourCls : modalCls);
 
-  // While an account is still calibrating there is no rated ELO yet, so both
-  // props are 0 and the picks fell through to the fixed beginner spread
-  // (250/400/500/600) — even for someone onboarding said was advanced. Rate them
-  // by the same rule the rest of the app uses: leaderboard ELO, else the
-  // onboarding ELO, else the shared 1200 default.
   const effectiveElo = useEffectiveElo();
   const opponents = useMemo(
     () => pickRecommendedOpponents(newElo || oldElo || effectiveElo || 1200),
@@ -89,42 +64,26 @@ export function WinModalCard({
 
   return (
     <div
-      // max-sm: flex column + justify-center. Only the mobile tour stretches this
-      // card (cardFill is mobile-only), and centring is what puts the surplus
-      // outside the content rather than under the last button. Prefixed rather
-      // than bare so the desktop tour keeps the plain block layout it has always
-      // had — it has no surplus to distribute, and this shouldn't be the reason
-      // it starts behaving like a flex container.
       className={
         tour
           ? "relative w-full max-w-[545px] overflow-hidden bg-white rounded-2xl shadow-2xl select-none pointer-events-none max-sm:flex max-sm:flex-col max-sm:justify-center"
           : "relative w-full max-w-[545px] max-h-[96vh] overflow-hidden bg-white rounded-2xl shadow-2xl"
       }
     >
-      {/* Celebration animation — the square Lottie is top-anchored so only
-          the canvas' empty bottom strip gets cropped. It's the card's elastic
-          part: narrowed on mobile and shrunk on short desktop viewports so the
-          card always fits the room it has (96vh for the modal, whatever the
-          tour tooltip leaves) at full width, instead of the card scaling down
-          and ending up narrower than the tooltip above it.
+      {tour && (
+        <ShareButton
+          variant="pill"
+          onClick={() => {}}
+          className="absolute top-[12px] left-[14px] sm:top-[16px] sm:left-[18px] z-10 bg-white"
+        />
+      )}
 
-          Height is bought with WIDTH, never with max-h. The renderer is set to
-          "slice", so it covers the box and crops whatever doesn't fit: a max-h
-          that undercuts aspect-[540/400] doesn't scale the art down, it cuts it
-          off. A 26vh cap on a phone took a third of the animation with it —
-          the lose card's arrows were reduced to two tips. A narrower box hits
-          the same height while staying exactly on-ratio, so nothing is cropped
-          beyond the empty bottom strip the ratio itself trims. */}
       <div
         className={m(
           "relative w-[72%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-sm:shrink-0",
           "relative w-[68%] sm:w-[74%] sm:[@media(max-height:920px)]:w-[46%] mx-auto aspect-[540/400] max-h-[26vh] sm:max-h-none"
         )}
       >
-        {/* Absolute, not in flow: Safari lets an in-flow child with height:100%
-            outgrow an aspect-ratio box, and the Lottie's own SVG then stretched
-            this one until it pushed the whole card body off screen. Out of flow
-            it can only ever fill the height the aspect ratio (or max-h) gives. */}
         {animationData && (
           <Lottie
             animationData={animationData}
@@ -162,7 +121,6 @@ export function WinModalCard({
           </p>
         )}
 
-        {/* ELO pill + gain badge */}
         <div
           className={`flex items-center justify-center gap-[8px] sm:gap-[10px] ${m(
             "mb-[14px]",
@@ -214,9 +172,6 @@ export function WinModalCard({
               </span>
             </span>
           </div>
-          {/* Always rendered, including the 0 an account that is still
-              calibrating gets: the badge is the modal's statement about the
-              rating, so hiding it read as "this win did nothing". */}
           <motion.span
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -247,7 +202,6 @@ export function WinModalCard({
           Ready to face more challenging opponents?
         </p>
 
-        {/* Challenge next opponents */}
         <div
           className={`rounded-[14px] border border-[#7CC0F2] ${m(
             "p-[8px] mb-[10px]",
@@ -349,9 +303,29 @@ export function PlayVsAiWinModal({
   onClose,
   onStartGame,
 }: PlayVsAiWinModalProps) {
+  const [sharing, setSharing] = useState(false);
+
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/50 p-4">
+      {sharing && (
+        <ShareImageSheet
+          spec={{
+            kind: "result",
+            result: "win",
+            elo: newElo,
+            delta,
+            opponentName,
+            opponentElo,
+          }}
+          onClose={() => setSharing(false)}
+        />
+      )}
       <div className="relative w-full max-w-[545px]">
+        <ShareButton
+          variant="pill"
+          onClick={() => setSharing(true)}
+          className="absolute top-[12px] left-[14px] sm:top-[16px] sm:left-[18px] z-10 bg-white"
+        />
         <button
           onClick={onClose}
           className="absolute top-[12px] right-[14px] sm:top-[16px] sm:right-[18px] z-10 text-[#111827] hover:text-[#374151]"

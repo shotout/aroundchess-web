@@ -55,6 +55,8 @@ import { ButtonBoard } from "./ButtonBoard";
 import { ButtonFinish } from "./ButtonFinish";
 import { ButtonPlaying } from "./ButtonPlaying";
 import { PlayVsAiConfirmModal } from "@/components/v2/play-vs-ai-confirm-modal";
+import { PlayVsAiLeaveGuardModal } from "@/components/v2/play-vs-ai-leave-guard-modal";
+import { useGameLeaveGuard } from "@/app/store/gameLeaveGuard";
 import { PlayVsAiWinModal, WIN_LOTTIE } from "@/components/v2/play-vs-ai-win-modal";
 import { PlayVsAiLoseModal, LOSE_LOTTIE } from "@/components/v2/play-vs-ai-lose-modal";
 import { PlayVsAiDrawModal, DRAW_LOTTIE } from "@/components/v2/play-vs-ai-draw-modal";
@@ -355,17 +357,33 @@ export default function PlayingPage() {
   const { isTutorialPlay, stepFocused } = useTutorial();
   const router = useRouter();
   const pathname = usePathname();
+  /** Confirmation gate in front of everything that ends the live game: resign,
+   *  restart / New Game, the back arrows, and the top bar's Leaderboard link
+   *  (which lives outside this component, hence the store). */
+  const {
+    pending: leaveGuard,
+    request: requestLeave,
+    open: openLeaveGuard,
+    setArmed: setLeaveGuardArmed,
+    confirm: confirmLeaveGuard,
+    dismiss: dismissLeaveGuard,
+  } = useGameLeaveGuard();
   /** Mobile board back arrow. This page is reached from more than just the Play
    *  VS AI lobby — e.g. "Play against this Opponent" on the opponent stats page
    *  — so return to wherever the user actually came from, and only fall back to
    *  the lobby when there is no history (deep link, fresh tab). */
   const handleMobileBack = useCallback(() => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
-    router.push("/playground/play-vs-ai");
-  }, [router]);
+    requestLeave("leave", () => {
+      if (typeof window !== "undefined" && window.history.length > 1) {
+        router.back();
+        return;
+      }
+      router.push("/playground/play-vs-ai");
+    });
+  }, [router, requestLeave]);
+  const handleBackToLobby = useCallback(() => {
+    requestLeave("leave", () => router.push("/playground/play-vs-ai"));
+  }, [router, requestLeave]);
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
   const { isMember, isMemberMonthly, token } = useProfileStore();
@@ -546,6 +564,14 @@ export default function PlayingPage() {
 
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
+  /**
+   * Whether the game is actually under way — the condition the "you will lose
+   * all progress" gates and the hint warning share with the Undo button, which
+   * reads the same history inline. Read on every render rather than memoised:
+   * `game` is mutated in place, so any cache key would only be a proxy for it.
+   * A restored game comes back through loadPgn, so its history is populated too.
+   */
+  const hasMoved = game.history().length > 0;
   const containerRef = useRef<HTMLDivElement>(null);
   const movementDetailsRef = useRef<HTMLDivElement>(null);
   const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
@@ -689,6 +715,10 @@ export default function PlayingPage() {
     if (
       hintClicked ||
       isTutorialPlay ||
+      // Deliberately not gated on hasMoved, unlike Resign and the leave gates:
+      // a hint is available from the opening position, and taking one forfeits
+      // the game's ELO whether or not a move has been played. The only way past
+      // this is the player's own "don't show again".
       localStorage.getItem(confirmSkipKey("hint")) === "true"
     ) {
       handleHint();
@@ -720,7 +750,7 @@ export default function PlayingPage() {
   };
 
   const handleReset = () => {
-    handleRematch();
+    requestLeave("restart", handleRematch);
   };
 
   const LOCAL_STORAGE_KEY = "vs-ai-current-game";
@@ -772,6 +802,21 @@ export default function PlayingPage() {
     clearOldJobs();
     restorePollingJobs();
   }, [clearOldJobs, restorePollingJobs]);
+
+  // Arm the leave guard once a live game has moves on the board, so both this
+  // page's buttons and the top bar's Leaderboard link confirm before ending it.
+  // Until the first move there is no progress to lose, so restart / Leaderboard
+  // / back go straight through — the gates would be warning about nothing.
+  // The tutorial drives the board itself and must never be interrupted.
+  useEffect(() => {
+    setLeaveGuardArmed(statusGame === "Ongoing" && !isTutorialPlay && hasMoved);
+    // Drop any open gate as well: the game it was asking about has either
+    // finished under it or this page is going away.
+    return () => {
+      setLeaveGuardArmed(false);
+      dismissLeaveGuard();
+    };
+  }, [statusGame, isTutorialPlay, hasMoved, setLeaveGuardArmed, dismissLeaveGuard]);
 
   // Check if analysis exists for this game
   useEffect(() => {
@@ -1847,6 +1892,12 @@ export default function PlayingPage() {
     setLoserColor(losserColorLocal);
   };
 
+  const requestResign = () => {
+    // Not requestLeave: resigning isn't about losing progress, it takes the loss
+    // and the ELO with it, which is just as true on move zero. Always confirm.
+    openLeaveGuard("resign", handleResign);
+  };
+
   const handleAnalyzeGame = () => {
     if (!isMember && !isMemberMonthly && token.balance <= 0) {
       setOpenPricing(true);
@@ -1929,6 +1980,12 @@ export default function PlayingPage() {
     
     // Open dialog for new game selection
     setShowPlayVSAIModal(true);
+  };
+
+  // Only gated while a game is live; once it has finished the guard is disarmed
+  // and this runs straight through (the ButtonFinish path).
+  const requestNewGame = () => {
+    requestLeave("restart", handleNewGame);
   };
 
   const handleClosePlayVSAI = () => {
@@ -2834,6 +2891,13 @@ export default function PlayingPage() {
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white gap-4">
       {!isTutorialPlay && <GameEndStatus gameStatus={statusGame.toLowerCase()} />}
+      {leaveGuard && (
+        <PlayVsAiLeaveGuardModal
+          type={leaveGuard.type}
+          onCancel={dismissLeaveGuard}
+          onConfirm={confirmLeaveGuard}
+        />
+      )}
       {confirmAction && (
         <PlayVsAiConfirmModal
           type={confirmAction}
@@ -2967,7 +3031,7 @@ export default function PlayingPage() {
       <div className="flex flex-col w-full gap-y-2 ">
         {/* <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none"> */}
         <div className="hidden flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none">
-          <button onClick={() => router.push("/playground/play-vs-ai")}>
+          <button onClick={handleBackToLobby}>
             <ArrowLeft color="black" size={24} />
           </button>
 
@@ -3204,7 +3268,7 @@ export default function PlayingPage() {
                 <ButtonFinish
                   pgn={game.pgn()}
                   handleAnalyzeGame={handleAnalyzeGame}
-                  handleNewGame={handleNewGame}
+                  handleNewGame={requestNewGame}
                   handleRematch={handleRematch}
                   handleShare={handleShare}
                   handleDownload={handleDownload}
@@ -3298,8 +3362,9 @@ export default function PlayingPage() {
             {statusGame === "Ongoing" ? (
               <ButtonPlaying
                 handleHint={requestHint}
-                handleNewGame={handleNewGame}
-                handleResign={handleResign}
+                handleNewGame={requestNewGame}
+                handleResign={requestResign}
+                canResign={hasMoved}
                 myColor={myColor}
                 currentTurn={currentTurn}
                 bestLine={bestLine}
@@ -3309,7 +3374,7 @@ export default function PlayingPage() {
               <ButtonFinish
                 pgn={game.pgn()}
                 handleAnalyzeGame={handleAnalyzeGame}
-                handleNewGame={handleNewGame}
+                handleNewGame={requestNewGame}
                 handleRematch={handleRematch}
                 handleShare={handleShare}
                 handleDownload={handleDownload}
@@ -3459,7 +3524,7 @@ export default function PlayingPage() {
 
       <div className="hidden sm:block w-full">
         <div className="flex justify-start gap-[14px] mb-[16px] min-h-54px rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
-          <button onClick={() => router.push("/playground/play-vs-ai")}>
+          <button onClick={handleBackToLobby}>
             <ArrowLeft color="black" size={24} />
           </button>
 
@@ -3602,8 +3667,9 @@ export default function PlayingPage() {
                 {statusGame === "Ongoing" && !isTutorialPlay ? (
                   <ButtonPlaying
                     handleHint={requestHint}
-                    handleNewGame={handleNewGame}
-                    handleResign={handleResign}
+                    handleNewGame={requestNewGame}
+                    handleResign={requestResign}
+                    canResign={hasMoved}
                     myColor={myColor}
                     currentTurn={currentTurn}
                     bestLine={bestLine}
@@ -3613,7 +3679,7 @@ export default function PlayingPage() {
                   <ButtonFinish
                     pgn={game.pgn()}
                     handleAnalyzeGame={handleAnalyzeGame}
-                    handleNewGame={handleNewGame}
+                    handleNewGame={requestNewGame}
                     handleRematch={handleRematch}
                     handleShare={handleShare}
                     handleDownload={handleDownload}

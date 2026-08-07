@@ -15,16 +15,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 
-// Fixed token packages shown in the purchase grid (in display order), matching
-// the approved design. Prices/ids are resolved from the live token data.
 const FEATURED_QUANTITIES = [1, 5, 10, 25, 50, 100];
 
-/**
- * The paywall body: the two tabs plus their contents. Shared by the desktop
- * dialog (PricingOffer) and the mobile /premium page, so both stay in sync.
- * The heading above the tabs belongs to the caller — the dialog needs Radix's
- * DialogTitle for a11y, while the page gets its title from the app header.
- */
 export const PaywallContent: React.FC<{
   source?: "pricing_dialog" | "user_settings";
 }> = ({ source = "pricing_dialog" }) => {
@@ -49,8 +41,6 @@ export const PaywallContent: React.FC<{
     setQuantity,
   } = useStatusPurchaseTokens();
 
-  // Resolve the featured packages from live data (falling back to the local
-  // package list), keeping the fixed 1/5/10/25/50/100 display order.
   const featuredTokens = useMemo(() => {
     const source =
       Array.isArray(tokenData) && tokenData.length > 0
@@ -68,7 +58,6 @@ export const PaywallContent: React.FC<{
     const response = await resTokenPackage.json();
     setTokenPackage(response);
 
-    // Fallback: if API data is missing, derive display packages from local data.
     const featuredPackages = Array.isArray(response)
       ? response.filter((pkg: any) => FEATURED_QUANTITIES.includes(pkg.quantity))
       : [];
@@ -95,14 +84,10 @@ export const PaywallContent: React.FC<{
       .catch(() => {
         fetchTokenPackageLocal();
       });
-    // Also load local data as a fallback source for pricing
     fetchTokenPackageLocal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The store seeds tabType with "analyses", which matches neither tab — adopt
-  // it only when a call site has set a real tab, otherwise keep the default.
-  // Without this a direct visit to the paywall route renders no tab content.
   useEffect(() => {
     if (tabType === "tokens" || tabType === "subscription") setActiveTab(tabType);
   }, [tabType]);
@@ -147,13 +132,8 @@ export const PaywallContent: React.FC<{
     }
   };
 
-  // min-w-0: inside the dialog the parent is a grid, whose items default to
-  // min-width:auto and would size the column to max-content — that stops inner
-  // overflow-x containers (the feature tiles row) from ever scrolling.
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0">
-      {/* Mobile (max-sm) is a flat, full-bleed underline tab bar per the mockup;
-          sm+ keeps the boxed pill list. */}
       <TabsList className="flex h-[62px] md:min-w-[326px] lg:w-full sm:h-[52px] border border-[#C0CED4] rounded-[12px] p-[8px] bg-[#F2FBFE] max-sm:h-[48px] max-sm:p-0 max-sm:-mx-4 max-sm:bg-transparent max-sm:rounded-none max-sm:border-0 max-sm:border-b">
         <TabsTrigger
           value="tokens"
@@ -219,8 +199,6 @@ export const PaywallContent: React.FC<{
             </span>
           </div>
 
-          {/* The mockup insets the card grid and the CTA well inside the modal,
-              further than the tab bar above them. */}
           <div className="sm:px-[32px] xl:px-[80px] flex flex-col gap-[16px]">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
             {featuredTokens.map((option: any, index: number) => {
@@ -240,7 +218,6 @@ export const PaywallContent: React.FC<{
                     backgroundPosition: "center",
                   }}
                 >
-                  {/* radio */}
                   <span className="absolute top-3 right-3 z-10">
                     <span
                       className={`flex w-[18px] h-[18px] rounded-full items-center justify-center ${
@@ -291,7 +268,6 @@ export const PaywallContent: React.FC<{
           </div>
           </div>
 
-          {/* Legal links — mobile only, per mockup */}
           <div className="flex sm:hidden items-center justify-center gap-[24px] pb-2">
             <Link
               href="/terms-of-service"

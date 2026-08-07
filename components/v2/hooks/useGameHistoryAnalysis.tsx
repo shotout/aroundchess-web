@@ -10,8 +10,6 @@ import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { useProfileStore } from "@/app/store/profile";
 import { createPgnHash } from "@/utils/crypto-utils";
 
-// Mirrors GameCard's analysis flow so the play page's Recent Games buttons run
-// exactly what the history page does — without changing the row layout.
 const endpoint = process.env.BASE_URL;
 
 const fetchLastAnalysis = async (
@@ -34,10 +32,6 @@ const fetchLastAnalysis = async (
   }
 };
 
-/**
- * Encapsulates the game-history analysis flow for a single game. Render the
- * returned `modals` once, and wire any button's onClick to `trigger`.
- */
 export function useGameHistoryAnalysis(game: Game) {
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
   const [autoStartAnalyze, setAutoStartAnalyze] = useState(false);
@@ -56,7 +50,6 @@ export function useGameHistoryAnalysis(game: Game) {
     const job = getJobByGameId(game.id);
 
     if (game.isAnalysis || (job && job.status === "completed")) {
-      // Already analysed — fetch and show the result (mistakes) directly.
       setBusy(true);
       try {
         const pgnHash = createPgnHash(game.pgn);
@@ -98,7 +91,6 @@ export function useGameHistoryAnalysis(game: Game) {
     ) {
       setProcessingAnalysisModeOpen(true);
     } else {
-      // Not analysed yet — start the analysis flow.
       setAutoStartAnalyze(true);
     }
   };

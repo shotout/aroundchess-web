@@ -7,9 +7,7 @@ interface InfoTooltipProps {
   text: ReactNode;
   size?: number;
   align?: "left" | "right" | "center";
-  /** Icon shown for the trigger; defaults to the neutral info glyph. */
   iconSrc?: string;
-  /** Override the bubble width (Tailwind max-w class). */
   maxWidthClass?: string;
 }
 

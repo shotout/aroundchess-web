@@ -50,9 +50,6 @@ export default function ChessKnowledgeOnboarding() {
         body: JSON.stringify({ level: selectedLevel }),
       });
 
-      // The stored profile was fetched at login, before this level existed, so
-      // re-read it now — otherwise profile.onboardElo stays empty and the play
-      // page recommends beginner opponents regardless of what was picked here.
       const profileResponse = await fetch(`${BASE_URL}/profile`, {
         headers: {
           "Content-Type": "application/json",
@@ -67,8 +64,6 @@ export default function ChessKnowledgeOnboarding() {
       console.error("Failed to save chess level:", error);
     } finally {
       sessionStorage.setItem("showAnalyzePopup", "true");
-      // A brand-new account always gets the playground tour — onboarding is
-      // the only thing that queues an auto-run.
       queuePlaygroundTour();
       router.push("/playground/play-vs-ai");
     }
