@@ -21,8 +21,10 @@ import {
  *   send.
  * - `paste` has no composer to prefill, so the caption and link go to the
  *   clipboard together — one paste yields both.
- * - `attach` is for Instagram, which neither unfurls links nor accepts a
- *   prefilled caption: the picture is all that can travel with it.
+ * - `attach` sends the picture itself — as a photo through the phone's share
+ *   sheet, or from the clipboard on a desktop. WhatsApp keeps no caption with
+ *   an attached image and Instagram accepts no prefilled one, so the words are
+ *   left for the user to paste or type.
  */
 type ShareMode = "compose" | "paste" | "attach";
 
@@ -32,9 +34,6 @@ interface Network {
   icon: string;
   mode: ShareMode;
   web: (text: string, url: string) => string;
-  /** Attaching a file costs the message its caption on this network: it takes
-   * the image and throws the words away, so it is only ever given the link. */
-  dropsSharedText?: boolean;
 }
 
 const NETWORKS: Network[] = [
@@ -49,9 +48,10 @@ const NETWORKS: Network[] = [
     id: "whatsapp",
     label: "WhatsApp",
     icon: "/images/v2/play-vs-ai/Icon-whatsapp.png",
-    mode: "compose",
-    web: (text, url) => `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`,
-    dropsSharedText: true,
+    mode: "attach",
+    // The picture is sent as a photo rather than a link, so the caption carries
+    // no URL — the card's own ribbon is what points back to the site.
+    web: (text) => `https://wa.me/?text=${encodeURIComponent(text)}`,
   },
   {
     id: "x",
@@ -101,11 +101,31 @@ async function copyText(value: string): Promise<boolean> {
   }
 }
 
-async function copyImage(blob: Blob): Promise<boolean> {
+/**
+ * Puts the card on the clipboard, with the caption alongside it as a second
+ * flavour: the chat window's paste takes the picture, and a paste into the
+ * caption box that follows takes the words.
+ */
+async function copyImage(blob: Blob, caption?: string): Promise<boolean> {
+  const ClipboardItemCtor = (window as any).ClipboardItem;
+  if (!navigator.clipboard?.write || !ClipboardItemCtor) return false;
+
+  const write = (items: Record<string, Blob>) =>
+    navigator.clipboard.write([new ClipboardItemCtor(items)]);
+
   try {
-    const ClipboardItemCtor = (window as any).ClipboardItem;
-    if (!navigator.clipboard?.write || !ClipboardItemCtor) return false;
-    await navigator.clipboard.write([new ClipboardItemCtor({ "image/png": blob })]);
+    if (caption) {
+      try {
+        await write({
+          "image/png": blob,
+          "text/plain": new Blob([caption], { type: "text/plain" }),
+        });
+        return true;
+      } catch {
+        // Some browsers reject a multi-flavour item; the picture matters most.
+      }
+    }
+    await write({ "image/png": blob });
     return true;
   } catch {
     return false;
@@ -191,12 +211,13 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     // the OpenGraph tags of whatever link they are given. Sharing the card's own
     // page is what carries the picture along with the words.
     const url = shareCardUrl(specRef.current, window.location.origin);
-    const caption = `${text} ${url}`;
+    // A post that carries the picture itself needs no link: the card's ribbon
+    // already names the site, and a second unfurled preview only adds noise.
+    const caption = network.mode === "attach" ? text : `${text} ${url}`;
     const target = network.web(text, url);
 
-    // The OS share sheet is the one route that attaches the real photo, so on a
-    // phone it wins wherever the app keeps the caption with it.
-    const file = network.dropsSharedText ? null : shareableFile(blob, fileName);
+    // The OS share sheet is the one route that attaches the real photo.
+    const file = shareableFile(blob, fileName);
     if (file) {
       try {
         await (navigator as any).share({ files: [file], title, text: caption });
@@ -229,10 +250,10 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
         ? `Message copied — paste it into ${network.label} and the card comes with it.`
         : `Copy this and paste it into ${network.label}: ${caption}`;
     } else {
-      const copied = await copyImage(blob);
+      const copied = await copyImage(blob, caption);
       if (!copied) download(blob, fileName);
       message = copied
-        ? `Image copied — paste it into your ${network.label} post.`
+        ? `Image copied — press Ctrl+V in ${network.label} to send it.`
         : `Image saved — attach it to your ${network.label} post.`;
     }
 
