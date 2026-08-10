@@ -74,6 +74,27 @@ async function copyImage(blob: Blob): Promise<boolean> {
   }
 }
 
+function isMobile(): boolean {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+/**
+ * Hands the PNG to the OS share sheet, which lists the messaging apps the
+ * phone actually has installed and attaches the image for the user. Returns
+ * false when the platform cannot share files, so the caller falls back to the
+ * copy-and-open-a-web-intent flow.
+ */
+function shareableFile(blob: Blob, fileName: string): File | null {
+  if (!isMobile()) return null;
+  try {
+    const file = new File([blob], fileName, { type: "image/png" });
+    const nav = navigator as any;
+    return nav.share && nav.canShare?.({ files: [file] }) ? file : null;
+  } catch {
+    return null;
+  }
+}
+
 interface ShareImageSheetProps {
   spec: ShareCardSpec;
   onClose: () => void;
@@ -115,9 +136,24 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
 
   const shareTo = async (network: Network) => {
     if (!blob) return;
-    const { fileName, text } = meta.current;
+    const { fileName, text, title } = meta.current;
     const url = typeof window !== "undefined" ? window.location.origin : "";
     const target = network.web(text, url);
+
+    const file = shareableFile(blob, fileName);
+    if (file) {
+      try {
+        await (navigator as any).share({
+          files: [file],
+          title,
+          text: `${text} ${url}`,
+        });
+        return;
+      } catch (err) {
+        // The user dismissed the sheet — nothing more to do.
+        if ((err as any)?.name === "AbortError") return;
+      }
+    }
 
     // Reserve the tab synchronously: mobile browsers drop the user gesture once
     // the handler awaits, so opening after the copy/download gets popup-blocked.
