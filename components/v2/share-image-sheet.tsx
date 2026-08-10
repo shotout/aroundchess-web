@@ -117,11 +117,23 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     if (!blob) return;
     const { fileName, text } = meta.current;
     const url = typeof window !== "undefined" ? window.location.origin : "";
+    const target = network.web(text, url);
+
+    // Reserve the tab synchronously: mobile browsers drop the user gesture once
+    // the handler awaits, so opening after the copy/download gets popup-blocked.
+    let tab: Window | null = null;
+    try {
+      tab = window.open("", "_blank");
+      if (tab) tab.opener = null;
+    } catch {
+      tab = null;
+    }
 
     const copied = await copyImage(blob);
     if (!copied) download(blob, fileName);
 
-    window.open(network.web(text, url), "_blank", "noopener,noreferrer");
+    if (tab && !tab.closed) tab.location.href = target;
+    else window.open(target, "_blank", "noopener,noreferrer");
     toast(
       copied
         ? `Image copied — paste it into your ${network.label} post.`

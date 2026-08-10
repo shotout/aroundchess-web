@@ -424,13 +424,114 @@ const LEADERBOARD_CONFETTI = "/images/v2/play-vs-ai/confetti-stars-exported.png"
 const LEADERBOARD_RIBBON_LINE = "Play chess and climb the";
 const LEADERBOARD_RIBBON_LEAD = "leaderboard on ";
 
+/** Share of the card width each edge of the scene keeps. */
+const SCENE_EDGE = 0.5;
+/** Portion of an edge slice faded out so it blends into the centre wash. */
+const SCENE_FEATHER = 0.24;
+
+function drawCover(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  width: number,
+  height: number
+) {
+  const scale = Math.max(width / img.width, height / img.height);
+  const w = img.width * scale;
+  const h = img.height * scale;
+  ctx.drawImage(img, (width - w) / 2, (height - h) / 2, w, h);
+}
+
+/**
+ * The scene is a landscape artwork with its props hugging the left and right
+ * edges, so filling a portrait card with it squashes them. Draw each edge at the
+ * artwork's own aspect ratio instead and feather it into the centre.
+ */
+function drawSceneEdge(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  width: number,
+  height: number,
+  side: "left" | "right"
+) {
+  const scale = height / img.height;
+  const sliceW = Math.min(width * SCENE_EDGE, img.width * scale);
+  const srcW = sliceW / scale;
+  const left = side === "left";
+
+  const off = document.createElement("canvas");
+  off.width = Math.round(sliceW);
+  off.height = Math.round(height);
+  const octx = off.getContext("2d");
+  if (!octx) return;
+  octx.drawImage(
+    img,
+    left ? 0 : img.width - srcW,
+    0,
+    srcW,
+    img.height,
+    0,
+    0,
+    off.width,
+    off.height
+  );
+
+  const fadeW = Math.round(off.width * SCENE_FEATHER);
+  const inner = left ? off.width : 0;
+  const outer = left ? off.width - fadeW : fadeW;
+  const gradient = octx.createLinearGradient(outer, 0, inner, 0);
+  gradient.addColorStop(0, "rgba(0,0,0,0)");
+  gradient.addColorStop(1, "rgba(0,0,0,1)");
+  octx.globalCompositeOperation = "destination-out";
+  octx.fillStyle = gradient;
+  octx.fillRect(left ? off.width - fadeW : 0, 0, fadeW, off.height);
+
+  ctx.drawImage(off, left ? 0 : width - sliceW, 0, sliceW, height);
+}
+
+/** Softens the artwork so the card copy reads over it. */
+const SCENE_BLUR = 3;
+/** White wash laid over the artwork, as in the design. */
+const SCENE_VEIL = 0.3;
+
+function drawScene(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  width: number,
+  height: number
+) {
+  drawCover(ctx, img, width, height);
+  drawSceneEdge(ctx, img, width, height, "left");
+  drawSceneEdge(ctx, img, width, height, "right");
+}
+
 async function drawLeaderboardBackground(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number
 ) {
   const scene = await loadImage(LEADERBOARD_BACKGROUND);
-  if (scene) ctx.drawImage(scene, 0, 0, width, height);
+  if (scene) {
+    const layer = document.createElement("canvas");
+    layer.width = Math.round(width);
+    layer.height = Math.round(height);
+    const lctx = layer.getContext("2d");
+    if (lctx) {
+      drawScene(lctx, scene, layer.width, layer.height);
+      ctx.save();
+      ctx.filter = `blur(${SCENE_BLUR}px)`;
+      // Overdraw so the blur samples past the card instead of fading its edges.
+      const bleed = SCENE_BLUR * 3;
+      ctx.drawImage(layer, -bleed, -bleed, width + bleed * 2, height + bleed * 2);
+      ctx.restore();
+    } else {
+      drawScene(ctx, scene, width, height);
+    }
+
+    ctx.save();
+    ctx.fillStyle = `rgba(255, 255, 255, ${SCENE_VEIL})`;
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
+  }
   const confetti = await loadImage(LEADERBOARD_CONFETTI);
   if (confetti) {
     ctx.drawImage(

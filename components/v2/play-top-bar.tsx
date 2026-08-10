@@ -91,7 +91,7 @@ function MobileStatItem({
   );
 }
 
-function StatsCover({ gamesRemaining }: { gamesRemaining?: number }) {
+export function StatsCover({ gamesRemaining }: { gamesRemaining?: number }) {
   const text =
     gamesRemaining && gamesRemaining > 0
       ? `${gamesRemaining} more ${gamesRemaining === 1 ? "game" : "games"} to join the Leaderboard.`
@@ -284,7 +284,6 @@ export function LeaderboardStatsCardMobile({
             </span>
             <span className="text-[#221AE9] text-xl leading-none shrink-0">›</span>
           </Link>
-          <ShareRankButton className="shrink-0" />
         </div>
 
         <div
@@ -330,6 +329,10 @@ export function LeaderboardStatsCardMobile({
                 <span className="text-[20px] font-bold text-[#9CA3AF]">—</span>
               )}
             </MobileStatItem>
+          </div>
+
+          <div className="mt-[10px] flex justify-center">
+            <ShareRankButton />
           </div>
 
           {showJoinCover && leaderboardNote && (

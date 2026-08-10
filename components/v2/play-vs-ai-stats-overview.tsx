@@ -22,10 +22,14 @@ interface PlayVsAiStatsOverviewProps {
 }
 
 export function PlayVsAiStatsOverview({ opponentsPlayedState }: PlayVsAiStatsOverviewProps) {
-  const { leaderboard } = usePlayPageStore();
+  const { leaderboard, leaderboardMe } = usePlayPageStore();
   const myElo = leaderboard?.my_elo ?? 0;
   const effectiveElo = useEffectiveElo();
   const myRank = leaderboard?.my_rank ?? 0;
+
+  const isInactive =
+    leaderboardMe?.can_join === false && leaderboardMe?.is_inactive === true;
+  const gamesRemaining = leaderboardMe?.games_remaining;
 
   return (
     <div className="flex flex-col gap-[16px]">
@@ -42,10 +46,19 @@ export function PlayVsAiStatsOverview({ opponentsPlayedState }: PlayVsAiStatsOve
         elo={myElo}
         rank={myRank}
         movedUp={leaderboard?.moved_up ?? null}
+        canJoin={leaderboardMe?.can_join}
+        gamesRemaining={gamesRemaining}
+        isInactive={isInactive}
       />
 
       <div className="hidden sm:block">
-        <PlayVsAiTopStats elo={myElo} rank={myRank} movedUp={leaderboard?.moved_up ?? null} />
+        <PlayVsAiTopStats
+          elo={myElo}
+          rank={myRank}
+          movedUp={leaderboard?.moved_up ?? null}
+          gamesRemaining={gamesRemaining}
+          isInactive={isInactive}
+        />
       </div>
 
       <PlayVsAiOpponentsPlayedList {...opponentsPlayedState} />

@@ -4,11 +4,14 @@ import Image from "next/image";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { formatNumber } from "@/components/v2/format-number";
 import { ShareRankButton } from "@/components/v2/share-rank-button";
+import { StatsCover } from "@/components/v2/play-top-bar";
 
 interface PlayVsAiTopStatsProps {
   elo: number;
   rank: number;
   movedUp: number | null;
+  gamesRemaining?: number;
+  isInactive?: boolean;
 }
 
 function toOrdinal(n: number): string {
@@ -50,14 +53,26 @@ function StatItem({
   );
 }
 
-export function PlayVsAiTopStats({ elo, rank, movedUp }: PlayVsAiTopStatsProps) {
+export function PlayVsAiTopStats({
+  elo,
+  rank,
+  movedUp,
+  gamesRemaining,
+  isInactive,
+}: PlayVsAiTopStatsProps) {
   const isUp = movedUp !== null && movedUp > 0;
   const isDown = movedUp !== null && movedUp < 0;
   const movedUpAbs = movedUp !== null ? Math.abs(movedUp) : 0;
   const movedLabel = isDown ? "Moved Down" : "Moved Up";
+  const showFreezeCover = isInactive === true;
 
   return (
-    <div className="bg-white/70 rounded-xl border border-[#E5E7EB] shadow-sm px-[10px] sm:px-[28px] py-[10px] sm:py-[14px] flex items-center justify-between sm:justify-center gap-[6px] sm:gap-[clamp(24px,5vw,140px)]">
+    <div
+      className={`relative bg-white/70 rounded-xl border border-[#E5E7EB] shadow-sm px-[10px] sm:px-[28px] py-[10px] sm:py-[14px] flex items-center justify-between sm:justify-center gap-[6px] sm:gap-[clamp(24px,5vw,140px)] ${
+        showFreezeCover ? "pb-[28px] sm:pb-[32px]" : ""
+      }`}
+    >
+      {showFreezeCover && <StatsCover gamesRemaining={gamesRemaining} />}
       <StatItem
         icon="/images/v2/leaderboard/your_elo.png"
         label="Your ELO"
