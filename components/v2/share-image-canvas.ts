@@ -1,6 +1,20 @@
 "use client";
 
 import { formatEloDelta, formatNumber } from "@/components/v2/format-number";
+import {
+  ordinalSuffix,
+  type GameResult,
+  type LeaderboardShareSpec,
+  type ResultShareSpec,
+  type ShareCardSpec,
+} from "@/components/v2/share-link";
+
+export type {
+  GameResult,
+  LeaderboardShareSpec,
+  ResultShareSpec,
+  ShareCardSpec,
+};
 
 const WIDTH = 1080;
 
@@ -22,28 +36,6 @@ const COLOR = {
   white: "#FFFFFF",
   yellow: "#FFD400",
 };
-
-export type GameResult = "win" | "lose" | "draw";
-
-export interface ResultShareSpec {
-  kind: "result";
-  result: GameResult;
-  elo: number;
-  delta: number;
-  opponentName?: string;
-  opponentElo?: number;
-}
-
-export interface LeaderboardShareSpec {
-  kind: "leaderboard";
-  username: string;
-  elo: number;
-  rank: number;
-  totalPlayers: number | null;
-  avatarUrl?: string | null;
-}
-
-export type ShareCardSpec = ResultShareSpec | LeaderboardShareSpec;
 
 const imageCache = new Map<string, Promise<HTMLImageElement | null>>();
 
@@ -129,10 +121,6 @@ function measure(
 ): number {
   ctx.font = `${size}px ${family}`;
   return ctx.measureText(value).width;
-}
-
-function ordinalSuffix(n: number): string {
-  return n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
 }
 
 function drawOrdinal(
@@ -711,30 +699,4 @@ export async function renderShareCard(spec: ShareCardSpec): Promise<Blob> {
       "image/png"
     );
   });
-}
-
-export function shareCardMeta(spec: ShareCardSpec): {
-  fileName: string;
-  title: string;
-  text: string;
-} {
-  if (spec.kind === "result") {
-    const outcome =
-      spec.result === "win" ? "won" : spec.result === "lose" ? "lost" : "drew";
-    const against = spec.opponentName ? ` against ${spec.opponentName}` : "";
-    return {
-      fileName: `aroundchess-${spec.result}.png`,
-      title: `I ${outcome} on AroundChess`,
-      text: `I just ${outcome}${against} on AroundChess — my ELO is now ${Math.round(
-        spec.elo
-      )} (${formatEloDelta(spec.delta)}).`,
-    };
-  }
-  return {
-    fileName: "aroundchess-leaderboard.png",
-    title: "My AroundChess leaderboard standing",
-    text: `I'm ${formatNumber(spec.rank)}${ordinalSuffix(
-      spec.rank
-    )} on the AroundChess leaderboard with an ELO of ${spec.elo}.`,
-  };
 }

@@ -4,17 +4,37 @@ import Image from "next/image";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { renderShareCard } from "@/components/v2/share-image-canvas";
 import {
-  renderShareCard,
+  shareCardImageUrl,
   shareCardMeta,
+  shareCardUrl,
   type ShareCardSpec,
-} from "@/components/v2/share-image-canvas";
+} from "@/components/v2/share-link";
+
+/**
+ * How a network can be handed a post that already carries both the card and the
+ * caption:
+ *
+ * - `compose` opens the network's own composer with the caption and the card's
+ *   link filled in; the link unfurls into the image, so the user only presses
+ *   send.
+ * - `paste` has no composer to prefill, so the caption and link go to the
+ *   clipboard together — one paste yields both.
+ * - `attach` is for Instagram, which neither unfurls links nor accepts a
+ *   prefilled caption: the picture is all that can travel with it.
+ */
+type ShareMode = "compose" | "paste" | "attach";
 
 interface Network {
   id: string;
   label: string;
   icon: string;
+  mode: ShareMode;
   web: (text: string, url: string) => string;
+  /** Attaching a file costs the message its caption on this network: it takes
+   * the image and throws the words away, so it is only ever given the link. */
+  dropsSharedText?: boolean;
 }
 
 const NETWORKS: Network[] = [
@@ -22,18 +42,22 @@ const NETWORKS: Network[] = [
     id: "instagram",
     label: "Instagram",
     icon: "/images/v2/play-vs-ai/icon_instagram.png",
+    mode: "attach",
     web: () => "https://www.instagram.com/",
   },
   {
     id: "whatsapp",
     label: "WhatsApp",
     icon: "/images/v2/play-vs-ai/Icon-whatsapp.png",
+    mode: "compose",
     web: (text, url) => `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`,
+    dropsSharedText: true,
   },
   {
     id: "x",
     label: "X",
     icon: "/images/v2/play-vs-ai/Icon-x.png",
+    mode: "compose",
     web: (text, url) =>
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
   },
@@ -41,14 +65,18 @@ const NETWORKS: Network[] = [
     id: "discord",
     label: "Discord",
     icon: "/images/v2/play-vs-ai/Icon-discord.png",
+    mode: "paste",
     web: () => "https://discord.com/channels/@me",
   },
   {
     id: "facebook",
     label: "Facebook",
     icon: "/images/v2/play-vs-ai/Icon-facebook.png",
-    web: (_text, url) =>
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    mode: "compose",
+    // `quote` prefills the composer's message box where Facebook still honours
+    // it, and is ignored — harmlessly — where it does not.
+    web: (text, url) =>
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
   },
 ];
 
@@ -63,6 +91,16 @@ function download(blob: Blob, fileName: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
+async function copyText(value: string): Promise<boolean> {
+  try {
+    if (!navigator.clipboard?.writeText) return false;
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function copyImage(blob: Blob): Promise<boolean> {
   try {
     const ClipboardItemCtor = (window as any).ClipboardItem;
@@ -75,7 +113,10 @@ async function copyImage(blob: Blob): Promise<boolean> {
 }
 
 function isMobile(): boolean {
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return true;
+  // iPadOS 13+ reports itself as a Mac; a touch screen is what gives it away,
+  // and it is the one platform where the OS share sheet is the good path.
+  return /Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1;
 }
 
 /**
@@ -126,6 +167,15 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     };
   }, []);
 
+  // Facebook renders the preview from a single crawl it makes while the share
+  // dialog opens, and it caches a miss. Rendering the card now means that crawl
+  // hits a warm CDN copy instead of a cold function.
+  useEffect(() => {
+    fetch(shareCardImageUrl(specRef.current, window.location.origin), {
+      cache: "force-cache",
+    }).catch(() => undefined);
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -137,22 +187,29 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
   const shareTo = async (network: Network) => {
     if (!blob) return;
     const { fileName, text, title } = meta.current;
-    const url = typeof window !== "undefined" ? window.location.origin : "";
+    // No web composer accepts an attached image — they build their preview from
+    // the OpenGraph tags of whatever link they are given. Sharing the card's own
+    // page is what carries the picture along with the words.
+    const url = shareCardUrl(specRef.current, window.location.origin);
+    const caption = `${text} ${url}`;
     const target = network.web(text, url);
 
-    const file = shareableFile(blob, fileName);
+    // The OS share sheet is the one route that attaches the real photo, so on a
+    // phone it wins wherever the app keeps the caption with it.
+    const file = network.dropsSharedText ? null : shareableFile(blob, fileName);
     if (file) {
       try {
-        await (navigator as any).share({
-          files: [file],
-          title,
-          text: `${text} ${url}`,
-        });
+        await (navigator as any).share({ files: [file], title, text: caption });
         return;
       } catch (err) {
         // The user dismissed the sheet — nothing more to do.
         if ((err as any)?.name === "AbortError") return;
       }
+    }
+
+    if (network.mode === "compose") {
+      window.open(target, "_blank", "noopener,noreferrer");
+      return;
     }
 
     // Reserve the tab synchronously: mobile browsers drop the user gesture once
@@ -165,16 +222,23 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
       tab = null;
     }
 
-    const copied = await copyImage(blob);
-    if (!copied) download(blob, fileName);
+    let message: string;
+    if (network.mode === "paste") {
+      const copied = await copyText(caption);
+      message = copied
+        ? `Message copied — paste it into ${network.label} and the card comes with it.`
+        : `Copy this and paste it into ${network.label}: ${caption}`;
+    } else {
+      const copied = await copyImage(blob);
+      if (!copied) download(blob, fileName);
+      message = copied
+        ? `Image copied — paste it into your ${network.label} post.`
+        : `Image saved — attach it to your ${network.label} post.`;
+    }
 
     if (tab && !tab.closed) tab.location.href = target;
     else window.open(target, "_blank", "noopener,noreferrer");
-    toast(
-      copied
-        ? `Image copied — paste it into your ${network.label} post.`
-        : `Image saved — attach it to your ${network.label} post.`
-    );
+    toast(message);
   };
 
   const handleSave = () => {

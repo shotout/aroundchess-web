@@ -15,6 +15,11 @@ const publicRoutes = [
   "/chess-blog",
   "/api/webhook",
   "/api/webhooks/clerk",
+  // Shared game results: the social-network crawlers arrive without a token,
+  // and they have to reach both the page and its OpenGraph image or the post
+  // falls back to a bare link.
+  "/s",
+  "/api/share-image",
   "/analysis",
   "/login",
   "/register",
