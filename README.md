@@ -1,4 +1,5 @@
-# aroundchess Giuseppe version of 2026/05/18 - 12:00
+# aroundchess 
+# last update at 13.8.2026
 
 A comprehensive chess training and analysis platform that acts as your personal 24/7 chess coach, combining AI technology with personalized learning to help players of all skill levels improve their game.
 
