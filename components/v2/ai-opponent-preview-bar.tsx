@@ -12,7 +12,7 @@ import { usePlayVSAIStore, SelectedOpponent } from "@/app/store/playVSAI";
 const FALLBACK: SelectedOpponent = {
   name: "Thomas",
   elo: 250,
-  img: "/images/v2/AI avatar/Beginner/Number10.png",
+  img: "/images/v2/AI avatar/Beginner/Thomas.png",
 };
 
 export function AiOpponentPreviewBar() {

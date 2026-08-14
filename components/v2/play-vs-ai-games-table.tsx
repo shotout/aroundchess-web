@@ -11,6 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Game } from "@/components/game-history/types/GameHistoryTypes";
+import { formatGameDateTimeLabel } from "@/components/v2/game-date-time";
 import { AnalyzeGameHistory } from "@/components/game-history/components/AnalyzeGameHistory";
 import ChooseAnalysisMode from "@/components/game-history/components/ChooseAnalysisMode";
 import ProcessingAnalysisMode from "@/components/game-history/components/ProcessingAnalysisMode";
@@ -61,17 +62,8 @@ const fetchLastAnalysis = async (
   }
 };
 
-/** "YYYY-MM-DD" → "DD.MM.YYYY", plus the game's end time from the PGN when available. */
-const formatRowDate = (game: Game): string => {
-  const [y, m, d] = (game.date || "").split("-");
-  const date = y && m && d ? `${d}.${m}.${y}` : game.date || "—";
-  const pgn = game.pgn || "";
-  const time =
-    pgn.match(/\[EndTime "(\d{2}:\d{2})/) ??
-    pgn.match(/\[UTCTime "(\d{2}:\d{2})/) ??
-    pgn.match(/\[StartTime "(\d{2}:\d{2})/);
-  return time ? `${date} · ${time[1]}` : date;
-};
+/** "DD.MM.YYYY · HH:MM" — shared with the play page's Recent Games rows. */
+const formatRowDate = (game: Game): string => formatGameDateTimeLabel(game) || "—";
 
 function ResultLabel({ game }: { game: Game }) {
   const raw = Number(String(game.eloChange ?? "0").replace("+", ""));

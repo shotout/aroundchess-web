@@ -49,15 +49,22 @@ export function LeaderboardPage() {
   const [showJoinModal, setShowJoinModal] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  // A "My Rank" jump starts the list mid-table, so pages above the first
+  // loaded one still exist and are fetched as the user scrolls back up.
+  const [hasPrevious, setHasPrevious] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
   // Ticks once the initial page-1 fetch settles. The list arms its automatic
   // "jump to my rank" off this rather than off isLoading: persisted entries
   // make isLoading false on the very first render, so the jump used to run
   // against last session's rows and get overwritten by the fresh page 1.
   const [initialLoadNonce, setInitialLoadNonce] = useState(0);
+  // Highest and lowest page currently held in the list — the list is a
+  // contiguous window that can grow from either end.
   const pageRef = useRef(1);
-  // Single-flight guard so a fast scroll can't fire overlapping page fetches.
+  const firstPageRef = useRef(1);
+  // Single-flight guards so a fast scroll can't fire overlapping page fetches.
   const fetchingMoreRef = useRef(false);
+  const fetchingPreviousRef = useRef(false);
 
   const mapEntries = useCallback(
     (list: any[], myRank: number | null, offset: number) =>
@@ -112,6 +119,8 @@ export function LeaderboardPage() {
         if (list && list.length > 0) {
           setLeaderboardEntries(mapEntries(list, myRank, 0));
           pageRef.current = 1;
+          firstPageRef.current = 1;
+          setHasPrevious(false);
           // A short first page means there's nothing further to fetch.
           setHasMore(list.length >= PAGE_SIZE);
         }
@@ -147,7 +156,10 @@ export function LeaderboardPage() {
         }
         const current = usePlayPageStore.getState().leaderboardEntries ?? [];
         const myRank = data.data?.my_rank ?? null;
-        const mapped = mapEntries(list, myRank, current.length);
+        // Offset derived from the page, not from how many rows are loaded —
+        // the window can start mid-table after a jump, so the row count is no
+        // longer the rank of the first row.
+        const mapped = mapEntries(list, myRank, (nextPage - 1) * PAGE_SIZE);
         // Dedupe by rank — also stops the scroll if the backend ignores the
         // page param and keeps returning the same rows.
         const seen = new Set(current.map((e) => e.rank));
@@ -167,6 +179,48 @@ export function LeaderboardPage() {
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, isLoading, mapEntries]);
+
+  // Upward twin of loadMore: prepends the page above the first loaded row so a
+  // list that opened on the user's own rank can be scrolled back toward #1.
+  const loadPrevious = useCallback(() => {
+    if (fetchingPreviousRef.current || !hasPrevious || isLoading) return;
+    const prevPage = firstPageRef.current - 1;
+    if (prevPage < 1) {
+      setHasPrevious(false);
+      return;
+    }
+    fetchingPreviousRef.current = true;
+
+    getLeaderboardData({ page: prevPage, limit: PAGE_SIZE })
+      .then((data: any) => {
+        if (!data?.success) {
+          setHasPrevious(false);
+          return;
+        }
+        const list = extractList(data.data);
+        if (!list || list.length === 0) {
+          setHasPrevious(false);
+          return;
+        }
+        const current = usePlayPageStore.getState().leaderboardEntries ?? [];
+        const myRank = data.data?.my_rank ?? null;
+        const mapped = mapEntries(list, myRank, (prevPage - 1) * PAGE_SIZE);
+        const seen = new Set(current.map((e) => e.rank));
+        const fresh = mapped.filter((e) => !seen.has(e.rank));
+        if (fresh.length === 0) {
+          setHasPrevious(false);
+          return;
+        }
+        setLeaderboardEntries([...fresh, ...current]);
+        firstPageRef.current = prevPage;
+        setHasPrevious(prevPage > 1);
+      })
+      .catch(() => {})
+      .finally(() => {
+        fetchingPreviousRef.current = false;
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPrevious, isLoading, mapEntries]);
 
   // "My Rank" jump. The list is paged, so a deep rank (e.g. 9996) is never in
   // the first pages — fetch the page that contains the user (plus the one
@@ -217,6 +271,10 @@ export function LeaderboardPage() {
       merged.sort((a, b) => a.rank - b.rank);
       setLeaderboardEntries(merged);
       pageRef.current = targetPage;
+      firstPageRef.current = startPage;
+      // Everything above this neighborhood is still unloaded — the list pulls
+      // it in page by page as the user scrolls up.
+      setHasPrevious(startPage > 1);
       setHasMore(lastPageFull);
       return true;
     } catch {
@@ -238,6 +296,8 @@ export function LeaderboardPage() {
       const rank = data.data?.my_rank ?? null;
       setLeaderboardEntries(mapEntries(list, rank, 0));
       pageRef.current = 1;
+      firstPageRef.current = 1;
+      setHasPrevious(false);
       setHasMore(list.length >= PAGE_SIZE);
       return true;
     } catch {
@@ -348,6 +408,8 @@ export function LeaderboardPage() {
                 hasMore={hasMore}
                 isLoadingMore={isLoadingMore}
                 onLoadMore={loadMore}
+                hasPrevious={hasPrevious}
+                onLoadPrevious={loadPrevious}
                 onJumpToMyRank={jumpToMyRank}
                 isJumpingToMyRank={isJumping}
                 onResetToTop={resetToTop}
