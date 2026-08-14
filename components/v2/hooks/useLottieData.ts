@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+// Module-level cache of Lottie animation JSON keyed by URL. Resolved data is
+// kept for the lifetime of the page so a modal that opens after a preload
+// renders its animation synchronously, with no fetch on the critical path.
 const loaded = new Map<string, object>();
 const inflight = new Map<string, Promise<object | null>>();
 
@@ -21,6 +24,8 @@ export function preloadLottie(url: string): Promise<object | null> {
       return data;
     })
     .catch(() => {
+      // Forget the failed attempt so the next caller retries instead of
+      // being stuck on a rejected promise forever.
       inflight.delete(url);
       return null;
     });
@@ -28,6 +33,8 @@ export function preloadLottie(url: string): Promise<object | null> {
   return promise;
 }
 
+// Returns the animation data for `url`, fetching it (or reusing an earlier
+// preloadLottie call) as needed. Pass null to skip loading entirely.
 export function useLottieData(url: string | null): object | null {
   const [data, setData] = useState<object | null>(() =>
     url ? loaded.get(url) ?? null : null

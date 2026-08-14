@@ -37,6 +37,7 @@ const SavedMistakesIcon = ({ fill }: { fill: string }) => (
 
 export const GameHistoryTabs: React.FC = () => (
   <>
+    {/* Mobile: full-width underline tabs — active tab is blue with a thick bar below it */}
     <div className="md:hidden grid grid-cols-2 -mx-4 mb-[20px]">
       <Link href="/my-game-history" className="flex flex-col items-stretch">
         <span className="flex items-center justify-center gap-[8px] py-[12px] text-[#221AE9] font-bold text-[16px]">
@@ -55,6 +56,7 @@ export const GameHistoryTabs: React.FC = () => (
       </Link>
     </div>
 
+    {/* Desktop: classic tabs — rounded tops, flat bottoms */}
     <div className="hidden md:flex items-center gap-[8px] mb-[20px]">
       <Link
         href="/my-game-history"

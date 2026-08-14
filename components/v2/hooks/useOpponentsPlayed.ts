@@ -12,6 +12,8 @@ export function useOpponentsPlayed() {
   const { opponentsPlayed, opponentsPlayedPagination, setOpponentsPlayed } =
     usePlayVsAiStatsStore();
 
+  // Persisted store data renders immediately; only a genuine first load
+  // (empty cache) shows the loading state — refreshes happen silently.
   const [isLoading, setIsLoading] = useState(
     () => usePlayVsAiStatsStore.getState().opponentsPlayed.length === 0
   );

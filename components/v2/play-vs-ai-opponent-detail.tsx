@@ -38,7 +38,10 @@ export function PlayVsAiOpponentDetail({
         Back
       </button>
 
+      {/* The profile card keeps its natural height; on lg+ the games panel is
+          absolutely anchored to the row so it always matches the card's height. */}
       <div className="relative flex flex-col lg:flex-row gap-[16px]">
+        {/* Opponent profile */}
         <div className="w-full lg:w-[300px] xl:w-[330px] lg:shrink-0">
           <PlayVsAiOpponentProfileCard
             displayName={displayName}
@@ -49,6 +52,7 @@ export function PlayVsAiOpponentDetail({
           />
         </div>
 
+        {/* Games against this opponent */}
         <div className="w-full min-w-0 lg:absolute lg:inset-y-0 lg:right-0 lg:left-[316px] xl:left-[346px] lg:w-auto">
           <PlayVsAiOpponentGamesPanel
             key={opponentUsername}

@@ -4,6 +4,9 @@ import Image from "next/image";
 import { useProfileStore } from "@/app/store/profile";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 
+/**
+ * Revamped "My Remaining Analysis Tokens" horizontal bar for the /profile page.
+ */
 const ProfileTokensBar = () => {
   const { token } = useProfileStore();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
@@ -15,6 +18,7 @@ const ProfileTokensBar = () => {
 
   return (
     <div className="w-full rounded-[12px] border-2 border-[#221AE9] bg-gradient-to-r from-[#E6F7FE] to-white px-[16px] py-[12px] md:px-[24px]">
+      {/* Mobile: vertical centered card */}
       <div className="flex sm:hidden flex-col items-center gap-3 py-[8px] text-center">
         <span className="text-[18px] font-semibold text-black">
           My Remaining Analysis Tokens
@@ -46,6 +50,7 @@ const ProfileTokensBar = () => {
         </button>
       </div>
 
+      {/* Desktop: horizontal bar (unchanged) */}
       <div className="hidden sm:flex flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Image

@@ -126,6 +126,7 @@ interface PremiumPlanCardProps {
   price: number;
   period: string;
   perAnalysis: string;
+  /** Backend `promo_end` label; empty hides the "Offer ends" note. */
   offerEndsLabel: string;
   isCurrentPlan: boolean;
   canPurchase: boolean;
@@ -200,6 +201,8 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
         <div className="flex flex-wrap items-end justify-center gap-1 lg:gap-2">
           <span className="relative text-[12px] lg:text-[15px] text-white/70">
             ${fullPrice.toFixed(2)}
+            {/* Diagonal strike running up-right to down-left. text-decoration
+                can only draw a horizontal rule, so this is a rotated bar. */}
             <span
               aria-hidden
               className="pointer-events-none absolute left-[-2px] right-[-2px] top-1/2 h-[2px] -translate-y-1/2 -rotate-12 rounded-full bg-red-500"
@@ -254,10 +257,17 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
 );
 
 interface SubscriptionPlansProps {
+  /** The "My Subscription" section heading — profile page only. */
   showTitle?: boolean;
+  /** Paywall analytics bucket for the Get Premium clicks. */
   source?: "user_settings" | "pricing_dialog";
 }
 
+/**
+ * Revamped plan picker: feature tiles, the Free/Monthly/Yearly cards and the
+ * Chess Club note. Rendered on /profile and inside the pricing dialog's
+ * "Go Unlimited with a Subscription" tab, so both stay on the same design.
+ */
 export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   showTitle = false,
   source = "user_settings",
@@ -311,6 +321,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     window.location.href = "/register";
   };
 
+  // Ensure we have membership packages loaded (fallback to API if needed)
   const resolveMembershipPackages = async () => {
     let packagesArray: any[] = [];
 
@@ -410,6 +421,11 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         window.location.href = res.data.url;
         return;
       }
+      // The backend reports checkout failures in a 200 body, so apiRequest's
+      // sanitizer (which only runs on thrown errors) never sees them and the raw
+      // wording used to reach the toast — including provider detail like
+      // "Expired API Key provided: sk_live_***". None of it is actionable for a
+      // user, so show the shared payment line and keep the detail in the log.
       console.error(
         "Checkout session response without url:",
         redactSecrets(String(res?.message ?? ""))
@@ -434,6 +450,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Centered plain title on mobile, left-aligned with divider on desktop */}
       {showTitle && (
         <div className="flex flex-row items-center justify-center md:justify-between border-0 border-b-0 md:border-b-2 border-b-[#C0CED4] pb-1">
           <span className="text-[18px] font-semibold">My Subscription</span>
@@ -447,6 +464,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         </p>
 
         <div className="flex justify-center">
+          {/* Mobile: one horizontally scrollable row (mockup). md+: wrapped rows. */}
           <div
             className="flex w-full min-w-0 gap-3 overflow-x-auto pb-2 md:w-auto md:min-w-min md:overflow-visible md:flex-wrap md:justify-center md:pb-1"
             style={{ scrollbarWidth: "none" }}
@@ -480,7 +498,9 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         </h2>
       )}
 
+      {/* Mobile: monthly + yearly side by side, free package full-width below */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 pt-3">
+        {/* Free package */}
         <div className="flex flex-col rounded-[16px] border border-gray-200 bg-white p-[16px] shadow-sm order-last lg:order-none col-span-2 lg:col-span-1">
           <div className="flex items-center gap-3 mb-3">
             <Image
@@ -494,6 +514,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
               <h3 className="text-[20px] font-semibold text-black leading-[130%]">
                 Free Package
               </h3>
+              {/* The mockup's mobile card is title-only — price is desktop-only. */}
               <div className="hidden lg:block text-[22px] font-bold text-black">
                 $0
               </div>
@@ -527,6 +548,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           )}
         </div>
 
+        {/* Premium monthly */}
         <PremiumPlanCard
           billedLabel="Billed Monthly"
           gradientClass="bg-gradient-to-br from-[#130F83] to-[#00FFBB]"
@@ -548,6 +570,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           onCancel={handleCancelSubscription}
         />
 
+        {/* Premium yearly */}
         <PremiumPlanCard
           billedLabel="Billed Yearly"
           gradientClass="bg-gradient-to-br from-[#221AE9] to-[#25CEDA]"
@@ -571,6 +594,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         />
       </div>
 
+      {/* Legal links — mobile only, per mockup */}
       <div className="flex md:hidden items-center justify-center gap-[24px]">
         <Link
           href="/terms-of-service"
@@ -611,6 +635,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   );
 };
 
+/** "My Subscription" section on /profile. */
 const ProfileSubscription = () => <SubscriptionPlans showTitle source="user_settings" />;
 
 export default ProfileSubscription;

@@ -15,8 +15,8 @@ export function PlayVsAiStatsPage() {
   const opponent = searchParams.get("opponent");
 
   const { sessionId } = useProfileStore();
-  const { getLeaderboardData, getLeaderboardMe } = useApiClient();
-  const { setLeaderboard, setLeaderboardMe } = usePlayPageStore();
+  const { getLeaderboardData } = useApiClient();
+  const { setLeaderboard } = usePlayPageStore();
   const opponentsPlayedState = useOpponentsPlayed();
 
   useEffect(() => {
@@ -25,12 +25,6 @@ export function PlayVsAiStatsPage() {
     getLeaderboardData()
       .then((data: any) => {
         if (data?.success && data.data) setLeaderboard(data.data);
-      })
-      .catch(() => {});
-
-    getLeaderboardMe()
-      .then((res: any) => {
-        if (res?.data) setLeaderboardMe(res.data);
       })
       .catch(() => {});
   }, [sessionId]);
