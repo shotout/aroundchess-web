@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { PieceAvatar } from "@/components/v2/piece-avatar";
 import { formatNumber } from "@/components/v2/format-number";
 
@@ -27,6 +27,13 @@ interface LeaderboardListProps {
   isLoadingMore?: boolean;
   /** Infinite scroll: called when the user scrolls near the bottom. */
   onLoadMore?: () => void;
+  /**
+   * Upward infinite scroll: whether ranks above the first loaded row still
+   * exist. True after a "My Rank" jump, which starts the list mid-table.
+   */
+  hasPrevious?: boolean;
+  /** Upward infinite scroll: called when the user scrolls near the top. */
+  onLoadPrevious?: () => void;
   /**
    * "My Rank": load + swap in the user's neighborhood when their row isn't
    * paged in yet. Resolves true once the row is available to scroll to.
@@ -149,7 +156,7 @@ function Row({
     <div
       ref={innerRef}
       id={entry.isMe ? "my-rank" : undefined}
-      className={`flex items-center gap-[4px] sm:gap-[10px] px-[2px] sm:px-[18px] py-[10px] border-b border-[#F3F4F6] last:border-b-0 sm:border-b-0 sm:rounded-[12px] sm:shadow-sm border-l-[3px] ${
+      className={`flex items-center gap-[4px] sm:gap-[10px] px-[8px] sm:px-[18px] py-[10px] border-b border-[#F3F4F6] last:border-b-0 sm:border-b-0 sm:rounded-[12px] sm:shadow-sm border-l-[3px] ${
         entry.isMe ? "bg-[#E6F7FE] border-l-[#221AE9]" : "bg-white border-l-transparent"
       }`}
     >
@@ -166,7 +173,7 @@ function Row({
 
 function SkeletonRow() {
   return (
-    <div className="flex items-center gap-[4px] sm:gap-[10px] px-[2px] sm:px-[18px] py-[10px] border-b border-[#F3F4F6] shadow-md sm:border-b-0 sm:rounded-[12px] bg-white sm:shadow-sm">
+    <div className="flex items-center gap-[4px] sm:gap-[10px] px-[8px] sm:px-[18px] py-[10px] border-b border-[#F3F4F6] shadow-md sm:border-b-0 sm:rounded-[12px] bg-white sm:shadow-sm">
       <span className={RANK_CHANGE_WIDTH} />
       <span className={`${RANK_WIDTH} h-[16px] bg-gray-200 rounded animate-pulse`} />
       <div className="w-[32px] h-[32px] rounded-full bg-gray-200 animate-pulse shrink-0" />
@@ -184,6 +191,8 @@ export function LeaderboardList({
   hasMore,
   isLoadingMore,
   onLoadMore,
+  hasPrevious,
+  onLoadPrevious,
   onJumpToMyRank,
   isJumpingToMyRank,
   onResetToTop,
@@ -191,6 +200,7 @@ export function LeaderboardList({
 }: LeaderboardListProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const topSentinelRef = useRef<HTMLDivElement | null>(null);
   // The signed-in user's own row, so "My Rank" can scroll straight to it.
   const meRowRef = useRef<HTMLDivElement | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -203,10 +213,23 @@ export function LeaderboardList({
   // every render (loadMore's identity changes with its deps).
   const onLoadMoreRef = useRef(onLoadMore);
   onLoadMoreRef.current = onLoadMore;
+  const onLoadPreviousRef = useRef(onLoadPrevious);
+  onLoadPreviousRef.current = onLoadPrevious;
+  // Scroll height/offset captured just before an upward fetch. Rows prepended
+  // above the viewport would otherwise push everything down by their height and
+  // teleport the user mid-scroll; the layout effect below subtracts that shift.
+  const prependAnchorRef = useRef<{ height: number; top: number } | null>(null);
+  // Upward loading stays disarmed until a programmatic scroll has settled.
+  // While the list is still travelling to the user's row, scrollTop is near the
+  // top and the sentinel up there is in view — arming then would prepend a page
+  // mid-flight and drag the view back off the row we were aiming at.
+  const [previousLoadArmed, setPreviousLoadArmed] = useState(true);
+  const armTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (armTimerRef.current) clearTimeout(armTimerRef.current); }, []);
 
   // Center the user's row in the scroll viewport. getBoundingClientRect keeps
   // this correct regardless of the container's positioning context.
-  const scrollToMyRank = useCallback(() => {
+  const scrollToMyRank = useCallback((behavior: ScrollBehavior = "smooth") => {
     const container = scrollRef.current;
     const row = meRowRef.current;
     if (!container || !row) return;
@@ -214,7 +237,17 @@ export function LeaderboardList({
       row.getBoundingClientRect().top -
       container.getBoundingClientRect().top -
       (container.clientHeight - row.clientHeight) / 2;
-    container.scrollTo({ top: container.scrollTop + delta, behavior: "smooth" });
+
+    // Re-arm on a timer rather than a flag flip, so the observer is rebuilt
+    // against the settled geometry instead of resuming on a stale intersection.
+    setPreviousLoadArmed(false);
+    if (armTimerRef.current) clearTimeout(armTimerRef.current);
+    armTimerRef.current = setTimeout(
+      () => setPreviousLoadArmed(true),
+      behavior === "smooth" ? 700 : 150
+    );
+
+    container.scrollTo({ top: container.scrollTop + delta, behavior });
   }, []);
 
   const scrollToTop = useCallback(() => {
@@ -249,10 +282,13 @@ export function LeaderboardList({
     });
   }, [scrollToMyRank, onJumpToMyRank]);
 
-  // Once a "My Rank" fetch swaps in the user's row, scroll to it.
+  // Once a "My Rank" fetch swaps in the user's row, scroll to it. Instantly:
+  // the whole list was just replaced with a different slice of the table, so
+  // there is no continuity for an animation to preserve — and landing in one
+  // frame leaves no window in which the row can be shifted out from under us.
   useEffect(() => {
     if (!pendingScrollToMe || !meRowRef.current) return;
-    scrollToMyRank();
+    scrollToMyRank("auto");
     setPendingScrollToMe(false);
   }, [entries, pendingScrollToMe, scrollToMyRank]);
 
@@ -305,6 +341,60 @@ export function LeaderboardList({
     return () => observer.disconnect();
   }, [hasMore, pendingScrollToMe, isJumpingToMyRank]);
 
+  // Upward twin of the observer above. Entering the page auto-jumps to the
+  // user's own rank, so the list usually starts mid-table — without this,
+  // scrolling up dead-ends at the top of that slice and the better-ranked
+  // players above are unreachable.
+  useEffect(() => {
+    const sentinel = topSentinelRef.current;
+    if (!sentinel || !hasPrevious || pendingScrollToMe || isJumpingToMyRank) return;
+    if (!previousLoadArmed) return;
+
+    const observer = new IntersectionObserver(
+      (observed) => {
+        if (!observed.some((e) => e.isIntersecting)) return;
+        const container = scrollRef.current;
+        // Anchor before the fetch, not after: once the rows land, the only way
+        // back to this scroll position is the height they added.
+        if (container) {
+          prependAnchorRef.current = {
+            height: container.scrollHeight,
+            top: container.scrollTop,
+          };
+        }
+        onLoadPreviousRef.current?.();
+      },
+      { root: scrollRef.current, rootMargin: "200px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasPrevious, pendingScrollToMe, isJumpingToMyRank, previousLoadArmed]);
+
+  // Keep the viewport still while rows are prepended. Layout effect so the
+  // correction lands in the same frame as the new rows — in a passive effect
+  // the user would see a flash of the jumped position.
+  const firstRankRef = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const container = scrollRef.current;
+    const firstRank = entries[0]?.rank ?? null;
+    const previousFirstRank = firstRankRef.current;
+    firstRankRef.current = firstRank;
+
+    const anchor = prependAnchorRef.current;
+    if (!anchor || !container) return;
+    // Only a real prepend moves the viewport — the list now starts at a better
+    // rank than it did last render. Gating on this (rather than on the height
+    // growing) matters when an upward fetch comes back empty: the anchor is
+    // left behind, and a later append at the bottom would otherwise consume it
+    // and scroll the user away.
+    if (previousFirstRank === null || firstRank === null || firstRank >= previousFirstRank) {
+      return;
+    }
+    prependAnchorRef.current = null;
+    const delta = container.scrollHeight - anchor.height;
+    if (delta > 0) container.scrollTop = anchor.top + delta;
+  }, [entries]);
+
   const rankOrdinal = ordinalParts(myRank);
 
   return (
@@ -338,7 +428,7 @@ export function LeaderboardList({
         </button>
       </div>
 
-      <div className="flex items-center gap-[4px] sm:gap-[10px] px-[2px] sm:px-[18px] py-[10px] rounded-[12px] bg-[#221AE9] border-l-[3px] border-l-transparent">
+      <div className="flex items-center gap-[4px] sm:gap-[10px] px-[8px] sm:px-[18px] py-[10px] rounded-[12px] bg-[#221AE9] border-l-[3px] border-l-transparent">
         <span className={`${RANK_CHANGE_WIDTH} shrink-0`} />
         <span className={`${RANK_WIDTH} shrink-0`} />
         <span className="flex-1 text-md sm:text-xl font-bold text-white">Player</span>
@@ -365,6 +455,10 @@ export function LeaderboardList({
             <p className="text-[13px] text-[#6B7280] py-[32px] text-center">No leaderboard data yet.</p>
           ) : (
             <>
+              {/* Invisible sentinel — scrolling it into view loads the page above.
+                  No skeleton alongside it: anything rendered here changes the
+                  scroll height outside the anchored update and shifts the list. */}
+              {hasPrevious && <div ref={topSentinelRef} className="h-px shrink-0" aria-hidden />}
               {entries.map((entry, index) => (
                 <Row
                   key={`${entry.rank}-${entry.username}`}

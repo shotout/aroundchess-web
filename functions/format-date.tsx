@@ -23,7 +23,10 @@ export const formatTimePgn = (date?: string) => {
   let d = date ? new Date(date) : new Date(),
     second = "" + d.getSeconds(),
     minute = "" + d.getMinutes(),
-    hour = d.getHours();
+    // Padded: PGN time tags are "HH:MM:SS", and readers that match on two
+    // digits dropped the time of every game finished before 10:00.
+    hour = "" + d.getHours();
+  if (hour.length < 2) hour = "0" + hour;
   if (minute.length < 2) minute = "0" + minute;
   if (second.length < 2) second = "0" + second;
 

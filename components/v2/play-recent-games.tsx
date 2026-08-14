@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import { Game } from "@/components/game-history/types/GameHistoryTypes";
+import { formatGameDateTime } from "@/components/v2/game-date-time";
 import { useGameHistoryAnalysis } from "@/components/v2/hooks/useGameHistoryAnalysis";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { PieceAvatar } from "@/components/v2/piece-avatar";
@@ -87,19 +88,6 @@ function displaySource(src: string): string {
   return map[src.toLowerCase().trim()] ?? src;
 }
 
-function formatDateTime(dateStr: string): { date: string; time: string } {
-  try {
-    const d = new Date(dateStr);
-    const date = d
-      .toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
-      .replace(/\//g, ".");
-    const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-    return { date, time };
-  } catch {
-    return { date: dateStr, time: "" };
-  }
-}
-
 function GameRow({ game }: { game: Game }) {
   const result = game.result?.toLowerCase() ?? "";
   const isWin = result === "win";
@@ -124,7 +112,9 @@ function GameRow({ game }: { game: Game }) {
   // of the up/down arrow. Undefined (older data) counts as processed.
   const eloProcessed = game.eloProcessed !== false;
 
-  const { date, time } = game.date ? formatDateTime(game.date) : { date: "", time: "" };
+  // Same source of truth as the opponent panel on /play-vs-ai-stats: the date
+  // from the API field, the time from the game's own PGN tags.
+  const { date, time } = formatGameDateTime(game);
 
   // Same analysis flow as the history page's GameCard.
   const { trigger, busy, modals } = useGameHistoryAnalysis(game);
