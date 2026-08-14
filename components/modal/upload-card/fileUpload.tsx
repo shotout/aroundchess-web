@@ -21,7 +21,7 @@ export function FileUploadCard({
   useEffect(() => {
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
-        const randomIncrement = Math.floor(Math.random() * 10) + 1; // 1 to 10
+        const randomIncrement = Math.floor(Math.random() * 10) + 1;
         let next = Math.min(prev + randomIncrement, 100);
         if (next >= 100) {
           next = 100;
@@ -30,7 +30,7 @@ export function FileUploadCard({
         }
         return next;
       });
-    }, 300); // update every 300ms
+    }, 300);
 
     return () => clearInterval(interval);
   }, []);

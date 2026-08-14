@@ -2,7 +2,6 @@ import { supabaseAdmin } from './supabase';
 
 async function testConnection() {
   try {
-    // Get all users
     const { data: users, error: usersError } = await supabaseAdmin
       .from('users')
       .select(`

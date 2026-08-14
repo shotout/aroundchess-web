@@ -31,7 +31,6 @@ export const WhitePlayer = ({
   const { username } = usePgnStore();
   const isWhiteUser = myColor == "white";
   const whiteElo = isWhiteUser ? leaderboard?.my_elo : AIChoosed.opponent.elo;
-  // Same seed recipe as the sidebar so the fallback color is stable per user.
   const avatarSeed = profile?.username || username || profile?.email || "user";
 
   const { isTutorialPlay } = useTutorial();

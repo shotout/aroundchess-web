@@ -10,9 +10,6 @@ interface ButtonPlayingProps {
   handleHint: () => void;
   handleResign: () => void;
   handleNewGame: () => void;
-  /** False until the game is under way — there is nothing to resign from the
-   *  opening position. Kept disabled rather than hidden so the three buttons
-   *  hold their thirds of the row, same as Hint and the board's Undo. */
   canResign?: boolean;
 }
 

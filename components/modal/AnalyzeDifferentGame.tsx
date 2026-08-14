@@ -134,7 +134,6 @@ export function AnalyzeDifferentGame({
 
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
 
-  // Update local username when globalUsername changes
   useEffect(() => {
     if (globalUsername && globalUsername !== username) {
       setUsername(globalUsername);
@@ -178,7 +177,6 @@ export function AnalyzeDifferentGame({
     if (response.status == 200) {
       setUsernameStatus("found");
       setAvailableGames(response.data.data);
-      // setSelectedGame(response.data.data[0].value);
       let time = timeBasic;
 
       setEstimateMinute(time.minute);
@@ -273,7 +271,6 @@ export function AnalyzeDifferentGame({
 
       console.log("save", currentPgn);
       formData.append("pgn", currentPgn);
-      // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
         "analysis",
         formData,
@@ -289,7 +286,6 @@ export function AnalyzeDifferentGame({
       setActiveUser("other");
       setOpen(false);
       setLoading(false);
-      //use handleAnalyzeGame here
 
       setIsFromAnalyzeDifferentGame(true);
       router.push("/my-game-history");
@@ -306,7 +302,6 @@ export function AnalyzeDifferentGame({
 
       console.log("save", currentPgn);
       formData.append("pgn", currentPgn);
-      // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
         "analysis",
         formData,
@@ -322,7 +317,6 @@ export function AnalyzeDifferentGame({
       setActiveUser("user");
       setOpen(false);
       setLoading(false);
-      //use handleAnalyzeGame here
       setIsFromAnalyzeDifferentGame(true);
       router.push("/my-game-history");
     } catch (err: any) {
@@ -464,12 +458,6 @@ export function AnalyzeDifferentGame({
                 <span className="font-light text-[#364152] text-center text-[14px] --10px md:text-[11px]">
                   {depth.description}
                 </span>
-                {/* <div className="flex flex-col gap-1 items-center">
-                  <span className="font-medium text-[14px] --10px">
-                    Analysis can take up to:
-                  </span>
-                  <span className="font-medium text-[14px] --10px  ">{estimate}</span>
-                </div> */}
               </button>
             );
           })}
@@ -477,14 +465,6 @@ export function AnalyzeDifferentGame({
       </div>
     );
   };
-
-  // useEffect(() => {
-  //   if (stepFocused == 0 || stepFocused == 1) {
-  //     scrollToStart();
-  //   } else {
-  //     scrollToEnd();
-  //   }
-  // }, [stepFocused]);
 
   const scrollToStart = () => {
     if (scrollAreaRef.current) {
@@ -518,7 +498,6 @@ export function AnalyzeDifferentGame({
       <button 
         onClick={() => { 
           if (sessionId) {
-            // setOpen(!open);
             router.push("/my-game-history");
           } else {
             setOpenConfirmLogin(true);
@@ -737,7 +716,6 @@ export function AnalyzeDifferentGame({
                   {renderDepthChoose()}
                 </div>
               </TabsContent>
-              {/* Show info text only when user is actively selecting games */}
               {tabSelected === "auto" &&
               usernameStatus === "found" &&
               availableGames.length > 0 &&

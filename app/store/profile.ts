@@ -8,7 +8,6 @@ interface ProfileState {
   setSessionId: (sessionId: any) => void;
   refreshToken: string;
   setRefreshToken: (refreshToken: string) => void;
-  /** Unix seconds at which sessionId expires; 0 when unknown. */
   tokenExpiresAt: number;
   setTokenExpiresAt: (tokenExpiresAt: number) => void;
   token: any;
@@ -36,25 +35,19 @@ interface ProfileState {
   setHydrated: () => void;
 }
 
-/** App-wide "is this a paying member" rule: either plan counts. `isMember` is
- *  the yearly flag and `isMemberMonthly` the monthly one, both set from
- *  getActiveMembership and persisted, so a returning subscriber is known before
- *  the membership call resolves. */
 const readHasMembership = (state: {
   isMember: any;
   isMemberMonthly: any;
 }): boolean => Boolean(state.isMember) || Boolean(state.isMemberMonthly);
 
-/** Reactive form — re-renders when the membership call lands. */
 export const useHasMembership = () => useProfileStore(readHasMembership);
 
-/** Non-reactive form for timers and event handlers. */
 export const hasMembership = () => readHasMembership(useProfileStore.getState());
 
 export const useProfileStore = create<ProfileState>()(
   persist(
     (set) => ({
-      hydrated: false, // manually track hydration
+      hydrated: false,
       setHydrated: () => set({ hydrated: true }),
       profile: {},
       setProfile: (profile) => set({ profile }),

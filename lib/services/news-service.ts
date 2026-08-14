@@ -12,8 +12,6 @@ export class NewsService {
   }
 
   async fetchNews(source?: string): Promise<NewsArticle[]> {
-    // TODO: Implement actual API calls to each news source
-    // For now, return mock data
     return [
       {
         id: "1",

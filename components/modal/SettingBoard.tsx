@@ -128,7 +128,6 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
     setTabSelected(value);
   };
   const handleSave = () => {
-    // setStyleChoosed(tabSelected);
     setBoardChoosed(boardSelected);
     setPieceChoosed(pieceSelected);
     setOpen(false);
@@ -255,52 +254,6 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
           </div>
           <div className="w-full p-[8px] bg-[#F9FAFC] border border-[#f4f4f4] rounded-[12px]">
             {content(boardsTwoD, piecesTwoD, "2d")}
-            {/* <Tabs
-              defaultValue="auto"
-              className="w-full"
-              value={StyleChoosed}
-              onValueChange={setStyleChoosed}
-            >
-              <TabsList className="grid w-full grid-cols-2 p-1 gap-4 text-black">
-                <TabsTrigger
-                  onClick={() => setStyleChoosed("2d")}
-                  value="2d"
-                  style={{
-                    background: StyleChoosed == "2d" ? "#D7E3FB" : "#fff",
-                  }}
-                  className={`rounded-[8px] border h-[32px] ${
-                    StyleChoosed == "2d"
-                      ? `bg-[#D7E3FB] border-[#221AE9]`
-                      : `border-[#D8DCE0]`
-                  }`}
-                >
-                  <span className={`font-medium text-[18px]`}>2D Style</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  onClick={() => setStyleChoosed("3d")}
-                  disabled={enable3D}
-                  value="3d"
-                  style={{
-                    background: StyleChoosed == "3d" ? "#D7E3FB" : "#fff",
-                  }}
-                  className={`rounded-[8px] border h-[32px] ${
-                    StyleChoosed == "3d"
-                      ? `bg-[#D7E3FB] border-[#221AE9]`
-                      : `border-[#D8DCE0]`
-                  }`}
-                >
-                  <span className={`font-medium text-[18px]`}>3D Style</span>
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="2d" className="space-y-4">
-                {content(boardsTwoD, piecesTwoD, "2d")}
-              </TabsContent>
-
-              <TabsContent value="3d" className="space-y-4">
-                {content(boardsThreeD, piecesThreeD, "3d")}
-              </TabsContent>
-            </Tabs> */}
           </div>
         </ScrollArea>
 

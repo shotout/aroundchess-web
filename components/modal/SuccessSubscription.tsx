@@ -29,7 +29,6 @@ export function SuccessSubscription() {
         }}
         className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-[#E3F3FF] border border-[#C0CED4] max-h-[95%] overflow-y-hidden"
       >
-        {/* Radix requires an accessible name on every DialogContent */}
         <DialogTitle className="sr-only">Subscription successful</DialogTitle>
         <div className="flex flex-col justify-center items-center">
           <div className="flex flex-row items-center justify-center gap-3">

@@ -17,7 +17,6 @@ interface Round {
   matches: Match[]
 }
 
-// Mock data - replace with real data from your backend
 const mockBracketData: { rounds: Round[] } = {
   rounds: [
     {

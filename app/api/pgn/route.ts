@@ -1103,7 +1103,6 @@ export async function GET() {
     }
     
     
-    // Return the complete jsonData structure
     return NextResponse.json(jsonData);
   } catch (error) {
     console.error('Error processing chess data:', error);

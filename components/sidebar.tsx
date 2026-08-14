@@ -62,7 +62,7 @@ interface SidebarProps {
 interface SidebarItem {
   name: string;
   href: string;
-  icon: any; // We'll use 'any' for now since these are Lucide icons
+  icon: any;
 }
 
 interface SidebarSection {
@@ -175,8 +175,6 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
       .then(() => {})
       .finally(() => {
         clearAll();
-        // Training-plan data is cached per account in localStorage; leaving it
-        // behind serves this user's progress to whoever logs in next.
         CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
@@ -336,15 +334,6 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                     name={profile?.name != "" ? profile?.name : username}
                     size="sm"
                   />
-                  {/* {user?.imageUrl && (
-                  <Image
-                    src={user.imageUrl}
-                    alt={user?.fullName || "User"}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
-                )} */}
                   <div className="flex-1 text-left">
                     <p className="font-medium">
                       {profile?.name != "" ? profile?.name : username}

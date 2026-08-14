@@ -11,7 +11,6 @@ class StockfishService {
     this.initPromise = new Promise(async (resolve) => {
       if (typeof window !== 'undefined') {
         try {
-          // Use single-threaded version of Stockfish
           this.worker = new Worker('/stockfish/Stockfish.js');
 
           this.worker.onmessage = (e) => {
@@ -20,7 +19,6 @@ class StockfishService {
               this.worker?.postMessage('isready');
               resolve();
             } else if (e.data === 'readyok') {
-              // Ready to accept commands
             }
           };
 
@@ -50,17 +48,16 @@ class StockfishService {
     }
   }
 
-  // Helper function to get move weights based on ELO
   private getMoveWeights(elo: number): { normal: number; capture: number; check: number; stockfish: number } {
-    if (elo <= 250) return { normal: 0.6, capture: 0.3, check: 0.1, stockfish: 0 };       // Complete beginner
-    if (elo <= 400) return { normal: 0.5, capture: 0.3, check: 0.15, stockfish: 0.05 };   // Just learned rules
-    if (elo <= 600) return { normal: 0.4, capture: 0.3, check: 0.15, stockfish: 0.15 };   // Starting to think
-    if (elo <= 800) return { normal: 0.3, capture: 0.3, check: 0.15, stockfish: 0.25 };   // Basic understanding
-    if (elo <= 1000) return { normal: 0.2, capture: 0.3, check: 0.15, stockfish: 0.35 };  // Developing player
-    if (elo <= 1200) return { normal: 0.15, capture: 0.25, check: 0.1, stockfish: 0.5 };  // Casual player
-    if (elo <= 1400) return { normal: 0.1, capture: 0.2, check: 0.1, stockfish: 0.6 };    // Club player
-    if (elo <= 1600) return { normal: 0.05, capture: 0.15, check: 0.1, stockfish: 0.7 };  // Strong club player
-    return { normal: 0, capture: 0, check: 0, stockfish: 1 };  // Above 1600: pure Stockfish
+    if (elo <= 250) return { normal: 0.6, capture: 0.3, check: 0.1, stockfish: 0 };
+    if (elo <= 400) return { normal: 0.5, capture: 0.3, check: 0.15, stockfish: 0.05 };
+    if (elo <= 600) return { normal: 0.4, capture: 0.3, check: 0.15, stockfish: 0.15 };
+    if (elo <= 800) return { normal: 0.3, capture: 0.3, check: 0.15, stockfish: 0.25 };
+    if (elo <= 1000) return { normal: 0.2, capture: 0.3, check: 0.15, stockfish: 0.35 };
+    if (elo <= 1200) return { normal: 0.15, capture: 0.25, check: 0.1, stockfish: 0.5 };
+    if (elo <= 1400) return { normal: 0.1, capture: 0.2, check: 0.1, stockfish: 0.6 };
+    if (elo <= 1600) return { normal: 0.05, capture: 0.15, check: 0.1, stockfish: 0.7 };
+    return { normal: 0, capture: 0, check: 0, stockfish: 1 };
   }
 
   async getBestMove(
@@ -77,25 +74,20 @@ class StockfishService {
     return new Promise((resolve) => {
       if (!this.worker) return;
 
-      // Calculate approximate ELO from depth and randomness
       const approximateElo = Math.round((1 - randomness) * 3000);
       const weights = this.getMoveWeights(approximateElo);
 
-      // For lower ELOs, use a mix of human-like moves and Stockfish
       if (weights.stockfish < 1) {
-        // Create a chess instance to get all legal moves
         const chess = new Chess(fen);
         const moves = chess.moves({ verbose: true });
 
-        // Categorize moves
-        const captures = moves.filter(m => m.flags.includes('c')); // Capture moves
-        const checks = moves.filter(m => m.flags.includes('k')); // Check moves
-        const normalMoves = moves.filter(m => !m.flags.includes('c') && !m.flags.includes('k')); // Non-capture, non-check moves
+        const captures = moves.filter(m => m.flags.includes('c'));
+        const checks = moves.filter(m => m.flags.includes('k'));
+        const normalMoves = moves.filter(m => !m.flags.includes('c') && !m.flags.includes('k'));
 
         const moveChoice = Math.random();
         let selectedMove;
 
-        // Decide which type of move to make based on weights
         if (moveChoice < weights.normal && normalMoves.length > 0) {
           selectedMove = normalMoves[Math.floor(Math.random() * normalMoves.length)];
         } else if (moveChoice < weights.normal + weights.capture && captures.length > 0) {
@@ -103,7 +95,6 @@ class StockfishService {
         } else if (moveChoice < weights.normal + weights.capture + weights.check && checks.length > 0) {
           selectedMove = checks[Math.floor(Math.random() * checks.length)];
         } else if (moveChoice < weights.normal + weights.capture + weights.check + weights.stockfish) {
-          // Let Stockfish decide this percentage of moves
           this.worker.onmessage = (e) => {
             const msg = e.data;
             if (msg.startsWith('bestmove')) {
@@ -123,7 +114,6 @@ class StockfishService {
           this.worker.postMessage(`go depth ${depth}`);
           return;
         } else {
-          // If all else fails, make a random legal move
           selectedMove = moves[Math.floor(Math.random() * moves.length)];
         }
 
@@ -131,7 +121,6 @@ class StockfishService {
         return;
       }
 
-      // For higher ELOs (above 1600), use pure Stockfish
       this.worker.onmessage = (e) => {
         const msg = e.data;
         if (msg.startsWith('bestmove')) {
@@ -162,7 +151,7 @@ class StockfishService {
         const msg = e.data;
         if (msg.startsWith('info') && msg.includes('score cp')) {
           const score = parseInt(msg.split('score cp ')[1].split(' ')[0]);
-          resolve(score / 100); // Convert centipawns to pawns
+          resolve(score / 100);
         }
       };
 
@@ -249,7 +238,6 @@ class StockfishService {
   }
 }
 
-// Singleton instance
 let stockfishService: StockfishService | null = null;
 
 export const getStockfishService = () => {

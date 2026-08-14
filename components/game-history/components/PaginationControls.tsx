@@ -17,7 +17,6 @@ interface PaginationControlsProps {
   totalPages: number;
   goToNextPage: () => void;
   goToPreviousPage: () => void;
-  /** "default" preserves the legacy look; "v2" opts into the revamped design. */
   variant?: "default" | "v2";
 }
 
@@ -81,7 +80,6 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             <SelectItem value="50">50</SelectItem>
           </SelectContent>
         </Select>
-        {/* <ChevronRight className="h-4 w-4 text-gray-400" /> */}
       </div>
 
       <div className="flex items-center justify-center">

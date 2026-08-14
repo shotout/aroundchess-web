@@ -46,7 +46,6 @@ export default function ChessboardWrapper({
   const [hintClicked, setHintClicked] = useState<boolean>(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
-  // Helper function to detect if a move is a knight move (L-shaped)
   const isKnightMove = useCallback((from: string, to: string): boolean => {
     const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
     const rankFrom = parseInt(from[1]) - 1;
@@ -56,11 +55,9 @@ export default function ChessboardWrapper({
     const fileDiff = Math.abs(fileTo - fileFrom);
     const rankDiff = Math.abs(rankTo - rankFrom);
 
-    // Knight moves: 2 squares in one direction, 1 in perpendicular
     return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
   }, []);
 
-  // Convert hint arrows to ArrowConfig format for CustomChessArrows
   const customArrowsConfig = useMemo(() => {
     if (!bestMove || !showHint || !hintClicked) {
       return [];
@@ -72,7 +69,7 @@ export default function ChessboardWrapper({
     return [{
       from,
       to,
-      color: "rgba(28, 22, 194, 0.7)", // Purple hint color with opacity
+      color: "rgba(28, 22, 194, 0.7)",
       isKnightMove: isKnightMove(from, to)
     }];
   }, [bestMove, showHint, hintClicked, isKnightMove]);
@@ -98,9 +95,8 @@ export default function ChessboardWrapper({
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
 
-    // Get the actual container width
     const containerWidth = containerRef.current?.offsetWidth || width;
-    const maxBoardWidth = Math.min(containerWidth - 40, 800); // 40px for padding, max 600px
+    const maxBoardWidth = Math.min(containerWidth - 40, 800);
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
@@ -410,51 +406,6 @@ export default function ChessboardWrapper({
 
   return (
     <div ref={containerRef} className="flex flex-col justify-center items-center gap-3 mt-6 sm:mt-0">
-      {/* <motion.div
-        initial={{ rotateX: 180 }}
-        animate={
-          !is3DMode
-            ? { opacity: 0, display: "hidden" }
-            : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }
-        }
-        transition={{
-          duration: 0.6,
-          stiffness: 500,
-          damping: 30,
-          ease: [0.4, 0.0, 0.2, 1],
-          type: "tween",
-        }}
-        className="max-w-full"
-        style={{
-          maxWidth: '100%',
-          display: is3DMode ? "flex" : "none",
-          backfaceVisibility: "hidden",
-          transformStyle: "preserve-3d",
-        }}
-      >
-        {is3DMode && (
-          <ThreeDBoard
-            arePiecesClickable={true}
-            boardWidth={boardSize ?? 0}
-            arePiecesDraggable={false}
-            orientation={boardOrientation}
-            position={position ?? undefined}
-            onSquareClick={onSquareClick}
-            onSquareRightClick={onSquareRightClick}
-            onPromotionPieceSelect={onPromotionPieceSelect}
-            customSquareStyles={{
-              ...moveSquares,
-              ...optionSquares,
-              ...rightClickedSquares,
-            }}
-            areArrowsAllowed={true}
-            customArrows={getCustomArrows()}
-            customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
-            promotionToSquare={moveTo}
-            showPromotionDialog={showPromotionDialog}
-          />
-        )}
-      </motion.div> */}
 
       <motion.div
        className="max-w-full"
@@ -465,8 +416,6 @@ export default function ChessboardWrapper({
           position: "relative",
         }}
       >
-        {/* {!is3DMode && (
-          <> */}
             <TwoDChessboard
               arePiecesClickable={true}
               boardWidth={boardSize ?? 0}
@@ -497,8 +446,6 @@ export default function ChessboardWrapper({
                 orientation={boardOrientation}
               />
             )}
-          {/* </>
-        )} */}
       </motion.div>
 
       <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">

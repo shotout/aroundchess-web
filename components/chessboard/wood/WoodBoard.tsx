@@ -96,7 +96,6 @@ const WoodBoard: React.FC<WoodBoardProps> = ({ position, boardWidth }) => {
   }, []);
   return (
     <div className="relative" style={{ width: boardWidth, height: boardWidth }}>
-      {/* <span className="text-white bg-[red]">{boardWidth / 8}</span> */}
       <Image
         src={"/boards/wood.png"}
         alt="wood"
@@ -122,11 +121,9 @@ const WoodBoard: React.FC<WoodBoardProps> = ({ position, boardWidth }) => {
           }}
           customPieces={twoDPieces}
           customLightSquareStyle={{
-            // backgroundColor: "#ff000070",
             backgroundColor: "transparent",
           }}
           customDarkSquareStyle={{
-            // backgroundColor: "#00ff0080",
             backgroundColor: "transparent",
           }}
           animationDuration={100}

@@ -124,7 +124,6 @@ export default function SSOCallbackPage() {
         if (statusData.success && statusData.data) {
           const { isActive, canLogin } = statusData.data;
 
-          // Require an explicit false — see the note in app/login/page.tsx.
           if (isActive === false && canLogin === false) {
             try {
               await fetch(`${baseUrl}/auth/logout`, {
@@ -173,7 +172,6 @@ export default function SSOCallbackPage() {
               setProfile(normalizedProfile);
               setProfileShow(profileData)
               try {
-                // Await the backend promo window in case it is still loading.
                 if (isPromoWindowActive(await ensurePromoAppSetting())) {
                   window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
                 }
@@ -187,18 +185,14 @@ export default function SSOCallbackPage() {
                 profileData.data?.onboardElo ??
                 profileData.onboardElo ??
                 profileData.data?.onboard_elo;
-              // Prefer the explicit chess.com connection flag; fall back to the
-              // legacy "has a username" heuristic while the backend field rolls out.
               const userIsChesscomConnected =
                 profileData.data?.is_chesscom_connected ??
                 profileData.is_chesscom_connected ??
                 Boolean(userUsername && userUsername.trim() !== "");
 
               if (userIsChesscomConnected) {
-                // Connected → skip onboarding entirely, ignoring onboard_elo.
                 router.push("/playground/play-vs-ai");
               } else if (!userOnboardElo) {
-                // Not connected and no level set yet → show the knowledge screen.
                 router.push("/chess-knowledge");
               } else {
                 router.push("/playground/play-vs-ai");

@@ -24,7 +24,6 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 
-// Placeholder components to be implemented
 import { GameStatistics } from "@/components/analysis/games-history/game-statistics"
 import { GameHistoryTable } from "@/components/analysis/games-history/game-history-table"
 import { GameAnalytics } from "@/components/analysis/games-history/game-analytics"
@@ -52,7 +51,6 @@ export default function GameHistoryPage() {
         </div>
       </div>
 
-      {/* Filters Section */}
       <Card className="p-4 space-y-4">
         <div className="flex flex-wrap gap-4">
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -112,7 +110,6 @@ export default function GameHistoryPage() {
         </div>
       </Card>
 
-      {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">
           <div className="flex items-center space-x-2">

@@ -42,7 +42,6 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Detect if device is mobile
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768 || "ontouchstart" in window);
@@ -75,7 +74,6 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
 
   const handleMouseLeave = () => {
     if (!isMobile) {
-      // Add a small delay before closing to prevent flickering
       hoverTimeoutRef.current = setTimeout(() => {
         setIsPopoverOpen(false);
       }, 100);
@@ -209,7 +207,6 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              {/* White openings */}
               {relevantOpenings.white.length > 0 && (
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] --xs font-semibold text-gray-900 tracking-wide mb-1">
@@ -230,7 +227,6 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
                 </div>
               )}
 
-              {/* Black openings */}
               {relevantOpenings.black.length > 0 && (
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] --xs font-semibold text-gray-900 tracking-wide mb-1">
@@ -294,7 +290,6 @@ const OpeningTooltip: React.FC<OpeningTooltipProps> = ({
     );
   }
 
-  // Desktop version with hover
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>

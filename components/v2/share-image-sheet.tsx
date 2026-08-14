@@ -12,20 +12,6 @@ import {
   type ShareCardSpec,
 } from "@/components/v2/share-link";
 
-/**
- * How a network can be handed a post that already carries both the card and the
- * caption:
- *
- * - `compose` opens the network's own composer with the caption and the card's
- *   link filled in; the link unfurls into the image, so the user only presses
- *   send.
- * - `paste` has no composer to prefill, so the caption and link go to the
- *   clipboard together — one paste yields both.
- * - `attach` sends the picture itself — as a photo through the phone's share
- *   sheet, or from the clipboard on a desktop. WhatsApp keeps no caption with
- *   an attached image and Instagram accepts no prefilled one, so the words are
- *   left for the user to paste or type.
- */
 type ShareMode = "compose" | "paste" | "attach";
 
 interface Network {
@@ -49,8 +35,6 @@ const NETWORKS: Network[] = [
     label: "WhatsApp",
     icon: "/images/v2/play-vs-ai/Icon-whatsapp.png",
     mode: "attach",
-    // The picture is sent as a photo rather than a link, so the caption carries
-    // no URL — the card's own ribbon is what points back to the site.
     web: (text) => `https://wa.me/?text=${encodeURIComponent(text)}`,
   },
   {
@@ -73,8 +57,6 @@ const NETWORKS: Network[] = [
     label: "Facebook",
     icon: "/images/v2/play-vs-ai/Icon-facebook.png",
     mode: "compose",
-    // `quote` prefills the composer's message box where Facebook still honours
-    // it, and is ignored — harmlessly — where it does not.
     web: (text, url) =>
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
   },
@@ -101,11 +83,6 @@ async function copyText(value: string): Promise<boolean> {
   }
 }
 
-/**
- * Puts the card on the clipboard, with the caption alongside it as a second
- * flavour: the chat window's paste takes the picture, and a paste into the
- * caption box that follows takes the words.
- */
 async function copyImage(blob: Blob, caption?: string): Promise<boolean> {
   const ClipboardItemCtor = (window as any).ClipboardItem;
   if (!navigator.clipboard?.write || !ClipboardItemCtor) return false;
@@ -122,7 +99,6 @@ async function copyImage(blob: Blob, caption?: string): Promise<boolean> {
         });
         return true;
       } catch {
-        // Some browsers reject a multi-flavour item; the picture matters most.
       }
     }
     await write({ "image/png": blob });
@@ -134,17 +110,9 @@ async function copyImage(blob: Blob, caption?: string): Promise<boolean> {
 
 function isMobile(): boolean {
   if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return true;
-  // iPadOS 13+ reports itself as a Mac; a touch screen is what gives it away,
-  // and it is the one platform where the OS share sheet is the good path.
   return /Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1;
 }
 
-/**
- * Hands the PNG to the OS share sheet, which lists the messaging apps the
- * phone actually has installed and attaches the image for the user. Returns
- * false when the platform cannot share files, so the caller falls back to the
- * copy-and-open-a-web-intent flow.
- */
 function shareableFile(blob: Blob, fileName: string): File | null {
   if (!isMobile()) return null;
   try {
@@ -187,9 +155,6 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     };
   }, []);
 
-  // Facebook renders the preview from a single crawl it makes while the share
-  // dialog opens, and it caches a miss. Rendering the card now means that crawl
-  // hits a warm CDN copy instead of a cold function.
   useEffect(() => {
     fetch(shareCardImageUrl(specRef.current, window.location.origin), {
       cache: "force-cache",
@@ -207,23 +172,16 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
   const shareTo = async (network: Network) => {
     if (!blob) return;
     const { fileName, text, title } = meta.current;
-    // No web composer accepts an attached image — they build their preview from
-    // the OpenGraph tags of whatever link they are given. Sharing the card's own
-    // page is what carries the picture along with the words.
     const url = shareCardUrl(specRef.current, window.location.origin);
-    // A post that carries the picture itself needs no link: the card's ribbon
-    // already names the site, and a second unfurled preview only adds noise.
     const caption = network.mode === "attach" ? text : `${text} ${url}`;
     const target = network.web(text, url);
 
-    // The OS share sheet is the one route that attaches the real photo.
     const file = shareableFile(blob, fileName);
     if (file) {
       try {
         await (navigator as any).share({ files: [file], title, text: caption });
         return;
       } catch (err) {
-        // The user dismissed the sheet — nothing more to do.
         if ((err as any)?.name === "AbortError") return;
       }
     }
@@ -233,8 +191,6 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
       return;
     }
 
-    // Reserve the tab synchronously: mobile browsers drop the user gesture once
-    // the handler awaits, so opening after the copy/download gets popup-blocked.
     let tab: Window | null = null;
     try {
       tab = window.open("", "_blank");

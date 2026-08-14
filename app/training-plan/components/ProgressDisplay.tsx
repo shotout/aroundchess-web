@@ -470,7 +470,6 @@ const chartRange = React.useMemo(() => {
   return (
     <TooltipProvider>
       <div className="space-y-4 p-4 xl:p-0">
-        {/* Overall Improvement Section */}
         {isLoadingProgress ? (
           <OverallImprovementSkeleton />
         ) : (
@@ -544,12 +543,10 @@ const chartRange = React.useMemo(() => {
 
         <div className="md:grid md:grid-cols-5 gap-6">
           <div className="md:col-span-3 flex flex-col gap-6 border rounded-md p-4">
-            {/* Rating Progress Chart */}
             {isLoadingProgress ? (
               <ChartSkeleton title="Your Progress" />
             ) : (
               <div className="border-none rounded-lg overflow-hidden">
-                {/* Mobile Layout */}
                 <div className="block lg:hidden mb-4">
                   <div className="flex items-center justify-between mb-3">
                     <div>
@@ -580,7 +577,6 @@ const chartRange = React.useMemo(() => {
                   </Select>
                 </div>
 
-                {/* Desktop Layout */}
                 <div className="hidden lg:flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-xl font-bold">Your Progress</h3>
@@ -685,7 +681,6 @@ const chartRange = React.useMemo(() => {
               </div>
             )}
 
-            {/* Training Distribution Chart */}
             {isLoadingProgress ? (
               <ChartSkeleton title="Weekly Training Distribution" />
             ) : (
@@ -777,7 +772,6 @@ const chartRange = React.useMemo(() => {
           </div>
 
           <div className="md:col-span-2 flex flex-col rounded-md md:border md:p-4 gap-6 mt-6 md:mt-0">
-            {/* Recent Games */}
             {isLoadingProgress ? (
               <RecentGamesSkeleton />
             ) : (
@@ -912,7 +906,6 @@ const chartRange = React.useMemo(() => {
               </div>
             )}
 
-            {/* Performance Trends */}
             {isLoadingProgress ? (
               <PerformanceTrendsSkeleton />
             ) : (

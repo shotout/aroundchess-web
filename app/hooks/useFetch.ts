@@ -10,16 +10,8 @@ interface UseFetchOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: HeadersInit;
   body?: any;
-  // If true, fetch will be triggered immediately when the component mounts
   immediate?: boolean;
 }
-
-/**
- 
-A custom hook for making API requests
-@param url - The endpoint URL to fetch from
-@param options - Fetch options including method, headers, body, and immediate flag
-@returns An object containing the data, loading state, error state, and a refetch function*/
 
 function useFetch<T = any>(url: string, options: UseFetchOptions = { immediate: true }) {
   const [state, setState] = useState<UseFetchState<T>>({
@@ -32,7 +24,6 @@ function useFetch<T = any>(url: string, options: UseFetchOptions = { immediate: 
   const [fetchCount, setFetchCount] = useState<number>(0);
 
   const fetchData = useCallback(async () => {
-    // Don't fetch if no URL is provided
     if (!url) return;
 
     setState(prev => ({ ...prev, isLoading: true }));
@@ -49,7 +40,6 @@ function useFetch<T = any>(url: string, options: UseFetchOptions = { immediate: 
       };
       console.log(url, fetchOptions)
 
-      // Only add body for non-GET requests
       if (method !== 'GET' && body) {
         fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
       }
@@ -76,7 +66,6 @@ function useFetch<T = any>(url: string, options: UseFetchOptions = { immediate: 
     }
   }, [url, options]);
 
-  // Function to manually trigger a fetch
   const refetch = () => {
     setShouldFetch(true);
     setFetchCount(count => count + 1);

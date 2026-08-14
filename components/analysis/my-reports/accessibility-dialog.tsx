@@ -46,7 +46,6 @@ export function AccessibilityDialog({
   const [screenReader, setScreenReader] = useState(false)
 
   const handleApply = () => {
-    // Implement accessibility settings logic
     onOpenChange(false)
   }
 

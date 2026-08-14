@@ -3,7 +3,6 @@ import { Variants } from "framer-motion";
 export interface PlayerInfoProps {
   profilePic: any;
   playerName: string;
-  /** From the PGN's WhiteElo/BlackElo header; omitted when the game has none. */
   elo?: string | number;
 }
 
@@ -24,26 +23,18 @@ export interface Position {
   fen: string;
   white: string;
   black: string;
-  /** PGN WhiteElo/BlackElo headers — chess.com games carry them, uploads may not. */
   whiteElo?: string;
   blackElo?: string;
   url: string;
-  /** The player's name in this game (matches the PGN White/Black header). */
   username?: string;
-  /** Which side the player was, resolved from the game record's colour. */
   userColor?: "white" | "black";
 }
 
-/** A game fed into the Board Vision quiz: its PGN, the player's name in it, and
- *  the game record's colour/opponent, which is what actually decides the
- *  player's side (see resolveUserSide). */
 export interface QuizGame {
   pgn: string;
   username: string;
   playerColor?: string;
   opponent?: string;
-  /** The opponent's rating from the row — the only one a vs-AI or uploaded PGN
-   *  has, since those carry no Elo headers. */
   rating?: string | number;
 }
 
@@ -62,7 +53,6 @@ export interface ArrowConfig {
 
 export type Arrow = [string, string] | ArrowConfig;
 
-// Component Props Types
 export interface BoardDisplayProps {
   currentPosition: Position | null;
   gameQuestion: GameQuestion | null;
@@ -117,11 +107,9 @@ export interface PerformanceValuation {
   textColor: string;
 }
 
-// UserPGN specific types
 export interface PlayerInfoProps {
   profilePic: any;
   playerName: string;
-  /** From the PGN's WhiteElo/BlackElo header; omitted when the game has none. */
   elo?: string | number;
 }
 

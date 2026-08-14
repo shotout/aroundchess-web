@@ -235,56 +235,6 @@ export default function GameOutcomeDisplay({
             </div>
           )}
 
-          {/* <div className="flex">
-            <div
-              className={`w-1/2 bg-white rounded-md p-2 flex justify-center items-center border-2 ${outcomeState.borderClass} mr-3`}
-            >
-              {pieceConfig && pieceConfig.pieces ? (
-                <div className="flex items-center justify-center space-x-2">
-                  {pieceConfig.pieces.map((piece: any, i: number) => (
-                    <ChessPiece
-                      key={i}
-                      type={piece.type}
-                      color={piece.color}
-                      count={piece.count}
-                      width={25}
-                      height={25}
-                      vsWidth={25}
-                      vsHeight={25}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-[14px] --xs">No piece configuration</p>
-              )}
-            </div>
-
-            <div className="w-1/2 flex flex-col space-y-2">
-              <div className="bg-blue-base w-[100px] gap-x-2 text-white rounded-md p-1 flex items-center">
-                <Clock size={16} className="text-blue-base" fill="white" />
-                <span className="text-[14px] --xs font-medium">{elapsedTime}</span>
-              </div>
-
-              <div className="flex items-center">
-                <Image
-                  src="/endgame-training/move-icon.png"
-                  alt="move icon"
-                  width={30}
-                  height={30}
-                  className="mr-2"
-                />
-                <span className="text-[14px] --sm font-medium">
-                  {moveHistory.length} Moves
-                </span>
-              </div>
-
-              <div className="flex items-center">
-                <span className="text-[14px] --sm font-medium truncate">
-                  {subcategoryName}
-                </span>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
       <div className="absolute right-0 top-0 pointer-events-none">

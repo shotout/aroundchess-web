@@ -102,7 +102,6 @@ const GameAlertDialog = ({
       console.error("Error checking game status:", error);
     }
 
-    // Default case
     return {
       title: "Game Over",
       message: "The game has ended.",
@@ -146,10 +145,8 @@ const GameAlertDialog = ({
   const route = useRouter();
 
   return (
-    // Only show on md (tablet) and larger screens
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="p-2 max-w-[343px] hidden sm:block max-h-[140px] border-none shadow-none bg-transparent sm:rounded-lg [&>button]:hidden">
-        {/* Radix requires an accessible name on every DialogContent */}
         <DialogTitle className="sr-only">Game alert</DialogTitle>
         <div
           className={`relative ${colorStyles.background} border-2 ${colorStyles.border} rounded-xl w-full mx-auto p-4`}

@@ -60,7 +60,6 @@ const MistakeLog = () => {
   const [mistakePreviousDetail, setMistakePreviousDetail] = useState<any>({
     id: "",
   });
-  // const [tabSelected, setSelectedTab] = useState<string>("saved");
   const [MistakeType, setMistakeType] = useState<string>("");
   const [GamePhase, setGamePhase] = useState<string>("");
   const [selectedHistory, setSelectedHistory] = useState<string>("1");
@@ -97,7 +96,6 @@ const MistakeLog = () => {
       setMovementDetails(dataDetail.movementDetail);
       setPlayerInfo(dataDetail.playerInfo);
 
-      // Enrich mistake logs with Analyze Game sections and hide Opening/missing
       try {
         const hash = await sha256Hex(dataDetail.pgn || "");
         const analysisRes = await getAnalysisByPgnHash(hash);
@@ -112,7 +110,6 @@ const MistakeLog = () => {
         );
         setMistakeLogs(enriched as any);
       } catch (e) {
-        // If enrichment fails, still set original (but Opening items may still appear)
         setMistakeLogs(dataDetail.mistakeLogs);
       }
       setLoadingPrevious(false);
@@ -166,7 +163,6 @@ const MistakeLog = () => {
     setTabSelected("previous");
     setChessMove({});
     if (mistakePreviousDetail.id) {
-      // Refresh detail to ensure enrichment applied when switching tabs
       fetchMistakePreviousDetailForFilter(mistakePreviousDetail.id, false);
     }
   };
@@ -347,7 +343,6 @@ const MistakeLog = () => {
     );
   };
 
-  // Show loading only if not hydrated or if we're fetching and don't have cached data
   if (!hydrated || (isFetching && !hasCachedData)) return <DotSpinner />;
 
   return (

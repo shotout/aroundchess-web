@@ -10,12 +10,6 @@ import {
   type ShareCardSpec,
 } from "@/components/v2/share-link";
 
-/**
- * Landing page for a shared result. Facebook, X and WhatsApp cannot be handed
- * an image — they render the OpenGraph tags of whatever URL is shared — so the
- * share sheet points them here and the card rides along as og:image.
- */
-
 type SearchParams = Record<string, string | string[] | undefined>;
 
 const FALLBACK = {
@@ -55,8 +49,6 @@ export async function generateMetadata({
       siteName: "AroundChess",
       title,
       description,
-      // Facebook treats og:url as the story's canonical address and re-scrapes
-      // it, so it has to be this page rather than the bare origin.
       url: spec ? shareCardUrl(spec, origin) : origin,
       images: [{ url: image, width: 1200, height: 630, alt: title }],
     },

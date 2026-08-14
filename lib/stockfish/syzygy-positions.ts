@@ -11,8 +11,6 @@ interface SyzygyResponse {
     moves: SyzygyMove[];
 }
 
-// chess = chess.js instance (pake chess.js instance yang lagi berjalan)
-// player = { value: 'w' | 'b' }
 export function getSyzygyMove(fen: string, chess: any, player: any) {
     return new Promise((resolve, reject) => {
         syzygyService.get(fen)

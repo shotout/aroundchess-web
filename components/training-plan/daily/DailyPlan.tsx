@@ -57,13 +57,11 @@ const DailyPlan = () => {
     },
   ];
 
-  // Calculate completion percentage
   const completedTasks = trainingTasks.filter((task) => task.completed).length;
   const completionPercentage = Math.round(
     (completedTasks / trainingTasks.length) * 100
   );
 
-  // Performance metrics data
   const metrics = [
     {
       title: "Tactical Accuracy",
@@ -95,7 +93,6 @@ const DailyPlan = () => {
     },
   ];
 
-  // Key statistics data
   const keyStats = [
     {
       title: "Games Won",
@@ -129,11 +126,8 @@ const DailyPlan = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
-      {/* Left Column (Today's Training) - 60% width on larger screens */}
       <div className="md:col-span-6 flex flex-col md:p-4 rounded-lg md:shadow-md md:border md:border-primary-gray">
-        {/* Today's Training Section */}
         <div className="">
-          {/* Header with completion status */}
           <div className="flex items-center justify-between mb-2">
             <h1 className="font-bold text-[14px] --sm">
               Today's Training{" "}
@@ -146,7 +140,6 @@ const DailyPlan = () => {
             </span>
           </div>
 
-          {/* Progress bar */}
           <div className="relative h-4 w-full mb-2 rounded-full overflow-hidden">
             <TargetIcon className="absolute h-3 w-full bg-blue-100 rounded-full" />
             <div
@@ -155,7 +148,6 @@ const DailyPlan = () => {
             ></div>
           </div>
 
-          {/* Training tasks */}
           <div className="space-y-3">
             {trainingTasks.map((task, index) => (
               <Card
@@ -164,12 +156,10 @@ const DailyPlan = () => {
               >
                 <div className="flex justify-between">
                   <div className="flex gap-x-4 ">
-                    {/* Blue circle dot on the left */}
                     <div className="flex items-center">
                       <TargetIcon className="h-8 w-8 text-blue-base" />
                     </div>
 
-                    {/* Content in the middle */}
                     <div className="flex flex-col">
                       <div className="flex items-center gap-4 mb-1">
                         <h2 className="font-semibold text-[14px] --sm">{task.title}</h2>
@@ -187,7 +177,6 @@ const DailyPlan = () => {
                     </div>
                   </div>
 
-                  {/* Checkmark on the right */}
                   <div className="flex items-center ml-2">
                     {task.completed ? (
                       <Check className="h-6 w-6 p-[2px] text-white bg-green-500 rounded-full" />
@@ -202,9 +191,7 @@ const DailyPlan = () => {
         </div>
       </div>
 
-      {/* Right Column (Performance Metrics and Key Statistics) - 40% width on larger screens */}
       <div className="md:col-span-4 flex flex-col gap-6 md:border md:shadow-md md:border-primary-gray md:p-4 rounded-md w-full">
-        {/* Performance Metrics Section */}
         <div className="w-full">
           <div className="mb-2">
             <h1 className="font-bold text-base">Performance Metrics</h1>
@@ -256,14 +243,12 @@ const DailyPlan = () => {
           </div>
         </div>
 
-        {/* Performance Trends Section */}
         <div className="w-full">
           <h1 className="text-base font-bold mb-2">Performance Trends</h1>
           <h1 className="text-[14px] --xs mb-3">Last 7 days improvement</h1>
           <div className="grid grid-cols-2 gap-3 w-full">
             {keyStats.map((stat, index) => (
               <Card key={index} className="p-3 rounded-lg border bg-white">
-                {/* Mobile View - Original horizontal layout */}
                 <div className="flex items-center gap-3 md:hidden">
                   <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center">
                     {stat.icon}
@@ -279,9 +264,7 @@ const DailyPlan = () => {
                   </div>
                 </div>
 
-                {/* Tablet and Desktop View - New centered layout */}
                 <div className="hidden md:flex md:flex-col md:items-start">
-                  {/* Icon at the top and centered */}
                   {index === 0 && (
                     <LucideTrophy className="h-6 w-6 text-green-500 mb-2" />
                   )}
@@ -295,13 +278,10 @@ const DailyPlan = () => {
                     <TriangleAlert className="h-6 w-6 text-red-500 mb-2" />
                   )}
 
-                  {/* Value in the middle, large and bold */}
                   <h2 className="text-xl font-semibold mb-1">{stat.value}</h2>
 
-                  {/* Title below the value */}
                   <p className="text-[14px] --xs text-gray-500 mb-1">{stat.title}</p>
 
-                  {/* Trend at the bottom */}
                   {stat.trend && (
                     <p className={`text-[14px] --xs font-medium ${stat.trendColor}`}>
                       {stat.trend}

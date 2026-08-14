@@ -2,12 +2,11 @@
 import { useState, useEffect } from "react";
 import { Chess, Square } from "chess.js";
 
-// Define the simplified puzzle type
 type Puzzle = {
   PuzzleId: string;
   FEN: string;
   Moves: string;
-  Themes: string; // Used for filtering by theme
+  Themes: string;
 };
 
 export function usePuzzles(initialPuzzles: Puzzle[]) {
@@ -18,40 +17,37 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
   const [currentSolutionIndex, setCurrentSolutionIndex] = useState<number>(0);
   const [isSolved, setIsSolved] = useState<boolean>(false);
   const [game] = useState(new Chess());
-  const [fenHistory, setFenHistory] = useState<string[]>([]); // Track FEN history
+  const [fenHistory, setFenHistory] = useState<string[]>([]);
   const [activePlayer, setActivePlayer] = useState<"white" | "black">("white");
   const [playerColor, setPlayerColor] = useState<"white" | "black">("white");
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
     "white"
   );
   const [gameStarted, setGameStarted] = useState(false);
-  const [hint, setHint] = useState<string | null>(null); // Track the current hint
-  const [arrow, setArrow] = useState<any[] | null>(null); // Track the current hint
+  const [hint, setHint] = useState<string | null>(null);
+  const [arrow, setArrow] = useState<any[] | null>(null);
   const [showConfirmationBox, setShowConfirmationBox] =
     useState<boolean>(false);
   const [confirmationAction, setConfirmationAction] = useState<
     (() => void) | null
   >(null);
 
-  // Update puzzles when `initialPuzzles` changes
   useEffect(() => {
     if (!gameStarted) {
       setPuzzles(initialPuzzles);
     }
   }, [initialPuzzles, gameStarted]);
 
-  // Start the game and load the first puzzle
   useEffect(() => {
     if (gameStarted && puzzles.length > 0) {
       loadPuzzleByIndex(0);
     }
-  }, [gameStarted]); // Remove puzzles from dependencies
+  }, [gameStarted]);
 
-  // Update active player and player color whenever FEN changes
   useEffect(() => {
     if (fenHistory.length > 0) {
       const currentFEN = fenHistory[fenHistory.length - 1];
-      const sideToMove = currentFEN.split(" ")[1]; // Second part of FEN indicates active side ('w' or 'b')
+      const sideToMove = currentFEN.split(" ")[1];
       setActivePlayer(sideToMove === "w" ? "white" : "black");
 
       if (fenHistory.length === 1) {
@@ -64,10 +60,8 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
     setCurrentPuzzle(null);
   };
 
-  // Load a puzzle by its index
   const loadPuzzleByIndex = (index: number, forceReload = false) => {
     if (index === currentPuzzleIndex && !forceReload) {
-      // console.log('Puzzle already loaded:', index)
       return;
     }
 
@@ -81,23 +75,19 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
       setSolutionHistory(puzzle.Moves.split(" "));
       setCurrentSolutionIndex(0);
       setIsSolved(false);
-      setHint(null); // Reset hint when loading a new puzzle
+      setHint(null);
 
       const startingSide = puzzle.FEN.split(" ")[1];
-      // Set board orientation so the player (who makes the move) is always at the bottom
       setBoardOrientation(startingSide === "b" ? "black" : "white");
 
-      // console.log('Loaded Puzzle:', puzzle)
     }
   };
 
-  // Fetch a random puzzle
   const getRandomPuzzle = () => {
     if (puzzles.length === 0) return;
 
     let randomIndex = Math.floor(Math.random() * puzzles.length);
 
-    // Avoid reloading the same puzzle
     while (randomIndex === currentPuzzleIndex && puzzles.length > 1) {
       randomIndex = Math.floor(Math.random() * puzzles.length);
     }
@@ -125,59 +115,47 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
     setShowConfirmationBox(false);
   };
 
-  // Reset the current puzzle
   const resetPuzzle = () => {
     if (currentPuzzle) {
-      loadPuzzleByIndex(currentPuzzleIndex, true); // Reload the puzzle
+      loadPuzzleByIndex(currentPuzzleIndex, true);
       setIsSolved(false);
     }
   };
 
-  // Undo the last move
   const handleTakeBackMove = () => {
     if (isSolved || currentSolutionIndex === 0) return;
     
-    // Determine how many moves to undo
-    // If current move index is even (bot just moved), undo 2 moves (bot + player's previous move)
-    // If current move index is odd (player just moved), undo 1 move (just player's move)
     const isBotTurn = currentSolutionIndex % 2 === 0;
-    const movesToUndo = 1; // isBotTurn ? 2 : 1;
+    const movesToUndo = 1;
     
-    // Ensure we don't undo more moves than available
     const actualMovesToUndo = Math.min(movesToUndo, currentSolutionIndex);
     
-    // Undo the moves from the game
     for (let i = 0; i < actualMovesToUndo; i++) {
       game.undo();
     }
     
-    // Update state
     setFenHistory((prev) => prev.slice(0, -actualMovesToUndo));
     setCurrentSolutionIndex((prev) => prev - actualMovesToUndo);
   };
 
-  // Toggle the board orientation
   const toggleBoardOrientation = () => {
     setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
   };
 
-  // Navigate to a specific move
   const handleNavigateToMove = (index: number) => {
     if (index >= 0 && index < fenHistory.length) {
       setCurrentSolutionIndex(index);
     }
   };
 
-  // Get a hint for the current puzzle
   const getHint = () => {
     if (currentPuzzle) {
       const moves = solutionHistory;
-      const nextMove = moves[currentSolutionIndex]; // Get the next move in the solution
-      const fromSquare = nextMove.slice(0, 2); // Extract the starting square
-      setHint(fromSquare); // Set the hint to the starting square of the next move
+      const nextMove = moves[currentSolutionIndex];
+      const fromSquare = nextMove.slice(0, 2);
+      setHint(fromSquare);
     }
   };
-  // Helper function to detect if a move is a knight move (L-shaped)
   const isKnightMove = (from: string, to: string): boolean => {
     const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
     const rankFrom = parseInt(from[1]) - 1;
@@ -187,14 +165,13 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
     const fileDiff = Math.abs(fileTo - fileFrom);
     const rankDiff = Math.abs(rankTo - rankFrom);
 
-    // Knight moves: 2 squares in one direction, 1 in perpendicular
     return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
   };
 
   const getHintArrow = () => {
     if (currentPuzzle) {
       const moves = solutionHistory;
-      const nextMove = moves[currentSolutionIndex]; // Get the next move in the solution
+      const nextMove = moves[currentSolutionIndex];
       const fromSquare = nextMove.substring(0, 2);
       const toSquare = nextMove.substring(2, 4);
       
@@ -202,7 +179,7 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
         {
           from: fromSquare,
           to: toSquare,
-          color: "rgba(34, 26, 233, 0.7)", // Purple hint color
+          color: "rgba(34, 26, 233, 0.7)",
           isKnightMove: isKnightMove(fromSquare, toSquare)
         },
       ]);
@@ -211,19 +188,16 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
   const clearHintArrow = () => {
     setArrow(null);
   };
-  // Clear the hint
   const clearHint = () => {
     setHint(null);
   };
 
-  // Detect when a puzzle is solved
   useEffect(() => {
     if (
       solutionHistory.length > 0 &&
       currentSolutionIndex === solutionHistory.length
     ) {
       setIsSolved(true);
-      // console.log('Puzzle solved!')
     }
   }, [currentSolutionIndex, solutionHistory]);
 
@@ -248,12 +222,12 @@ export function usePuzzles(initialPuzzles: Puzzle[]) {
     handleNavigateToMove,
     gameStarted,
     setGameStarted,
-    getHint, // Expose the getHint function
+    getHint,
     getHintArrow,
     clearHintArrow,
     arrow,
-    clearHint, // Expose the clearHint function
-    hint, // Expose the current hint
+    clearHint,
+    hint,
     showConfirmationBox,
     handleConfirm,
   };

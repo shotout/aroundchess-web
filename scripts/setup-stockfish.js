@@ -19,12 +19,10 @@ const STOCKFISH_FILES = [
 
 const PUBLIC_DIR = path.join(process.cwd(), 'public')
 
-// Create public directory if it doesn't exist
 if (!fs.existsSync(PUBLIC_DIR)) {
   fs.mkdirSync(PUBLIC_DIR)
 }
 
-// Download each Stockfish file
 STOCKFISH_FILES.forEach(file => {
   https.get(file.url, (response) => {
     const fileStream = fs.createWriteStream(path.join(PUBLIC_DIR, file.filename))

@@ -121,15 +121,12 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
     []
   );
 
-  // Add drag and drop handlers
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const target = e.currentTarget;
     
-    // Add visual feedback for valid drop targets
     if (selectedPiece) {
       const positionData = target.dataset.position?.split(',').map(Number);
-      // Validate coordinates
       if (!positionData || positionData.length !== 2 || 
           isNaN(positionData[0]) || isNaN(positionData[1]) ||
           positionData[0] < 0 || positionData[0] > 7 ||
@@ -140,16 +137,15 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
       const [row, col] = positionData;
       
       if (isValidMove(selectedPiece.row, selectedPiece.col, row, col)) {
-        target.style.boxShadow = 'inset 0 0 0 3px rgba(52, 211, 153, 0.7)'; // Emerald green ring
+        target.style.boxShadow = 'inset 0 0 0 3px rgba(52, 211, 153, 0.7)';
       } else {
-        target.style.boxShadow = ''; // No visual feedback for invalid moves
+        target.style.boxShadow = '';
       }
     }
     e.dataTransfer.dropEffect = "move";
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    // Reset visual feedback
     const target = e.currentTarget;
     target.style.boxShadow = '';
   };
@@ -168,7 +164,6 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
       .split(",")
       .map(Number);
 
-    // Validate coordinates
     if (coords.length !== 2 || 
         isNaN(coords[0]) || 
         isNaN(coords[1]) || 
@@ -182,10 +177,8 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
     const [fromRow, fromCol] = coords;
       
     if (isValidMove(fromRow, fromCol, toRow, toCol)) {
-      // Check if there's a piece being captured
       const capturedPiece = board[toRow][toCol];
       if (capturedPiece && onCapture) {
-        // If the captured piece is uppercase, it's white
         const isWhitePiece = capturedPiece === capturedPiece.toUpperCase();
         onCapture(capturedPiece, isWhitePiece ? 'white' : 'black');
       }
@@ -202,13 +195,10 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
     const isCurrentPlayersPiece = piece && ((currentPlayer === "white" && isPieceWhite) || 
                                         (currentPlayer === "black" && !isPieceWhite));
 
-    // Case 1: We have a selected piece
     if (selectedPiece) {
       if (isValidMove(selectedPiece.row, selectedPiece.col, rowIndex, colIndex)) {
-        // Check if there's a piece being captured
         const capturedPiece = board[rowIndex][colIndex];
         if (capturedPiece && onCapture) {
-          // If the captured piece is uppercase, it's white
           const isWhitePiece = capturedPiece === capturedPiece.toUpperCase();
           onCapture(capturedPiece, isWhitePiece ? 'white' : 'black');
         }
@@ -220,7 +210,6 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
       return;
     }
 
-    // Case 2: No selected piece, clicking on our own piece
     if (isCurrentPlayersPiece) {
       setSelectedPiece({ row: rowIndex, col: colIndex });
     } else if (piece) {
@@ -228,7 +217,6 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
     }
   };
 
-  // Remove selected piece when current player changes
   useEffect(() => {
     setSelectedPiece(null);
   }, [currentPlayer]);
@@ -239,12 +227,10 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
       const moveDetails = getMoveNotation(fromRow, fromCol, toRow, toCol, piece);
       const moveNotation = `${moveDetails.piece}${moveDetails.fromSquare}${moveDetails.capture ? 'x' : ''}${moveDetails.toSquare}${moveDetails.checkmate ? '#' : moveDetails.check ? '+' : ''}`;
       
-      // Add move to history
       useChessStore.getState().addMove(moveNotation);
     }
   };
 
-  // Replace the existing move recording effect with this
   useEffect(() => {
     if (!lastMove || !board) return;
     
@@ -255,15 +241,12 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
     
   }, [lastMove, board, debouncedStateUpdate, currentPlayer]);
 
-  // Add this helper function to determine if a piece is the king in check
   const isKingInCheckAtPosition = (row: number, col: number) => {
     const piece = board[row][col];
     if (!piece) return false;
     
-    // Check if it's a king
     if (piece.toUpperCase() !== 'K') return false;
     
-    // Check if it's the king that's in check
     const isWhiteKing = piece === 'K';
     return isKingInCheck === (isWhiteKing ? "white" : "black");
   };
@@ -281,7 +264,6 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
     const check = isKingInCheck !== "noCheck";
     const checkmate = isCheckMate !== "noCheckMate";
 
-    // Format piece notation correctly
     let pieceNotation = '';
     switch (piece.toUpperCase()) {
       case 'P': 
@@ -313,7 +295,6 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
 
   if (isLoading) return <LoadingBoard />;
 
-  // Convert algebraic notation to coordinates
   const algebraicToCoords = (square: string): [number, number] => {
     const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
     const rank = 8 - parseInt(square[1]);
@@ -330,7 +311,6 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
   return (
     <div className="relative w-full aspect-square">
       <div className="grid grid-cols-8 grid-rows-8 h-full w-full border-2 border-gray-800 rounded-lg relative">
-        {/* Render arrows */}
         <svg className="absolute inset-0 pointer-events-none z-10" style={{ width: '100%', height: '100%' }}>
           <defs>
             {customArrows?.map(([_, __, color], index) => (
@@ -356,21 +336,18 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
             const [fromRow, fromCol] = algebraicToCoords(from);
             const [toRow, toCol] = algebraicToCoords(to);
             
-            // Calculate positions
-            const squareSize = 100 / 8; // percentage
+            const squareSize = 100 / 8;
             const fromX = (fromCol + 0.5) * squareSize;
             const fromY = (fromRow + 0.5) * squareSize;
             const toX = (toCol + 0.5) * squareSize;
             const toY = (toRow + 0.5) * squareSize;
             
-            // Calculate the direction vector
             const dx = toX - fromX;
             const dy = toY - fromY;
             const length = Math.sqrt(dx * dx + dy * dy);
             
-            // Adjust start and end points
-            const startOffset = 4;    // percentage of square size
-            const endOffset = 4;     // Adjusted for shorter arrow
+            const startOffset = 4;
+            const endOffset = 4;
             
             const adjustedFromX = fromX + (dx * startOffset / length);
             const adjustedFromY = fromY + (dy * startOffset / length);
@@ -421,7 +398,6 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
               >
                 {isValidMoveTarget && !piece && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    {/* Only show dot for valid moves */}
                     {isValidMove(selectedPiece.row, selectedPiece.col, rowIndex, colIndex) && (
                       <div className="w-5 h-5 rounded-full bg-gray-500 bg-opacity-50" />
                     )}
@@ -447,7 +423,6 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
           })
         )}
       </div>
-      {/* Add the hint arrow */}
       {hintArrow && (
         <div className="absolute inset-0 pointer-events-none">
           <svg className="w-full h-full">
@@ -484,12 +459,10 @@ export default function ChessBoard({ isFlipped = false, showHints = false, onCap
   );
 }
 
-// Helper function to get the center coordinates of a square
 function getSquareCenter(square: string) {
-  const file = square.charCodeAt(0) - 97; // 'a' -> 0, 'b' -> 1, etc.
-  const rank = 8 - parseInt(square[1]); // '1' -> 7, '2' -> 6, etc.
+  const file = square.charCodeAt(0) - 97;
+  const rank = 8 - parseInt(square[1]);
   
-  // Calculate percentage positions (12.5% per square)
   const x = (file * 12.5 + 6.25) + '%';
   const y = (rank * 12.5 + 6.25) + '%';
   

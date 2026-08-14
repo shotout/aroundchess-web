@@ -9,11 +9,6 @@ import {
   type ResultShareSpec,
 } from "@/components/v2/share-link";
 
-/**
- * The card the social networks show in a link preview. The in-app share sheet
- * draws its own portrait card on a canvas; this is the same content laid out
- * for the 1.91:1 box Facebook, X and WhatsApp crop every preview to.
- */
 export const runtime = "nodejs";
 
 const WIDTH = 1200;
@@ -36,8 +31,6 @@ const RESULT_ART: Record<GameResult, string> = {
   draw: "/images/v2/share/result-draw.png",
 };
 
-/** Intrinsic size of each artwork, so the rounded corners hug the picture
- * instead of the letterboxing an "contain" fit would leave behind. */
 const RESULT_ART_SIZE: Record<GameResult, { w: number; h: number }> = {
   win: { w: 448, h: 376 },
   lose: { w: 370, h: 308 },
@@ -86,8 +79,6 @@ async function loadFonts(origin: string) {
   return loaded;
 }
 
-/** Satori aborts the whole render when an <img> fails to load, so the remote
- * avatar is inlined here where a failure can fall back quietly. */
 async function inlineAvatar(url: string | null | undefined, origin: string) {
   const fallback = new URL(FALLBACK_AVATAR, origin).toString();
   if (!url) return fallback;
@@ -451,8 +442,6 @@ export async function GET(request: NextRequest) {
         height: HEIGHT,
         fonts,
         headers: {
-          // The card is a pure function of the query string, and the crawlers
-          // refetch it on every reshare.
           "Cache-Control": "public, max-age=3600, s-maxage=86400, immutable",
         },
       }

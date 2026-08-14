@@ -69,7 +69,6 @@ export default function CountdownTimerDiscount() {
   useEffect(() => {
     const interval = setInterval(() => {
       const remaining = getTimeRemaining(nextDiscountTime);
-      // console.log("remaining", remaining);
       if (remaining.total <= 0) {
         const newTime = Date.now();
         localStorage.setItem("nextDiscountTime", newTime.toString());

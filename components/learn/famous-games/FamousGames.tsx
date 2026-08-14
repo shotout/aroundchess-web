@@ -123,7 +123,6 @@ export default function FamousGames() {
             <TabsContent value="instructive-analysis">
               <InstructiveAnalysis />
             </TabsContent>
-            {/* Add other tab contents as they are developed */}
           </Tabs>
         </CardContent>
       </Card>

@@ -5,7 +5,6 @@ interface LeaderboardData {
   my_elo: number;
   my_rank: number;
   moved_up: number | null;
-  /** Total number of ranked players on the leaderboard. */
   total?: number;
 }
 

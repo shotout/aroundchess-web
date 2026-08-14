@@ -16,7 +16,6 @@ interface ButtonFinishProps {
   pgn: string;
   isSaved: boolean;
   hasAnalysis: boolean;
-  /** True while an analysis is being started headlessly (skip-dialog flow). */
   isAnalyzing?: boolean;
   onAnalyzeClick: () => void;
   onShowAnalysisClick: () => void;
@@ -45,7 +44,6 @@ export const ButtonFinish = ({
       <TooltipProvider>
         <div className="flex flex-row items-center gap-2">
           {hasAnalysis ? (
-            // Show "Show Analysis" button when analysis is completed
             <button
               type="button"
               onClick={onShowAnalysisClick}
@@ -55,8 +53,6 @@ export const ButtonFinish = ({
               Show Analysis
             </button>
           ) : (
-            // No analysis yet — blue "Analyze Mistakes", matching the finished-game
-            // mockup and the wording the game-history table already uses.
             <button
               type="button"
               onClick={() => {
@@ -89,7 +85,6 @@ export const ButtonFinish = ({
       variants={fadeInUp}
       className="flex flex-col w-full rounded-[8px] sm:border-t border-t-[#DEDEDE] gap-3 px-5 sm:p-4"
     >
-      {/* During tutorial, always show the button. Otherwise use responsive classes */}
       <div className={isTutorialPlay ? "block" : "md:hidden xl:block"}>
         {renderButtonSave()}
       </div>
@@ -123,7 +118,6 @@ export const ButtonFinish = ({
           </div>
         </button>
 
-        {/* During tutorial, hide this duplicate button. Otherwise show on md screens only */}
         <div className={isTutorialPlay ? "hidden" : "hidden md:block xl:hidden md:w-2/4"}>
           {renderButtonSave()}
         </div>

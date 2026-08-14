@@ -51,7 +51,6 @@ export default function EndgameTrainingView({
       isClosing ? null : subcategorySlug
     );
 
-    // Scroll to StagesSection when opening a new subcategory
     if (!isClosing) {
       setTimeout(() => {
         stagesSectionRef.current?.scrollIntoView({
@@ -68,7 +67,6 @@ export default function EndgameTrainingView({
         <div className="border  rounded-md border-primary-gray xl:border-none">
           <div className="flex items-center space-x-1 xl:border-b p-[4px] xl:p-4 xl:bg-gradient-to-b from-[#FFFFFF] to-[#F3F8FB] px-[8px]">
             <button onClick={onBackClick} className="w-[20px]">
-              {/* <ChevronLeft className="h-10 w-10 text-gray-600" /> */}
               <svg width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_676_283792)">
                   <path d="M22.1788 9H1.36719" stroke="#2E2E2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

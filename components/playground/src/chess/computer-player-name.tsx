@@ -20,16 +20,14 @@ export function ComputerPlayerName({ className }: ComputerPlayerNameProps) {
       setPlayerName(savedName)
     }
 
-    // Listen for name change events (including reset)
     const handleNameChange = (e: CustomEvent<{ name: string }>) => {
       setPlayerName(e.detail.name)
     }
 
-    // Listen for storage changes (in case of reset)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "computerPlayerName") {
         if (!e.newValue) {
-          setPlayerName("You") // Reset to default
+          setPlayerName("You")
         }
       }
     }
@@ -47,7 +45,6 @@ export function ComputerPlayerName({ className }: ComputerPlayerNameProps) {
     if (!tempName.trim()) return
     setPlayerName(tempName)
     localStorage.setItem("computerPlayerName", tempName)
-    // Dispatch event for other components that might need to update
     window.dispatchEvent(new CustomEvent('computerPlayerNameChange', { 
       detail: { name: tempName } 
     }))

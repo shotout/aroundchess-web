@@ -21,7 +21,7 @@ const Opening: React.FC<OpeningProps> = (props) => {
     capturedWhite,
     capturedBlack,
     movementDetails: logMovement,
-  } = usePgnStore(); // Get PGN from the Zustand store
+  } = usePgnStore();
   const { tabFocus, setTabFocus } = useTabFocusStore();
 
   const { chessMove, setChessMove } = useChessMoveStore();
@@ -99,7 +99,6 @@ const Opening: React.FC<OpeningProps> = (props) => {
     }
     setChessMove(move);
 
-    // Scroll to chessboard using ref from store
     setTimeout(() => {
       scrollToChessboard();
     }, 100);
@@ -217,16 +216,12 @@ const Opening: React.FC<OpeningProps> = (props) => {
                 </span>
               </div>
             </div>
-            {/* <ul className="list-disc list-inside text-[14px] --xs"> */}
 
             <p className="font-bold mb-[8px] text-[14px]">Analysis:</p>
 
             <ul className="list-disc list-inside text-[14px] --xs pl-[10px]">
               {whiteOpening.description.map((detail: any, i: number) => (
                 <li key={i} className="mb-1 pl-[16px] -indent-[18px]">
-                  {/* <span className="font-bold text-[#585858] sm:text-[14px] --sm md:text-md lg:text-md">
-                    {detail.split(" ")[0]}
-                  </span>{" "} */}
                   {detail.substring(detail.indexOf(" "))}
                 </li>
               ))}
@@ -286,13 +281,9 @@ const Opening: React.FC<OpeningProps> = (props) => {
               <p className="font-bold mb-[8px] text-[14px]">Analysis:</p>
             )}
 
-            {/* <ul className="list-disc list-inside text-[14px] --xs"> */}
             <ul className="list-disc list-inside text-[14px] --xs pl-[10px]">
               {blackOpening.description.map((detail: any, i: number) => (
                 <li key={i} className="mb-1 pl-[16px] -indent-[18px]">
-                  {/* <span className="font-bold text-[#585858] sm:text-[14px] --sm md:text-md lg:text-md">
-                    {detail.split(" ")[0]}
-                  </span>{" "} */}
                   {detail.substring(detail.indexOf(" "))}
                 </li>
               ))}

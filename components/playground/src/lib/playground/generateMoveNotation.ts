@@ -7,7 +7,6 @@ export const generateMoveNotation = (
   capturedPiece: string | null,
   isCheck: boolean
 ): string => {
-  // Special case for castling
   if (piece.toUpperCase() === 'K' && Math.abs(toCol - fromCol) === 2) {
     return `${toCol > fromCol ? 'O-O' : 'O-O-O'}${isCheck ? '+' : ''}`;
   }

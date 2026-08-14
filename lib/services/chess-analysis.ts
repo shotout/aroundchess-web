@@ -75,14 +75,12 @@ export class ChessAnalysisService {
         return
       }
       
-      // Try NNUE first
       try {
-        const nnueWorkerUrl = '/stockfish/stockfish.js'  // Use standard Stockfish for now
+        const nnueWorkerUrl = '/stockfish/stockfish.js'
         this.stockfish = new Worker(nnueWorkerUrl)
-        this.isUsingNNUE = false  // Set to false since we're using standard Stockfish
+        this.isUsingNNUE = false
       } catch (nnueError) {
         console.warn('Failed to initialize Stockfish, trying fallback:', nnueError)
-        // Fallback to standard Stockfish
         const standardWorkerUrl = '/stockfish/stockfish.js'
         this.stockfish = new Worker(standardWorkerUrl)
         this.isUsingNNUE = false
@@ -152,7 +150,6 @@ export class ChessAnalysisService {
       }
     }
 
-    // Set a longer timeout for initialization
     initializationTimeout = setTimeout(() => {
       console.error('Engine initialization is taking too long, restarting...')
       if (this.stockfish) {
@@ -160,9 +157,8 @@ export class ChessAnalysisService {
         this.stockfish = new Worker('/stockfish/stockfish.js')
         this.initializeEngine()
       }
-    }, 30000) // 30 second timeout
+    }, 30000)
 
-    // Initialize UCI mode with basic settings
     this.stockfish.postMessage('uci')
     this.stockfish.postMessage('setoption name MultiPV value 1')
     this.stockfish.postMessage('setoption name Threads value 1')
@@ -188,7 +184,7 @@ export class ChessAnalysisService {
       
       const timeoutId = setTimeout(() => {
         reject(new Error('Engine initialization timed out'))
-      }, 30000)  // 30 second timeout for initial setup
+      }, 30000)
       
       const checkReady = setInterval(() => {
         if (this.isEngineReady) {
@@ -200,21 +196,19 @@ export class ChessAnalysisService {
           if (attempts >= maxAttempts) {
             clearTimeout(timeoutId)
             clearInterval(checkReady)
-            // Try to reinitialize the engine
             if (this.stockfish) {
               this.stockfish.terminate()
               this.stockfish = new Worker('/stockfish/stockfish.js')
               this.initializeEngine()
-              resolve() // Resolve anyway to let the analysis continue
+              resolve()
             } else {
               reject(new Error('Failed to initialize engine after multiple attempts'))
             }
           } else {
-            // Send isready command again
             this.stockfish?.postMessage('isready')
           }
         }
-      }, 2000) // Check every 2 seconds
+      }, 2000)
     })
   }
 
@@ -223,10 +217,9 @@ export class ChessAnalysisService {
     
     await this.waitForEngineReady()
     
-    // Set position and start analysis
     await this.sendCommand(`position fen ${fen}`)
     await this.sendCommand('isready')
-    return this.sendCommand('go movetime 500')  // Reduced analysis time for better performance
+    return this.sendCommand('go movetime 500')
   }
 
   private async sendCommand(command: string): Promise<any> {
@@ -240,13 +233,12 @@ export class ChessAnalysisService {
         if (command.startsWith('go ')) {
           resolve({ evaluation: 0, bestMove: 'none' })
         } else {
-          resolve(undefined)  // Don't reject, just resolve with no result
+          resolve(undefined)
         }
         
-        // Process next command
         this.messageQueue.shift()
         this.processNextCommand()
-      }, 2000)  // 2 second timeout for commands
+      }, 2000)
 
       this.messageQueue.push({ 
         resolve: (value: any) => {
@@ -265,13 +257,11 @@ export class ChessAnalysisService {
 
   async analyzeGame(pgn: string): Promise<GameAnalysis> {
     try {
-      // console.time('Total Analysis Time')
       await this.waitForEngineReady()
       
       const chess = new Chess()
       const movesSection = pgn.split('\n\n').pop() || ''
       
-      // Improved PGN cleaning
       const cleanPgn = movesSection
         .replace(/\[\w+\s+"[^"]*"\]/g, '')
         .replace(/\{[%\s]*clk[^}]*\}/g, '')
@@ -301,10 +291,8 @@ export class ChessAnalysisService {
       
       for (const move of moves) {
         try {
-          // console.time(`Move ${moveCount + 1}`)
           const { evaluation, bestMove } = await this.analyzePosition(currentPosition)
           
-          // Analyze threats before making the move
           const threatAnalysis = await this.analyzeThreat(currentPosition, chess.moveNumber())
           if (threatAnalysis.threats.length > 0) {
             threats.push(threatAnalysis)
@@ -320,7 +308,6 @@ export class ChessAnalysisService {
           totalEvalChanges += Math.abs(evaluationChange)
           moveCount++
           
-          // Chess.com-style move classification
           const moveClassification = this.classifyMove(evaluationChange, lastEvaluation, evaluation, move.san)
           
           const moveAnalysis: MoveAnalysis = {
@@ -336,7 +323,6 @@ export class ChessAnalysisService {
           analysis.push(moveAnalysis)
           
           lastEvaluation = evaluation
-          // console.timeEnd(`Move ${moveCount}`)
           console.log(`Move ${moveCount}/${moves.length} analyzed: ${move.san} (${moveClassification})`)
         } catch (error) {
           console.error(`Error analyzing move ${move.san}:`, error)
@@ -349,7 +335,6 @@ export class ChessAnalysisService {
         threats
       }
       
-      // console.timeEnd('Total Analysis Time')
       console.log(`Analysis complete: ${moveCount} moves analyzed`)
       
       return result
@@ -361,42 +346,34 @@ export class ChessAnalysisService {
   }
 
   private evaluationToExpectedPoints(evaluation: number): number {
-    // Convert Stockfish evaluation to winning probability (0.0 to 1.0)
-    // Using a logistic function similar to chess.com
     return 1 / (1 + Math.exp(-0.5 * evaluation));
   }
 
   private classifyMove(evaluationChange: number, previousEval: number, newEval: number, moveSan: string): MoveAnalysis['moveClassification'] {
-    // Convert evaluations to expected points (winning probability)
     const prevWinChance = this.evaluationToExpectedPoints(previousEval);
     const newWinChance = this.evaluationToExpectedPoints(newEval);
     const expectedPointsLost = Math.max(0, prevWinChance - newWinChance);
 
-    // Great move (!) - Only for truly exceptional moves
     if (
-      (previousEval <= -2.0 && newEval >= 0.5) || // Turn around a clearly lost position
-      (moveSan.includes('x') && evaluationChange >= 3.0) || // Winning capture with huge gain
-      (moveSan.includes('#') && previousEval < 1.0) // Finding mate in a non-winning position
+      (previousEval <= -2.0 && newEval >= 0.5) ||
+      (moveSan.includes('x') && evaluationChange >= 3.0) ||
+      (moveSan.includes('#') && previousEval < 1.0)
     ) {
       return 'great'
     }
 
-    // Miss - For very poor moves that lose significant advantage
     if (evaluationChange <= -3.0 || expectedPointsLost >= 0.3) {
       return 'miss'
     }
 
-    // Mistake - For clear mistakes that lose moderate advantage
     if (evaluationChange <= -1.5 || expectedPointsLost >= 0.15) {
       return 'mistake'
     }
 
-    // All other moves are considered normal
     return 'normal'
   }
 
   private generateSummary(analysis: MoveAnalysis[], totalEvalChanges: number, moveCount: number) {
-    // Count moves by classification
     const brilliantMoves = analysis.filter(m => m.moveClassification === 'brilliant').length
     const greatMoves = analysis.filter(m => m.moveClassification === 'great').length
     const bestMoves = analysis.filter(m => m.moveClassification === 'best').length
@@ -412,7 +389,6 @@ export class ChessAnalysisService {
       .sort((a, b) => Math.abs(b.evaluation) - Math.abs(a.evaluation))
       .slice(0, 3)
 
-    // Group mistakes by type to identify patterns
     const mistakePatterns = analysis
       .filter(m => ['blunder', 'miss', 'mistake'].includes(m.moveClassification))
       .reduce((acc, move) => {
@@ -420,7 +396,6 @@ export class ChessAnalysisService {
         return acc
       }, {} as Record<string, number>)
 
-    // Generate personalized lesson recommendations
     const recommendedLessons = Object.entries(mistakePatterns)
       .sort(([, a], [, b]) => b - a)
       .map(([type, count]) => ({
@@ -450,19 +425,18 @@ export class ChessAnalysisService {
     if (moves.length === 0) return 0
     
     const weights: Record<MoveAnalysis['moveClassification'], number> = {
-      brilliant: 1.0,  // 100%
-      great: 1.0,     // 100%
-      best: 1.0,      // 100%
-      excellent: 0.9,  // 90%
-      good: 0.8,      // 80%
-      inaccuracy: 0.6, // 60%
-      mistake: 0.3,    // 30%
-      miss: 0.1,      // 10%
-      blunder: 0,     // 0%
-      normal: 0.8     // 80% for normal moves
+      brilliant: 1.0,
+      great: 1.0,
+      best: 1.0,
+      excellent: 0.9,
+      good: 0.8,
+      inaccuracy: 0.6,
+      mistake: 0.3,
+      miss: 0.1,
+      blunder: 0,
+      normal: 0.8
     }
     
-    // Filter out first 5 moves (assumed book moves)
     const nonBookMoves = moves.slice(5)
     if (nonBookMoves.length === 0) return 100
     
@@ -569,7 +543,6 @@ export class ChessAnalysisService {
   };
 
   async fetchChessComGames(username: string): Promise<ChessComGame[]> {
-    // Get dates for the last week
     const dates = Array.from({length: 7}, (_, i) => {
       const date = new Date()
       date.setDate(date.getDate() - i)
@@ -577,7 +550,6 @@ export class ChessAnalysisService {
     })
 
     try {
-      // Fetch games from each day of the last week
       const allGamesPromises = dates.map(async (monthYear) => {
         const response = await fetch(
           `https://api.chess.com/pub/player/${username}/games/${monthYear}`
@@ -589,7 +561,6 @@ export class ChessAnalysisService {
       const allGamesArrays = await Promise.all(allGamesPromises)
       const allGames = allGamesArrays.flat()
 
-      // Filter games from the last 7 days and sort by date
       const lastWeekGames = allGames.filter(game => {
         const gameDate = new Date(game.end_time * 1000)
         const weekAgo = new Date()
@@ -610,10 +581,8 @@ export class ChessAnalysisService {
     const turn = chess.turn()
     const opponent = turn === 'w' ? 'b' : 'w'
     
-    // Get all pieces positions
     const board = chess.board()
     
-    // 1. Check for direct attacks on pieces
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         const piece = board[i][j]
@@ -623,7 +592,6 @@ export class ChessAnalysisService {
         const attackers = this.getAttackers(chess, square, opponent)
         const defenders = this.getAttackers(chess, square, turn)
         
-        // Piece is under attack with fewer defenders than attackers
         if (attackers.length > defenders.length) {
           threats.push({
             type: 'hanging' as const,
@@ -636,7 +604,6 @@ export class ChessAnalysisService {
       }
     }
     
-    // 2. Check for absolute pins
     const kingSquare = this.findKingSquare(chess, turn)
     if (kingSquare) {
       const pinnedPieces = this.findPinnedPieces(chess, kingSquare, turn)
@@ -694,7 +661,6 @@ export class ChessAnalysisService {
     const pinnedPieces: Array<{ piece: string, square: Square }> = []
     const board = chess.board()
     
-    // Check all pieces of our color
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         const piece = board[i][j]
@@ -702,16 +668,12 @@ export class ChessAnalysisService {
         
         const square = String.fromCharCode(97 + j) + (8 - i) as Square
         
-        // Try to move the piece
         const moves = chess.moves({ square, verbose: true })
         if (moves.length === 0) {
-          // Remove the piece temporarily
           const capturedPiece = chess.remove(square)
-          // If king is now attacked, the piece was pinned
           if (chess.isAttacked(kingSquare, color === 'w' ? 'b' : 'w')) {
             pinnedPieces.push({ piece: piece.type, square })
           }
-          // Put the piece back
           if (capturedPiece) {
             chess.put(capturedPiece, square)
           }

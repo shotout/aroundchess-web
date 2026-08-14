@@ -27,7 +27,6 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 
-// Sample training goals data
 const trainingGoalsData = [
   {
     id: 1,
@@ -94,7 +93,6 @@ const trainingGoalsData = [
   },
 ];
 
-// Performance metrics data
 const metrics = [
   {
     title: "Tactical Accuracy",
@@ -126,7 +124,6 @@ const metrics = [
   },
 ];
 
-// Key statistics data
 const keyStats = [
   {
     title: "Total Games",
@@ -158,7 +155,6 @@ const keyStats = [
   },
 ];
 
-// Helper function to get the appropriate icon
 interface IconProps {
   className: string;
 }
@@ -184,13 +180,11 @@ const TrainingGoals = () => {
   const [sortOrder, setSortOrder] = useState("Soonest due date");
   const [goals, setGoals] = useState(trainingGoalsData);
 
-  // Calculate pagination values
   const totalPages = Math.ceil(goals.length / itemsPerPage);
   const indexOfLastGoal = currentPage * itemsPerPage;
   const indexOfFirstGoal = indexOfLastGoal - itemsPerPage;
   const currentGoals = goals.slice(indexOfFirstGoal, indexOfLastGoal);
 
-  // Pagination handlers
   const goToNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -207,7 +201,6 @@ const TrainingGoals = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Handle sort order change
   useEffect(() => {
     let sortedGoals = [...trainingGoalsData];
 
@@ -222,14 +215,12 @@ const TrainingGoals = () => {
     }
 
     setGoals(sortedGoals);
-    setCurrentPage(1); // Reset to first page when sort changes
+    setCurrentPage(1);
   }, [sortOrder]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
-      {/* Left Column (Training Goals) - 60% width on larger screens */}
       <div className="md:col-span-6 flex flex-col md:p-4 rounded-lg md:shadow-md md:border md:border-primary-gray">
-        {/* Training Goals Header */}
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-bold text-base">Training Goals </h2>
@@ -258,12 +249,10 @@ const TrainingGoals = () => {
           </div>
         </div>
 
-        {/* Training Goal Cards */}
         <div className="space-y-3 mb-4">
           {currentGoals.map((goal) => (
             <Card key={goal.id} className="px-4 py-3 border rounded-lg">
               <div className="flex flex-col">
-                {/* Goal header */}
                 <div className="flex gap-x-2 items-center mb-3">
                   <div className="flex items-center">
                     <TargetIcon className="h-4 w-4 text-blue-base" />
@@ -271,7 +260,6 @@ const TrainingGoals = () => {
                   <h3 className="text-[14px] --sm font-semibold">{goal.title}</h3>
                 </div>
 
-                {/* Progress bar and button in same line */}
                 <div className="flex items-center w-full justify-between">
                   <div className="w-[70%]">
                     <div className="flex justify-between items-center mb-1">
@@ -318,7 +306,6 @@ const TrainingGoals = () => {
           ))}
         </div>
 
-        {/* Pagination Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-center mt-auto">
           <div className="flex items-center mb-3 sm:mb-0">
             <span className="text-[14px] --xs text-gray-600 mr-2">Goals per Page</span>
@@ -348,7 +335,6 @@ const TrainingGoals = () => {
             </Button>
 
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              // Calculate page numbers to show based on current page
               let pageNum;
               if (totalPages <= 5) {
                 pageNum = i + 1;
@@ -388,9 +374,7 @@ const TrainingGoals = () => {
         </div>
       </div>
 
-      {/* Right Column (Performance Metrics and Key Statistics) - 40% width on larger screens */}
       <div className="md:col-span-4 flex flex-col gap-6 md:border md:shadow-md md:border-primary-gray md:p-4 rounded-md w-full">
-        {/* Performance Metrics Section */}
         <div className="w-full">
           <div className="mb-2">
             <h1 className="font-bold text-base">Performance Metrics</h1>
@@ -442,14 +426,12 @@ const TrainingGoals = () => {
           </div>
         </div>
 
-        {/* Key Statistics Section */}
         <div className="w-full">
           <h1 className="text-base font-bold mb-2">Performance Trends</h1>
           <h1 className="text-[14px] --xs mb-3">Monthly improvement</h1>
           <div className="grid grid-cols-2 gap-3 w-full">
             {keyStats.map((stat, index) => (
               <Card key={index} className="p-3 rounded-lg border bg-white">
-                {/* Mobile View - Original horizontal layout */}
                 <div className="flex items-center gap-3 md:hidden">
                   <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center">
                     {stat.icon}
@@ -465,9 +447,7 @@ const TrainingGoals = () => {
                   </div>
                 </div>
 
-                {/* Tablet and Desktop View - New centered layout */}
                 <div className="hidden md:flex md:flex-col md:items-start">
-                  {/* Icon at the top */}
                   {index === 0 && (
                     <LucideTrophy
                       className="h-6 w-6 text-yellow-500 mb-2"
@@ -484,13 +464,10 @@ const TrainingGoals = () => {
                     <TrendingUp className="h-6 w-6 text-purple-500 mb-2" />
                   )}
 
-                  {/* Value in the middle, large and bold */}
                   <h2 className="text-xl font-semibold mb-1">{stat.value}</h2>
 
-                  {/* Title below the value */}
                   <p className="text-[14px] --xs text-gray-500 mb-1">{stat.title}</p>
 
-                  {/* Trend at the bottom */}
                   {stat.trend && (
                     <p className={`text-[14px] --xs font-medium ${stat.trendColor}`}>
                       {stat.trend}

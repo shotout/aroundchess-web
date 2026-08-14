@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "../../ui/card";
 
-// Custom tooltip content component for the Rating Progress chart
 const CustomTooltipContent = ({
   active,
   payload,
@@ -48,7 +47,6 @@ const CustomTooltipContent = ({
 };
 
 const Statistics = () => {
-  // Data for Rating Progress chart
   const [ratingData] = useState([
     { month: "12/24", rating: 0, accuracy: 1300 },
     { month: "01/25", rating: 1500, accuracy: 100 },
@@ -56,7 +54,6 @@ const Statistics = () => {
     { month: "03/25", rating: 1820, accuracy: 2000 },
   ]);
 
-  // Data for Training Distribution chart
   const [trainingData] = useState([
     { category: "Tactics", hours: 4.5, fill: "#3b82f6" },
     { category: "Openings", hours: 7, fill: "#FFE492" },
@@ -65,7 +62,6 @@ const Statistics = () => {
     { category: "Analysis", hours: 6.5, fill: "#9370DB" },
   ]);
 
-  // Dynamic data for Training Goals
   const [trainingGoals] = useState([
     {
       title: "Reach 2000 Rating",
@@ -109,7 +105,6 @@ const Statistics = () => {
     },
   ]);
 
-  // Dynamic data for Recent Games
   const [recentGames] = useState([
     {
       date: "2025-02-27",
@@ -163,16 +158,13 @@ const Statistics = () => {
     },
   ]);
 
-  // Game statistics
   const winRate = 50;
   const avgAccuracy = 87;
   const totalGames = 150;
 
   return (
     <div className="grid md:grid-cols-2 gap-3">
-      {/* Left Column for tablet */}
       <div className="flex flex-col gap-4 md:p-4 rounded-lg md:shadow-md md:border md:border-primary-gray">
-        {/* Rating Progress Chart with Tooltip */}
         <div className="">
           <h1 className="text-base font-bold mb-2">Improvement Progress</h1>
           <p className="text-[14px] --xs mb-2">
@@ -241,7 +233,6 @@ const Statistics = () => {
           </div>
         </div>
 
-        {/* Training Distribution Chart */}
         <div className="">
           <h1 className="text-base font-bold mb-2">Training Distribution</h1>
           <p className="text-[14px] --xs mb-2">Hours spent on different aspects</p>
@@ -282,9 +273,7 @@ const Statistics = () => {
         </div>
       </div>
 
-      {/* Right Column for tablet */}
       <div className="flex flex-col gap-4 md:p-4 rounded-lg md:shadow-md md:border md:border-primary-gray">
-        {/* Training Goals Section */}
         <div className="">
           <h1 className="text-base font-bold mb-2">Training Goals</h1>
           <p className="text-[14px] --xs mb-2">
@@ -344,7 +333,6 @@ const Statistics = () => {
           ))}
         </div>
 
-        {/* Recent Games Section */}
         <div className=" ">
           <h1 className="text-base font-bold mb-2">
             Recent Games{" "}

@@ -26,7 +26,6 @@ export default function MovementTable() {
   const { tabFocus } = useTabFocusStore();
   const { PieceChoosed } = useChessBoardThemeStore();
 
-  // Use the same data access as MovementDetail
   const {
     summary,
     movementDetails: movementDetailsData,
@@ -40,7 +39,6 @@ export default function MovementTable() {
     ? movementDetails.black
     : [];
 
-  // Use the same player info access as MovementDetail
   const whitePlayer =
     summary?.whiteSide?.profileInfo?.username || "Player 1";
   const blackPlayer =
@@ -168,7 +166,6 @@ export default function MovementTable() {
                 {index + 1}
               </span>
 
-              {/* White move */}
               <div
                 className={`grid grid-cols-[30%_30%_40%]  items-center h-10 border-b border-b-[#749BBF] ${
                   chessMove.move === move?.move &&
@@ -298,7 +295,6 @@ export default function MovementTable() {
                 </span>
               </div>
 
-              {/* Black move */}
               <div
                 className={`grid grid-cols-[30%_30%_40%]  items-center h-10 border-b border-b-[#749BBF] ${
                   blackMove &&

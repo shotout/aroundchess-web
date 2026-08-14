@@ -10,14 +10,12 @@ topics.forEach(topic => {
   const pagePath = path.join('app/dashboard/learning/middlegame', topic, 'page.tsx')
   let content = fs.readFileSync(pagePath, 'utf8')
   
-  // Add import statement for PositionIdeas
   const importStatement = `import { PositionIdeas, positionIdeas } from "@/components/learn/middlegame-strategy/PositionIdeas"\n`
   content = content.replace(
     /import { Tooltip,/,
     importStatement + 'import { Tooltip,'
   )
   
-  // Add PositionIdeas component after the chessboard
   const positionIdeasComponent = `
               </div>
             </div>

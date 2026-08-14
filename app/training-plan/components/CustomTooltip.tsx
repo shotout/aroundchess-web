@@ -18,7 +18,6 @@ const CustomInfoTooltip: React.FC<CustomInfoTooltipProps> = ({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
-  // Detect if device supports touch
   useEffect(() => {
     const checkTouchDevice = () => {
       setIsTouchDevice(

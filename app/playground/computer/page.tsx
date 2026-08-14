@@ -39,12 +39,12 @@ interface CapturedPieces {
 
 const getPieceValue = (piece: string) => {
   const values: { [key: string]: number } = {
-    'p': 1,  // pawn
-    'n': 3,  // knight
-    'b': 3,  // bishop
-    'r': 5,  // rook
-    'q': 9,  // queen
-    'k': 0   // king
+    'p': 1,
+    'n': 3,
+    'b': 3,
+    'r': 5,
+    'q': 9,
+    'k': 0
   };
   return values[piece.toLowerCase()] || 0;
 };
@@ -57,7 +57,6 @@ export default function ComputerGamePage() {
   const moveHistory = useComputerChessStore((state) => state.moveHistory);
   const currentPlayer = useComputerChessStore((state) => state.currentPlayer);
 
-  // Initialize state once on mount using useLayoutEffect
   useLayoutEffect(() => {
     const currentState = useComputerChessStore.getState();
     if (!currentState.initialized) {
@@ -65,30 +64,26 @@ export default function ComputerGamePage() {
         ...currentState,
         initialized: true,
         eliminatedPieces: { white: [], black: [] },
-        isColorSelectionOpen: true, // Show on first visit
+        isColorSelectionOpen: true,
       });
     } else {
-      // Check if a game is in progress by looking at the board state
       const isGameStarted = currentState.moves.length > 0;
       useComputerChessStore.setState({
         ...currentState,
-        isColorSelectionOpen: !isGameStarted, // Only show if no game in progress
+        isColorSelectionOpen: !isGameStarted,
       });
     }
   }, []);
 
-  // Add board size state
-  const [boardSize, setBoardSize] = useState(700); // Default size
+  const [boardSize, setBoardSize] = useState(700);
   const [mounted, setMounted] = useState(false);
   const [capturedPieces, setCapturedPieces] = useState<CapturedPieces>({ white: [], black: [] });
-  const [materialAdvantage, setMaterialAdvantage] = useState(0); // positive for white advantage
+  const [materialAdvantage, setMaterialAdvantage] = useState(0);
 
-  // Mount effect
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Handle all window-dependent effects
   useEffect(() => {
     if (typeof window === 'undefined' || !mounted) return;
 
@@ -100,45 +95,35 @@ export default function ComputerGamePage() {
       const maxSize = 700;
 
       if (isPortrait) {
-        // In portrait mode, use screen width as the primary constraint
         const availableWidth = width - (minPadding * 2);
-        // Use 85% of available width for mobile, 90% for tablets
         const sizeFactor = width <= 430 ? 0.85 : 0.9;
         setBoardSize(Math.min(maxSize, availableWidth * sizeFactor));
       } else {
-        // In landscape, use height as the primary constraint
         const availableHeight = height - (minPadding * 2);
-        // Use 80% of available height
         setBoardSize(Math.min(maxSize, availableHeight * 0.8));
       }
     };
 
-    // Initial size calculation
     handleResize();
 
-    // Add event listeners
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [mounted]);
 
-  // Add new state for dialogs
   const [showHintPopup, setShowHintPopup] = useState(false)
   const [showGameMenu, setShowGameMenu] = useState(false)
   const [showResignConfirm, setShowResignConfirm] = useState(false)
   const [hintArrow, setHintArrow] = useState<[Square, Square] | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
-  // Add handler for hint generation
   const handleHintGenerated = (from: string, to: string) => {
     setHintArrow([from as Square, to as Square])
   }
 
-  // Clear hint arrow when a move is made
   useEffect(() => {
     setHintArrow(null)
   }, [moveHistory])
 
-  // Clear hint arrow when dialog closes
   useEffect(() => {
     if (!showHintPopup && !hintArrow) {
       setHintArrow(null)
@@ -153,7 +138,6 @@ export default function ComputerGamePage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 relative overflow-hidden">
       <SiteHeader />
       <PawnPromotionDialog />
-      {/* Enhanced Background Pattern */}
       <div 
         className="absolute inset-0 w-full h-full opacity-50"
         style={{
@@ -166,13 +150,11 @@ export default function ComputerGamePage() {
         }}
       />
       
-      {/* Enhanced Animated Gradient Orbs */}
       <div className="absolute top-0 -left-1/4 w-[1000px] h-[1000px] bg-indigo-200/20 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse-slow" />
       <div className="absolute -bottom-1/4 -right-1/4 w-[800px] h-[800px] bg-blue-200/20 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse-slow delay-300" />
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] bg-purple-200/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow delay-500" />
       
       <div className="relative">
-        {/* Enhanced Hero Section */}
         <div className="relative bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 py-24 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2),transparent)] animate-pulse-slow" />
           <div className="absolute inset-0" style={{ backgroundImage: 'url("/chess-pattern.png")', opacity: 0.1 }} />
@@ -209,16 +191,12 @@ export default function ComputerGamePage() {
           </MaxWidthWrapper>
         </div>
 
-        {/* Game Section */}
         <div className="relative min-h-[calc(100vh-25vh)] py-8 sm:py-12">
           <MaxWidthWrapper>
             <div className="container mx-auto px-4">
               <div className="flex flex-col xl:flex-row gap-8 items-start">
-                {/* Main Game Area - Left Side */}
                 <div className="w-full lg:w-auto xl:flex-1">
-                  {/* Chess Board Container with improved styling */}
                   <div className="relative bg-white/90 rounded-2xl p-6 backdrop-blur-sm shadow-xl border border-blue-100/50">
-                    {/* Computer Player Label */}
                     <div className="mb-6">
                       <div className="flex items-center justify-between">
                         <ComputerHeader />
@@ -226,7 +204,6 @@ export default function ComputerGamePage() {
                       </div>
                     </div>
 
-                    {/* Chess Board */}
                     <div className="relative w-full h-full">
                       <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-xl shadow-lg" />
                       <div className="relative w-full h-full" style={{ aspectRatio: '1 / 1' }}>
@@ -243,7 +220,6 @@ export default function ComputerGamePage() {
                       </div>
                     </div>
 
-                    {/* Player Name and Eliminated Pieces */}
                     <div className="mt-6">
                       <div className="flex items-center justify-between">
                         <ComputerPlayerName />
@@ -252,15 +228,12 @@ export default function ComputerGamePage() {
                     </div>
                   </div>
 
-                  {/* Controls - Separate card */}
                   <div className="mt-6 bg-white/90 rounded-xl p-4 backdrop-blur-sm shadow-lg border border-blue-100/50">
                     <ComputerControls />
                   </div>
                 </div>
 
-                {/* Side Panel - Right Side */}
                 <div className="w-full lg:w-[400px] flex-shrink-0 space-y-4">
-                  {/* Game Information Box */}
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -279,9 +252,7 @@ export default function ComputerGamePage() {
                       </TabsList>
                       <TabsContent value="history" className="mt-2 sm:mt-4">
                         <div className="bg-white/90 rounded-xl p-4 sm:p-6 backdrop-blur-sm shadow-lg border border-blue-100/50 space-y-6">
-                          {/* Game Information */}
                           <div className="space-y-4">
-                            {/* Current Turn */}
                             <div className="bg-gray-50/50 p-3 rounded-lg">
                               <div className="flex items-center justify-between">
                                 <span className="text-[14px] --sm text-gray-600">Current Turn</span>
@@ -291,7 +262,6 @@ export default function ComputerGamePage() {
                               </div>
                             </div>
 
-                            {/* Material Advantage */}
                             <div>
                               <h3 className="text-[14px] --sm font-medium text-gray-900 mb-3">Material Advantage</h3>
                               <div className="space-y-2">
@@ -312,7 +282,6 @@ export default function ComputerGamePage() {
                               </div>
                             </div>
 
-                            {/* Move History */}
                             <div>
                               <h3 className="text-[14px] --sm font-medium text-gray-900 mb-3">Move History</h3>
                               <div className="bg-gray-50/50 p-3 rounded-lg">
@@ -361,7 +330,6 @@ export default function ComputerGamePage() {
                     </Tabs>
                   </motion.div>
 
-                  {/* Game Actions */}
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setShowHintPopup(true)}
@@ -403,12 +371,10 @@ export default function ComputerGamePage() {
           </MaxWidthWrapper>
         </div>
 
-        {/* Modals and Overlays */}
         <ChoosePiece />
         <ComputerCheckMate />
         <ColorSelectionDialog />
 
-        {/* Add dialogs */}
         <ComputerHintPopup
           isOpen={showHintPopup}
           onClose={() => {

@@ -37,7 +37,7 @@ const DynamicIcon: React.FC<DynamicIconProps> = ({ name, className }) => {
     case "Settings":
       return <Settings className={className} />;
     default:
-      return <Settings className={className} />; // Default icon
+      return <Settings className={className} />;
   }
 };
 

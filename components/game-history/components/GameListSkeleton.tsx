@@ -12,57 +12,46 @@ const SkeletonRow = () => {
       className="grid py-3 border-b border-gray-200 bg-white hover:bg-blue-50"
       style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
     >
-      {/* # */}
       <div className="flex items-center px-2">
         <SkeletonCell width="w-6" height="h-3" />
       </div>
       
-      {/* Date */}
       <div className="flex items-center px-4">
         <SkeletonCell width="w-20" />
       </div>
       
-      {/* Time Control */}
       <div className="flex items-center px-2">
         <SkeletonCell width="w-12" />
       </div>
       
-      {/* Result */}
       <div className="flex items-center px-2">
         <SkeletonCell width="w-8" />
       </div>
       
-      {/* Opponent */}
       <div className="flex items-center px-4">
         <SkeletonCell width="w-24" />
       </div>
       
-      {/* Rating */}
       <div className="flex items-center px-2">
         <SkeletonCell width="w-12" />
       </div>
       
-      {/* Game Type */}
       <div className="flex items-center px-2">
         <SkeletonCell width="w-16" />
       </div>
       
-      {/* Moves */}
       <div className="flex items-center px-2">
         <SkeletonCell width="w-8" />
       </div>
       
-      {/* Opening */}
       <div className="flex items-center px-4">
         <SkeletonCell width="w-32" />
       </div>
       
-      {/* Source */}
       <div className="flex items-center px-2">
         <SkeletonCell width="w-16" />
       </div>
       
-      {/* Actions */}
       <div className="px-4">
         <div className="h-8 w-full bg-gray-200 rounded-3xl animate-pulse" />
       </div>
@@ -70,13 +59,11 @@ const SkeletonRow = () => {
   );
 };
 
-// Main skeleton loading component
 const DesktopTableSkeleton = ({ rows = 10 }) => {
   const DESKTOP_GRID_TEMPLATE = "0.5fr 1.5fr 1fr 1fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr";
   
   return (
     <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
-      {/* Header Row */}
       <div
         className="grid bg-blue-100 py-3 text-[14px] --xs font-medium text-gray-700"
         style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
@@ -94,7 +81,6 @@ const DesktopTableSkeleton = ({ rows = 10 }) => {
         <div className="px-4 text-center">Actions</div>
       </div>
 
-      {/* Skeleton Rows */}
       <div className="divide-y divide-gray-200">
         {Array.from({ length: rows }).map((_, index) => (
           <SkeletonRow key={index} />
@@ -104,7 +90,6 @@ const DesktopTableSkeleton = ({ rows = 10 }) => {
   );
 };
 
-// Mobile skeleton component
 const MobileCardSkeleton = () => (
   <div className="bg-white rounded-lg border border-gray-200 p-4">
     <div className="flex justify-between items-start mb-3">
@@ -135,7 +120,6 @@ const MobileSkeletonGrid = ({ cards = 8 }) => (
   </div>
 );
 
-// Complete skeleton loading component
 const GamesListSkeleton = ({ desktopRows = 10, mobileCards = 8 }) => (
   <div className="p-0 md:p-4 xl:p-0">
     <DesktopTableSkeleton rows={desktopRows} />

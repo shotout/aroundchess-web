@@ -403,7 +403,6 @@ export default function MovementTable() {
                     </span>
                   </>
                 ) : (
-                  // Empty cells for when there's no black move
                   <>
                     <span></span>
                     <span></span>

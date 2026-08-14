@@ -99,7 +99,6 @@ export function InteractiveBoard({
           onMove?.(move)
         }
       } catch (e) {
-        // Invalid move
       }
 
       setSelectedSquare(null)

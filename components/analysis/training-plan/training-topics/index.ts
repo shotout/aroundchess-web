@@ -1,8 +1,6 @@
-// Types
 import { OpeningTopic, MiddlegameTopic, EndgameTopic, TrainingTopic } from './types'
 export * from './types'
 
-// Openings
 import { sicilianDefense } from './openings/sicilian-defense'
 import { ruyLopez } from './openings/ruy-lopez'
 import { queensGambit } from './openings/queens-gambit'
@@ -29,7 +27,6 @@ import { englishOpening } from './openings/english-opening'
 import { londonSystem } from './openings/london-system'
 import { pieceMovement } from './openings/piece-movement'
 
-// Middlegame
 import { attackingTheKing } from './middlegame/attacking-the-king'
 import { pawnStructures } from './middlegame/pawn-structures'
 import { basicPrinciples } from './middlegame/basic-principles'
@@ -58,7 +55,6 @@ import { defensiveResources } from './middlegame/defensive-resources'
 import { bishopPair } from './middlegame/bishop-pair'
 import { rookHandling } from './middlegame/rook-handling'
 
-// Endgame
 import { rookendgames } from './endgame/rook-endgames'
 import { pawnendgames } from './endgame/pawn-endgames'
 import { basiccheckmates } from './endgame/basic-checkmates'
@@ -89,7 +85,6 @@ import { theoreticalpositions } from './endgame/theoretical-positions'
 import { endgamecalculation } from './endgame/endgame-calculation'
 import { practicalendgame } from './endgame/practical-endgame'
 
-// Re-export openings
 export {
   sicilianDefense,
   ruyLopez,
@@ -118,7 +113,6 @@ export {
   pieceMovement
 }
 
-// Re-export middlegame topics
 export {
   attackingTheKing,
   pawnStructures,
@@ -149,7 +143,6 @@ export {
   rookHandling
 }
 
-// Re-export endgame topics
 export {
   rookendgames as rookEndgames,
   pawnendgames as pawnEndgames,
@@ -182,7 +175,6 @@ export {
   practicalendgame as practicalEndgame
 }
 
-// Topic Collections
 export const openingTopics: { [key: string]: OpeningTopic } = {
   'basic-opening-principles': basicOpeningPrinciples,
   'italian-game': italianGame,
@@ -273,7 +265,6 @@ export const endgameTopics: { [key: string]: EndgameTopic } = {
   'practical-endgame': practicalendgame
 }
 
-// All Topics Combined
 export const allTopics = {
   ...openingTopics,
   ...middlegameTopics,

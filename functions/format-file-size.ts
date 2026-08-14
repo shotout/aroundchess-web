@@ -1,5 +1,4 @@
 export default function formatFileSize(size: number, unit: 'B' | 'KB' | 'MB' | 'GB' | 'TB'): string {
-  // Convert input size to bytes
   const unitMultipliers: Record<string, number> = {
     B: 1,
     KB: 1024,
@@ -10,7 +9,6 @@ export default function formatFileSize(size: number, unit: 'B' | 'KB' | 'MB' | '
 
   const bytes = size * unitMultipliers[unit];
 
-  // Determine the most appropriate unit
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let i = 0;
   let displaySize = bytes;

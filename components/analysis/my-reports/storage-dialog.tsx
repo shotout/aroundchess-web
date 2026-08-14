@@ -59,8 +59,8 @@ interface StorageStats {
 }
 
 const mockStorageStats: StorageStats = {
-  total: 5120, // 5GB in MB
-  used: 2150,  // 2.15GB in MB
+  total: 5120,
+  used: 2150,
   byType: [
     { type: "Progress Reports", size: 850, count: 45 },
     { type: "Game Analysis", size: 650, count: 32 },
@@ -89,7 +89,6 @@ export function StorageDialog({
   }
 
   const handleCleanup = () => {
-    // Implement cleanup logic
     onOpenChange(false)
   }
 

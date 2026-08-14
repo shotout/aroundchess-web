@@ -95,7 +95,6 @@ export async function handlePlayerMove(
         newBoard[from.row][data.newRookCol] = data.rook as PieceType;
       }
 
-      // Move the piece to the new position
       if (newBoard[to.row][to.col]) EliminatedPiece = newBoard[to.row][to.col];
       newBoard[to.row][to.col] = piece;
       newBoard[from.row][from.col] = null;
@@ -104,7 +103,6 @@ export async function handlePlayerMove(
         throw new Error("Invalid move");
     } else throw new Error("Invalid move");
 
-    // After making the move, check if it results in checkmate
     const newCurrentPlayer = currentPlayer === "white" ? "black" : "white";
     const isOpponentInCheck = isKingInCheck(newBoard, newCurrentPlayer);
     const isCheckMated = isOpponentInCheck && isCheckMate(newBoard, newCurrentPlayer);
@@ -117,7 +115,6 @@ export async function handlePlayerMove(
 
     const canPromotePawn = promotePawn(board, from.row, from.col, to.row, to.col, currentPlayer);
 
-    // Update game state
     const gameState: GameState = {
       board: newBoard,
       status: isCheckMated ? "checkmate" : canPromotePawn ? "promote" : "in-progress",
@@ -146,7 +143,6 @@ export async function handlePlayerMove(
       movingPiece: null,
     };
 
-    // Emit checkmate event first if game is over
     if (isCheckMated) {
       await pusherServer.trigger(`room-${gameId}`, "checkmate", {
         winner: currentPlayer,

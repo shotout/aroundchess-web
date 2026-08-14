@@ -7,16 +7,11 @@ import { useTutorial } from "@/components/TutorialProvider";
 
 export const CACHE_EXPIRATION = 60 * 60 * 1000;
 
-/**
- * If an item already looks like our UI‐shaped Game, pass it through;
- * otherwise transform from raw API shape.
- */
 export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
   if (!Array.isArray(apiData)) return [];
 
   return apiData
     .map((item) => {
-      // 1) UI‐shaped Game? let it pass
       if (
         (typeof item.id === "string" || typeof item.id === "number") &&
         typeof item.date === "string" &&
@@ -26,7 +21,6 @@ export const transformApiDataToComponentFormat = (apiData: any[]): Game[] => {
         return item as Game;
       }
 
-      // 2) Raw API shape → Game
       if (!item.id || !item.date || !item.time_control) {
         return null;
       }
@@ -189,7 +183,6 @@ export function useGames(filters?: GameFilters) {
   const fetchRef = useRef(false);
   const lastExecutedRef = useRef<string>("");
 
-  // Create a stable filter key for caching
   const filterKey = useMemo(() => {
     return JSON.stringify(filters || {});
   }, [filters]);
@@ -230,7 +223,6 @@ export function useGames(filters?: GameFilters) {
   }, [sessionId, filterKey, filters, setGamesData, updateState]);
 
   useEffect(() => {
-    // Skip fetching games when tutorial is active - we'll use dummy data instead
     if (isTutorialPlay) {
       setIsLoading(false);
       setError(null);
@@ -264,7 +256,6 @@ export function useGames(filters?: GameFilters) {
     setError(null);
 
     try {
-      // Call both endpoints in parallel
       const [chessComResponse, otherGamesResponse] = await Promise.all([
         gameHistoryApi.getChessComGames(sessionId),
         gameHistoryApi.getUserGames(sessionId, {
@@ -272,12 +263,10 @@ export function useGames(filters?: GameFilters) {
         })
       ]);
 
-      // Merge the results
       const chessComGames = chessComResponse?.data || [];
       const otherGames = otherGamesResponse?.data || [];
       const allGames = [...chessComGames, ...otherGames];
 
-      // Update store and state with merged data
       setGamesData(allGames);
       updateState(transformApiDataToComponentFormat(allGames));
 

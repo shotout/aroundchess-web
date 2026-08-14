@@ -44,8 +44,6 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
     handleGetLog();
   }, []);
   const handleGetLog = async () => {
-    // Null when there's no session yet; rejects on a network failure. See the
-    // same guard in app/playground/puzzle/page.tsx.
     const res: any = await getUsagePuzzle().catch(() => null);
     setRemainingPuzzle(Number(res?.data?.totalPuzzlesThisMonth) || 0);
   };
@@ -59,9 +57,6 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
   };
   const handleStartPuzzle = () => {
     if (remainingPuzzle >= 20 &&(!isMember&&!isMemberMonthly)) {
-      // toast.error(
-      //   `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
-      // );
       setOpen(true);
       return;
     }
@@ -239,8 +234,6 @@ const TrainingPlanDisplay: React.FC<TrainingPlanDisplayProps> = ({
               onGetPremium={handleGetPremium}
             />
             <div className="flex justify-center">
-              {/* Full width on mobile for a comfortable tap target; on desktop
-                  it stays a centered pill instead of spanning the panel. */}
               <Button
                 onClick={handleStartPuzzle}
                 className="btn-primary rounded-full py-1.5 sm:py-2 px-4 sm:px-6 w-full sm:w-[260px] text-[14px]"

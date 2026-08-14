@@ -80,7 +80,6 @@ const ChessContent: React.FC = () => {
   const [startTime, setStartTime] = useState("0:10:00");
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sync orientation with boardOrientation so player is always at bottom
   useEffect(() => {
     setOrientation(boardOrientation);
   }, [boardOrientation]);
@@ -102,10 +101,8 @@ const ChessContent: React.FC = () => {
     setIs3DMode(is3D);
   }, [StyleChoosed]);
 
-  // Reset chess state when PGN changes
   useEffect(() => {
     if (storePgn) {
-      // Reset all chess-related state
       setIsPlaying(false);
       setCurrentMoveIndex(0);
       setCurrentMoveWhite("0:10:00");
@@ -114,7 +111,6 @@ const ChessContent: React.FC = () => {
       setGame(new Chess());
       setChessMove({});
 
-      // Clear any auto-play timer
       if (autoPlayTimerRef.current) {
         clearInterval(autoPlayTimerRef.current);
         autoPlayTimerRef.current = null;
@@ -198,7 +194,6 @@ const ChessContent: React.FC = () => {
         setBoardOrientation("white");
       }
 
-      // Reset game state
       const newGame = new Chess();
       setGame(newGame);
       setParsedMoves(history);
@@ -602,15 +597,6 @@ const ChessContent: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        {/* <button onClick={toggleBoardMode}>
-          <Image
-            src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[22px] h-[27px] object-contain"
-          />
-        </button> */}
       </div>
     );
   };

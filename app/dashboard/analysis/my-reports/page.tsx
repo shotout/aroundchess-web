@@ -40,12 +40,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useState } from "react"
 
-// Import report components
 import { ProgressReports } from "@/components/analysis/my-reports/progress-reports"
 import { GameHistoryReports } from "@/components/analysis/my-reports/game-history-reports"
 import { TrainingPlanReports } from "@/components/analysis/my-reports/training-plan-reports"
 
-// Import new components (to be created)
 import { GenerateReportDialog } from "@/components/analysis/my-reports/generate-report-dialog"
 import { ScheduleReportDialog } from "@/components/analysis/my-reports/schedule-report-dialog"
 import { ReportCollectionsDialog } from "@/components/analysis/my-reports/collections-dialog"
@@ -62,7 +60,6 @@ export default function ReportsPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      {/* Header */}
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">My Reports</h2>
         <div className="flex items-center space-x-2">
@@ -92,7 +89,6 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="flex items-center space-x-2">
         <Button variant="outline" size="sm">
           <Star className="mr-2 h-4 w-4" />
@@ -117,7 +113,6 @@ export default function ReportsPage() {
         </Button>
       </div>
 
-      {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">
           <div className="flex items-center space-x-2">
@@ -153,7 +148,6 @@ export default function ReportsPage() {
         </Card>
       </div>
 
-      {/* Search and Filter Bar */}
       <Card className="p-4">
         <div className="flex flex-wrap gap-4">
           <div className="flex-1">
@@ -191,7 +185,6 @@ export default function ReportsPage() {
         </div>
       </Card>
 
-      {/* Bulk Actions */}
       {selectedReports.length > 0 && (
         <Card className="p-2">
           <div className="flex items-center space-x-2">
@@ -217,7 +210,6 @@ export default function ReportsPage() {
         </Card>
       )}
 
-      {/* Main Content */}
       <Tabs defaultValue="progress" className="space-y-4">
         <TabsList>
           <TabsTrigger value="progress">Progress Reports</TabsTrigger>
@@ -238,7 +230,6 @@ export default function ReportsPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Dialogs */}
       <GenerateReportDialog
         open={showGenerateDialog}
         onOpenChange={setShowGenerateDialog}

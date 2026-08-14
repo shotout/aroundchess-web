@@ -49,7 +49,6 @@ interface ReportAnalyticsDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-// Mock data for charts
 const usageData = [
   { month: "Jan", views: 45, downloads: 32 },
   { month: "Feb", views: 52, downloads: 38 },

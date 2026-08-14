@@ -7,7 +7,6 @@ import { usePuzzles } from "@/app/hooks/usePuzzles";
 import PuzzleGameInfo from "@/app/components/puzzle/PuzzleGameInfo";
 import { SiteHeader } from "@/components/site-header";
 
-// Define the Puzzle type
 type Puzzle = {
   PuzzleId: string;
   FEN: string;
@@ -16,9 +15,8 @@ type Puzzle = {
 };
 
 export default function Play() {
-  const [filteredPuzzles, setFilteredPuzzles] = useState<Puzzle[]>([]); // Store filtered puzzles
+  const [filteredPuzzles, setFilteredPuzzles] = useState<Puzzle[]>([]);
 
-  // Use the custom hook with the filtered puzzles
   const {
     currentPuzzle,
     getRandomPuzzle,
@@ -43,20 +41,16 @@ export default function Play() {
     clearHint,
     showConfirmationBox,
     handleConfirm,
-  } = usePuzzles(filteredPuzzles); // Pass filtered puzzles to the hook
+  } = usePuzzles(filteredPuzzles);
 
-  // Callback for when puzzles are fetched and filtered
   const handleFetchPuzzles = (puzzles: Puzzle[]) => {
     if (puzzles.length === 0) {
-      // console.warn('No puzzles fetched.')
       return;
     }
 
-    setFilteredPuzzles(puzzles); // Update state first
+    setFilteredPuzzles(puzzles);
 
-    // Wait for the state to update before calling getRandomPuzzle
     setTimeout(() => {
-      // console.log('Filtered puzzles updated. Fetching random puzzle...')
       getRandomPuzzle();
     }, 0);
   };
@@ -68,8 +62,8 @@ export default function Play() {
         <div className="relative w-full max-w-4xl flex flex-col items-center">
           {!currentPuzzle ? (
             <PuzzleInitializer
-              jsonPath="/puzzle/mate_puzzles.json" // Path to your JSON file
-              onFetchPuzzles={handleFetchPuzzles} // Pass filtered puzzles to this callback
+              jsonPath="/puzzle/mate_puzzles.json"
+              onFetchPuzzles={handleFetchPuzzles}
               filteredPuzzles={filteredPuzzles}
               setFilteredPuzzles={setFilteredPuzzles}
               setGameStarted={setGameStarted}
@@ -77,12 +71,12 @@ export default function Play() {
           ) : (
             <>
               <PuzzleGame
-                fenHistory={fenHistory} // FEN of the current puzzle
-                puzzleMoves={solutionHistory} // Solution moves
+                fenHistory={fenHistory}
+                puzzleMoves={solutionHistory}
                 currentMoveIndex={currentSolutionIndex}
                 setCurrentMoveIndex={setCurrentSolutionIndex}
-                isGameOver={isSolved} // Treat "solved" as game over for puzzles
-                onGameOver={() => {}} // Optional callback for when the puzzle is solved
+                isGameOver={isSolved}
+                onGameOver={() => {}}
                 setFenHistory={setFenHistory}
                 setActivePlayer={setActivePlayer}
                 activePlayer={activePlayer}
@@ -94,7 +88,7 @@ export default function Play() {
                 clearHint={clearHint}
               />
               <PuzzleGameInfo
-                fenHistory={fenHistory} // FEN of the current puzzle
+                fenHistory={fenHistory}
                 currentMoveIndex={currentSolutionIndex}
                 navigateToMove={handleNavigateToMove}
                 onTakeBackMove={handleTakeBackMove}

@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Play, BookOpen } from "lucide-react"
 
-// We'll use recharts for the visualizations
 import {
   BarChart,
   Bar,

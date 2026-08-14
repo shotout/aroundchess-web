@@ -21,16 +21,10 @@ export const getProgressCacheKey = (month: string, gameType?: string | null) =>
 const CACHE_EXPIRATION = 60 * 60 * 1000;
 const CACHE_VERSION = "1.0.0";
 
-/**
- * Every cached entry is namespaced by the account that fetched it. Without this
- * the keys are global to the browser, so a second account logging in on the
- * same machine reads the previous account's training-plan data.
- */
 const SCOPE_PREFIX = "tp";
 const SCOPE_STORAGE_KEY = "tp_cache_scope";
 const ANON_SCOPE = "anon";
 
-/** Non-reversible so the bearer token never lands in a localStorage key. */
 const hashScope = (raw: string): string => {
   let hash = 5381;
   for (let i = 0; i < raw.length; i++) {
@@ -56,15 +50,9 @@ class CacheManager {
     return true;
   };
 
-  /** Namespaces a logical key so callers can keep passing plain CACHE_KEYS. */
   private scoped = (key: string): string =>
     `${SCOPE_PREFIX}:${userScope}:${key}`;
 
-  /**
-   * Binds the cache to an account. Call this before any read, passing the
-   * active sessionId (or null when signed out). Switching owners drops every
-   * entry the previous owner left behind rather than serving it to the new one.
-   */
   setUserScope = (sessionId?: string | null): void => {
     const next = sessionId ? hashScope(sessionId) : ANON_SCOPE;
 
@@ -133,10 +121,6 @@ class CacheManager {
     }
   };
 
-  /**
-   * Wipes cached training-plan data for every scope, not just the active one,
-   * and forgets the owner. Safe to call on logout.
-   */
   clearAll = (): void => {
     try {
       if (this.isStorageAvailable()) {
@@ -330,8 +314,6 @@ class CacheManager {
 export const CacheUtil = new CacheManager();
 
 if (typeof window !== "undefined") {
-  // Restore the owner recorded by the last session so a reload reads its own
-  // namespace instead of falling back to anon and re-fetching everything.
   try {
     userScope = localStorage.getItem(SCOPE_STORAGE_KEY) || ANON_SCOPE;
   } catch {

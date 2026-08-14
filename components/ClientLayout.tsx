@@ -10,16 +10,13 @@ export default function ClientLayout({
 }) {
   const pathname = usePathname();
 
-  // Define routes that should not have navigation
   const routesWithoutNavigation = ["/login", "/signup", "/reset-password"];
 
-  // Check if current path should have navigation
-  // Add null check and exact matching for more reliable behavior
   const shouldShowNavigation = pathname
     ? !routesWithoutNavigation.some(
         (route) => pathname === route || pathname.startsWith(`${route}/`)
       )
-    : true; // Default to showing navigation if pathname is null (during initial hydration)
+    : true;
 
   console.log(
     "Current path:",
@@ -28,6 +25,5 @@ export default function ClientLayout({
     shouldShowNavigation
   );
 
-  // Render children directly or with Navigation based on the path
   return shouldShowNavigation ? <Navigation>{children}</Navigation> : children;
 }

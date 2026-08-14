@@ -105,10 +105,7 @@ export function AnalyzeGameHistory({
   };
 
   const handleAnalyzeGame = async (depthOverride?: number) => {
-    // depthOverride bypasses the depthChoosed state so callers (the autoStart
-    // effect) can force a depth in the same tick without a stale-closure read.
     const effectiveDepth = depthOverride ?? depthChoosed;
-    // Disable button immediately to prevent double-click
     setIsSubmitting(true);
 
     try {
@@ -130,7 +127,7 @@ export function AnalyzeGameHistory({
           setOpenPricing(true);
           setTabType("tokens");
         }
-        setIsSubmitting(false); // Re-enable button on error
+        setIsSubmitting(false);
         return;
       }
     } catch (error: any) {
@@ -138,67 +135,58 @@ export function AnalyzeGameHistory({
         description: error.message || "Failed to check analysis capacity",
         duration: 5000,
       });
-      setIsSubmitting(false); // Re-enable button on error
+      setIsSubmitting(false);
       return;
     }
 
     if (token.balance < 1) {
       setOpenPricing(true);
       setTabType("tokens");
-      setIsSubmitting(false); // Re-enable button
+      setIsSubmitting(false);
       return;
     }
     let gameToAnalyze = game.pgn || pgnText;
     if (!gameToAnalyze) {
-      setIsSubmitting(false); // Re-enable button
+      setIsSubmitting(false);
       return;
     }
 
-    // Check for existing job BEFORE adding new one
     const existing = getJobByGameId(game.id);
     if (
       existing &&
       ["pending", "processing", "finalizing"].includes(existing.status)
     ) {
-      // Job already exists and is in progress — just show the progress dialog
-      // Open ChooseAnalysisMode to view progress
       if (onAnalysisStarted) {
         onAnalysisStarted();
       }
 
-      // Close AnalyzeGameHistory
       onOpenChange(false);
-      setIsSubmitting(false); // Re-enable button
+      setIsSubmitting(false);
       return;
     }
     if (existing && existing.status === "completed" && existing.result) {
       console.log("📦 [AnalyzeGameHistory] Existing completed job found, fetching v3 analysis");
 
       try {
-        // Fetch v3 analysis to get Quick Summary data
         const pgnHash = createPgnHash(game.pgn);
         const v3Analysis = await fetchLastAnalysisV3(pgnHash);
 
         console.log("📥 [AnalyzeGameHistory] V3 Analysis response:", v3Analysis);
 
-        // Send v3 analysis to parent if available
         if (v3Analysis && onShortAnalysisReceived) {
           onShortAnalysisReceived(v3Analysis);
           console.log("📤 [AnalyzeGameHistory] V3 analysis data sent to parent component");
         }
 
-        // Open ChooseAnalysisMode to show both analysis options
         if (onAnalysisStarted) {
           onAnalysisStarted();
         }
 
-        // Close AnalyzeGameHistory
         onOpenChange(false);
         setIsSubmitting(false);
         return;
       } catch (error) {
         console.error("❌ [AnalyzeGameHistory] Error fetching v3 analysis:", error);
-        // Fallback: if v3 fetch fails, just open ChooseAnalysisMode anyway
         if (onAnalysisStarted) {
           onAnalysisStarted();
         }
@@ -208,17 +196,13 @@ export function AnalyzeGameHistory({
       }
     }
 
-    // Fresh start: drop any stale v3 job so ProcessingAnalysisMode (opened at
-    // onAnalysisStarted) can't pick up an old completed result before the new
-    // short-analyze job replaces it.
     removeV3Job(game.id);
 
-    // Add job to store immediately to update UI (button changes to "View Analysis")
     const tempJobId = `temp-${Date.now()}`;
     addJob(
       game.id,
       tempJobId,
-      undefined, // statusUrl will be updated after API response
+      undefined,
       game.pgn,
       effectiveDepth
     );
@@ -255,7 +239,6 @@ export function AnalyzeGameHistory({
 
       const data = res.data.data;
       if (data?.processingMode === "async") {
-        // Update the existing job with actual jobId and statusUrl from API response
         updateJob(game.id, {
           jobId: data.jobId,
           statusUrl: data.statusUrl,
@@ -263,14 +246,10 @@ export function AnalyzeGameHistory({
           status: data.status === "completed" ? "completed" : "pending",
         });
 
-        // Open ChooseAnalysisMode FIRST, then close AnalyzeGameHistory
-        // This ensures smooth transition without gap between dialogs
         if (onAnalysisStarted) {
           onAnalysisStarted();
         }
 
-        // Close AnalyzeGameHistory after ChooseAnalysisMode is triggered
-        // Small delay ensures ChooseAnalysisMode is rendered before this closes
         setTimeout(() => {
           onOpenChange(false);
         }, 50);
@@ -317,7 +296,6 @@ export function AnalyzeGameHistory({
       setIsSubmitting(false);
     }
 
-    // Call to new short-analyze endpoint
     try {
       const { default: axios } = await import("axios");
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
@@ -349,7 +327,6 @@ export function AnalyzeGameHistory({
             effectiveDepth
           );
 
-          // START POLLING IMMEDIATELY after getting statusUrl
           startV3BackgroundPolling(
             game.id,
             v3Data.statusUrl,
@@ -365,14 +342,10 @@ export function AnalyzeGameHistory({
         onShortAnalysisReceived(shortAnalyzeRes.data);
       }
     } catch (shortAnalyzeError: any) {
-      // Silent error handling
     }
   };
 
-  // When opened with autoStart flag, or when autoStart is true even if dialog is hidden,
-  // trigger analysis once without showing the dialog.
   useEffect(() => {
-    // allow autoStart to trigger even if open is false
     if (!autoStart) return;
     let mounted = true;
 
@@ -380,23 +353,17 @@ export function AnalyzeGameHistory({
       if (autoStartedRef.current) return;
       autoStartedRef.current = true;
       try {
-        // Auto-start always runs the Standard analysis (depth 12); passing it
-        // explicitly because the state setters won't apply within this tick.
         setDepthChoosed(12);
         setDepth(12);
         await handleAnalyzeGame(12);
-        // notify caller that auto-start completed so they can clear any local state
         try {
           onAutoStartComplete && onAutoStartComplete();
         } catch (e) {}
-        // clear the trigger flag in the global store so it doesn't re-run
         try {
           setIsFromAnalyzeDifferentGame(false);
         } catch (e) {
-          // ignore
         }
       } catch (e) {
-        // swallow - handleAnalyzeGame already shows toasts
       }
     };
 
@@ -404,7 +371,6 @@ export function AnalyzeGameHistory({
 
     return () => {
       mounted = false;
-      // allow future auto-starts when modal re-opens
       autoStartedRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -438,9 +404,6 @@ export function AnalyzeGameHistory({
       >
         <div className="p-[16px] lg:p-[32px] pb-[6px] lg:pb-[12px]">
           <h2 className="text-[20px] text-center lg:text-start lg:text-[24px] font-semibold">Analyze your games</h2>
-          {/* <p className="text-[14px] --sm text-black mt-2">
-            Select your Games from Chess.com or upload your previous Game's <span className="font-bold">PGN</span> for a detailed Game Analysis.
-          </p> */}
 
           <button type="button" onClick={() => onOpenChange(false)} className="absolute top-4 right-4">
             <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -452,47 +415,6 @@ export function AnalyzeGameHistory({
         <div className="p-[16px] lg:p-[32px] pt-[6px] lg:pt-[12px]">
           {activeTab === "auto" && (
             <div className="space-y-4">
-
-              {/* <div className="space-y-2">
-                <div className="flex flex-row items-center">
-                  <Image
-                    src="/icons/hero-section.png"
-                    alt="chess"
-                    width={100}
-                    height={100}
-                    className="w-3 h-4 relative z-10"
-                    priority
-                  />
-                  <p className="block ml-1 text-base sm:text-[14px] --sm text-black">
-                    Chess.com Username
-                  </p>
-                </div>
-                <Input
-                  disabled
-                  id="username"
-                  name="defaultUsername"
-                  type="text"
-                  placeholder="Type here..."
-                  className="w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px]"
-                  value={game.username}
-                />
-              </div>
-              <div className="space-y-2">
-                <p className="block text-base sm:text-[14px] --sm text-black">
-                  Select Game
-                </p>
-                <div className="relative">
-                  <select
-                    disabled
-                    value=""
-                    className="w-full shadow-sm min-h-[44px] bg-[#C0CED4] border border-[#737c7f] px-[16px] py-[12px] rounded-md appearance-none"
-                  >
-                    <option>
-                      {game.date} {game.username} vs {game.opponent}
-                    </option>
-                  </select>
-                </div>
-              </div> */}
 
               <div className="font-medium text-[16px] lg:text-[18px] -mb-[8px]">Choose your Analysis Depth</div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center " data-tutorial="2">
@@ -556,7 +478,6 @@ export function AnalyzeGameHistory({
           )}
 
           <button
-            // Wrapped so the click event isn't passed as depthOverride
             onClick={() => handleAnalyzeGame()}
             disabled={isSubmitting}
             className={`btn-primary w-full text-[14px] --sm rounded-full py-[8px] my-4 ${

@@ -31,13 +31,10 @@ export default function CheckmateTrainingView({
   }, [data, movesToCheckmate]);
 
   const handlePositionSelect = (index: number) => {
-    // Call the original handler to maintain state consistency
     if (onPositionSelect) {
       onPositionSelect(index);
     }
 
-    // Redirect to the StageDetailView with appropriate parameters
-    // Using movesToCheckmate as categorySlug, "checkmate" as subcategorySlug, and index+1 as stageNumber
     router.push(
       `/playground/endgame-training/checkmate-${movesToCheckmate}/position-${
         index + 1

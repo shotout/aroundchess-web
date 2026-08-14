@@ -63,7 +63,7 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
         return skillLevels[i];
       }
     }
-    return skillLevels[0]; // Default to novice if no matching level
+    return skillLevels[0];
   };
 
   const getNextLevel = () => {
@@ -72,7 +72,7 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
         return skillLevels[i];
       }
     }
-    return skillLevels[skillLevels.length - 1]; // If already at max level
+    return skillLevels[skillLevels.length - 1];
   };
 
   const currentLevel = getCurrentLevel();
@@ -80,7 +80,6 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
   const isMaxLevel = currentLevel.id === skillLevels[skillLevels.length - 1].id;
 
   const getImagePath = (currentLevelId: string) => {
-    // Using blue for achieved levels as in DialogLevelProgress
     const status = "blue";
     const formattedTitle = currentLevelId.toLowerCase().replace(/\s+/g, "-");
     return `/training-plan/${status}/${formattedTitle}.png`;

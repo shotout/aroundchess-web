@@ -24,7 +24,6 @@ import {
 import { Card } from "@/components/ui/card";
 import { getAchievementDetails } from "@/components/game-history/hooks/useAnalyticsData";
 
-// Rating Progress Chart
 export const RatingProgressChart: React.FC<{
   ratingData: any[];
   isCacheValid: boolean;
@@ -97,7 +96,6 @@ export const RatingProgressChart: React.FC<{
   );
 };
 
-// Result Distribution Chart
 export const ResultDistributionChart: React.FC<{
   distributionData: any[];
 }> = ({ distributionData }) => {
@@ -145,7 +143,6 @@ export const ResultDistributionChart: React.FC<{
   );
 };
 
-// Opening Statistics
 export const OpeningStatistics: React.FC<{
   openingData: any[];
 }> = ({ openingData }) => {
@@ -167,7 +164,6 @@ export const OpeningStatistics: React.FC<{
   );
 };
 
-// Performance Insights Section
 export const PerformanceInsightsSection: React.FC<{
   insights: any;
 }> = ({ insights }) => {
@@ -226,7 +222,6 @@ export const PerformanceInsightsSection: React.FC<{
   );
 };
 
-// Key Statistics Section
 export const KeyStatisticsSection: React.FC<{
   stats: any;
 }> = ({ stats }) => {
@@ -297,7 +292,6 @@ export const KeyStatisticsSection: React.FC<{
   );
 };
 
-// Time Control Performance
 export const TimeControlPerformance: React.FC<{
   performanceData: any[];
 }> = ({ performanceData }) => {
@@ -347,7 +341,6 @@ export const TimeControlPerformance: React.FC<{
   );
 };
 
-// Achievement Icon Component
 const AchievementIcon: React.FC<{ type: string }> = ({ type }) => {
   switch (type) {
     case "trophy":
@@ -359,7 +352,6 @@ const AchievementIcon: React.FC<{ type: string }> = ({ type }) => {
   }
 };
 
-// Recent Achievements
 export const RecentAchievements: React.FC<{
   achievements: string[];
 }> = ({ achievements }) => {

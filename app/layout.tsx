@@ -7,8 +7,6 @@ import { AppSettingProvider } from "../components/v2/app-setting-provider";
 import { TutorialProvider } from "../components/TutorialProvider";
 import { DayStreakModalHost } from "../components/v2/day-streak-modal-host";
 import { SessionKeepAlive } from "../components/v2/session-keepalive";
-// Imported for its side effect, and imported here so the fetch wrapper is in
-// place before any page code can fire a request.
 import "../functions/install-auth-fetch";
 import React, { Suspense } from "react";
 import Script from "next/script";
@@ -91,7 +89,6 @@ export default function RootLayout({
             />
           )}
 
-          {/* <React.StrictMode> */}
           <AuthProvider>
             <TutorialProvider>
               {children}
@@ -99,7 +96,6 @@ export default function RootLayout({
               <Toaster />
             </TutorialProvider>
           </AuthProvider>
-          {/* </React.StrictMode> */}
         </body>
       </html>
     </Suspense>

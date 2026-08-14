@@ -15,7 +15,6 @@ export const trackSubscription = (value: number, currency: string = "USD") => {
     });
   }
 
-  // Push event to GA4
   if (typeof window !== "undefined" && window.gtag) {
     window.gtag("event", "subscribe", {
       value,
@@ -29,7 +28,6 @@ export const trackPurchase = (value: number, currency: string = "USD") => {
     window.fbq("track", "Purchase", { value, currency });
   }
 
-  // Push event to GA4
   if (typeof window !== "undefined" && window.gtag) {
     window.gtag("event", "purchase", {
       value,
@@ -43,7 +41,6 @@ export const trackSignUp = () => {
     window.fbq("track", "CompleteRegistration");
   }
 
-  // Push event to GA4
   if (typeof window !== "undefined" && window.gtag) {
     window.gtag("event", "sign_up");
   }
@@ -55,7 +52,6 @@ export const trackInitialCheckout = () => {
     window.fbq("track", "InitiateCheckout");
   }
 
-  // Push event to GA4
   if (typeof window !== "undefined" && window.gtag) {
     console.log("trackInitialCheckout GA4");
     window.gtag("event", "begin_checkout");
@@ -68,7 +64,6 @@ export const trackCustomEvent = (eventName: string, parameters?: any) => {
     window.fbq("track", eventName, parameters);
   }
 
-  // Push event to GA4
   if (typeof window !== "undefined" && window.gtag) {
     console.log("track GA4", eventName, parameters);
     window.gtag("event", eventName, parameters);

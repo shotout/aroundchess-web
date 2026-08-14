@@ -55,8 +55,6 @@ export default function Article() {
 
   const key = selectedTab === null ? "all" : String(selectedTab);
   const allArticles = chessNews[key]?.data || [];
-  // One state for the grid and the controls: `pagination` is spread into
-  // <Pagination> below so clicking a page actually re-slices this list.
   const pagination = usePagination(allArticles);
   const { currentData } = pagination;
 

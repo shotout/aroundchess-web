@@ -33,7 +33,6 @@ export function StartPlayVSAI({
     return () => window.removeEventListener("resize", checkIfDesktop);
   }, []);
 
-  // Don't show dialog during tutorial
   if (!visible || isTutorialPlay) return null;
 
   const sidebarWidth = isDesktop ? window.innerWidth / 6 : 0;
@@ -227,7 +226,6 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
 
   return (
     <div className="space-y-1 sm:space-y-3">
-      {/* Header */}
       <div className="text-center">
         <h1 className="text-base sm:text-xl lg:text-2xl font-semibold text-gray-900">
           Choose Your Color
@@ -238,7 +236,6 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         </p>
       </div>
 
-      {/* Color Selection */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:gap-4">
         {[
           {
@@ -285,13 +282,11 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
       </div>
       <div className="w-full h-0.5 bg-gray-200 mt-1 rounded-full"></div>
 
-      {/* Opponent Selection - Desktop only header */}
       <div className="hidden lg:block space-y-3">
         <h2 className="text-2xl font-semibold text-gray-900 text-center">
           Choose your Opponent
         </h2>
 
-        {/* Desktop Difficulty Selection */}
         <div className="grid grid-cols-4 gap-3">
           {difficulties.map((diff) => (
             <button
@@ -333,7 +328,6 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         </div>
       </div>
 
-      {/* Mobile/Tablet Difficulty Selection */}
       <div className="lg:hidden">
         <div
           className="flex overflow-x-auto gap-2 sm:gap-3 pb-2 scrollbar-hide"
@@ -379,13 +373,12 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
         </div>
       </div>
 
-      {/* Opponents Grid */}
       <div className="border border-gray-200 rounded-lg sm:rounded-xl p-2 sm:p-4">
         <div
           className="grid gap-[6px] sm:gap-[8px] max-h-[36vh] md:max-h-[15vh] xxl:max-h-[21vh] 2xl:max-h-[18vw] overflow-y-auto justify-center"
           style={{ 
             gridTemplateColumns: window.innerWidth >= 1024 
-              ? "repeat(auto-fit, 92px)" // "repeat(auto-fit, 94px)" 
+              ? "repeat(auto-fit, 92px)"
               : "repeat(auto-fit, 72px)" 
           }}
         >
@@ -430,7 +423,6 @@ export const StartPlayVSAIContent: React.FC<{ onClose: () => void }> = ({
       </div>
       <div className="w-full h-0.5 bg-gray-200 mt-1 rounded-full"></div>
 
-      {/* Play Button */}
       <div className="pt-2 sm:pt-4 lg:pt-4">
         {isLoading ? (
           <div className="flex justify-center">

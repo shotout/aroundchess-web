@@ -8,20 +8,18 @@ interface ComputerEliminatedPiecesProps {
   pieces: string[]
 }
 
-// Points value for each piece type
 const PIECE_VALUES: { [key: string]: number } = {
-  'p': 1,  // pawn
-  'n': 3,  // knight
-  'b': 3,  // bishop
-  'r': 5,  // rook
-  'q': 9,  // queen
-  'k': 0   // king (not typically counted in material)
+  'p': 1,
+  'n': 3,
+  'b': 3,
+  'r': 5,
+  'q': 9,
+  'k': 0
 };
 
 export function ComputerEliminatedPieces({ color, pieces }: ComputerEliminatedPiecesProps) {
   const { pieceTheme } = useThemeStore()
 
-  // Group identical pieces and count them
   const groupedPieces = pieces.reduce((acc, piece) => {
     if (piece) {
       acc[piece] = (acc[piece] || 0) + 1;
@@ -29,13 +27,11 @@ export function ComputerEliminatedPieces({ color, pieces }: ComputerEliminatedPi
     return acc;
   }, {} as Record<string, number>);
 
-  // Calculate total points
   const totalPoints = pieces.reduce((total, piece) => {
     const pieceType = piece.toLowerCase();
     return total + (PIECE_VALUES[pieceType] || 0);
   }, 0);
 
-  // Sort pieces by value (highest to lowest)
   const sortedPieces = Object.entries(groupedPieces).sort((a, b) => {
     const aValue = PIECE_VALUES[a[0].toLowerCase()] || 0;
     const bValue = PIECE_VALUES[b[0].toLowerCase()] || 0;
@@ -57,7 +53,6 @@ export function ComputerEliminatedPieces({ color, pieces }: ComputerEliminatedPi
       hover:from-opacity-100 hover:to-opacity-100
     `}>
       <div className="flex items-center gap-3">
-        {/* Captured pieces display */}
         <div className="flex items-center gap-1.5 min-h-[2rem]">
           {sortedPieces.map(([piece, count], index) => (
             <div
@@ -78,7 +73,6 @@ export function ComputerEliminatedPieces({ color, pieces }: ComputerEliminatedPi
                 transform hover:scale-105
               `}>
                 <Image
-                  /* Show opposite color pieces with correct case (uppercase for white, lowercase for black) */
                   src={`/${pieceTheme}/${color}/${piece.toUpperCase()}.png`}
                   alt={piece}
                   width={24}
@@ -94,7 +88,6 @@ export function ComputerEliminatedPieces({ color, pieces }: ComputerEliminatedPi
                 )}
               </div>
               
-              {/* Tooltip showing piece value */}
               <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover/piece:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
                 <div className="px-2 py-1 text-[14px] --xs font-medium text-white bg-gray-800/90 rounded-md shadow-lg whitespace-nowrap">
                   {PIECE_VALUES[piece.toLowerCase()]} points
@@ -109,7 +102,6 @@ export function ComputerEliminatedPieces({ color, pieces }: ComputerEliminatedPi
           )}
         </div>
 
-        {/* Total points display */}
         {totalPoints > 0 && (
           <div className={`
             px-2.5 py-1 rounded-lg text-[14px] --sm font-semibold

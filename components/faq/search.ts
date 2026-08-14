@@ -13,12 +13,10 @@ export function searchFAQs(
   return data
     .map((category) => {
       const matchedQuestions = category.questions.filter((item) => {
-        // Search in questions
         if (item.question.toLowerCase().includes(searchTerm)) {
           return true;
         }
 
-        // Search in answers
         return item.answer.some((answer) =>
           answer.toLowerCase().includes(searchTerm)
         );

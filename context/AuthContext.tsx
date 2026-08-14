@@ -12,27 +12,22 @@ import { supabase } from "../lib/supabase";
 const MARCH_BANNER_STORAGE_KEY = "marchOfferBannerDismissed";
 const MARCH_BANNER_RESET_EVENT = "marchOfferBanner:reset";
 
-// Define the type for the auth context
 type AuthContextType = {
   user: User | null;
   loading: boolean;
 };
 
-// Create context with default values - this is key!
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Props type for the provider component
 type AuthProviderProps = {
   children: ReactNode;
 };
 
-// Provider component
 export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Get current user session
     const getSession = async (): Promise<void> => {
       const { data } = await supabase.auth.getSession();
       setUser(data.session?.user || null);
@@ -41,12 +36,10 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
 
     getSession();
 
-    // Set up auth state listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       (event: string, session: Session | null) => {
-        // Refresh the March campaign banner for new sign-in sessions.
         if (event === "SIGNED_IN" && session?.user) {
           localStorage.removeItem(MARCH_BANNER_STORAGE_KEY);
           window.dispatchEvent(new Event(MARCH_BANNER_RESET_EVENT));
@@ -62,7 +55,6 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     };
   }, []);
 
-  // Make the context value
   const value = React.useMemo(
     () => ({
       user,
@@ -71,11 +63,9 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     [user, loading]
   );
 
-  // Return the provider
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Custom hook that shorhands the context
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   

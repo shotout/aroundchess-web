@@ -18,8 +18,6 @@ interface DialogPlanProps {
 }
 
 const DialogPlan: React.FC<DialogPlanProps> = ({ open, setOpen }) => {
-  // State variables
-  // const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"ai" | "manual">("ai");
   const [goalTitle, setGoalTitle] = useState<string>("");
   const [selectedGoalType, setSelectedGoalType] = useState<string>("elo");
@@ -40,7 +38,6 @@ const DialogPlan: React.FC<DialogPlanProps> = ({ open, setOpen }) => {
     useState<DifficultyLevel>(null);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
-  // Handler functions
   const toggleTopicSelection = (topicId: string) => {
     setSelectedTopics((prev) =>
       prev.includes(topicId)
@@ -50,20 +47,17 @@ const DialogPlan: React.FC<DialogPlanProps> = ({ open, setOpen }) => {
   };
 
   const handleGeneratePlan = () => {
-    // Logic for generating AI plan
     console.log("Generating AI plan...");
     setOpen(false);
   };
 
   const handleCreateCustomPlan = () => {
-    // Logic for creating custom plan
     console.log("Creating custom plan...");
     setOpen(false);
   };
 
   return (
     <div>
-      {/* Dialog Trigger Button */}
       <Button
         className="bg-blue-600 text-white rounded-full px-4 py-2 md:flex items-center justify-center gap-2 hidden"
         onClick={() => setOpen(true)}
@@ -72,11 +66,9 @@ const DialogPlan: React.FC<DialogPlanProps> = ({ open, setOpen }) => {
         <span>Create a Training Plan</span>
       </Button>
 
-      {/* Dialog */}
       {open && (
         <div className="fixed inset-0 bg-black/25 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full sm:max-w-xl md:max-w-3xl max-h-[90vh] overflow-y-auto">
-            {/* Header */}
             <div className="relative p-4 border-b">
               <button
                 onClick={() => setOpen(false)}
@@ -93,9 +85,7 @@ const DialogPlan: React.FC<DialogPlanProps> = ({ open, setOpen }) => {
               </p>
             </div>
 
-            {/* Content */}
             <div className="p-4">
-              {/* Mode Selection */}
               <RadioGroup
                 value={mode}
                 onValueChange={(value: "ai" | "manual") => setMode(value)}
@@ -139,7 +129,6 @@ const DialogPlan: React.FC<DialogPlanProps> = ({ open, setOpen }) => {
                 </Label>
               </RadioGroup>
 
-              {/* AI Info Banner - Only show in AI mode */}
               {mode === "ai" && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center gap-3">
                   <Brain className="w-6 h-6 text-blue-600" />
@@ -150,7 +139,6 @@ const DialogPlan: React.FC<DialogPlanProps> = ({ open, setOpen }) => {
                 </div>
               )}
 
-              {/* Content for AI Generated Mode */}
               {mode === "ai" ? (
                 <AIGeneratedView
                   goalTitle={goalTitle}

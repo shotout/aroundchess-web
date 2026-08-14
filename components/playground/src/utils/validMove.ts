@@ -32,53 +32,53 @@ export const isMoveValid: IsMoveValid = (
 
   const moveIsValid = (() => {
     switch (piece.toLowerCase()) {
-      case "p": // Pawn
+      case "p":
         if (isWhite) {
           return (
-            (dy === -1 && dx === 0 && !Board[toRow][toCol]) || // Normal single move
+            (dy === -1 && dx === 0 && !Board[toRow][toCol]) ||
             (dy === -2 &&
               dx === 0 &&
               fromRow === 6 &&
               !Board[toRow][toCol] &&
-              !Board[toRow + 1][toCol]) || // Double move
+              !Board[toRow + 1][toCol]) ||
             (dy === -1 &&
               Math.abs(dx) === 1 &&
-              Board[toRow][toCol]) // Regular capture
+              Board[toRow][toCol])
           );
         } else {
           return (
-            (dy === 1 && dx === 0 && !Board[toRow][toCol]) || // Normal single move
+            (dy === 1 && dx === 0 && !Board[toRow][toCol]) ||
             (dy === 2 &&
               dx === 0 &&
               fromRow === 1 &&
               !Board[toRow][toCol] &&
-              !Board[toRow - 1][toCol]) || // Double move
+              !Board[toRow - 1][toCol]) ||
             (dy === 1 &&
               Math.abs(dx) === 1 &&
-              Board[toRow][toCol]) // Regular capture
+              Board[toRow][toCol])
           );
         }
-      case "r": // Rook
+      case "r":
         return (
           (dx === 0 || dy === 0) &&
           !hasObstacles(Board, fromRow, fromCol, toRow, toCol)
         );
-      case "n": // Knight
+      case "n":
         return (
           (Math.abs(dx) === 2 && Math.abs(dy) === 1) ||
           (Math.abs(dx) === 1 && Math.abs(dy) === 2)
         );
-      case "b": // Bishop
+      case "b":
         return (
           Math.abs(dx) === Math.abs(dy) &&
           !hasObstacles(Board, fromRow, fromCol, toRow, toCol)
         );
-      case "q": // Queen
+      case "q":
         return (
           (dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy)) &&
           !hasObstacles(Board, fromRow, fromCol, toRow, toCol)
         );
-      case "k": // King
+      case "k":
         return Math.abs(dx) <= 1 && Math.abs(dy) <= 1;
       default:
         return false;

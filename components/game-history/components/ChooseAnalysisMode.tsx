@@ -43,22 +43,17 @@ export default function ChooseAnalysisMode({
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isCompleted, setIsCompleted] = useState(false);
 
-    // V3 Quick Summary job monitoring
     const [v3Progress, setV3Progress] = useState(0);
     const [isV3Analyzing, setIsV3Analyzing] = useState(false);
     const [isV3Completed, setIsV3Completed] = useState(false);
 
-    // For tutorial mode, show Chess Master as analyzing with 45% progress
     const isTutorialStep3 = isTutorialPlay && stepFocused === 2;
     const chessMasterProgress = isTutorialStep3 ? 45 : progress;
 
-    // Chess Master is analyzing if: tutorial step 3, OR job is analyzing AND no v2 data available
-    // If v2AnalysisData is available (from View Analysis), button should be enabled
     const isChessMasterAnalyzing = isTutorialStep3 || (isAnalyzing && !v2AnalysisData?.success);
 
     useEffect(() => {
         if (open) {
-            // Track state changes silently
         }
     }, [open, v2AnalysisData, shortAnalysisData, isChessMasterAnalyzing, chessMasterProgress, isAnalyzing, progress]);
 
@@ -137,17 +132,14 @@ export default function ChooseAnalysisMode({
         };
     }, [game, open, getJobByGameId]);
 
-    // Restart V3 polling when dialog is reopened
     useEffect(() => {
         if (!game || !open) return;
 
         const v3Job = getV3JobByGameId(game.id);
 
-        // If job exists and is in progress, restart polling to ensure progress continues
         if (v3Job && ["pending", "processing", "waiting"].includes(v3Job.status)) {
             console.log("🔄 [V3] ChooseAnalysisMode opened - Restarting V3 polling for job:", v3Job.jobId);
 
-            // Restart polling if job has statusUrl
             if (v3Job.statusUrl && v3Job.gamePgn) {
                 startV3BackgroundPolling(
                     game.id,
@@ -155,13 +147,12 @@ export default function ChooseAnalysisMode({
                     v3Job.jobId,
                     v3Job.gamePgn,
                     game,
-                    true // isRestore = true to avoid showing toast
+                    true
                 );
             }
         }
     }, [game, open, getV3JobByGameId, startV3BackgroundPolling]);
 
-    // Monitor V3 Quick Summary job progress
     useEffect(() => {
         if (!game || !open) {
             setIsV3Analyzing(false);
@@ -226,7 +217,6 @@ export default function ChooseAnalysisMode({
     };
 
     const handleQuickSummaryClick = async () => {
-        // Check if already completed - open GameAnalysis directly
         if (isV3Completed) {
             const v3Job = getV3JobByGameId(game.id);
             
@@ -248,7 +238,6 @@ export default function ChooseAnalysisMode({
             }
         }
 
-        // If v3 data available from fetch (View Analysis flow)
         if (shortAnalysisData?.success && shortAnalysisData.data?.summary) {
             onOpenChange(false);
 
@@ -266,7 +255,6 @@ export default function ChooseAnalysisMode({
             return;
         }
 
-        // Analysis not yet complete - open ProcessingAnalysisMode to show progress
         onOpenChange(false);
 
         if (onOpenProcessingMode) {

@@ -3,7 +3,6 @@ import { Chess } from "chess.js";
 export const analyzeMove = (game: Chess, move: any) => {
   if (!move) return null;
 
-  // Check if castling: king moves 2 squares horizontally
   const castling =
     move.piece === "k" &&
     Math.abs(move.from.charCodeAt(0) - move.to.charCodeAt(0)) === 2;
@@ -17,6 +16,5 @@ export const analyzeMove = (game: Chess, move: any) => {
     castling,
   };
 
-  // Undo move to restore state
   return result;
 };

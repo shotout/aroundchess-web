@@ -60,7 +60,6 @@ interface PuzzleGameProps {
   onBackToPuzzleInitialize: () => void;
 }
 
-// Mobile Move Boxes Component (adapted from playing page)
 interface MobileMoveBoxesProps {
   capturedWhite: Array<{
     captured: string | null;
@@ -363,8 +362,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
 
   const isAtCurrentMove = useMemo(
     () => {
-      // Allow moves when viewing the current position that matches the fenHistory at currentMoveIndex
-      // This allows the player to make moves after undoing
       return currentMoveIndex >= 0 && currentMoveIndex < fenHistory.length;
     },
     [currentMoveIndex, fenHistory]
@@ -488,19 +485,15 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
       const game = chessGame;
       const pieceAtSquare = game.get(square);
 
-      // Use state updater function to ensure we're working with latest state
       setSelectedSquare((currentSelected) => {
-        // If clicking the same square that's currently selected - toggle off (cancel)
         if (currentSelected === square) {
           setPossibleMoves([]);
           return null;
         }
 
-        // If there's a currently selected square (and it's different from clicked square)
         if (currentSelected) {
           const fromSquare = currentSelected;
 
-          // Check if clicking another piece of the same color - switch selection
           if (
             pieceAtSquare &&
             pieceAtSquare.color === game.turn() &&
@@ -510,7 +503,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             return square;
           }
 
-          // Attempt to make a move
           const toSquare = square;
           const moveSuccessful = makeMoveCallback(fromSquare, toSquare);
           if (moveSuccessful) {
@@ -518,11 +510,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             return null;
           }
 
-          // Move failed, keep current selection
           return currentSelected;
         }
 
-        // No piece currently selected - try to select if valid
         if (pieceAtSquare) {
           if (pieceAtSquare.color === game.turn() && !isComputerTurn) {
             getPossibleMoves(square);
@@ -530,7 +520,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           }
         }
 
-        // Can't select, return null
         return null;
       });
     },
@@ -678,32 +667,23 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const handleNextMove = () =>
     navigateToMove(Math.min(currentMoveIndex + 1, fenHistory.length - 1));
 
-  // Wrapper for undo that also resets bot state and captured pieces
   const handleUndoMove = useCallback(() => {
-    // Don't allow undo when game is over
     if (isGameOver) return;
     
-    // Determine how many moves will be undone
-    // If current move index is even (bot just moved), undo 2 moves
-    // If current move index is odd (player just moved), undo 1 move
     const isBotTurn = currentMoveIndex % 2 === 0;
     const movesToUndo = isBotTurn ? 2 : 1;
     const actualMovesToUndo = Math.min(movesToUndo, currentMoveIndex);
     
-    // Remove captured pieces for the undone moves
     if (actualMovesToUndo > 0) {
       setCapturedWhite((prev) => prev.slice(0, -Math.floor(actualMovesToUndo)));
       setCapturedBlack((prev) => prev.slice(0, -Math.floor(actualMovesToUndo)));
     }
     
-    // Reset moveProcessed to allow bot to move again
     setMoveProcessed(false);
     
-    // Clear selection and hints
     setSelectedSquare(null);
     setPossibleMoves([]);
     
-    // Call the original undo function
     onTakeBackMove();
   }, [currentMoveIndex, isGameOver, onTakeBackMove]);
 
@@ -773,7 +753,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
 
     const containerWidth = refBoard.current?.offsetWidth || width;
-    const maxBoardWidth = Math.min(containerWidth - 40, 800); // 40px for padding, max 600px
+    const maxBoardWidth = Math.min(containerWidth - 40, 800);
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
@@ -797,31 +777,10 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     setStyleChoosed(style);
   };
 
-  // const buttonBoard = () => {
-  //   return (
-  //     <div
-  //       style={{ width: boardSize }}
-  //       className="flex flex-row self-end sm:self-center justify-end items-center gap-3 mt-2"
-  //     >
-  //       <button onClick={handleSwitch}>
-  //         <Image
-  //           src={"/images/play-vs-ai/switch.png"}
-  //           alt="icon"
-  //           width={1000}
-  //           height={1000}
-  //           className="w-[20px] h-[20px] rounded-full object-contain"
-  //         />
-  //       </button>
-  //     </div>
-  //   );
-  // };
-
   const cardPlayer = () => {
     return (
       <div className={`flex flex-row h-[60px] lg:min-h-[80px] items-center justify-between rounded-[8px] bg-white border border-[#DEDEDE] p-2 gap-2 mb-2`}>
         <div className="flex flex-row items-center gap-2">
-          {/* Same avatar treatment as the Play vs AI page (profile photo, else
-              the seeded chess-piece placeholder). */}
           <GamePlayerAvatar
             imageUrl={profile?.imageUrl || chessComAvatar}
             seed={username || profile?.name || profile?.email || "user"}
@@ -852,7 +811,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
     }
   };
 
-  // Mobile buttons component (only show on mobile)
   const renderMobileButtons = () => {
     return (
       <div className="flex flex-col gap-y-3">
@@ -989,7 +947,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
         variants={fadeInUp}
         className="flex flex-col w-full rounded-[8px] border-t border-t-[#DEDEDE] gap-3 p-4"
       >
-        {/* Hide congratulations message on mobile (xl:block) since it's now shown above */}
         <div className="hidden xl:block">{renderCommentaryGame()}</div>
         <div className="flex flex-row w-full items-center gap-2 lg:gap-4">
           <button
@@ -1117,7 +1074,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
           className="xl:border xl:border-[#DEDEDE] xl:p-4 xl:rounded-[16px]"
           ref={refBoard}
         >
-          {/* <div className="hidden lg:block">{cardPlayer()}</div> */}
           <div className="flex items-center justify-end px-5 lg:px-0 mb-2">
             <ButtonBoard
               handleSwitch={handleSwitch}
@@ -1127,64 +1083,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             />
           </div>
           <div className="flex flex-col justify-center items-center gap-3 ">
-            {/* <motion.div
-              initial={{ rotateX: 180 }}
-              animate={
-                !is3DMode
-                  ? { opacity: 0, display: "hidden" }
-                  : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }
-              }
-              transition={{
-                duration: 0.6,
-                stiffness: 500,
-                damping: 30,
-                ease: [0.4, 0.0, 0.2, 1],
-                type: "tween",
-              }}
-              style={{
-                width: boardSize,
-                display: is3DMode ? "flex" : "none",
-                backfaceVisibility: "hidden",
-                transformStyle: "preserve-3d",
-              }}
-            >
-              {is3DMode && (
-                <ThreeDBoard
-                  onPieceDrop={handlePieceDrop}
-                  position={position}
-                  orientation={orientation == "white" ? "black" : "white"}
-                  boardWidth={boardSize}
-                  onSquareClick={
-                    !isComputerTurn && gameEnded
-                      ? undefined
-                      : handleSquareClickCallback
-                  }
-                  arePiecesDraggable={false}
-                  onPieceClick={
-                    !isComputerTurn && gameEnded
-                      ? undefined
-                      : (piece: string, sourceSquare: string) =>
-                          handlePieceClick(
-                            { type: piece as PieceSymbol, color: "w" },
-                            sourceSquare as Square
-                          )
-                  }
-                  onSquareRightClick={handleSquareRightClick}
-                  customSquareStyles={customSquareStyles}
-                  customArrows={arrow}
-                  arePremovesAllowed={true}
-                  promotionToSquare={moveTo}
-                  showPromotionDialog={false}
-                  onPromotionPieceSelect={function (
-                    piece?: PromotionPieceOption,
-                    promoteFromSquare?: Square,
-                    promoteToSquare?: Square
-                  ): boolean {
-                    throw new Error("Function not implemented.");
-                  }}
-                />
-              )}
-            </motion.div> */}
 
             <motion.div
               style={{
@@ -1194,12 +1092,9 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                 position: "relative",
               }}
             >
-              {/* {!is3DMode && (
-                <> */}
                   <TwoDChessboard
                     arePiecesClickable={true}
                     arePiecesDraggable={true}
-                    // orientation={orientation}
                     orientation={orientation == "white" ? "black" : "white"}
                     boardWidth={boardSize}
                     position={position}
@@ -1218,17 +1113,13 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                     promotionToSquare={moveTo}
                     showPromotionDialog={false}
                   />
-                  {/* Custom Arrows Overlay */}
                   {arrow && arrow.length > 0 && (
                     <CustomChessArrows
                       arrows={arrow}
                       boardSize={boardSize}
-                      // orientation={orientation}
                       orientation={orientation == "white" ? "black" : "white"}
                     />
                   )}
-                {/* </>
-              )} */}
             </motion.div>
 
             <div className="flex flex-row flex-wrap items-center justify-center gap-2 mb-2">
@@ -1261,30 +1152,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
 
           <div className="hidden lg:block mt-[16px]">{cardPlayer()}</div>
 
-          {/* Mobile navigation buttons */}
           <div className="lg:hidden px-5 flex flex-row justify-center items-center gap-2">
-            {/* <button
-              disabled={currentMoveIndex === 0 || isGameOver}
-              onClick={handleUndoMove}
-              className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                currentMoveIndex === 0 || isGameOver ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"></path>
-              </svg>
-            </button> */}
-            {/* <button
-              disabled={currentMoveIndex >= fenHistory.length - 1}
-              onClick={handleNextMove}
-              className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                currentMoveIndex >= fenHistory.length - 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
-            >
-              <ChevronRight size={20} color="#000" />
-            </button> */}
             <button
               onClick={resetPuzzleHandler}
               className="rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
@@ -1308,7 +1176,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             <div className="lg:hidden">{renderMobileGameCompletion()}</div>
           )}
 
-          {/* Mobile moves section */}
           <div className="lg:hidden px-5 py-4">
             <MobileMoveBoxes
               capturedWhite={capturedWhite}
@@ -1434,28 +1301,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
             </tbody>
           </table>
           <div className="flex flex-row justify-center items-center gap-[8px] my-4">
-            {/* <button
-              disabled={currentMoveIndex === 0 || isGameOver}
-              onClick={handleUndoMove}
-              className={`rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                currentMoveIndex === 0 || isGameOver ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"></path>
-              </svg>
-            </button> */}
-            {/* <button
-              disabled={currentMoveIndex >= fenHistory.length - 1}
-              onClick={handleNextMove}
-              className={`rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
-                currentMoveIndex >= fenHistory.length - 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
-            >
-              <ChevronRight size={24} color="#000" />
-            </button> */}
             <button
               onClick={resetPuzzleHandler}
               className="rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
@@ -1471,7 +1316,6 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({
                   </clipPath>
                 </defs>
               </svg>
-              {/* <RotateCw size={20} color="#000" /> */}
             </button>
           </div>
         </div>

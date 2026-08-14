@@ -12,7 +12,6 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { openingPositions } from "@/components/analysis/training-plan/training-topics/openings/positions"
 
-// Dynamically import the Chessboard component to avoid SSR issues
 const Chessboard = dynamic(() => import("@/components/chess/chessboard"), {
   ssr: false,
 })

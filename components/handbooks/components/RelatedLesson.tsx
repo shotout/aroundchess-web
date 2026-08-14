@@ -58,7 +58,6 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                   <div key={index} className="cursor-pointer w-full xl:mx-auto">
                     <Card onClick={() => handleLessonNavigation(topicSlug)} className="w-[172px] md:w-auto border rounded-lg overflow-hidden shadow-sm flex flex-col h-full">
                       <div className="relative p-[8px] md:p-3 flex flex-col">
-                        {/* Chessboard */}
                         <div className="relative aspect-square bg-white flex items-center justify-center overflow-hidden mb-2 before:content-[''] before:absolute before:top-0 before:right-0 before:w-full before:h-full before:cursor-pointer before:z-10">
                           <div className="w-full h-full">
                             <Simple2DChess
@@ -69,7 +68,6 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                           </div>
                         </div>
 
-                        {/* Status badges - positioned absolutely over the chessboard */}
                         <span className="absolute top-5 left-5 bg-purple-500 text-white text-[14px] --xs px-2 xl:px-8 py-1 rounded-md">
                           {getLessonTypeLabel()}
                         </span>
@@ -93,12 +91,10 @@ const RelatedLessons: React.FC<RelatedLessonsProps> = ({
                           </div>
                         )}
 
-                        {/* Title */}
                         <h3 className="font-medium text-gray-900 text-[14px] --xs mb-3">
                           {topic.title}
                         </h3>
 
-                        {/* Button */}
                         <div
                           onClick={() => handleLessonNavigation(topicSlug)}
                           className="w-full flex items-center justify-center space-x-2 rounded-full px-[8px] md:px-4 cursor-pointer btn-secondary"

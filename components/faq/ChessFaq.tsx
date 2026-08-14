@@ -6,17 +6,12 @@ import { useApiClient } from "@/functions/api-client";
 import { searchFAQs } from "./search";
 import ChessFAQSkeleton from "./ChessFaqSkeleton";
 
-// Preferred display order for FAQ questions (matched by keyword), so the list
-// renders in the approved design order regardless of the API's own ordering.
-// Questions that match none of these keep their original order, after the rest.
 const QUESTION_ORDER = [
-  // General Questions
   "ai analysis",
   "training programs",
   "track my progress",
   "suitable for players",
   "opening preparation",
-  // Pricing, Tokens and Subscriptions
   "pricing model",
   "difference between the token",
   "free package",
@@ -79,8 +74,6 @@ export default function ChessFAQ() {
       .finally(() => {});
   };
 
-  // Multiple items can be open at once — items start collapsed and each toggle
-  // just flips whether that one index is open.
   const toggleQuestion = (index: number) => {
     setOpenItems((prev) => {
       const next = new Set(prev);
@@ -93,13 +86,10 @@ export default function ChessFAQ() {
     });
   };
 
-  // Reset to "all collapsed" whenever the visible question set changes
-  // (switching tabs or running a search).
   useEffect(() => {
     setOpenItems(new Set());
   }, [question]);
 
-  // Render questions in the approved design order (see QUESTION_ORDER).
   const orderedQuestions = useMemo(() => orderQuestions(question), [question]);
 
   useEffect(() => {

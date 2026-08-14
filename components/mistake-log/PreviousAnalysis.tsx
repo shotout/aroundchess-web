@@ -36,7 +36,6 @@ const PreviousAnalysis: React.FC = () => {
     setPreviousAnalysis(mistakeLogs);
   }, [mistakeLogs]);
 
-  // Persist open sections whenever they change
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -74,7 +73,6 @@ const PreviousAnalysis: React.FC = () => {
         const newList = [...prevList];
         newList[index] = updatedItem;
         const next = { ...prev, [key]: newList };
-        // Keep global store in sync
         setMistakeLogs(next);
         return next;
       });
@@ -102,7 +100,6 @@ const PreviousAnalysis: React.FC = () => {
         const newList = [...prevList];
         newList[index] = updatedItem;
         const next = { ...prev, [key]: newList };
-        // Keep global store in sync
         setMistakeLogs(next);
         return next;
       });

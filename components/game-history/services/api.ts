@@ -23,9 +23,6 @@ const apiClient = axios.create({
   },
 });
 
-/** Renew before sending once the token is nearly stale, and always send the
- *  token the store holds now — callers capture `sessionId` when their component
- *  renders, which can be an hour old by the time they fire. */
 apiClient.interceptors.request.use(async (config) => {
   if (!config.headers?.Authorization) return config;
 
@@ -40,11 +37,6 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-/** Renew-and-replay on 401, the same contract useApiClient() follows: an
- *  expired access token must never end the session while the refresh token is
- *  still good. Without this, one stale-token request from any of these
- *  endpoints (game history, analytics, recent games) bounced the user to
- *  /login after an hour of idling. */
 apiClient.interceptors.response.use(undefined, async (error) => {
   const config = error?.config as
     | (AxiosRequestConfig & { _retriedAfterRefresh?: boolean })
@@ -65,8 +57,6 @@ apiClient.interceptors.response.use(undefined, async (error) => {
     return apiClient(config);
   }
 
-  // "unavailable" keeps the session: the token was never judged, the request
-  // just couldn't be made. Only an explicit rejection signs the user out.
   if (refreshed.status === "rejected") {
     handleSessionExpiration();
   }
@@ -79,8 +69,6 @@ export const handleApiError = (error: unknown): Error => {
     const message =
       error.response?.data?.message || error.message || "API request failed";
 
-    // Session handling belongs to the interceptor above, which has already
-    // decided whether this 401 was fatal.
     return new Error(message);
   }
 

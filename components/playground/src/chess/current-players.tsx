@@ -20,7 +20,6 @@ export function CurrentPlayers() {
 
     loadNames()
 
-    // Handle custom name change events
     const handleNameChange = (e: PlayerNameChangeEvent) => {
       const { color, name } = e.detail
       if (color === 'white') {
@@ -30,7 +29,6 @@ export function CurrentPlayers() {
       }
     }
 
-    // Listen for both storage and custom events
     window.addEventListener('playerNameChange', handleNameChange as EventListener)
     window.addEventListener('storage', (e) => {
       if (e.key === "whitePlayerName" || e.key === "blackPlayerName") {

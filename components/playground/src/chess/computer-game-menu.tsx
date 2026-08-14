@@ -102,7 +102,6 @@ export function ComputerGameMenu({ isOpen, onClose }: ComputerGameMenuProps) {
 
           <TabsContent value="board" className="flex-1 px-6 py-4">
             <div className="space-y-6">
-              {/* Board Themes */}
               <div className="space-y-3">
                 <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                   <Palette className="w-4 h-4 text-indigo-500" />
@@ -139,7 +138,6 @@ export function ComputerGameMenu({ isOpen, onClose }: ComputerGameMenuProps) {
                 </div>
               </div>
 
-              {/* Piece Themes */}
               <div className="space-y-3">
                 <label className="text-[14px] --sm font-medium text-gray-900 flex items-center gap-2">
                   <Crown className="w-4 h-4 text-indigo-500" />

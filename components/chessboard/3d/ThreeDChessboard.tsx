@@ -197,8 +197,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
     return pieceComponents;
   }, [PieceChoosed]);
 
-  // Removed manual rotation logic - now handled by board image selection
-
   if (loading) return <DotSpinner />;
 
   return (
@@ -226,7 +224,6 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
           style={{
             width: 480,
             height: 480,
-            // Removed manual rotation - now using different board images
           }}
           priority
         />
@@ -286,11 +283,9 @@ const ThreeDBoard: React.FC<ThreeDBoardProps> = ({
                 customPieces={threeDPieces}
                 customLightSquareStyle={{
                   backgroundColor: "transparent",
-                  // backgroundColor: "#FFFFFF80",
                 }}
                 customDarkSquareStyle={{
                   backgroundColor: "transparent",
-                  // backgroundColor: "#FFFFFF70",
                 }}
                 customArrows={customArrows}
                 areArrowsAllowed={areArrowsAllowed}

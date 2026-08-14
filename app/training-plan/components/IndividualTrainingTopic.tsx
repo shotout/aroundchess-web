@@ -208,8 +208,6 @@ const IndividualTrainingTopic: React.FC<
             </Badge>
           )}
 
-          {/* shrink-0: without it the "Recommended" badge alongside squeezes
-              this fixed-size box, so the checkbox rendered as a tall thin pill */}
           <div
             className={`w-5 h-5 shrink-0 border rounded-sm border-[#d0cffa] flex items-center ${
               isSelected ? "bg-blue-base" : ""

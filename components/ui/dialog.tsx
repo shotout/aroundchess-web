@@ -17,11 +17,6 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      // z-[60]: the fixed header and sidebar (navigation.tsx) are z-50, so at
-      // the previous z-[45] they painted over the dim — the backdrop only
-      // appeared to cover the content area and modals read as off-centre
-      // against it. Anything that must outrank a dialog sits higher still
-      // (playground tour z-[700], toasts).
       "fixed inset-0 z-[60] bg-[rgba(0,0,0,.25)] backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}

@@ -5,7 +5,7 @@ const prismaClientSingleton = () => {
     log: ['query', 'error', 'warn'],
     datasources: {
       db: {
-        url: process.env.DATABASE_URL // Always use DATABASE_URL which has pooling configured
+        url: process.env.DATABASE_URL
       }
     }
   })

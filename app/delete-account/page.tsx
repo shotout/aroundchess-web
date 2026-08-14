@@ -7,10 +7,6 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { trackCustomEvent } from "../utils/facebookPixel";
 
-/**
- * Shown after /auth/delete-account succeeds. Desktop puts a white card on the
- * auth artwork; mobile is a plain white screen per the mockup.
- */
 export default function DeleteAccountDonePage() {
   const route = useRouter();
   useEffect(() => {
@@ -30,7 +26,6 @@ export default function DeleteAccountDonePage() {
                      min-h-[calc(100vh-72px)] lg:min-h-[calc(100vh-97px)]
                      overflow-y-auto"
         >
-          {/* Artwork is desktop-only — the mobile mockup is a plain white page. */}
           <div className="absolute inset-0 -z-10 hidden sm:block">
             <Image
               src="/images/auth-background.png"
@@ -49,10 +44,6 @@ export default function DeleteAccountDonePage() {
             <div className="absolute inset-0 bg-black/5"></div>
           </div>
 
-          {/* Solid white card on the artwork: glassmorphismLogin's 20%-white fill
-              disappeared against the light-blue background, leaving the message
-              floating over the chessboard. Mobile is already a white page, so the
-              card styling only kicks in from sm up. */}
           <div
             className="w-full md:max-w-2xl z-10
                        sm:bg-white sm:rounded-2xl sm:shadow-xl
@@ -93,7 +84,6 @@ export default function DeleteAccountDonePage() {
         </main>
       </div>
 
-      {/* Footer is desktop-only, matching the mobile mockup. */}
       <div className="w-full hidden sm:block">
         <SiteFooterNew />
       </div>

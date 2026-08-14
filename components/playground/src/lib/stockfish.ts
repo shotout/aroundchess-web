@@ -203,10 +203,6 @@ export class Engine {
           clearTimeout(timeout);
           const move = line.split(" ")[1];
           stockfish.terminate();
-          // Stockfish answers "bestmove (none)" when the position is already
-          // over (mate/stalemate) and "0000" for the null move. Neither is a
-          // UCI square pair — resolving them would have the caller slice
-          // "(none)" into from/to and hand chess.js an invalid move.
           if (!move || move === "(none)" || move === "0000") {
             reject(new Error("No legal moves available"));
             return;

@@ -11,10 +11,10 @@ import Image from "next/image";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 
 interface PuzzleInitializeProps {
-  jsonPath: string; // Path to the JSON file
-  onFetchPuzzles: (puzzles: Puzzle[]) => void; // Callback to pass puzzles
-  filteredPuzzles: Puzzle[]; // Filtered puzzles from parent
-  setFilteredPuzzles: React.Dispatch<React.SetStateAction<Puzzle[]>>; // Setter for filtered puzzles
+  jsonPath: string;
+  onFetchPuzzles: (puzzles: Puzzle[]) => void;
+  filteredPuzzles: Puzzle[];
+  setFilteredPuzzles: React.Dispatch<React.SetStateAction<Puzzle[]>>;
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -258,7 +258,6 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
       },
     ];
 
-    // Fetch puzzles on mount
     useEffect(() => {
       const loadPuzzles = async () => {
         if (hasFetched.current) return;
@@ -269,7 +268,6 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
           const response = await fetch(jsonPath);
           const data: Puzzle[] = await response.json();
           setPuzzles(data);
-          // console.log('Puzzles loaded:', data)
         } catch (error) {
           console.error("Error loading puzzles:", error);
         } finally {
@@ -280,7 +278,6 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
       loadPuzzles();
     }, [jsonPath]);
 
-    // Filter puzzles based on the selected theme
     const filteredPuzzles = useMemo(() => {
       if (selectedTheme === "All") return puzzles;
       return puzzles.filter((puzzle) =>
@@ -290,15 +287,12 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
       );
     }, [selectedTheme, puzzles]);
 
-    // Update parent state with filtered puzzles
     useEffect(() => {
       setFilteredPuzzles(filteredPuzzles);
     }, [filteredPuzzles, setFilteredPuzzles]);
 
-    // Start the game with the first batch of puzzles
     const handleStartGame = () => {
       const currentBatch = filteredPuzzles.slice(0, batchSize);
-      // console.log('Starting game with puzzles:', currentBatch)
       onFetchPuzzles(currentBatch);
       setGameStarted(true);
     };
@@ -341,39 +335,6 @@ const PuzzleInitialize: React.FC<PuzzleInitializeProps> = React.memo(
                 Select Puzzle Topic
               </span>
               <SelectPuzzleTopic options={themesWithDescriptions} onChange={setSelectedTheme} />
-              {/* <Select
-                name="subject"
-                value={selectedTheme}
-                onValueChange={setSelectedTheme}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="All" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {themesWithDescriptions.map((item, index) => {
-                    return (
-                      <SelectItem
-                        className="flex w-full items-center justify-center"
-                        key={item.name}
-                        value={item.name}
-                      >
-                        {item.name != selectedTheme ? (
-                          <div className="flex w-[70vw] md:w-full flex-col items-center justify-center gap-[4px] md:py-[8px]">
-                            <span className="font-normal text-[16px] --">
-                              {item.name}
-                            </span>
-                            <span className="w-full text-center font-normal text-[14px] text-[#221AE9]">
-                              {item.description}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="font-normal text-[16px] --">{item.name}</span>
-                        )}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select> */}
             </div>
             {isFetching ? (
               <DotSpinner />

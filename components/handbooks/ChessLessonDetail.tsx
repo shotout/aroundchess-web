@@ -435,14 +435,6 @@ export default function ChessLessonDetail<T extends ChessLesson>({
                       <Check className="mr-2 h-5 w-5" />
                       {isMarkingAsUnread ? "Updating..." : "Lesson Finished"}
                     </Button>
-                    {/* <Button
-                      className="flex-1 py-3 text-white rounded-full bg-gray-500 hover:bg-gray-600"
-                      onClick={handleMarkAsUnread}
-                      disabled={isMarkingAsUnread}
-                    >
-                      <X className="mr-2 h-5 w-5" />
-                      {isMarkingAsUnread ? "Updating..." : "Unread The Lesson"}
-                    </Button> */}
                   </div>
                 )}
               </div>

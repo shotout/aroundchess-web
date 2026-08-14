@@ -41,9 +41,6 @@ const handleSessionExpiration = () => {
   window.location.href = "/login";
 };
 
-/** GET with the session token, renewing it on a 401 and replaying once — an
- *  expired access token must not end a session whose refresh token still
- *  works. Returns the response; only an outright rejected refresh signs out. */
 const authedFetch = async (
   url: string,
   sessionId?: string
@@ -141,7 +138,6 @@ export function createChessLessonStore<T extends ChessLesson>({
             set({ isLoading: true, error: null });
 
             const apiBaseUrl = process.env.BASE_URL;
-            // Use a high limit to fetch all in one go (adjust if your API has a max limit)
             const url = `${apiBaseUrl}/${apiEndpoint}?limit=1000&category=${lessonType}`;
 
             const response = await authedFetch(
@@ -150,8 +146,6 @@ export function createChessLessonStore<T extends ChessLesson>({
             );
 
             if (response.status === 401) {
-              // authedFetch already renewed-and-replayed; still 401 means the
-              // session was rejected (and handled) or the endpoint refused us.
               return;
             }
 
@@ -197,9 +191,6 @@ export function createChessLessonStore<T extends ChessLesson>({
               get().fetchReadStatuses(sessionId);
             }
           } catch (error) {
-            // No 401 sniffing here: authedFetch owns that decision. Matching on
-            // the message text signed people out for any error that merely
-            // mentioned "401".
             set({
               error:
                 error instanceof Error
@@ -289,7 +280,6 @@ export function createChessLessonStore<T extends ChessLesson>({
             );
 
             if (response.status === 401) {
-              // See fetchAllLessons: the renew-and-replay already happened.
               return null;
             }
 
@@ -332,7 +322,6 @@ export function createChessLessonStore<T extends ChessLesson>({
 
             return lessonData;
           } catch (error) {
-            // See fetchAllLessons — authedFetch decides on 401s.
             set((state) => ({
               error:
                 error instanceof Error
@@ -518,7 +507,6 @@ export function createChessLessonStore<T extends ChessLesson>({
             if (response.ok) {
               const data = await response.json();
 
-              // Update the read status map
               set((state) => ({
                 readStatusMap: {
                   ...state.readStatusMap,
@@ -526,7 +514,6 @@ export function createChessLessonStore<T extends ChessLesson>({
                 },
               }));
 
-              // Update lesson details if it exists
               if (get().lessonDetails[id]) {
                 set((state) => ({
                   lessonDetails: {
@@ -539,7 +526,6 @@ export function createChessLessonStore<T extends ChessLesson>({
                 }));
               }
 
-              // Update all lessons and filtered lessons
               set((state) => ({
                 allLessons: state.allLessons.map((lesson) =>
                   lesson.id === id ? { ...lesson, readStatus: false } : lesson
@@ -554,7 +540,6 @@ export function createChessLessonStore<T extends ChessLesson>({
               const errorData = await response.json();
               console.error("Failed to mark lesson as unread:", errorData);
 
-              // Even if the API call fails, update the local state
               set((state) => ({
                 readStatusMap: {
                   ...state.readStatusMap,

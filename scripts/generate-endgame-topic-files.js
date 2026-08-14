@@ -125,7 +125,6 @@ export const ${topic.replace(/-/g, '')}: EndgameTopic = {
   ]
 }`
 
-// Generate files for each topic
 topics.forEach(topic => {
   const dir = path.join(process.cwd(), 'components/analysis/training-plan/training-topics/endgame')
   const file = path.join(dir, `${topic}.ts`)

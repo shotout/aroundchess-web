@@ -89,12 +89,6 @@ const GameCard: FC<GameCardProps> = ({
             <span className="font-medium text-[14px]">{moves} Moves </span>
           </div>
           <span className="font-medium text-[14px]">•</span>
-          {/* <div className={`flex flex-row items-center gap-1`}>
-            <MdAccessTime
-              className={`w-[14px] h-[14px] text-[${style.moveIcon}] mb-1`}
-            />
-            <span className="font-medium text-[14px]">{time}</span>
-          </div> */}
         </div>
       </div>
     </div>

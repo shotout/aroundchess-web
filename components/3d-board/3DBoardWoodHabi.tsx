@@ -18,8 +18,7 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
   position,
   boardOrientation,
 }) => {
-  // Board size configuration
-  const [boardSize, setBoardSize] = useState<number | any>(700); // Default size
+  const [boardSize, setBoardSize] = useState<number | any>(700);
   
   useEffect(() => {
     if (size) {
@@ -33,24 +32,16 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
     const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
-    // const maxSize = window.innerWidth > 1300 ? window.innerWidth / 5 : 400;
     const maxSize = window?.innerWidth / 3;
-    // window?.innerWidth < 1440
-    // ? window?.innerWidth / 2.5
-    // : window?.innerWidth / 4;
     console.log("Resizing board...", window?.innerWidth, isPortrait);
 
     if (isPortrait) {
-      // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
-      // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
       console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
-      // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
-      // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
       console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
@@ -141,7 +132,6 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
     });
     return pieceComponents;
   }, []);
-  // Frame dimensions 
 
   return (
     <div className="-mt-4 relative w-[390px] h-[390px] sm:w-[500px] sm:h-[500px] p-6 flex items-center justify-center">
@@ -153,7 +143,7 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
         style={{
           width: "100%",
           height: "100%",
-          objectFit: "contain", // Changed from "cover" to maintain aspect ratio
+          objectFit: "contain",
           padding: "0",
           margin: "0",
         }}
@@ -165,20 +155,16 @@ const BoardWoodHabi: React.FC<BoardWoodHabiBoardProps> = ({
           arePiecesDraggable={false}
           boardWidth={window.innerWidth > 425 ? 356 : 276}
           id="Styled3DBoard"
-          // position={position}
           customBoardStyle={{
             transform: "rotateX(27.5deg)",
             transformOrigin: "center",
-            // background:"black"
           }}
           customPieces={threeDPieces}
           customLightSquareStyle={{
             backgroundColor: "transparent",
-            // backgroundColor: "#ff000080",
           }}
           customDarkSquareStyle={{
             backgroundColor: "transparent",
-            // backgroundColor: "#0000ff80",
           }}
           animationDuration={100}
         />

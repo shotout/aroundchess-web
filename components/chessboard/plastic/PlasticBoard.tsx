@@ -97,7 +97,6 @@ const PlasticBoard: React.FC<PlasticBoardProps> = ({ position, boardWidth }) => 
   }, []);
   return (
     <div className="relative" style={{ width: boardWidth, height: boardWidth }}>
-      {/* <span className="text-white bg-[red]">{boardWidth / 8}</span> */}
       <Image
         src={"/boards/plastic.png"}
         alt="plastic"
@@ -119,11 +118,9 @@ const PlasticBoard: React.FC<PlasticBoardProps> = ({ position, boardWidth }) => 
           }}
           customPieces={twoDPieces}
           customLightSquareStyle={{
-            // backgroundColor: "#ff000070",
             backgroundColor: "transparent",
           }}
           customDarkSquareStyle={{
-            // backgroundColor: "#00ff0080",
             backgroundColor: "transparent",
           }}
           animationDuration={100}

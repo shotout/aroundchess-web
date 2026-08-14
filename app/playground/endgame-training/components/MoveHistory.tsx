@@ -20,15 +20,15 @@ export default function MoveHistory({ moveHistory }: MoveHistoryProps) {
     if (firstChar === firstChar.toUpperCase() && firstChar.match(/[KQRBN]/)) {
       switch (firstChar) {
         case "K":
-          return "K"; // King
+          return "K";
         case "Q":
-          return "Q"; // Queen
+          return "Q";
         case "R":
-          return "R"; // Rook
+          return "R";
         case "B":
-          return "B"; // Bishop
+          return "B";
         case "N":
-          return "N"; // Knight
+          return "N";
       }
     }
 

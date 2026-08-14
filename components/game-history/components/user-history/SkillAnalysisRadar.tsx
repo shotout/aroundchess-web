@@ -19,17 +19,14 @@ interface SkillAnalysisRadarProps {
   radarData: SkillData[];
 }
 
-// Custom tick component for wrapping long labels
 const CustomTick = ({ payload, x, y, textAnchor, stroke }: any) => {
   const text = payload.value;
-  const maxCharsPerLine = 12; // Maximum characters per line
+  const maxCharsPerLine = 12;
 
-  // Split text into words
   const words = text.split(' ');
   const lines: string[] = [];
   let currentLine = '';
 
-  // Group words into lines based on max length
   words.forEach((word: string) => {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
     if (testLine.length <= maxCharsPerLine) {
@@ -42,13 +39,12 @@ const CustomTick = ({ payload, x, y, textAnchor, stroke }: any) => {
     }
   });
 
-  // Push the last line
   if (currentLine) {
     lines.push(currentLine);
   }
 
-  const lineHeight = 14; // Height between lines
-  const startY = y - ((lines.length - 1) * lineHeight) / 2; // Center the text block vertically
+  const lineHeight = 14;
+  const startY = y - ((lines.length - 1) * lineHeight) / 2;
 
   return (
     <g>

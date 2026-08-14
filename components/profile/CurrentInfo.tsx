@@ -26,7 +26,6 @@ const CurrentInfo: FC<CurrentInfoProps> = ({
         height={120}
         className="object-contain"
       />
-      {/* here is image offside */}
       <Image
         alt="icon"
         src={image}

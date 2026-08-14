@@ -40,7 +40,6 @@ export function FeedbackDialog({
   const [description, setDescription] = useState("")
 
   const handleSubmit = () => {
-    // Implement feedback submission logic
     onOpenChange(false)
   }
 

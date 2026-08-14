@@ -33,27 +33,12 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
   const [mounted, _] = useState<boolean>(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Same rule as UserPGN: the side resolved from the game record's colour wins,
-  // with the name match as the fallback for positions that predate it.
   const isUserPlayingWhite = currentPosition?.userColor
     ? currentPosition.userColor === "white"
     : currentPosition?.white?.toLowerCase() === username?.toLowerCase();
 
-  // The account's profile picture follows its own name to whichever row that
-  // name is in, like the vs-AI board and the sidebar; whatever the game data
-  // carried is the fallback. It used to be pinned to the bottom row on the
-  // assumption that the bottom row is always the signed-in player — but the
-  // rows are assigned from the game record's own username (see below), so when
-  // that names the other side, the account's own handle shows in the top row
-  // and its picture stayed behind next to the opponent's name.
-  //
-  // Row names come from PGN headers, so they can be a chess.com handle, the
-  // account's display name or its username. Match loosely (letters and digits
-  // only) against every identity we hold, so "Tyo Sndr" still matches
-  // "TyoSndr".
   const { profile } = useProfileStore();
   const { username: chessComUsername, usernameAnalysis } = usePgnStore();
-  /** The account's own rating, for a player row the PGN gave no Elo for. */
   const accountElo = useEffectiveElo() || undefined;
   const normalize = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
   const accountNames = [
@@ -68,12 +53,7 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
     .filter((name) => name !== "");
   const isAccount = (name?: string) =>
     !!name && accountNames.includes(normalize(name));
-  // Only trust the top row as the account's when the bottom row isn't: with the
-  // side resolved from the game record the bottom row is the player, and both
-  // rows can carry an account identity (display name vs chess.com handle).
   const topIsAccount = isAccount(opponentName) && !isAccount(username);
-  // When neither row matches (a PGN imported under some other handle) the
-  // bottom row is still the player's own row, so it keeps the account picture.
   const topProfilePic = topIsAccount
     ? profile?.imageUrl || opponentProfilePic
     : opponentProfilePic;
@@ -81,11 +61,6 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
     ? userProfilePic
     : profile?.imageUrl || userProfilePic;
 
-  // Ratings come from the PGN's WhiteElo/BlackElo headers, which vs-AI games and
-  // uploaded files don't carry — both rows then showed a bare name. Fall back to
-  // the AI roster for a known opponent, and to the account's own rating for the
-  // player's row (the service already fills the opponent's side from the game
-  // record when it has one).
   const userElo =
     (isUserPlayingWhite ? currentPosition?.whiteElo : currentPosition?.blackElo) ||
     findRosterOpponentByName(username)?.elo ||
@@ -113,9 +88,8 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
 
-    // Get the actual container width
     const containerWidth = containerRef.current?.offsetWidth || width;
-    const maxBoardWidth = Math.min(containerWidth - 40, 700); // 40px for padding, max 600px
+    const maxBoardWidth = Math.min(containerWidth - 40, 700);
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
@@ -146,8 +120,6 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
       className="xl:border border-[#E5E7EB] xl:bg-white xl:shadow-sm md:col-span-6 xl:p-4 p-0 mb-4 xl:mb-0 rounded-[16px] flex flex-col justify-center gap-[8px]"
       variants={leftPanelVariants}
     >
-      {/* Player rows are a desktop affordance in the design; mobile shows the
-          plain "white vs black" caption under the board instead. */}
       <div className="hidden xl:block">
         <PlayerInfo
           profilePic={topProfilePic}
@@ -159,7 +131,6 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
       <div className="relative w-full flex justify-center items-center my-4" ref={containerRef}>
         <div className="bg-white flex items-center justify-center overflow-hidden">
           <div className="w-full h-full flex justify-center items-center">
-            {/* Add max-width constraint and ensure the board fits within parent */}
             <div className="max-w-full relative" style={{ maxWidth: '100%' }}>
               <TwoDChessboard
                 boardWidth={boardSize ?? 0}
@@ -176,7 +147,6 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
                   throw new Error("Function not implemented.");
                 }}
               />
-              {/* Custom Arrows Overlay */}
               {arrows && arrows.length > 0 && !gameQuestion?.text.includes("legal moves") && (
                 <CustomChessArrows
                   arrows={arrows as ArrowConfig[]}
@@ -196,7 +166,6 @@ const UserBoardDisplay: React.FC<UserBoardDisplayProps> = ({
         />
       </div>
 
-      {/* Mobile caption, matching the design */}
       {currentPosition.white && currentPosition.black && (
         <p className="xl:hidden text-center text-[14px] text-[#111827] mt-[8px]">
           {currentPosition.white} VS {currentPosition.black}

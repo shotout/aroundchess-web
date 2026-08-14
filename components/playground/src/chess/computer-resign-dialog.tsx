@@ -13,7 +13,6 @@ export function ComputerResignDialog({ isOpen, onClose }: ComputerResignDialogPr
   const { playerColor } = useComputerChessStore((state) => state)
 
   const handleResign = () => {
-    // Update the store with resignation status
     useComputerChessStore.setState(state => ({
       ...state,
       winner: playerColor === 'white' ? 'black' : 'white',

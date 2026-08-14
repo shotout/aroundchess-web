@@ -18,7 +18,6 @@ export interface Game {
   timeClass: string;
   isAnalysis: boolean;
   hasViewedAnalysis: boolean;
-  /** false when the game's ELO wasn't rated (e.g. a Hint/Undo was used). */
   eloProcessed?: boolean;
 }
 

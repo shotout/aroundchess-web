@@ -30,7 +30,6 @@ const TrainingPlanPage = () => {
   return (
     <>
       <main className="w-full p-4 space-y-[16px]">
-        {/* top menu */}
         <div className="flex justify-between items-center">
           <div className="flex flex-row items-end gap-2">
             <h1 className="text-base font-bold">My Training Plan</h1>
@@ -42,11 +41,9 @@ const TrainingPlanPage = () => {
           <DialogPlan open={open} setOpen={setOpen} />
         </div>
 
-        {/* overall statistic */}
         <div>
           <div className="font-semibold text-[14px] --sm py-2">Overall Improvement</div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {/* Best Win Card */}
             <Card className="p-3 h-[120px] bg-gradient-to-br from-[#A855F7] to-[#CF9DFF] text-white rounded-lg overflow-hidden relative flex flex-col justify-between">
               <div className="flex items-center gap-2">
                 <Swords className="h-4 w-4" fill="white" />
@@ -62,7 +59,6 @@ const TrainingPlanPage = () => {
               </div>
             </Card>
 
-            {/* Average ELO Card */}
             <Card className="p-3 h-[120px] border-[1px] bg-[#F6F9FF] border-[#3871EC] text-black rounded-lg overflow-hidden relative flex flex-col justify-between">
               <div className="flex items-center gap-2">
                 <BarChart2 className="h-4 w-4 text-blue-500" />
@@ -79,7 +75,6 @@ const TrainingPlanPage = () => {
               </div>
             </Card>
 
-            {/* Win Rate Card */}
             <Card className="p-3 h-[120px] bg-[#F6FFFA] border-[1px] border-[#029A46] text-black rounded-lg overflow-hidden relative flex flex-col justify-between">
               <div className="flex items-center gap-2">
                 <Target className="h-4 w-4 text-green-500" />
@@ -94,7 +89,6 @@ const TrainingPlanPage = () => {
               </div>
             </Card>
 
-            {/* Total Games Card */}
             <Card className="p-3 h-[120px] border-[1px] bg-[#FAC93314] border-[#FAC933] text-black rounded-lg overflow-hidden relative flex flex-col justify-between">
               <div className="flex items-center gap-2">
                 <Trophy className="h-4 w-4 text-yellow-500" fill="#eab308" />
@@ -119,7 +113,6 @@ const TrainingPlanPage = () => {
           <h1 className="text-[14px] --sm">Create Training Plan</h1>
         </Button>
 
-        {/* Tab navigation */}
         <div className="lg:border-2 lg:p-4 lg:rounded-md">
           <div className="flex justify-between items-center">
             <Card className="mb-4 w-full lg:max-w-[500px] overflow-hidden bg-[#F9FAFC] border-[1px] lg:border-none border-[#DEDEDE]">

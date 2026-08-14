@@ -33,7 +33,7 @@ const Summary: React.FC<SummaryProps> = (props) => {
     capturedBlack,
     setSavedMistakes,
     mistakeLogs,
-  } = usePgnStore(); // Get PGN from the Zustand store
+  } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
   const { scrollToChessboard } = useChessboardRefStore();
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -62,7 +62,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
     checkSession();
   }, [sessionId, isSignedIn]);
 
-  // Helper function to find ID from mistakeLogs by matching move
   const findIdFromMistakeLogs = (move: string, moveNumber: number, category: string) => {
     if (!mistakeLogs || !(category in mistakeLogs)) return null;
 
@@ -76,12 +75,10 @@ const Summary: React.FC<SummaryProps> = (props) => {
     return matchingItem?.id || matchingItem?.mistakeLogId || matchingItem?._id;
   };
 
-  // Initialize local data from dataAnalysis and merge with mistakeLogs IDs
   useEffect(() => {
     if (dataAnalysis?.summary) {
       const mergedData = { ...dataAnalysis.summary };
 
-      // Merge criticalMistakes with IDs from mistakeLogs
       if (mergedData.criticalMistakes && Array.isArray(mergedData.criticalMistakes)) {
         mergedData.criticalMistakes = mergedData.criticalMistakes.map((item: any, idx: number) => {
           const id = findIdFromMistakeLogs(item.move, item.moveNumber, "criticalMistakes");
@@ -97,10 +94,8 @@ const Summary: React.FC<SummaryProps> = (props) => {
         });
       }
 
-      // Merge bestMoves.middleGame with IDs from mistakeLogs
       if (mergedData.bestMoves?.middleGame && Array.isArray(mergedData.bestMoves.middleGame)) {
         mergedData.bestMoves.middleGame = mergedData.bestMoves.middleGame.map((item: any, idx: number) => {
-          // Check both in bestMoves and threats categories
           let id = findIdFromMistakeLogs(item.move, item.moveNumber, "bestMoves");
           if (!id) {
             id = findIdFromMistakeLogs(item.move, item.moveNumber, "threats");
@@ -128,7 +123,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
     overallGameAssessment,
   } = dataAnalysis?.summary ?? {};
 
-  // Use local state if available, fallback to dataAnalysis
   const bestMoves = localSummaryData?.bestMoves ?? dataAnalysis?.summary?.bestMoves;
   const criticalMistakes = localSummaryData?.criticalMistakes ?? dataAnalysis?.summary?.criticalMistakes;
 
@@ -145,9 +139,8 @@ const Summary: React.FC<SummaryProps> = (props) => {
   const [openBestMoves, setOpenBestMoves] = useState<boolean>(true);
   const [openCriticalMoves, setOpenCriticalMoves] = useState<boolean>(true);
 
-  // Handle save log
   const handleSaveLog = async (id: string, arrayKey: string, index: number) => {
-    if (loadingToggle) return; // Prevent multiple simultaneous requests
+    if (loadingToggle) return;
 
     setLoadingToggle(id);
     try {
@@ -156,7 +149,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
       setLocalSummaryData((prev: any) => {
         if (!prev) return prev;
 
-        // Handle nested keys like "bestMoves.middleGame"
         if (arrayKey.includes(".")) {
           const keys = arrayKey.split(".");
           const parentKey = keys[0];
@@ -182,7 +174,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
           };
         }
 
-        // Handle direct keys like "criticalMistakes"
         const prevList: any[] = Array.isArray(prev[arrayKey]) ? prev[arrayKey] : [];
         const updatedItem = {
           ...prevList[index],
@@ -194,7 +185,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
         return { ...prev, [arrayKey]: newList };
       });
 
-      // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
@@ -206,9 +196,8 @@ const Summary: React.FC<SummaryProps> = (props) => {
     }
   };
 
-  // Handle unsave log
   const handleUnsaveLog = async (id: string, arrayKey: string, index: number) => {
-    if (loadingToggle) return; // Prevent multiple simultaneous requests
+    if (loadingToggle) return;
 
     setLoadingToggle(id);
     try {
@@ -217,7 +206,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
       setLocalSummaryData((prev: any) => {
         if (!prev) return prev;
 
-        // Handle nested keys like "bestMoves.middleGame"
         if (arrayKey.includes(".")) {
           const keys = arrayKey.split(".");
           const parentKey = keys[0];
@@ -243,7 +231,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
           };
         }
 
-        // Handle direct keys like "criticalMistakes"
         const prevList: any[] = Array.isArray(prev[arrayKey]) ? prev[arrayKey] : [];
         const updatedItem = {
           ...prevList[index],
@@ -255,7 +242,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
         return { ...prev, [arrayKey]: newList };
       });
 
-      // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
@@ -268,20 +254,15 @@ const Summary: React.FC<SummaryProps> = (props) => {
   };
 
   const handleOnClickMovement = (move: any) => {
-    // Determine player color based on moveNumber
-    // Move number is the full move number (e.g., move 1 = white's first move and black's first move)
-    // We need to check if this move exists in white or black movementDetails
     const movementDetails = dataAnalysis?.movementDetails;
 
-    let playerType = "white"; // default
+    let playerType = "white";
 
     if (movementDetails) {
-      // Check if the move exists in white's moves
       const whiteMove = movementDetails.white?.find(
         (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
       );
 
-      // Check if the move exists in black's moves
       const blackMove = movementDetails.black?.find(
         (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
       );
@@ -293,7 +274,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
       }
     }
 
-    // Enrich the move object with the player type
     const enrichedMove = {
       ...move,
       type: playerType,
@@ -301,7 +281,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
 
     setChessMove(enrichedMove);
 
-    // Scroll to chessboard using ref from store
     setTimeout(() => {
       scrollToChessboard();
     }, 100);
@@ -552,7 +531,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
             </div>
           </div>
         </div>
-        {/* move quality */}
         <div className="flex flex-col gap-2 w-full border-b border-b-input pb-2">
           <span className="text-[14px] --sm sm:text-[14px] --sm md:text-md lg:text-md font-semibold text-center">
             Move Quality
@@ -835,7 +813,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
             </div>
           </div>
         </div>
-        {/* overall assessment */}
         <div className="border border-input sm:border-primary sm:border-t-4 rounded-md p-4">
           <span className="text-md sm:text-md md:text-lg lg:text-xl font-bold">
             Overall Game Assessment
@@ -862,7 +839,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
           </div>
         </div>
         
-        {/* critical mistakes moves  */}
         <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md md:p-3">
           <div className="flex flex-row items-center gap-2">
             <Image
@@ -979,7 +955,6 @@ const Summary: React.FC<SummaryProps> = (props) => {
             })}
         </div>
 
-        {/* best moves  */}
         <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md md:p-3">
           <div className="flex flex-row items-center gap-2">
             <Image

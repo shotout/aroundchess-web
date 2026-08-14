@@ -19,8 +19,6 @@ const MyRemainingPuzzle = () => {
     setTabType(type);
   };
   const handleGetLog = async () => {
-    // Null when there's no session yet; rejects on a network failure. See the
-    // same guard in app/playground/puzzle/page.tsx.
     const res: any = await getUsagePuzzle().catch(() => null);
     setRemainingPuzzle(Number(res?.data?.totalPuzzlesThisMonth) || 0);
   };

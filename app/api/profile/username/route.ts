@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Proxies the username update to the backend. The browser blocks direct
-// PATCH calls because the API's CORS config doesn't allow the PATCH method;
-// server-to-server requests are not subject to CORS.
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.text();

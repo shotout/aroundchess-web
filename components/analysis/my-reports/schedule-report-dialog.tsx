@@ -35,7 +35,6 @@ export function ScheduleReportDialog({
   const [emailNotifications, setEmailNotifications] = useState(true)
 
   const handleSchedule = () => {
-    // Implement report scheduling logic
     onOpenChange(false)
   }
 

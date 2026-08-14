@@ -21,40 +21,6 @@ import {
   ChevronLeft
 } from "lucide-react"
 
-/**
- * Criteria for Instructive Chess Games
- * 
- * 1. Clear Strategic Themes:
- * - Demonstrates fundamental chess principles
- * - Shows clear strategic plans and their execution
- * - Illustrates important positional concepts
- * 
- * 2. Educational Value:
- * - Contains clear learning points for players of various levels
- * - Demonstrates common patterns and motifs
- * - Shows both correct play and instructive mistakes
- * 
- * 3. Technical Elements:
- * - Features important tactical or strategic themes
- * - Shows proper technique in different phases of the game
- * - Demonstrates key principles in action
- * 
- * 4. Historical Significance:
- * - Games that have influenced chess theory
- * - Demonstrates evolution of chess understanding
- * - Shows timeless principles that remain relevant
- * 
- * 5. Practical Application:
- * - Provides concrete lessons that can be applied in practice
- * - Shows common positions and how to handle them
- * - Illustrates typical mistakes and how to avoid them
- * 
- * 6. Modern Relevance:
- * - Concepts that are applicable in modern chess
- * - Shows principles that have stood the test of time
- * - Demonstrates ideas used in contemporary play
- */
-
 interface Position {
   fen: string
   evaluation: string

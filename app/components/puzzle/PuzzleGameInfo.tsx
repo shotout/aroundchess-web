@@ -52,9 +52,7 @@ const PuzzleGameInfo: React.FC<PuzzleGameInfoProps> = ({
 
   return (
     <div className="mt-20 p-4 w-full max-w-[65vmin] bg-purple-900 bg-opacity-90 text-white rounded-lg shadow-lg overflow-hidden">
-      {/* Horizontal Button Row */}
       <div className="flex justify-center items-center gap-2 mb-2">
-        {/* Hint Button */}
         <button
           onClick={handleGetHint}
           className="flex-1 bg-purple-600 text-white py-2 h-12 rounded-lg hover:bg-gray-700 flex items-center justify-center max-w-[120px] sm:max-w-[100px]"
@@ -63,7 +61,6 @@ const PuzzleGameInfo: React.FC<PuzzleGameInfoProps> = ({
           Hint
         </button>
 
-        {/* Board Orientation Toggle */}
         <button
           onClick={onToggleBoardOrientation}
           className="flex-1 bg-purple-600 text-white py-2 h-12 rounded-lg hover:bg-gray-700 flex items-center justify-center max-w-[120px] sm:max-w-[100px]"
@@ -72,7 +69,6 @@ const PuzzleGameInfo: React.FC<PuzzleGameInfoProps> = ({
           <TbSwitch2 className="h-5 w-5 sm:h-4 sm:w-4 -rotate-90" />
         </button>
 
-        {/* Previous Move */}
         <button
           onClick={handlePreviousMove}
           className={`flex-1 bg-purple-600 text-white py-2 h-12 rounded-lg hover:bg-gray-700 flex items-center justify-center max-w-[120px] sm:max-w-[100px] ${
@@ -84,7 +80,6 @@ const PuzzleGameInfo: React.FC<PuzzleGameInfoProps> = ({
           <FaChevronLeft className="h-5 w-5 sm:h-4 sm:w-4" />
         </button>
 
-        {/* Next Move */}
         <button
           onClick={handleNextMove}
           className={`flex-1 bg-purple-600 text-white py-2 h-12 rounded-lg hover:bg-gray-700 flex items-center justify-center max-w-[120px] sm:max-w-[100px] ${
@@ -98,7 +93,6 @@ const PuzzleGameInfo: React.FC<PuzzleGameInfoProps> = ({
           <FaChevronRight className="h-5 w-5 sm:h-4 sm:w-4" />
         </button>
 
-        {/* Take Back Move */}
         <button
           onClick={onTakeBackMove}
           className={`flex-1 bg-purple-600 text-white py-2 h-12 rounded-lg flex items-center justify-center max-w-[120px] sm:max-w-[100px] ${
@@ -109,7 +103,6 @@ const PuzzleGameInfo: React.FC<PuzzleGameInfoProps> = ({
           <FaRedoAlt className="h-5 w-5 sm:h-4 sm:w-4" />
         </button>
 
-        {/* Skip Button */}
         <button
           onClick={handleSkipClick}
           className="flex-1 bg-purple-600 text-white py-2 h-12 rounded-lg hover:bg-gray-700 flex items-center justify-center max-w-[120px] sm:max-w-[100px]"
@@ -120,7 +113,6 @@ const PuzzleGameInfo: React.FC<PuzzleGameInfoProps> = ({
         </button>
       </div>
 
-      {/* Skip Confirmation Dialog */}
       {showSkipConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-4 shadow-lg max-w-xs w-full">

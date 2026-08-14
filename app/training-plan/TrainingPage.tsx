@@ -42,9 +42,6 @@ const ChessProgressionUI: React.FC = () => {
   const states = ["My Training Plan", "My Progress"];
   const { GameHistoryOpenings, getLeaderboardMe } = useApiClient();
   const { sessionId } = useProfileStore();
-  // ELO shown on the plan comes from the leaderboard (same source as the
-  // play page top bar), not the training-plan profile; the store keeps the
-  // last value so it doesn't flash 0 while refetching.
   const { leaderboardMe, setLeaderboardMe } = usePlayPageStore();
 
   useEffect(() => {
@@ -94,7 +91,6 @@ const ChessProgressionUI: React.FC = () => {
 
   const initializeConcurrentFetches = useCallback(async () => {
     if (!isSignedIn || initialDataLoaded) return;
-    // if (!isSignedIn || !checkComplete || initialDataLoaded) return;
 
     const promises = [
       fetchTopics(sessionId).catch((error) => console.error(error)),
@@ -131,7 +127,6 @@ const ChessProgressionUI: React.FC = () => {
   }, [GameHistoryOpenings, setOpeningPlayed]);
 
   useEffect(() => {
-    // if (checkComplete && isSignedIn && !initialDataLoaded) {
     if (isSignedIn && !initialDataLoaded) {
       initializeConcurrentFetches();
     }
@@ -163,13 +158,11 @@ const ChessProgressionUI: React.FC = () => {
   }, [dialogOpen, resetExpiredStatus]);
 
   const handleCreatePlan = useCallback(() => {
-    // Check if user is connected and has username
     if (!isSignedIn || !username) {
       setShowConnectAccount(true);
       return;
     }
 
-    // User is connected and has username, proceed with creating plan
     setDialogMode("create");
     setAdjustMode(false);
     setDialogOpen(true);
@@ -235,8 +228,6 @@ const ChessProgressionUI: React.FC = () => {
         setOpen={setShowConnectAccount}
       />
 
-      {/* Below xl the header bar carries the page title, so only show the
-          in-page heading once that disappears. */}
       <div className="xl:flex items-center hidden">
         <h1 className="font-bold text-2xl xl:text-3xl p-4 lg:p-0">
           My Training Plan <sub className="text-[14px] --xs text-gray-500 font-normal lg:text-[18px]">({displayUsername})</sub>

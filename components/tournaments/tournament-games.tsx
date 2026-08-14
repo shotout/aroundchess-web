@@ -18,7 +18,6 @@ interface TournamentGamesProps {
   limit?: number
 }
 
-// Mock data - replace with real data from your backend
 const mockGames = [
   {
     id: 1,

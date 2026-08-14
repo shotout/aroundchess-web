@@ -63,7 +63,6 @@ const MobileTooltip = ({
     }
   }, [isMobile, isVisible]);
 
-  // Desktop: Close tooltip when clicking outside
   useEffect(() => {
     if (!isMobile && isVisible) {
       const handleClickOutside = (event: MouseEvent) => {
@@ -109,7 +108,6 @@ const MobileTooltip = ({
     return (
       <Dialog open={isVisible} onOpenChange={setIsVisible}>
         <DialogContent className="bg-[#E6F7FE] rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] max-h-[95%] overflow-y-hidden">
-          {/* Radix requires an accessible name on every DialogContent */}
           <DialogTitle className="sr-only">Game analytics</DialogTitle>
           <DialogHeader className="flex flex-row justify-between items-center mb-2">
             <div className="flex flex-row gap-2 items-center">
@@ -144,27 +142,6 @@ const MobileTooltip = ({
         >
           {children}
         </button>
-        {/* {isVisible && (
-          <div
-            className={`absolute z-50 px-3 py-2 text-[14px] --sm text-white bg-gray-800 rounded-b-sm rounded-tl-sm  w-72 max-w-[90vw] ${
-              mobileSide === "left"
-                ? "right-2 top-5"
-                : mobileSide === "right"
-                ? "left-0 top-8"
-                : mobileSide === "top"
-                ? "bottom-8 left-1/2 transform -translate-x-1/2"
-                : "top-8 left-1/2 transform -translate-x-1/2"
-            }`}
-          >
-            <div className="r leading-relaxed">
-              {contentArray.map((item, index) => (
-                <div key={index} className={index > 0 ? "mt-2" : ""}>
-                  {parseBoldText(item)}
-                </div>
-              ))}
-            </div>
-          </div>
-        )} */}
       </div>
     );
   }

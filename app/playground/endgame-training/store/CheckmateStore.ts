@@ -2,10 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
 
-// Interface for raw checkmate data structure (2D array of FEN strings)
 interface CheckmateData {
-  // First index: number of moves to checkmate (0-based)
-  // Second index: different positions with same move count
   [index: number]: string[];
 }
 
@@ -17,7 +14,6 @@ interface CheckmateStore {
   clearData: () => void;
 }
 
-// Validate the data is a 2D array
 const isValidRawCheckmateData = (data: any): data is CheckmateData => {
   return (
     Array.isArray(data) &&
@@ -34,7 +30,6 @@ export const useCheckmateTraining = create<CheckmateStore>()(
       error: null,
       
       fetchData: async () => {
-        // Skip if already loading
         const state = useCheckmateTraining.getState();
         if (state.isLoading) return;
         
@@ -43,7 +38,6 @@ export const useCheckmateTraining = create<CheckmateStore>()(
           
           const response = await axios.get<CheckmateData>('/checkmate.json');
           
-          // Log the response for debugging
           console.log('Checkmate data response structure:', 
             response.data ? (
               Array.isArray(response.data) 
@@ -51,7 +45,6 @@ export const useCheckmateTraining = create<CheckmateStore>()(
                 : typeof response.data
             ) : 'No data');
           
-          // Validate the data structure
           if (!isValidRawCheckmateData(response.data)) {
             console.error('Invalid checkmate data format:', response.data);
             throw new Error('Invalid checkmate data format');
@@ -61,7 +54,6 @@ export const useCheckmateTraining = create<CheckmateStore>()(
         } catch (error) {
           console.error('Error fetching checkmate data:', error);
           
-          // Set empty array as fallback
           set({ 
             data: [],
             isLoading: false, 

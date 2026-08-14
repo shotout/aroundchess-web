@@ -36,12 +36,9 @@ const subtitleVariants = {
 export default function PlaygroundPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Header */}
       <SiteHeader />
       
-      {/* Main content with background */}
       <main className="relative flex-1">
-        {/* Background container - only for main content */}
         <div className="absolute inset-0">
           <motion.div 
             className="relative w-full h-full"
@@ -61,10 +58,8 @@ export default function PlaygroundPage() {
           </motion.div>
         </div>
 
-        {/* Content */}
         <MaxWidthWrapper>
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] py-8 md:py-12 px-4">
-            {/* Title section with animation */}
             <div className="relative z-10 text-center mb-8 md:mb-12">
               <motion.h1 
                 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white"
@@ -84,7 +79,6 @@ export default function PlaygroundPage() {
               </motion.p>
             </div>
 
-            {/* Game modes grid */}
             <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 w-full max-w-6xl mb-8 md:mb-16 px-4 sm:px-6">
               <GameModeHex
                 href="/playground/two-player"
@@ -114,7 +108,6 @@ export default function PlaygroundPage() {
               />
             </div>
 
-            {/* Decorative elements */}
             <div className="relative z-10 w-full max-w-6xl relative mb-6 md:mb-8">
               <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-2 h-2 rounded-full bg-white/20" />
@@ -123,7 +116,6 @@ export default function PlaygroundPage() {
         </MaxWidthWrapper>
       </main>
 
-      {/* Footer */}
       <footer className="relative bg-background mt-auto border-t border-border">
         <SiteFooter />
       </footer>

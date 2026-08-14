@@ -80,7 +80,6 @@ const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
 }) => {
   return (
     <>
-      {/* Goal Title */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
@@ -99,14 +98,12 @@ const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
         />
       </div>
 
-      {/* Goal Type */}
       <GoalTypeSelector
         goalTypes={goalTypes}
         selectedGoalType={selectedGoalType}
         setSelectedGoalType={setSelectedGoalType}
       />
 
-      {/* Duration Type - Only show when not in topics mode */}
       {selectedGoalType !== "topics" && (
         <DurationTypeSelector
           durationTypes={durationTypes}
@@ -115,7 +112,6 @@ const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
         />
       )}
 
-      {/* Conditional Sections Based on Selections */}
       {selectedGoalType === "elo" && selectedDurationType === "target" && (
         <TargetEloSection
           targetElo={targetElo}
@@ -226,7 +222,6 @@ const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
         />
       )}
 
-      {/* Generate Button */}
       <Button
         className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-full mt-4"
         onClick={onGeneratePlan}

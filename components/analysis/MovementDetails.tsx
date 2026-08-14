@@ -39,10 +39,8 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
     movementDetails: movementDetailsData,
   } = dataAnalysis ?? {};
 
-  // Safe access to movement details with defaults
   const movementDetails = movementDetailsData || { white: [], black: [] };
 
-  // Canonical analysis sources: Middlegame/Endgame
   const middleGameBest =
     dataAnalysis?.middleGame?.bestMoves != null
       ? dataAnalysis?.middleGame?.bestMoves
@@ -134,7 +132,6 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
   };
 
   const handleOnClickMovement = (move: any, index: number, type: string) => {
-    // Enrich the selected move with analysis/recommendation from Middlegame/Endgame
     const insight = getMoveInsight(move);
     const enrichedMove = {
       ...move,
@@ -144,7 +141,6 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
     };
     setChessMove(enrichedMove);
 
-    // Scroll to chessboard using ref from store
     setTimeout(() => {
       scrollToChessboard();
     }, 100);
@@ -366,7 +362,6 @@ const MovementDetails: React.FC<MovementDetailsProps> = (props) => {
                     </span>
                   </div>
 
-                  {/* Black move column */}
                   <div
                     className={`grid grid-cols-3 flex items-center h-10 lg:h-14 border-b border-b-[#749BBF] hover:bg-[#81CFF390] ${
                       movementDetails.black[index] &&

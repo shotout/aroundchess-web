@@ -22,11 +22,6 @@ export interface LeaderboardShareSpec {
 
 export type ShareCardSpec = ResultShareSpec | LeaderboardShareSpec;
 
-/**
- * Facebook, X and WhatsApp only accept a URL — an image cannot be attached to
- * their web composers. They render whatever the URL's OpenGraph tags describe,
- * so sharing points at this page and the card rides along as its og:image.
- */
 export const SHARE_PATH = "/s";
 export const SHARE_IMAGE_PATH = "/api/share-image";
 
@@ -83,9 +78,6 @@ function name(value: string | undefined): string | undefined {
 const BLOCKED_AVATAR_HOST =
   /^(localhost$|127\.|10\.|192\.168\.|169\.254\.|\[?::1)/i;
 
-/** The avatar is fetched server-side to draw the card, so only allow a plain
- * public https URL through — never a scheme or host that could be used to
- * probe our own network. */
 function avatar(value: string | undefined): string | null {
   if (!value) return null;
   try {

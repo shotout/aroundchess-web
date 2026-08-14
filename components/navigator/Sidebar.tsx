@@ -42,8 +42,6 @@ interface SidebarLink {
     iconActive: string;
     disabled?: boolean;
     permission?: boolean;
-    /** Element id appended as a hash on mobile, so the destination page scrolls
-     *  straight to it instead of landing at the top. */
     mobileScrollTo?: string;
   }[];
 }
@@ -67,8 +65,6 @@ const sidebarLinks: SidebarLink[] = [
         href: "/playground/play-vs-ai",
         icon: "/icons/sidebar-play-vs-ai-icon.png",
         iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
-        // Mobile stacks the leaderboard card above the Play VS AI card, so land
-        // on the card itself — same jump the leaderboard's "Play Now" does.
         mobileScrollTo: "play-vs-ai",
       },
       {
@@ -158,12 +154,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const { startTutorial } = useTutorial();
   const { getStreakStatus } = useApiClient();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  // Streak comes from the persisted store so the badge keeps its value
-  // across navigations instead of flashing 0 while refetching; the login
-  // trigger and post-game flow keep the store current.
   const currentStreak = useStreakStore((s) => s.currentStreak);
-  // Flame lights up only when today's game is played — same rule as the
-  // streak status modal's on/off flame.
   const hasPlayedToday = useHasPlayedToday();
 
   useEffect(() => {
@@ -174,8 +165,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
   useEffect(() => {
     if (!sessionId) return;
-    // Refresh on every page load (deduped in the store) so the badge's streak
-    // and flame follow the backend instead of the persisted value going stale.
     refreshStreakStatus(sessionId, getStreakStatus);
   }, [sessionId]);
 
@@ -234,14 +223,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
   const isSubscribed = isMember || isMemberMonthly;
 
-  // Seeds the pawn fallback's "random" background — same recipe as the
-  // profile page so the same user gets the same color everywhere.
   const avatarSeed =
     profileShow?.username || username || profileShow?.email || "user";
 
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col z-10">
-      {/* Logo */}
       <motion.div
         className="flex md:h-24 py-[8px] items-center px-6 md:justify-center sm:border-b mb-[8px] md:mb-[16px]"
         variants={isMobile ? itemVariants : {}}
@@ -273,19 +259,15 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         </button>
       </motion.div>
 
-      {/* Navigation + streak + mobile offers — all scrollable */}
       <div
         className="flex-1 min-h-0 overflow-y-auto"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
-        {/* Streak section */}
         {isSignedIn && (
           <motion.div
             className="px-4 py-3 flex flex-col gap-2 border-b"
             variants={isMobile ? itemVariants : {}}
           >
-            {/* flex-wrap: on narrow sidebars the Play Now pill wraps under the
-                streak badge instead of overlapping it */}
             <div className="flex items-center justify-between gap-2 min-w-0 flex-wrap">
               <button
                 type="button"
@@ -327,7 +309,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           </motion.div>
         )}
 
-        {/* Mobile token & offers */}
         <motion.div
           className="flex sm:hidden flex-col justify-center pb-4 px-4 border-b gap-2"
           variants={isMobile ? itemVariants : {}}
@@ -660,7 +641,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         )}
       </div>
 
-      {/* Profile */}
       {isSignedIn && (
         <motion.div
           className="hidden md:block mt-auto border-t border-[#c0ced4] p-[14px]"

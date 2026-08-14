@@ -314,25 +314,17 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
       console.error("Error loading famous game:", err);
     }
   };
-  // Load steps for current route (or for a requested tour id)
   useEffect(() => {
     const tour = tutorials[pathname] as MinimalStep[] | undefined;
-    // if (tour && tour.length > 0) {
-    //   setSteps(tour);
-    // } else {
-    //   setSteps([]);
-    // }
     setSteps(tour ?? []);
   }, [pathname]);
 
-  // Example: start tutorial if ?tutorial=true in url
   useEffect(() => {
     try {
       if (search?.get("tutorial") === "true") {
         setIsRunning(true);
       }
     } catch (e) {
-      // noop
     }
   }, [search]);
 
@@ -380,12 +372,10 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
     <Suspense>
       <TutorialContext.Provider value={value}>
         {children}
-        {/* Render a minimal in-house tour to avoid react-joyride/react-dom issues */}
         {steps.length > 0 && isRunning &&  (
           <MinimalTour
             steps={steps as MinimalStep[]}
             run={isRunning}
-            // onClose={() => setIsRunning(false)}
           />
         )}
       </TutorialContext.Provider>

@@ -45,9 +45,8 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
     const minPadding = 0;
     const maxSize = window.innerWidth >= 1280 ? window.innerWidth / 3.2 : 480;
 
-    // Get the actual container width
     const containerWidth = containerRef.current?.offsetWidth || width;
-    const maxBoardWidth = Math.min(containerWidth - 40, 800); // 40px for padding, max 600px
+    const maxBoardWidth = Math.min(containerWidth - 40, 800);
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
@@ -97,7 +96,6 @@ const BoardDisplay: React.FC<ExtendedBoardDisplayProps> = ({
                   throw new Error("Function not implemented.");
                 }}
               />
-              {/* Custom Arrows Overlay */}
               {arrows && arrows.length > 0 && !gameQuestion?.text.includes("legal moves") && (
                 <CustomChessArrows
                   arrows={arrows as ArrowConfig[]}

@@ -33,7 +33,6 @@ export const BlackPlayer = ({
   const isWin = winnerColor == "black";
   const isDraw = statusGame == "Draw";
   const isLoss = loserColor == "black";
-  // Same seed recipe as the sidebar so the fallback color is stable per user.
   const avatarSeed = profile?.username || username || profile?.email || "user";
 
   const { isTutorialPlay } = useTutorial();
@@ -91,9 +90,6 @@ export const BlackPlayer = ({
             {myColor != "white"
               ? username
               : AIChoosed.opponent.name.replace(/ .*/, "")}
-            {/* <div className="text-center">
-              <h2 className="text-xl">{blackTime}</h2>
-            </div> */}
           </span>
           {!!blackElo && (
             <span className="text-[13px] text-[#6B7280]">ELO {blackElo}</span>

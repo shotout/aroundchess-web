@@ -65,7 +65,6 @@ export default function Navigation({
     setSidebarOpen(false);
   };
 
-  // Expose closeSidebar to window for tutorial access
   useEffect(() => {
     if (typeof window !== 'undefined') {
       (window as any).closeSidebar = closeSidebar;
@@ -81,26 +80,21 @@ export default function Navigation({
     mainRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [pathname]);
 
-  // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
     if (!isDesktop && isSidebarOpen) {
-      // Save current scroll position
       const scrollY = window.scrollY;
 
-      // Prevent body scroll
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
 
       return () => {
-        // Restore body scroll
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.width = '';
         document.body.style.overflow = '';
 
-        // Restore scroll position
         window.scrollTo(0, scrollY);
       };
     }
@@ -220,7 +214,6 @@ export default function Navigation({
               />
             )}
 
-            {/* <div className={`relative z-10 min-h-[calc(100vh-56px)] xl:min-h-[calc(100vh-97px)]`}> */}
             <div className={`z-10`}>
               {children}
             </div>

@@ -39,16 +39,10 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
   const [boardOrientation] = useState<"white" | "black">("white");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [boardSize, setBoardSize] = useState(700); // Default size
+  const [boardSize, setBoardSize] = useState(700);
   const [mounted, setMounted] = useState(false);
   const [is3DMode, setIs3DMode] = useState<boolean>(true);
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // useEffect(() => {
-  //   let is3D = StyleChoosed == "3d" ? true : false;
-  //   setIs3DMode(is3D);
-  //   console.log("StyleChoosed", StyleChoosed);
-  // }, [StyleChoosed]);
 
   const manuallyPlayPgn = (pgnText: string) => {
     try {
@@ -111,8 +105,8 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
       const movesSection = parts[parts.length - 1].trim();
 
       const movesOnly = movesSection
-        .replace(/\d+\.\s*/g, "") // Remove move numbers like "1. "
-        .replace(/\s+/g, " ") // Normalize whitespace
+        .replace(/\d+\.\s*/g, "")
+        .replace(/\s+/g, " ")
         .trim();
 
       const moves = movesOnly
@@ -169,21 +163,16 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
       autoPlayTimerRef.current = null;
     }
 
-    // Reset move index
     setCurrentMoveIndex(0);
 
-    // Try to parse the PGN
     setTimeout(() => {
-      // First try with our manual method
       let success = manuallyPlayPgn(storePgn);
-      // If that fails, try with the direct move extraction method
       if (!success) {
         console.log("First parsing method failed, trying direct extraction");
         success = extractMovesFromPgn(storePgn);
       }
 
       if (!success) {
-        // As a last resort, try letting chess.js handle it
         try {
           const tempGame = new Chess();
           tempGame.loadPgn(storePgn);
@@ -207,17 +196,13 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
     }, 500);
   }, [storePgn]);
 
-  // Handle store errors
   useEffect(() => {
     if (storeError) {
       setError(storeError.message);
     }
   }, [storeError]);
 
-  // Auto-play effect
   useEffect(() => {
-    // console.log(currentMoveIndex, moveHistory.length)
-    // Skip if we don't have moves or are at the end
     if (moveHistory.length === 0 || currentMoveIndex >= moveHistory.length) {
       return;
     } else if (currentMoveIndex == moveHistory.length - 1) {
@@ -230,30 +215,20 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
       }
     }
 
-    // Clear existing timer
     if (autoPlayTimerRef.current) {
       clearTimeout(autoPlayTimerRef.current);
     }
 
-    // Set timer for next move
     autoPlayTimerRef.current = setTimeout(() => {
       try {
-        // Make a copy of the current game state
         const newGame = new Chess(game.fen());
 
-        // Make the next move
         const moveData = moveHistory[currentMoveIndex];
         newGame.move(moveData);
 
-        // Update game and move index
         setGame(newGame);
         setCurrentMoveIndex((prev) => prev + 1);
 
-        // console.log(
-        //   `Made move ${currentMoveIndex + 1}/${moveHistory.length}: ${
-        //     moveData.san
-        //   }`
-        // );
       } catch (err) {
         console.error("Error making move:", err);
         setError(
@@ -264,7 +239,6 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
       }
     }, 150);
 
-    // Cleanup function
     return () => {
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
@@ -276,14 +250,11 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
   useEffect(() => {
     if (typeof window === "undefined" || !mounted) return;
 
-    // Initial size calculation
     handleResize();
 
-    // Add event listeners
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [mounted]);
-  // Clean up on unmount
   useEffect(() => {
     handleResize();
     return () => {
@@ -299,22 +270,17 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
     const isPortrait = height > width;
     const minPadding = 0;
     const defaultMaxSize = window.innerWidth >= 1440 ? window.innerWidth / 3.25 : 400;
-    // Use custom maxBoardSize if provided, otherwise use default calculation
     const maxSize = maxBoardSize || defaultMaxSize;
     console.log("Resizing board...", isPortrait, window.innerWidth, "maxSize:", maxSize);
 
     if (isPortrait) {
-      // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
-      // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.8 : 0.9;
       const calculatedSize = Math.min(maxSize, availableWidth * sizeFactor);
       setBoardSize(calculatedSize);
       console.log("Portrait board size:", calculatedSize);
     } else {
-      // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
-      // Use 80% of available height
       const calculatedSize = Math.min(maxSize, availableHeight * 0.8);
       setBoardSize(calculatedSize);
       console.log("Landscape board size:", calculatedSize);
@@ -382,19 +348,6 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
         )}
       </div>
 
-      {/* <div className="text-center mt-4">
-          <p>
-            Move: {currentMoveIndex} / {moveHistory.length}
-          </p>
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-        </div> */}
-
-      {/* <div className="">
-        <p className="text-[14px] --sm md:text-md text-center">
-          Move: {currentMoveIndex} / {moveHistory.length}
-        </p>
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-      </div> */}
     </div>
   );
 };

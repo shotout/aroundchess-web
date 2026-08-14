@@ -26,7 +26,6 @@ const BASE_URL = process.env.BASE_URL;
 const FIELD_CLASS =
   "w-full h-[56px] rounded-[12px] bg-[#F7FCFF] border border-[#DCE9F0] pl-[48px] pr-[48px] text-[15px] placeholder:text-[#9CA3AF] focus-visible:ring-0 focus-visible:border-[#221AE9]";
 
-/** Icon inside the field on the left, optional action on the right. */
 const IconField = ({
   icon,
   action,
@@ -61,8 +60,6 @@ export function ChangePassword() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  // Prefill with the signed-in address — the code has to go to the account's
-  // own inbox anyway.
   useEffect(() => {
     if (open && step === "email" && !email && profile?.email) {
       setEmail(profile.email);
@@ -70,7 +67,6 @@ export function ChangePassword() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, step, profile?.email]);
 
-  // Step 3 starts from empty fields each time it opens.
   useEffect(() => {
     if (step === "password") {
       setNewPassword("");
@@ -88,7 +84,6 @@ export function ChangePassword() {
   const passwordsMatch = newPassword === confirmPassword && confirmPassword !== "";
   const canSave = allConditionsMet && passwordsMatch && !busy;
 
-  /** Step 1 -> send the reset code, then hand over to the verification page. */
   const handleSendEmail = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     const address = email.trim();
@@ -120,7 +115,6 @@ export function ChangePassword() {
     }
   };
 
-  /** Step 3 -> set the new password using the token the verify page confirmed. */
   const handleSavePassword = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (!canSave) return;
@@ -152,13 +146,10 @@ export function ChangePassword() {
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        // Closing abandons the flow, so don't leave a half-finished step behind.
         if (!next) reset();
         else setOpen(true);
       }}
     >
-      {/* Explicit radius at both breakpoints — the dialog base ships
-          `sm:rounded-lg`, which would otherwise win from sm up. */}
       <DialogContent className="w-[92%] max-w-[440px] sm:max-w-[520px] max-h-[95%] rounded-[24px] sm:rounded-[16px] bg-white p-0 md:p-0 gap-0 overflow-y-auto">
         <div className="flex flex-col items-center px-[20px] pt-[28px] pb-[24px] sm:px-[40px] sm:pt-[32px] sm:pb-[32px]">
           <Image
@@ -197,9 +188,6 @@ export function ChangePassword() {
                     className={FIELD_CLASS}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    // The OTP can only go to the account's own inbox, so the
-                    // prefilled address isn't editable. It stays editable only
-                    // in the edge case where the profile has no email yet.
                     disabled={busy || !!profile?.email}
                   />
                 </IconField>

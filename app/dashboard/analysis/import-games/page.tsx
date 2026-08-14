@@ -58,7 +58,6 @@ interface ThreatAnalysis {
   }[]
 }
 
-// Add these styles at the top of the file after imports
 const moveClassificationColors = {
   brilliant: 'bg-[#1baca6] text-white hover:bg-[#1baca6]/90',
   great: 'bg-[#3692e7] text-white hover:bg-[#3692e7]/90',
@@ -80,7 +79,6 @@ export default function ImportGamesPage() {
   const [activeTab, setActiveTab] = useState("paste")
 
   useEffect(() => {
-    // Initialize the analysis service only on the client side
     const service = new ChessAnalysisService()
     setAnalysisService(service)
   }, [])
@@ -94,7 +92,6 @@ export default function ImportGamesPage() {
       const result = await analysisService.analyzeGame(pgn)
       console.log('Analysis completed:', result)
       setAnalysis(result)
-      // Switch to analysis tab after completion
       setActiveTab("analysis")
     } catch (error) {
       console.error('Error analyzing game:', error)
@@ -267,10 +264,9 @@ export default function ImportGamesPage() {
                         'k': 'King'
                       }[threat.piece] || threat.piece;
                       
-                      // Clean up the description to remove piece letter if present
                       const cleanDescription = threat.description
-                        .replace(/^[KQRBN]\s+/, '')  // Remove piece letter from start
-                        .replace(/your\s+[KQRBN]\s+/, 'your '); // Remove piece letter after "your"
+                        .replace(/^[KQRBN]\s+/, '')
+                        .replace(/your\s+[KQRBN]\s+/, 'your ');
                       
                       return (
                         <div key={index} className="p-4 border rounded-lg">
@@ -304,35 +300,30 @@ export default function ImportGamesPage() {
           </TabsContent>
 
           <TabsContent value="moveQuality" className="space-y-4">
-            {/* Move Quality content will be implemented later */}
             <div className="text-center py-12 text-muted-foreground">
               Detailed move quality metrics coming soon...
             </div>
           </TabsContent>
 
           <TabsContent value="opening" className="space-y-4">
-            {/* Opening content will be implemented later */}
             <div className="text-center py-12 text-muted-foreground">
               Opening analysis coming soon...
             </div>
           </TabsContent>
 
           <TabsContent value="endgame" className="space-y-4">
-            {/* Endgame content will be implemented later */}
             <div className="text-center py-12 text-muted-foreground">
               Endgame assessment coming soon...
             </div>
           </TabsContent>
 
           <TabsContent value="improvement" className="space-y-4">
-            {/* Improvement content will be implemented later */}
             <div className="text-center py-12 text-muted-foreground">
               Improvement suggestions coming soon...
             </div>
           </TabsContent>
 
           <TabsContent value="training" className="space-y-4">
-            {/* Training content will be implemented later */}
             <div className="text-center py-12 text-muted-foreground">
               Training focus recommendations coming soon...
             </div>

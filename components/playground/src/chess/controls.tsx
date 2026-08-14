@@ -8,7 +8,6 @@ import Link from "next/link"
 export function Controls() {
   const { undoMove, redoMove } = useChessStore()
   const resetGame = () => {
-    // Reset game logic - you can implement this in useChessStore
     window.location.reload()
   }
 

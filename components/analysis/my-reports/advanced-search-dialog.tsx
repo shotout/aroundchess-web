@@ -39,7 +39,6 @@ export function AdvancedSearchDialog({
   const [newTag, setNewTag] = useState("")
 
   const handleSearch = () => {
-    // Implement advanced search logic
     onOpenChange(false)
   }
 

@@ -14,13 +14,6 @@ interface ImportDialogButtonProps {
   onSuccess?: () => void;
 }
 
-/**
- * Pasted PGNs are often JSON-encoded — wrapped in quotes, with \" escapes and
- * literal two-character \n sequences instead of real newlines (that's what you
- * get copying one out of an API response or a JSON export). The import endpoint
- * rejects that, and the White/Black header regexes below never match it, so
- * decode it back into a real PGN first. Untouched for normal input.
- */
 const normalizePgn = (raw: string): string => {
   const text = raw.trim();
   if (!text) return "";
@@ -30,11 +23,9 @@ const normalizePgn = (raw: string): string => {
       const parsed = JSON.parse(text);
       if (typeof parsed === "string") return parsed.trim();
     } catch {
-      // not valid JSON — fall through to the manual unescape
     }
   }
 
-  // No real line breaks but escaped ones present: unescape by hand.
   if (!text.includes("\n") && /\\r?\\n/.test(text)) {
     return text
       .replace(/^"|"$/g, "")
@@ -242,9 +233,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
         setIsUploading(false);
         toast.success("Game imported successfully!");
         handleForceRefresh();
-        // The success view stays open until the user picks "Back to Game
-        // History" or "Analyze Game" — it used to self-close after 2s, which
-        // dismissed the dialog before anything could be clicked.
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Import failed";
         setError(msg);
@@ -326,14 +314,9 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
   const handleCancelConfirmation = useCallback(() => {
     setIsSubmitted(false);
     setIsConfirmationMode(false);
-    // otherwise a failed import's message stays pinned under the textarea
     setError(null);
   }, []);
 
-  // Success view — "Back to Game History" just closes; "Analyze Game" hands off
-  // to the same auto-start flow AnalyzeDifferentGame uses, so the freshly
-  // imported (newest, therefore first) game starts analysing straight away
-  // instead of dropping the user back on the list.
   const handleBackToHistory = useCallback(() => {
     resetDialog();
     if (onSuccess) onSuccess();
@@ -356,8 +339,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
       ? `${(bytes / (1024 * 1024)).toFixed(1)} MB`
       : `${(bytes / 1024).toFixed(1)} KB`;
 
-  // Nothing to submit yet: the paste tab needs text, the upload tab's button is
-  // the file picker itself so it stays live.
   const canSubmit =
     activeTab === "paste" ? pgnText.trim().length > 0 : true;
   const submitDisabled = isUploading || isLoading || !canSubmit;
@@ -429,7 +410,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
           >
             <div className="flex justify-between items-center p-4">
               <div className="w-8"></div>
-              {/* the success screen is image-led in the design — no header */}
               <h2 className="text-xl font-semibold text-center flex-1">
                 {isOperationCompleted ? "" : "Import a Game"}
               </h2>
@@ -592,7 +572,6 @@ const ImportDialogButton: React.FC<ImportDialogButtonProps> = ({
                             </div>
                           </div>
                         ) : (
-                          /* white card: blue file row + full-width Delete File */
                           <div className="w-full bg-white rounded-xl shadow-[0_2px_10px_rgba(17,24,39,0.08)] p-[10px]">
                             <div className="flex items-center gap-[12px] bg-[#E6F4FD] rounded-lg p-[10px] min-w-0">
                               <div className="bg-[#7FC5EA] rounded-md px-[12px] py-[10px] shrink-0">

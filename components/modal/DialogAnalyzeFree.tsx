@@ -28,7 +28,6 @@ export const DialogAnalyzeFree: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    // only run on client
     setWidth(window?.innerWidth || 0);
     const onResize = () => setWidth(window.innerWidth);
     window.addEventListener("resize", onResize);

@@ -88,7 +88,6 @@ export const usePollingManager = () => {
 
 
         if (["processing", "pending"].includes(d.status)) {
-          // compute client-side progress estimate if job has estimated duration
           const state = useBackgroundAnalysisStore.getState();
           const storeJob = state.analysisJobs[String(gameId)];
           let computedProgress = d.progress || 0;
@@ -97,11 +96,9 @@ export const usePollingManager = () => {
             const elapsedSec = Math.floor((Date.now() - (storeJob.startedAt || Date.now())) / 1000);
             const estimate = storeJob.estimatedDurationSeconds;
 
-            // progress is elapsed / estimate, capped to 100
             computedProgress = Math.max(0, Math.min(100, Math.round((elapsedSec / estimate) * 100)));
 
             if (elapsedSec > estimate) {
-              // past estimate and still processing -> mark as waiting
               updateJob(gameId, { status: "waiting", progress: 100 });
               return;
             }
@@ -124,7 +121,6 @@ export const usePollingManager = () => {
 
           forceStopPolling(gameId);
           
-          // Fetch last-analysis to get complete data
           try {
             const resultPgn = d.result?.pgn || gamePgn;
             if (resultPgn) {
@@ -145,7 +141,6 @@ export const usePollingManager = () => {
               console.log("📥 [V2 Polling] Last-analysis response:", lastAnalysisRes.data);
               
               if (lastAnalysisRes.data?.success && lastAnalysisRes.data?.data) {
-                // Use data from last-analysis as it's more complete
                 updateJob(gameId, {
                   status: "completed",
                   progress: 100,
@@ -160,7 +155,6 @@ export const usePollingManager = () => {
             console.warn("⚠️ [V2 Polling] Failed to fetch last-analysis, using status result:", lastAnalysisError.message);
           }
           
-          // Fallback: use result from status if last-analysis fails
           updateJob(gameId, {
             status: "completed",
             progress: 100,

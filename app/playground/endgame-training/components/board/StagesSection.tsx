@@ -15,7 +15,6 @@ export default function StagesSection({
 }: StagesSectionProps) {
   return (
     <div className="xl:bg-white relative overflow-hidden rounded-lg xl:border border-gray-200 xl:px-4 flex flex-col space-y-5 xl:space-y-4">
-      {/* Mobile view - Better styled header with smaller sword */}
       <div className="border border-gray-300 rounded-md shadow-md xl:hidden overflow-hidden">
         <div className="flex items-center space-x-4 p-2 bg-primary-white relative">
           <button onClick={(e) => onSelectSubcategory(selectedSubcategory)}>
@@ -34,7 +33,6 @@ export default function StagesSection({
             <span className="font-bold text-lg">Select a Stage</span>
           </div>
 
-          {/* Mobile decorative elements */}
           <div className="absolute right-0 top-0 pointer-events-none z-[1]">
             <Image
               src="/endgame-training/sword-stage.png"
@@ -55,9 +53,7 @@ export default function StagesSection({
         </div>
       </div>
 
-      {/* Desktop view - Original code preserved */}
       <div className="hidden xl:flex justify-center space-x-5  items-center relative  p-2">
-        {/* ChevronLeft is hidden on desktop per requirements */}
         <button
           className="hidden"
           onClick={(e) => onSelectSubcategory(selectedSubcategory)}
@@ -92,7 +88,6 @@ export default function StagesSection({
           />
         </div>
 
-        {/* Three dots in the text as specified */}
         <h4 className="text-center text-xl">Select a Stage . . . </h4>
       </div>
 

@@ -15,7 +15,6 @@ export const generateMoveNotation = (
   const files = 'abcdefgh';
   const ranks = '87654321';
   
-  // Special case for castling
   if (piece.toUpperCase() === 'K' && Math.abs(toCol - fromCol) === 2) {
     return `${toCol > fromCol ? 'O-O' : 'O-O-O'}${isCheckmate ? '#' : isCheck ? '+' : ''}`;
   }

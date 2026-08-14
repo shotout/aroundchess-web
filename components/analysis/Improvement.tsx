@@ -10,7 +10,7 @@ interface ImprovementProps {
   prev: () => void;
 }
 const Improvement: React.FC<ImprovementProps> = (props) => {
-  const { pgn: storePgn, dataAnalysis } = usePgnStore(); // Get PGN from the Zustand store
+  const { pgn: storePgn, dataAnalysis } = usePgnStore();
   const { keyWeaknesses, gameAnalysis, nextStepImprovement } =
     dataAnalysis?.improvementRecommendation;
 
@@ -72,14 +72,6 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
             `**<strong class="font-bold">Weaknesses:</strong>** <br />${gameAnalysis.weaknesses}`,
           ]}
         />
-        {/* 
-        <Section
-          title="Comparison to Past Games:"
-          content={[
-            "**Better:** Stronger piece coordination, fewer outright blunders.",
-            "**Worse:** Slight regression in time management, hesitation in executing tactical sequences.",
-          ]}
-        /> */}
 
         <div className="border-[#221AE9] border-t-4 p-4 bg-[#F6F9FF] rounded-b-lg">
           <h3 className="text-[#254B9D] font-semibold mb-2">
@@ -89,19 +81,6 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
             {nextStepImprovement}
           </span>
         </div>
-        {/* <div className="flex flex-row bg-gradient rounded-md p-2 sm:p-4">
-          <Image
-            alt=""
-            src={"/icons/info-banner-icon.png"}
-            width={1000}
-            height={1000}
-            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
-          />
-          <span className="text-[14px] --xs sm:text-md md:text-lg lg:text-md font-normal text-primary ml-4">
-            We have added Exercises to your Training Plan to improve your
-            Strategy for the analyzed weaknesses.
-          </span>
-        </div> */}
       </div>
 
       <div className="flex flex-col md:flex-row gap-[8px] md:gap-[16px] mt-2 mb-2 px-[4px]">
@@ -122,15 +101,6 @@ const Improvement: React.FC<ImprovementProps> = (props) => {
             Back to Summary
           </div>
         </button>
-        {/* <button
-          onClick={props.next}
-         className="btn-primary flex justify-center w-full h-[48px] whitespace-nowrap rounded-[100px] sm:py-4 md:py-6 lg:py-8"
-        >
-          <div className="flex flex-row items-center text-[#e6f7fe] text-[14px] --xs sm:text-[14px] --sm md:text-md lg:text-[16px] ">
-            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next: Training
-            <ArrowRight color="#FFF" className="ml-2 h-4 w-4 sm:h-6 w-6" />
-          </div>
-        </button> */}
       </div>
     </>
   );

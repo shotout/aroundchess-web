@@ -47,7 +47,6 @@ export function SortingDialog({
   ]
 
   const handleApply = () => {
-    // Implement sorting logic
     onOpenChange(false)
   }
 

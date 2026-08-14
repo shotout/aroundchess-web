@@ -28,10 +28,10 @@ export function ChessExample({ initialFen, title, description }: ChessExamplePro
         const move = game.move({
           from: sourceSquare,
           to: targetSquare,
-          promotion: "q", // always promote to queen for simplicity
+          promotion: "q",
         })
 
-        if (move === null) return false // illegal move
+        if (move === null) return false
         setCurrentPosition(game.fen())
         return true
       } catch (error) {

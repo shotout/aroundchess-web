@@ -14,7 +14,6 @@ import {
 } from "../../types/GameHistoryTypes";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-// Skeleton components for partial loading
 const ChartSkeleton: React.FC = () => (
   <div className="lg:p-4 rounded-lg w-full">
     <div className="animate-pulse">

@@ -61,7 +61,6 @@ export function ShareReportDialog({
   }
 
   const handleShare = () => {
-    // Implement share logic
     onOpenChange(false)
   }
 

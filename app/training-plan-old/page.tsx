@@ -25,7 +25,6 @@ export default function Page() {
   };
   return (
     <div className="flex overflow-hidden bg-primary-white">
-      {/* Desktop sidebar - always visible on desktop */}
       {isDesktop && (
         <div className="w-64 border-r border-gray-200 bg-white">
           <Sidebar />
@@ -38,7 +37,6 @@ export default function Page() {
         </div>
         <SiteFooterNew />
       </div>
-      {/* Mobile sidebar - only visible when toggled */}
       {!isDesktop && isSidebarOpen && (
         <>
           <div
@@ -46,7 +44,6 @@ export default function Page() {
             onClick={() => setSidebarOpen(false)}
           />
 
-          {/* Mobile sidebar */}
           <div className="fixed inset-y-0 right-0 z-50 w-64 bg-white border-l border-gray-200">
             <Sidebar onClose={() => setSidebarOpen(false)} />
           </div>

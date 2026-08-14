@@ -12,11 +12,9 @@ export const useChessboardRefStore = create<ChessboardRefStore>((set, get) => ({
   scrollToChessboard: () => {
     const { chessboardRef } = get();
     if (chessboardRef) {
-      // On mobile/tablet, scroll to chessboard
       if (window.innerWidth < 1280) {
         chessboardRef.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
-        // On desktop, scroll to top of page
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }

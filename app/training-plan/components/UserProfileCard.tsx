@@ -32,9 +32,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   }, []);
 
   const combinedProfile = useMemo(() => {
-    // TrainingPage already resolves the ELO across its sources (leaderboard
-    // first) and hands the result down, so the prop wins here — reading the
-    // store first would silently switch sources once it gets populated.
     const currentElo = userProfile?.currentElo || profile?.elo || 0;
 
     return {
@@ -125,7 +122,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               <div className="flex flex-col">
                 <h3 className="font-semibold text-[14px] --sm md:text-[16px] mb-[8px] md:mb-[4px]">
                   Your next Goals:
-                  {/* What you will get if you reach your Next Goals? */}
                 </h3>
                 <ul className="text-blue-800 text-[14px] --xs md:text-[14px] flex flex-col md:flex-row gap-y-2 md:gap-y-0 md:gap-x-3">
                   <li className="flex items-center gap-2">

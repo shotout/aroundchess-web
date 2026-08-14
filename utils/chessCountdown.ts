@@ -1,5 +1,3 @@
-// utils/chessCountdown.ts
-
 type CountdownCallbacks = {
     onTick?: (timeLeft: string) => void;
     onEnd?: () => void;

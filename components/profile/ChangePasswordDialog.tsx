@@ -143,7 +143,6 @@ const ChangePasswordDialog = ({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Current Password */}
           <div className="space-y-2">
             <label className="text-[14px] --sm font-medium leading-none flex items-center gap-2">
               <Lock size={14} /> Current Password
@@ -153,7 +152,7 @@ const ChangePasswordDialog = ({
                 name="currentPassword"
                 type={passwordVisibility.current ? "text" : "password"}
                 placeholder="Enter your Current Password"
-                className="pr-10 bg-[#F2FBFE]" // Add padding for the eye icon
+                className="pr-10 bg-[#F2FBFE]"
                 value={form.currentPassword}
                 onChange={handleInputChange}
               />
@@ -171,7 +170,6 @@ const ChangePasswordDialog = ({
             </div>
           </div>
 
-          {/* New Password */}
           <div className="space-y-2">
             <label className="text-[14px] --sm font-medium leading-none flex items-center gap-2">
               <Lock size={14} /> New Password
@@ -199,7 +197,6 @@ const ChangePasswordDialog = ({
             </div>
           </div>
 
-          {/* Confirm Password */}
           <div className="space-y-2">
             <label className="text-[14px] --sm font-medium leading-none flex items-center gap-2">
               <Lock size={14} /> Confirm Password

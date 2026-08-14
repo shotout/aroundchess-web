@@ -44,7 +44,6 @@ const ManualSelectionView: React.FC<ManualSelectionViewProps> = ({
 
   return (
     <>
-      {/* Step 1: Training Plan Name */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
@@ -63,7 +62,6 @@ const ManualSelectionView: React.FC<ManualSelectionViewProps> = ({
         />
       </div>
 
-      {/* Step 2: Select Topics */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
@@ -72,7 +70,6 @@ const ManualSelectionView: React.FC<ManualSelectionViewProps> = ({
           <Label className="font-medium">Select your Training Topics</Label>
         </div>
 
-        {/* Search Topics */}
         <div className="relative mb-4">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <Search />
@@ -80,14 +77,12 @@ const ManualSelectionView: React.FC<ManualSelectionViewProps> = ({
           <Input type="text" placeholder="Search topics..." className="pl-10" />
         </div>
 
-        {/* Difficulty Filter */}
         <DifficultyFilter
           activeFilter={activeTopicFilter}
           setActiveFilter={setActiveTopicFilter}
           className="mb-4"
         />
 
-        {/* Topics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <TopicCategory
             categoryNumber="1"
@@ -121,7 +116,6 @@ const ManualSelectionView: React.FC<ManualSelectionViewProps> = ({
         </div>
       </div>
 
-      {/* Step 3: Total Duration */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[14px] --xs">
@@ -153,7 +147,6 @@ const ManualSelectionView: React.FC<ManualSelectionViewProps> = ({
         </div>
       </div>
 
-      {/* Create Custom Plan Button */}
       <Button
         className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-full mt-4"
         onClick={onCreatePlan}

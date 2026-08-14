@@ -11,7 +11,6 @@ interface EliminatedPiecesProps {
 export function EliminatedPieces({ color, pieces }: EliminatedPiecesProps) {
   const { pieceTheme } = useThemeStore()
 
-  // Group identical pieces and count them
   const groupedPieces = pieces.reduce((acc, piece) => {
     if (piece) {
       acc[piece] = (acc[piece] || 0) + 1;

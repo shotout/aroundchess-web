@@ -162,8 +162,6 @@ const MyAccount = ({ onLogoutStart, handleUsernameClicked }: MyAccountProps) => 
       .then(() => {})
       .finally(() => {
         clearAll();
-        // Training-plan data is cached per account in localStorage; leaving it
-        // behind serves this user's progress to whoever logs in next.
         CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
@@ -188,15 +186,8 @@ const MyAccount = ({ onLogoutStart, handleUsernameClicked }: MyAccountProps) => 
           onClick={handleLogout}
           className="btn-danger rounded-full flex flex-row items-center justify-center w-[160px] h-[44px] p-[10px] gap-1"
         >
-          {/* {isLoading ? (
-            <DotSpinner size={5} />
-          ) : (
-            <>
-              {" "} */}
           <LogOut size={18} />
           <span>Sign-out</span>
-          {/* </>
-          )} */}
         </button>
       </div>
 
@@ -260,14 +251,6 @@ const MyAccount = ({ onLogoutStart, handleUsernameClicked }: MyAccountProps) => 
             htmlFor="username"
             className="flex flex-row gap-2 text-[14px] font-normal"
           >
-            {/* <Image
-              src="/icons/hero-section.png"
-              alt="chess"
-              width={100}
-              height={100}
-              className="w-[16px] h-[20px] relative z-10"
-              priority
-            />{" "} */}
             Default Chess.com Username
           </label>
           <Input

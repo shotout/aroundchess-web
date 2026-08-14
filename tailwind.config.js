@@ -35,15 +35,12 @@ export const theme = {
       "success-green": "#00b427",
       "warning-yellow": "#ffbb00",
       "danger-red": "#fd0000",
-      // light
       "light-10": "#fafdff",
       "light-40": "#eefafe",
       "light-60": "#C0CED4",
       "light-base": "e6f7fe",
-      // dark
       "dark-30": "#585858",
       "dark-base": "#040404",
-      // game color
       "briliant-bg": "#27c2a3",
       "great-bg": "#749bbf",
       "best-bg": "#80b64d",
@@ -51,7 +48,6 @@ export const theme = {
       "miss-bg": "#ff7769",
       "blunder-bg": "#fa402d",
 
-      //to be deleted
       "primary-white": "#FCFCFD",
       "primary-gray": "#DEDEDE",
       "gray-placeholder": "#F8F9FC",

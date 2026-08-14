@@ -15,7 +15,6 @@ export function TournamentDashboard() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        {/* Main Tournament Area (75%) */}
         <div className="xl:col-span-3 space-y-6">
           <Tabs defaultValue="overview" className="space-y-6" onValueChange={setActiveTab}>
             <TabsList>
@@ -56,7 +55,6 @@ export function TournamentDashboard() {
           </Tabs>
         </div>
 
-        {/* Live Match Panel (25%) */}
         <div className="xl:col-span-1">
           <LiveMatchPanel />
         </div>

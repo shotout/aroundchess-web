@@ -33,46 +33,6 @@ export default function GameControls({
 
   return (
     <div className="flex flex-col w-full">
-      {/* {!isGameOver && (
-        <div
-          className={`grid ${
-            isCheckmateMode ? "grid-cols-1" : "grid-cols-2  "
-          } gap-4 p-4 border-b border-t border-gray-200 w-full`}
-        >
-          <button
-            className="flex gap-x-3 text-[14px] --xs xl:text-base items-center justify-center p-3 text-blue-base rounded-md border border-primary-gray"
-            onClick={handleHint}
-          >
-            <Image
-              src={"/endgame-training/hint.png"}
-              alt="hint icon"
-              width={15}
-              height={15}
-            />{" "}
-            Hint
-          </button>
-
-          {!isCheckmateMode && (
-            <button
-              className={`flex gap-x-3 text-[14px] --xs xl:text-base items-center justify-center p-3 rounded-md border ${
-                isAutoSolution
-                  ? "border-blue-base bg-blue-base/5 text-blue-base"
-                  : "border-primary-gray text-black"
-              }`}
-              onClick={handleShowSolution}
-              disabled={isAutoSolution}
-            >
-              <Image
-                src={"/endgame-training/show-solution.png"}
-                alt="solution icon"
-                width={15}
-                height={15}
-              />{" "}
-              {isAutoSolution ? "Solving..." : "Show Solution"}
-            </button>
-          )}
-        </div>
-      )} */}
 
       {isGameOver && (
         <div className="px-3 py-4">

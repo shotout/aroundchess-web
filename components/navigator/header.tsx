@@ -27,11 +27,6 @@ interface HeaderProps {
   onSidebarToggle: () => void;
 }
 
-/**
- * Sub-pages that swap the mobile header's streak badge + centred logo for a
- * back arrow and the page title ("← Analyze Games ([username]) ☰").
- * Returns null on routes that keep the default header.
- */
 function mobilePageHeader(
   pathname: string | null
 ): { title: string; showUsername?: boolean } | null {
@@ -54,10 +49,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { token: tokenBalance, isMember, isMemberMonthly, sessionId, profile } = useProfileStore();
   const { streak, setStreak } = usePlayPageStore();
-  // Flame lights up only when today's game is played — same rule as the
-  // streak status modal's on/off flame.
   const hasPlayedToday = useHasPlayedToday();
-  // const { profile } = useUserStore();
   const { isLoading, getStreakStatus } = useApiClient();
 
   const isSignedIn = sessionId.length > 0;
@@ -67,10 +59,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   useEffect(() => {
     if (!isSignedIn) return;
-    // Shared once-per-page-load refresh: keeps the store's status in sync so
-    // the badge click (openDayStreakStatusModal) can detect a just-broken
-    // streak even on pages that don't mount the sidebar, and re-derives the
-    // flame from the backend on every reload.
     refreshStreakStatus(sessionId, getStreakStatus).then((data: any) => {
       if (data?.success) setStreak(data.data?.currentStreak ?? 0);
     });
@@ -98,7 +86,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
 
   const NavigationTabs = () => (
     <div className="hidden xl:flex xl:items-center space-x-2">
-      {/* Analytics/Analyze Now button */}
       <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-[14px] --sm font-medium xl:text-[14px] --xs xl:px-2 xl:py-1.5">
         <Link href={isSignedIn ? "/my-game-history" : "/analysis"}>
           <Button
@@ -121,7 +108,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         </Link>
       </div>
 
-      {/* Navigation menu */}
       <div className="flex flex-row items-center rounded-[8px] border border-gray-200 w-[348px] h-[57px] overflow-hidden p-[16px] gap-[40px]">
         <Link href="/about-us">
           <button
@@ -318,7 +304,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           isGuestMode ? "xl:w-full xl:justify-center" : ""
         } items-center h-[70px] lg:h-[100px]`}
       >
-        {/* Mobile: back arrow on sub-pages, else streak when signed in / logo when not */}
         <div className="xl:hidden">
           {pageHeader ? (
             <button
@@ -362,8 +347,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           )}
         </div>
 
-        {/* Mobile centre slot: page title on sub-pages, otherwise the logo
-            (only when the streak badge is holding the left slot) */}
         {pageHeader ? (
           <div className="xl:hidden absolute left-1/2 -translate-x-1/2 flex items-baseline justify-center gap-[4px] max-w-[62%]">
             <span className="text-[17px] font-bold text-[#111827] truncate">

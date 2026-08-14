@@ -127,7 +127,6 @@ export function GameAnalysis() {
   const analysisService = new ChessAnalysisService()
 
   useEffect(() => {
-    // Initialize Stockfish when component mounts
     console.log('Initializing analysis service')
   }, [])
 
@@ -245,7 +244,6 @@ export function GameAnalysis() {
                     <SelectValue placeholder="Select game to analyze" />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* Remove duplicates by using game URL as unique identifier */}
                     {recentGames
                       .filter((game, index, self) => 
                         index === self.findIndex((g) => g.url === game.url)
@@ -256,7 +254,6 @@ export function GameAnalysis() {
                         const userColor = isUserWhite ? "White" : "Black"
                         const opponent = isUserWhite ? game.black.username : game.white.username
                         
-                        // Get game result based on who won
                         let result = "draw"
                         if (game.white.result === "win") {
                           result = isUserWhite ? "win" : "loss"

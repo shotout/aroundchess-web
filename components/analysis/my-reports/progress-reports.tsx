@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Dispatch, SetStateAction } from "react"
 
-// Mock data - replace with real data from your backend
 const availableReports = [
   {
     id: 1,
@@ -70,7 +69,6 @@ interface ProgressReportsProps {
 export function ProgressReports({ onSelect }: ProgressReportsProps) {
   return (
     <div className="space-y-6">
-      {/* Report Controls */}
       <Card className="p-4">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -95,7 +93,6 @@ export function ProgressReports({ onSelect }: ProgressReportsProps) {
         </div>
       </Card>
 
-      {/* Reports List */}
       <Card>
         <ScrollArea className="h-[600px] w-full">
           <div className="p-4 space-y-4">

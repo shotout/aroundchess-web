@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(newOrUpdatedChessApiMonthlyGame)
   } catch (dbError:any) {
-    // Menampilkan error yang lebih mendetail
     console.error("Database error:", dbError)
     return NextResponse.json({ error: dbError.message || 'Failed to save data to databasesss' }, { status: 500 })
   }

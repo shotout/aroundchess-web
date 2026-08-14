@@ -3,13 +3,9 @@ import { useInView } from "react-intersection-observer";
 import debounce from "lodash/debounce";
 import { DifficultyFilter, ChessLesson } from "./ChessLessonTypes";
 
-// Constants for pagination
 const INITIAL_PAGE_SIZE = 6;
 const PAGE_INCREMENT = 6;
 
-/**
- * Custom hook for handling pagination of chess lessons
- */
 export function useChessLessonPagination<T extends ChessLesson>(
   filteredLessons: T[]
 ) {
@@ -21,12 +17,10 @@ export function useChessLessonPagination<T extends ChessLesson>(
     triggerOnce: false,
   });
 
-  // Reset display count when filters change
   useEffect(() => {
     setDisplayCount(INITIAL_PAGE_SIZE);
   }, [filteredLessons]);
 
-  // Auto-load more when scrolling to the bottom
   useEffect(() => {
     if (inView && filteredLessons.length > displayCount && !isLoadingMore) {
       loadMoreItems();
@@ -61,9 +55,6 @@ export function useChessLessonPagination<T extends ChessLesson>(
   };
 }
 
-/**
- * Custom hook for handling filters for chess lessons
- */
 export function useChessLessonFilters(
   searchTerm: string,
   setSearchTerm: (term: string) => void,
@@ -75,27 +66,22 @@ export function useChessLessonFilters(
   const [isFiltering, setIsFiltering] = useState(false);
   const [showNoResults, setShowNoResults] = useState(false);
 
-  // Create a stable reference to the debounced search function
-  // that won't recreate on every render
   const debouncedSearch = useCallback(
     debounce((value: string) => {
       setIsFiltering(true);
       setSearchTerm(value);
       setTimeout(() => setIsFiltering(false), 300);
     }, 300),
-    // Intentionally omit setSearchTerm from deps to prevent recreation
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
-  // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearchTerm(value);
     debouncedSearch(value);
   };
 
-  // Handle difficulty filter change
   const handleDifficultyChange = (difficulty: DifficultyFilter) => {
     setIsFiltering(true);
     const newFilter = difficultyFilter === difficulty ? null : difficulty;
@@ -103,7 +89,6 @@ export function useChessLessonFilters(
     setTimeout(() => setIsFiltering(false), 300);
   };
 
-  // Clear all filters
   const clearFilters = () => {
     setIsFiltering(true);
     setLocalSearchTerm("");
@@ -113,7 +98,6 @@ export function useChessLessonFilters(
     }, 300);
   };
 
-  // Check for no results after filtering
   useEffect(() => {
     if (!isFiltering && (difficultyFilter || searchTerm)) {
       setShowNoResults(filteredLessons.length === 0);

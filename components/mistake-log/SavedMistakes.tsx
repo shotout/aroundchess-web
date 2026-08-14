@@ -97,7 +97,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   } = usePgnStore();
   
   const { unsaveMistakeLog, getAnalysisByPgnHash } = useApiClient();
-  // One state for the list and the controls — see <Pagination> below.
   const pagination = usePagination(savedMistakes);
   const { currentData } = pagination;
   const { sessionId } = useProfileStore();
@@ -105,7 +104,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   const [selectedMistakes, setSelectedMistakes] = useState<any>({});
   const [sectionsByHash, setSectionsByHash] = useState<Record<string, any>>({});
 
-  // Dialog states for View Analysis flow
   const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
   const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
   const [v2AnalysisData, setV2AnalysisData] = useState<any>(null);
@@ -113,7 +111,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
   const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
   const [selectedGame, setSelectedGame] = useState<any>(null);
-  // The saved mistake's move, so the analysis opens directly on that position.
   const [analysisInitialMove, setAnalysisInitialMove] = useState<{
     moveNumber?: number;
     move?: string;
@@ -121,12 +118,10 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
 
   useEffect(() => {
     if (savedMistakes.length > 0) {
-      // Keep selectedMistakes consistently as an object with an id
       setSelectedMistakes(savedMistakes[0]?.mistakeLog);
     }
   }, [savedMistakes]);
 
-  // Prefetch Analyze Game sections for items on current page
   useEffect(() => {
     const doFetch = async () => {
       try {
@@ -209,7 +204,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
     const hash = (item as any).__hash as string | undefined;
     const sections = (hash && sectionsByHash[hash]) || undefined;
     
-    // If sections not loaded yet, return basic moveItem (use existing analysis/recommendation if available)
     if (!sections) {
       return { 
         ...moveItem, 
@@ -235,7 +229,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
       (enriched.weaknessIdentification && enriched.weaknessIdentification[0]) ||
       null;
     
-    // If enrichment fails, fallback to basic moveItem (use existing analysis/recommendation)
     if (!merged) {
       return { 
         ...moveItem, 
@@ -247,7 +240,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
     return merged;
   };
 
-  // Attach hashes to current page items for quick lookup
   useEffect(() => {
     (async () => {
       const promises = currentData.map(async (it: any) => {
@@ -281,13 +273,11 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
       const pgnHash = createPgnHash(item.pgn);
       console.log("📤 [SavedMistakes - View Analysis] PGN Hash:", pgnHash);
 
-      // Remember which move was saved so the analysis opens on it directly.
       setAnalysisInitialMove({
         moveNumber: item?.mistakeLog?.moveNumber,
         move: item?.mistakeLog?.move,
       });
 
-      // Store selected game for dialog components
       setSelectedGame({
         id: item.id || item._id,
         pgn: item.pgn,
@@ -296,7 +286,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
         movementDetail: item.movementDetail,
       });
 
-      // Fetch from both v2 and v3 endpoints in parallel
       const [v2Analysis, v3Analysis] = await Promise.all([
         fetchLastAnalysisV2(pgnHash, sessionId),
         fetchLastAnalysisV3(pgnHash, sessionId)
@@ -305,20 +294,17 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
       console.log("📥 [SavedMistakes - View Analysis] V2 Response:", v2Analysis);
       console.log("📥 [SavedMistakes - View Analysis] V3 Response:", v3Analysis);
 
-      // Store both v2 and v3 results
       setV2AnalysisData(v2Analysis);
       setShortAnalysisData(v3Analysis);
 
       if (v3Analysis?.success && v3Analysis.data?.summary) {
         console.log("✅ [SavedMistakes - View Analysis] V3 Analysis found, opening GameAnalysis directly");
-        // Skip ChooseAnalysisMode — show the mistakes result right away
         setV3AnalysisResult({
           ...v3Analysis.data,
           analysisId: v3Analysis.data.analysisId || v3Analysis.data.id,
         });
         setGameAnalysisOpen(true);
       } else if (v3Analysis?.success && v3Analysis.data) {
-        // v3 data without a summary — the choose dialog still handles this shape
         setIsChooseAnalysisModeOpen(true);
       } else {
         console.log("⚠️ [SavedMistakes - View Analysis] No v3 analysis found");
@@ -489,7 +475,6 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
       </div>
       {currentData.length > 0 && <Pagination {...pagination} />}
 
-      {/* Dialog components for View Analysis flow */}
       <ChooseAnalysisMode
         open={isChooseAnalysisModeOpen}
         onOpenChange={setIsChooseAnalysisModeOpen}

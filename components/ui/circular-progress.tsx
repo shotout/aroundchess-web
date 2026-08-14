@@ -22,7 +22,6 @@ export function CircularProgress({
 
   return (
     <div className={`relative ${className}`} style={{ width: size, height: size }}>
-      {/* Background circle */}
       <svg className="w-full h-full rotate-[-90deg]">
         <circle
           cx={size / 2}
@@ -33,7 +32,6 @@ export function CircularProgress({
           strokeWidth={strokeWidth}
           className="opacity-10"
         />
-        {/* Animated progress circle */}
         <motion.circle
           cx={size / 2}
           cy={size / 2}
@@ -47,7 +45,6 @@ export function CircularProgress({
           transition={{ duration: 1, ease: "easeInOut" }}
         />
       </svg>
-      {/* Percentage text */}
       <div className="absolute inset-0 flex items-center justify-center">
         <span className="text-[14px] --sm font-medium">{Math.round(value)}%</span>
       </div>

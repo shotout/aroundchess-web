@@ -8,7 +8,6 @@ import { useTutorial } from "./TutorialProvider";
 import { usePgnStore } from "@/app/store/zustandStore";
 
 export function GameHistoriesTable() {
-    // Filter states - Default: all sources checked
     const [sources, setSources] = useState<string[]>(["chesscom", "vs_ai", "pgn_upload"]);
     const [result, setResult] = useState<string>("All Results");
     const [color, setColor] = useState<string>("All Colors");
@@ -18,10 +17,8 @@ export function GameHistoriesTable() {
     const [searchInput, setSearchInput] = useState<string>("");
     const [isFilterDisabled, setIsFilterDisabled] = useState<boolean>(false);
 
-    // Debounced state - ONLY for Search Opponent (500ms delay)
     const [debouncedOpponent, setDebouncedOpponent] = useState<string>("");
 
-    // Debounce Search Opponent with 500ms delay
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedOpponent(searchInput);
@@ -29,16 +26,13 @@ export function GameHistoriesTable() {
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    // Build filters object for API - NO debounce except Search Opponent
     const apiFilters = useMemo<GameFilters>(() => {
         const filters: GameFilters = {};
 
-        // Sources filter - immediate value
         if (sources.length > 0) {
             filters.sources = sources;
         }
 
-        // Game Results filter - immediate value
         if (result !== "All Results") {
             const resultMap: Record<string, string> = {
                 "Wins": "win",
@@ -48,17 +42,14 @@ export function GameHistoriesTable() {
             filters.result = resultMap[result];
         }
 
-        // Color filter - immediate value
         if (color !== "All Colors") {
             filters.color = color.toLowerCase();
         }
 
-        // Analyzed Only filter - immediate value
         if (analyzedOnly) {
             filters.analyzedOnly = true;
         }
 
-        // Date filters - immediate value
         if (startDate) {
             filters.startDate = startDate;
         }
@@ -67,7 +58,6 @@ export function GameHistoriesTable() {
             filters.endDate = endDate;
         }
 
-        // Search Opponent - DEBOUNCED (500ms delay)
         if (debouncedOpponent && debouncedOpponent.trim() !== "") {
             filters.opponent = debouncedOpponent.trim();
         }
@@ -82,7 +72,6 @@ export function GameHistoriesTable() {
 
     const paginationProps = usePagination(games);
 
-    // Add 1000ms delay after loading finishes before enabling filters
     useEffect(() => {
         if (isLoading) {
             setIsFilterDisabled(true);
@@ -94,7 +83,6 @@ export function GameHistoriesTable() {
         }
     }, [isLoading]);
 
-    // Handle source checkbox changes (no debounce - immediate request)
     const handleSourceToggle = (source: string) => {
         setSources(prev => {
             const newSources = prev.includes(source)
@@ -104,26 +92,19 @@ export function GameHistoriesTable() {
             console.log("📊 [GameHistoriesTable] Sources updated:", prev, "->", newSources);
             return newSources;
         });
-        // Request will be sent immediately due to useMemo dependency on sources
     };
 
-    // Handle result filter change (no debounce - immediate request)
     const handleResultChange = (value: string) => {
         setResult(value);
-        // Request will be sent immediately due to useMemo dependency on result
     };
 
-    // Handle analyzed only filter change (no debounce - immediate request)
     const handleAnalyzedOnlyChange = (checked: boolean) => {
         setAnalyzedOnly(checked);
-        // Request will be sent immediately due to useMemo dependency on analyzedOnly
     };
 
-    // Handle date range change from Timeframe component (no debounce - immediate request)
     const handleDateRangeChange = (start: string, end: string) => {
         setStartDate(start);
         setEndDate(end);
-        // Request will be sent immediately due to useMemo dependency on startDate/endDate
     };
 
     const { isTutorialPlay } = useTutorial();
@@ -162,7 +143,6 @@ export function GameHistoriesTable() {
 
                 {!isTutorialPlay && (
                     <div className="flex flex-wrap lg:flex-nowrap items-start justify-between gap-[8px] lg:gap-[32px] mb-[16px] md:mb-[32px]">
-                        {/* Mobile */}
                         <div className="w-full lg:hidden">
                             <label htmlFor="timeframe" className="block font-semibold text-[16px] leading-[150%] mb-[4px]">Timeframe</label>
                             <Timeframe onDateChange={handleDateRangeChange} disabled={isFilterDisabled} />
@@ -269,7 +249,6 @@ export function GameHistoriesTable() {
                             </div>
                         </div>
 
-                        {/* Desktop */}
                         <div className="w-1/5 hidden lg:flex flex-col">
                             <label htmlFor="timeframe" className="block font-semibold text-[16px] leading-[150%] mb-[4px]">Timeframe</label>
                             <Timeframe onDateChange={handleDateRangeChange} disabled={isFilterDisabled} />

@@ -229,15 +229,6 @@ export function SiteHeader({ onSidebarOpen, children }: SiteHeaderProps) {
       <div className="container px-4 md:px-6 lg:px-8 mx-auto max-w-7xl">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* <Button
-              variant="ghost"
-              size="icon"
-              className="xl:hidden"
-              onClick={onSidebarOpen}
-            >
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Open sidebar</span>
-            </Button> */}
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" className="h-9 w-9 p-0 xl:hidden">
@@ -443,10 +434,6 @@ function MobileNav() {
           <LayoutDashboard className="h-6 w-6 text-primary" />
           <span className="font-bold text-xl text-primary">aroundchess</span>
         </Link>
-        {/* <SheetClose className="rounded-full w-8 h-8 flex items-center justify-center hover:bg-muted">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </SheetClose> */}
       </div>
 
       <nav className="flex-1">

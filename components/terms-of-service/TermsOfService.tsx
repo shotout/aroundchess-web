@@ -4,7 +4,6 @@ export default function TermsOfService() {
   return (
     <div className="flex-1 flex-col p-4 lg:py-12 lg:px-8 border-b rounded-md">
       <div className="max-full mx-auto space-y-8 p-4 bg-white">
-        {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-gray-900">
             TERMS AND CONDITIONS
@@ -14,7 +13,6 @@ export default function TermsOfService() {
           </p>
         </div>
 
-        {/* Introduction */}
         <div className="prose prose-gray max-w-none">
           <p className="text-gray-700 leading-relaxed">
             These Terms and Conditions ("Terms") are designed to govern your
@@ -50,7 +48,6 @@ export default function TermsOfService() {
           </p>
         </div>
 
-        {/* Scope of Services */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 text-center">
             SCOPE OF SERVICES
@@ -104,7 +101,6 @@ export default function TermsOfService() {
           </div>
         </section>
 
-        {/* Registration and Subscription */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 text-center">
             REGISTRATION AND SUBSCRIPTION
@@ -265,7 +261,6 @@ export default function TermsOfService() {
           </div>
         </section>
 
-        {/* Subscription Fees */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 text-center">
             SUBSCRIPTION FEES AND FAIL TO DELIVER
@@ -302,7 +297,6 @@ export default function TermsOfService() {
           </div>
         </section>
 
-        {/* User Conduct */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 text-center">
             USER CONDUCT
@@ -362,7 +356,6 @@ export default function TermsOfService() {
           </div>
         </section>
 
-        {/* Limitation of Liability */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 text-center">
             LIMITATION OF LIABILITY
@@ -416,7 +409,6 @@ export default function TermsOfService() {
           </div>
         </section>
 
-        {/* Privacy Policy */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 text-center">
             PRIVACY POLICY
@@ -475,7 +467,6 @@ export default function TermsOfService() {
           </div>
         </section>
 
-        {/* Miscellaneous Terms */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 text-center">
             MISCELLANEOUS TERMS
@@ -538,7 +529,6 @@ export default function TermsOfService() {
           </div>
         </section>
 
-        {/* Contact */}
         <section className="space-y-6 border-t pt-8">
           <h2 className="text-2xl font-bold text-gray-900 text-center">
             CONTACT US

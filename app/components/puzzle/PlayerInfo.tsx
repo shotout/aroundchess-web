@@ -1,6 +1,6 @@
 interface PlayerInfoProps {
   playerName: string;
-  timer?: number; // Make timer optional
+  timer?: number;
   isActive: boolean;
   position: "top" | "bottom";
   color: "white" | "black";
@@ -9,7 +9,7 @@ interface PlayerInfoProps {
 
 const PlayerInfo: React.FC<PlayerInfoProps> = ({
   playerName,
-  timer, // Now optional
+  timer,
   isActive,
   position,
   color,
@@ -29,12 +29,10 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
             : "bg-black text-gray-300"
         }`}
     >
-      {/* Player Name */}
       <div className="text-[14px] --sm sm:text-base md:text-md font-medium text-center flex-1 whitespace-nowrap overflow-hidden overflow-ellipsis">
         {playerName}
       </div>
 
-      {/* Material Difference */}
       {materialDifference !== 0 && (
         <div className="text-[14px] --xs sm:text-[14px] --sm md:text-base font-semibold text-center flex-1">
           {materialDifference > 0
@@ -43,7 +41,6 @@ const PlayerInfo: React.FC<PlayerInfoProps> = ({
         </div>
       )}
 
-      {/* Timer */}
       {timer !== undefined && (
         <div className="text-[14px] --sm sm:text-base md:text-lg font-medium text-center flex-1">
           {`${Math.floor(timer / 60)}:${(timer % 60)

@@ -1,4 +1,3 @@
-// utils/authUtils.ts
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { useProfileStore } from "@/app/store/profile";
 import { useAuth } from "@/context/AuthContext";
@@ -14,7 +13,6 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  // Add other user properties as needed
 };
 
 export const useConfirmAuth = () => {
@@ -35,19 +33,15 @@ export const useConfirmAuth = () => {
   });
 
   useEffect(() => {
-    // Replace this with your actual authentication check
-    // For example, checking a token in localStorage or using a context
     const checkAuth = async () => {
       try {
         if (sessionId && isSignedIn) {
-          // User is authenticated
           setAuthState({
             isAuthenticated: true,
             isLoading: false,
             user: user,
           });
         } else {
-          // User is not authenticated
           setAuthState({
             isAuthenticated: false,
             isLoading: false,
@@ -65,7 +59,6 @@ export const useConfirmAuth = () => {
   return authState;
 };
 
-// Hook to protect routes or components
 export const useRequireAuth = (redirectUrl: string = "/login") => {
   const { isAuthenticated, isLoading, user } = useConfirmAuth();
 
@@ -73,9 +66,7 @@ export const useRequireAuth = (redirectUrl: string = "/login") => {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      // Redirect to login page with the current path as a return URL
       const returnPath = encodeURIComponent(router.asPath);
-      // router.push(`${redirectUrl}?returnTo=${returnPath}`);
     }
   }, [isAuthenticated, isLoading, redirectUrl, router]);
 

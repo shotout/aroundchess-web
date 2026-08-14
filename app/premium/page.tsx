@@ -5,11 +5,6 @@ import { PaywallContent } from "@/components/v2/paywall-content";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { useEffect } from "react";
 
-/**
- * Mobile paywall. The desktop equivalent is the PricingOffer dialog, which
- * redirects here below its breakpoint so the app header's back arrow and menu
- * stay available (a full-screen dialog covered both).
- */
 export default function PremiumPage() {
   useEffect(() => {
     trackCustomEvent("ViewPremiumPage");

@@ -14,7 +14,6 @@ export function BlackPlayer() {
   const [playerName, setPlayerName] = useState("Black")
   const [tempName, setTempName] = useState(playerName)
 
-  // Load saved name on mount
   useEffect(() => {
     const savedName = localStorage.getItem("blackPlayerName")
     if (savedName) {
@@ -26,7 +25,6 @@ export function BlackPlayer() {
   const handleSave = () => {
     setPlayerName(tempName)
     localStorage.setItem("blackPlayerName", tempName)
-    // Dispatch custom event for name change
     window.dispatchEvent(new CustomEvent('playerNameChange', { 
       detail: { color: 'black', name: tempName }
     }))

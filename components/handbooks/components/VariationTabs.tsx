@@ -39,13 +39,6 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
                   className="border rounded-lg shadow-sm overflow-hidden p-4 flex flex-col h-full"
                 >
                   <div className="flex flex-col space-y-3">
-                    {/* <h3 className="text-[14px] --xs md:text-base font-bold">
-                      {variation?.name || `Variation ${index + 1}`}:
-                    </h3> */}
-
-                    {/* <p className="text-[14px] --xs text-gray-600">
-                      {variation?.description || "No description available"}
-                    </p> */}
 
                     {variation?.keyIdeas &&
                     Array.isArray(variation.keyIdeas) &&
@@ -67,7 +60,6 @@ const VariationsTab: React.FC<any> = ({ variations }) => {
                               keyIdea: string | { id: any; idea: any },
                               pointIndex: any
                             ) => {
-                              // Handle both string and object formats
                               const ideaText = typeof keyIdea === 'string'
                                 ? keyIdea
                                 : (keyIdea?.idea || "No idea specified");

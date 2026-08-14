@@ -325,8 +325,6 @@ export const ChessConnectDialog = ({
             </div>
 
             <div className="mt-4 space-y-4">
-              {/* Field labels are dropped on mobile (mockup) — the placeholders
-                  already say what each field is. */}
               <div className="hidden sm:flex items-center gap-x-2">
                 <Image
                   src={"/my-game-history/knight.png"}

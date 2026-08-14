@@ -105,18 +105,15 @@ const AnalysisResult: React.FC = () => {
 
   useEffect(() => {
     if (summary && username) {
-      // Set default orientation to user's color so they start at bottom
       setOrientation(defaultUserOrientation);
       setBoardOrientation(defaultUserOrientation);
     }
   }, [summary, username, defaultUserOrientation]);
 
-  // Sync orientation with boardOrientation so player is always at bottom
   useEffect(() => {
     setOrientation(boardOrientation);
   }, [boardOrientation]);
 
-  // Set chessboard ref in store for scroll functionality
   useEffect(() => {
     if (chessboardContainerRef.current) {
       setChessboardRef(chessboardContainerRef.current);
@@ -158,7 +155,6 @@ const AnalysisResult: React.FC = () => {
 
   const parsePgn = (pgnText: string): boolean => {
     try {
-      // console.log("parsePgn", pgnText);
       const tempGame = new Chess();
       tempGame.loadPgn(pgnText);
 
@@ -352,14 +348,11 @@ const AnalysisResult: React.FC = () => {
     }
   };
 
-  useEffect(() => { /// INI DIPAHAMI
+  useEffect(() => {
     if (chessMove.index != null) {
       const colorIndex = chessMove.type == "black" ? 1 : 0;
       let indexOf = chessMove.index * 2 + colorIndex;
-      // console.log("indexOf", indexOf);
       const data = parsedMoves[indexOf];
-      // console.log("parsedMoves", parsedMoves);
-      // console.log("data move", data);
       if (data != null) {
         setCurrentMoveIndex(parsedMoves.indexOf(data) + 1);
         setCurrentMove(parsedMoves.indexOf(data) + 1);
@@ -369,8 +362,6 @@ const AnalysisResult: React.FC = () => {
       const data = parsedMoves.filter(
         (i) => i.san == chessMove.move && i.color == color
       );
-      // console.log("parsedMoves", parsedMoves);
-      // console.log("data move", data);
       if (data.length > 0) {
         setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
         setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
@@ -661,15 +652,6 @@ const AnalysisResult: React.FC = () => {
           />
         </button>
         <SettingBoard />
-        {/* <button onClick={toggleBoardMode}>
-          <Image
-            src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
-            alt="icon"
-            width={1000}
-            height={1000}
-            className="w-[22px] h-[27px] object-contain"
-          />
-        </button> */}
       </div>
     );
   };
@@ -687,10 +669,6 @@ const AnalysisResult: React.FC = () => {
       ref={chessboardContainerRef}
       id="chessboard-container"
       className={`flex justify-center gap-4 bg-white pb-4`}
-      // className={`${
-      //   hideDiv &&
-      //   "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"
-      // } flex justify-center gap-4 bg-white pb-4`}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
@@ -734,7 +712,6 @@ const AnalysisResult: React.FC = () => {
                 arePiecesClickable={false}
                 arePiecesDraggable={false}
                 boardWidth={
-                  // hideDiv ? boardSize - 80 : 
                   is3DMode ? boardSize : boardSize
                 }
                 orientation={orientation}
@@ -784,7 +761,6 @@ const AnalysisResult: React.FC = () => {
               <TwoDChessboard
                 arePiecesClickable={false}
                 boardWidth={
-                  // hideDiv ? boardSize - 80 :
                    is3DMode ? boardSize : boardSize
                 }
                 arePiecesDraggable={false}

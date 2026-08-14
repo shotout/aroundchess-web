@@ -68,10 +68,6 @@ const DEFAULT_SKILL_LEVELS = [
   },
 ];
 
-/**
- * Highest tier the rating has reached, using the same table the track renders
- * so the label next to the ELO can never disagree with the bar beside it.
- */
 export const getLevelTitleForElo = (
   currentElo: number,
   skillLevels: { title: string; elo: number }[] = DEFAULT_SKILL_LEVELS
@@ -241,10 +237,9 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const nextGoalIndex = getNextGoalLevelIndex();
   const mobileLevels = getMobileDisplayLevels();
 
-  // Calculate positions for triangle and badge separately
-  const MAX_BADGE_POSITION = 85; // Maximum safe position for badge (to prevent cutoff)
-  const trianglePosition = currentEloPercentage * 0.8333 + 9.5; // Actual triangle position
-  const badgePosition = Math.min(trianglePosition, MAX_BADGE_POSITION); // Badge stops at threshold
+  const MAX_BADGE_POSITION = 85;
+  const trianglePosition = currentEloPercentage * 0.8333 + 9.5;
+  const badgePosition = Math.min(trianglePosition, MAX_BADGE_POSITION);
 
   const badgeClass =
     "w-max h-6 md:h-7 rounded-full flex justify-center items-center text-[11.6px] md:text-[14px] --xs px-[10px] md:px-[16px] font-semibold";
@@ -304,17 +299,6 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   </div>
 
                   <div className="relative h-[98px] flex justify-center items-end">
-                    {/* <div className="inline-flex items-end h-full">
-                      <div className="relative w-fit h-fit flex items-end">
-                        <Image
-                          src={imagePath}
-                          alt={level.title}
-                          width={regularWidth}
-                          height={regularHeight}
-                          className="object-contain align-bottom"
-                        />
-                      </div>
-                    </div> */}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="inline-flex items-end h-full">
@@ -364,85 +348,6 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
             })}
           </div>
 
-          {/* <div className="hidden grid-cols-6 gap-2">
-            {mobileLevels.map((level, mobileIndex) => {
-              const isReached = (currentElo || 0) >= level.elo;
-              const isNextGoal =
-                level.elo > (currentElo || 0) && mobileIndex === 1;
-              const imagePath = getImagePath(level.id, isReached, isNextGoal);
-              const isCompleted = isReached;
-
-              const mobileWidth = 36;
-              const mobileHeight = 50;
-
-              return (
-                <div
-                  key={`mobile-${level.id}`}
-                  className="flex flex-col items-center relative w-full space-y-2"
-                >
-                  <div className="h-8 flex items-center justify-center">
-                    {isCompleted && !isNextGoal && (
-                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                        <Check className="h-4 w-4 text-white" />
-                      </div>
-                    )}
-                    {isNextGoal && (
-                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
-                        <div
-                          className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
-                        >
-                          Your Next Goal
-                        </div>
-                        <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="relative flex h-16 w-12 justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="absolute bottom-0 flex justify-center">
-                          <Image
-                            src={imagePath}
-                            alt={level.title}
-                            width={mobileWidth}
-                            height={mobileHeight}
-                            className={`object-contain`}
-                          />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="right"
-                        align="start"
-                        sideOffset={20}
-                        alignOffset={100}
-                        className="bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg rounded-md"
-                      >
-                        <div className="flex flex-col gap-y-1 p-2">
-                          <h3 className="font-semibold text-[14px] --sm">
-                            {level.title}
-                          </h3>
-                          <p className="text-[14px] --xs text-gray-600">
-                            ELO Requirement: {level.elo}
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-
-                  <div className="text-center w-full space-y-1">
-                    <div className="font-semibold text-[14px] --xs flex items-center justify-center">
-                      <span className="truncate max-w-full">{level.title}</span>
-                    </div>
-                    <div className="text-[14px] --10px text-gray-600 flex items-center justify-center">
-                      <span className="whitespace-nowrap">ELO {level.elo}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div> */}
-
           <div className="w-[640px] lg:w-full relative h-20 block">
             <div className="relative w-full mt-6">
               <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-[5]">
@@ -481,7 +386,6 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
               </div>
             </div>
 
-            {/* Badge container - stops at safe position to prevent cutoff */}
             <div
               className="absolute -translate-x-1/2 top-8"
               style={{
@@ -489,10 +393,8 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                 bottom: 0,
               }}
             >
-              {/* Green triangle indicator - centered on badge */}
               <div className={`${badgePosition < 10 ? 'left-[calc(50%-8px)]' : 'left-1/2'} w-4 h-4 -z-[1] bg-[#26E279] rotate-45 absolute top-0 -translate-x-1/2 -translate-y-1/2`}></div>
 
-              {/* Badge text */}
               <div
                 className={`${badgeClass} bg-gradient-to-b from-[#26E279] to-[#029A46] text-white`}
               >
@@ -501,61 +403,6 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
             </div>
           </div>
 
-          {/* <div className="relative h-20 xl:hidden">
-            <div className="relative w-full mt-6">
-              <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
-                {mobileLevels.map((level, index) => {
-                  const isReached = (currentElo || 0) >= level.elo;
-                  return (
-                    <div
-                      key={`indicator-mobile-${level.id}`}
-                      className="flex items-center justify-center"
-                    >
-                      <div
-                        className={`w-7 h-7 rounded-full border-4 ${
-                          isReached
-                            ? "bg-purple-600 border-blue-base"
-                            : "bg-gray-300"
-                        }`}
-                      ></div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div
-                className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
-                style={{
-                  left: "calc(16.67% + 3.5px)",
-                  width: "calc(66.67% - 7px)",
-                }}
-              >
-                <div
-                  className="h-full bg-blue-base rounded-full"
-                  style={{
-                    width: `${mobileEloPercentage}%`,
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            <div
-              className="absolute -translate-x-1/2 top-8"
-              style={{
-                left: `${
-                  ((mobileEloPercentage * 0.6667) / 100) * 100 + 16.67
-                }%`,
-                bottom: 0,
-              }}
-            >
-              <div className="w-4 h-4 bg-[#26E279] -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
-              <div
-                className={`${badgeClass} bg-gradient-to-b from-[#26E279] to-[#029A46] text-white`}
-              >
-                Your current ELO
-              </div>
-            </div>
-          </div> */}
         </div>
       </TooltipProvider>
     </div>
