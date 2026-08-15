@@ -45,7 +45,7 @@ export default function ProcessingAnalysisMode({
             ? ""
             : isTakingLonger
               ? "Just one more moment..."
-              : "Analyzing your Game...";
+              : "AI Analyzing Now...";
 
     const [sidebarWidth, setSidebarWidth] = useState(() => {
         if (typeof window === "undefined") return 0;
@@ -167,7 +167,7 @@ export default function ProcessingAnalysisMode({
                     </svg>
                 </button>
 
-                <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px]">Choose Analysis Mode</h3>
+                <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px]">Analyzing your Game</h3>
 
                 <div className="flex flex-col items-center justify-center mb-[8px]">
                     <div className="w-[100px] h-[100px]">
