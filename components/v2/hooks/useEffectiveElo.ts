@@ -17,11 +17,19 @@ import { useProfileStore } from "@/app/store/profile";
  * apply their own default.
  */
 export function useEffectiveElo(): number {
-  const { leaderboard } = usePlayPageStore();
+  const { leaderboard, leaderboardMe } = usePlayPageStore();
   const { profile } = useProfileStore();
 
   const leaderboardElo = Number(leaderboard?.my_elo) || 0;
   if (leaderboardElo > 0) return leaderboardElo;
+
+  // A Chess.com sync lands here first: /leaderboard/me carries the transferred
+  // rating while the ranked table still reports my_elo 0. Without this step a
+  // freshly synced account fell through to its onboarding rating and got the
+  // wrong Recommended opponents, even though the play top bar showed the real
+  // number (it has always read this field).
+  const meElo = Number(leaderboardMe?.elo) || 0;
+  if (meElo > 0) return meElo;
 
   // The /profile response is camelCased (imageUrl, isChessComConnected, …), so
   // the users.onboard_elo column arrives as onboardElo. The snake_case read is

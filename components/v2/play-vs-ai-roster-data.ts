@@ -9,18 +9,10 @@ export interface AiRosterOpponent {
   img: string;
 }
 
-interface DifficultyTier {
-  key: string;
-  min: number;
-  max: number;
-}
-
-const DIFFICULTY_TIERS: DifficultyTier[] = [
-  { key: "beginner", min: 250, max: 850 },
-  { key: "intermediate", min: 900, max: 1350 },
-  { key: "advanced", min: 1500, max: 1950 },
-  { key: "master", min: 2200, max: 2700 },
-];
+/** How many ELO steps below the user's own the recommended list starts. */
+const RECOMMENDED_BELOW = 1;
+/** How many opponents a recommended list holds. */
+const RECOMMENDED_TOTAL = 4;
 
 const RAW_ROSTER: AiRosterOpponent[] = [
   { id: 0, name: "Thomas", elo: 250, img: "/images/v2/AI avatar/Beginner/Thomas.png" },
@@ -120,63 +112,58 @@ export function findRosterOpponentByName(username: string): AiRosterOpponent | u
   return AI_OPPONENT_ROSTER.find((o) => o.name.toLowerCase() === clean);
 }
 
-function findTierForElo(elo: number): DifficultyTier {
-  const withinRange = DIFFICULTY_TIERS.find((t) => elo >= t.min && elo <= t.max);
-  if (withinRange) return withinRange;
-
-  return DIFFICULTY_TIERS.reduce((closest, tier) => {
-    const tierDistance = elo < tier.min ? tier.min - elo : elo - tier.max;
-    const closestDistance = elo < closest.min ? closest.min - elo : elo - closest.max;
-    return tierDistance < closestDistance ? tier : closest;
-  });
-}
+/** The distinct ELO steps the roster actually offers, ascending. */
+const ELO_RUNGS: number[] = Array.from(
+  new Set(RAW_ROSTER.map((o) => o.elo))
+).sort((a, b) => a - b);
 
 /**
- * Picks up to 4 recommended AI opponents relative to the user's current ELO:
- * 1 nearest below, 1 from the user's own difficulty tier, and 2 nearest above.
- * Mirrors the slot structure of the backend's real /recommended-opponents
- * algorithm, applied to this static bot roster instead of a DB query of users.
+ * The ELO steps to recommend for a player: one rung below their nearest rung,
+ * that rung, then upward — always `total` distinct steps.
+ *
+ * Deliberately walks the rungs the roster has rather than fixed ±50 targets.
+ * The ladder is not evenly spaced: Beginner jumps 250/400/500/600/700/800/850
+ * while Intermediate and up move in clean 50s. Targeting "userElo + 50" landed
+ * between rungs in the Beginner range and resolved by nearest-with-ties, which
+ * produced duplicate ELOs (a 691 player was offered 700/700/800/800), while the
+ * same code looked correct above 900 where every target hit a rung exactly.
  */
-export function pickRecommendedOpponents(userElo: number): AiRosterOpponent[] {
-  const picked: AiRosterOpponent[] = [];
-  const usedIds = new Set<number>();
+export function recommendedEloRungs(
+  userElo: number,
+  below: number = RECOMMENDED_BELOW,
+  total: number = RECOMMENDED_TOTAL
+): number[] {
+  if (ELO_RUNGS.length === 0) return [];
 
-  const take = (candidate: AiRosterOpponent | undefined) => {
-    if (candidate && !usedIds.has(candidate.id)) {
-      picked.push(candidate);
-      usedIds.add(candidate.id);
-    }
-  };
-
-  const below = [...AI_OPPONENT_ROSTER]
-    .filter((o) => o.elo < userElo)
-    .sort((a, b) => b.elo - a.elo)[0];
-  take(below);
-
-  const tier = findTierForElo(userElo);
-  const sameTier = AI_OPPONENT_ROSTER.filter(
-    (o) => o.elo >= tier.min && o.elo <= tier.max && !usedIds.has(o.id)
-  ).sort((a, b) => Math.abs(a.elo - userElo) - Math.abs(b.elo - userElo))[0];
-  take(sameTier);
-
-  const above = AI_OPPONENT_ROSTER.filter(
-    (o) => o.elo > userElo && !usedIds.has(o.id)
-  ).sort((a, b) => a.elo - b.elo);
-  take(above[0]);
-  take(above[1]);
-
-  // Backfill to a full row of 4 so the modal never shows a short list at the
-  // ladder extremes (e.g. bottom ELO has no "below" opponent, top ELO has no
-  // "above"). Pull the remaining nearest opponents by ELO distance.
-  if (picked.length < 4) {
-    const nearest = AI_OPPONENT_ROSTER.filter((o) => !usedIds.has(o.id)).sort(
-      (a, b) => Math.abs(a.elo - userElo) - Math.abs(b.elo - userElo)
-    );
-    for (const candidate of nearest) {
-      if (picked.length >= 4) break;
-      take(candidate);
+  // Nearest rung; `<=` makes an exact midpoint round up.
+  let closest = 0;
+  for (let i = 1; i < ELO_RUNGS.length; i++) {
+    if (Math.abs(ELO_RUNGS[i] - userElo) <= Math.abs(ELO_RUNGS[closest] - userElo)) {
+      closest = i;
     }
   }
 
-  return picked;
+  // Slide the window at either end of the ladder so the row is always full.
+  const start = Math.min(
+    Math.max(0, closest - below),
+    Math.max(0, ELO_RUNGS.length - total)
+  );
+  return ELO_RUNGS.slice(start, start + total);
+}
+
+/**
+ * Picks 4 recommended AI opponents around the player's ELO — one step below,
+ * their own step, and the two above — one bot per step, so the row never
+ * repeats a rating.
+ */
+export function pickRecommendedOpponents(userElo: number): AiRosterOpponent[] {
+  const usedIds = new Set<number>();
+
+  return recommendedEloRungs(userElo).map((elo) => {
+    const bot =
+      AI_OPPONENT_ROSTER.find((o) => o.elo === elo && !usedIds.has(o.id)) ??
+      AI_OPPONENT_ROSTER.find((o) => o.elo === elo)!;
+    usedIds.add(bot.id);
+    return bot;
+  });
 }

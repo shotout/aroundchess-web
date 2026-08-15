@@ -45,7 +45,7 @@ export default function ProcessingAnalysisMode({
             ? ""
             : isTakingLonger
               ? "Just one more moment..."
-              : "AI Analyzing Now...";
+              : "Analyzing your Game...";
 
     const [sidebarWidth, setSidebarWidth] = useState(() => {
         if (typeof window === "undefined") return 0;
