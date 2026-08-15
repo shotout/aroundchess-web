@@ -28,6 +28,7 @@ import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useChessComConnected } from "@/components/v2/hooks/useChessComConnected";
 import { formatTimePgn } from "@/functions/format-date";
 import { usechangePassword } from "@/app/store/changePassword";
+import { refreshLeaderboard } from "@/app/store/playPage";
 
 interface ProfileAccountCardProps {
   handleUsernameClicked: () => void;
@@ -57,8 +58,14 @@ const ProfileAccountCard = ({
   onLogoutStart,
   onConnectClicked,
 }: ProfileAccountCardProps) => {
-  const { logOut, isLoading, updateProfileUsername, checkUsernameAvailability } =
-    useApiClient();
+  const {
+    logOut,
+    isLoading,
+    updateProfileUsername,
+    checkUsernameAvailability,
+    getLeaderboardData,
+    getLeaderboardMe,
+  } = useApiClient();
   const {
     profile,
     clearAll: clearProfile,
@@ -249,6 +256,10 @@ const ProfileAccountCard = ({
       setAlreadyFetchProfile(false);
       setCallFetch(formatTimePgn());
       setSelectedGameType(newGameType);
+      // Switching game type re-syncs against a different Chess.com rating, so
+      // the stored leaderboard standing is stale from here on — same reason the
+      // initial connect refreshes it.
+      refreshLeaderboard(getLeaderboardData, getLeaderboardMe);
       toast.success(`Game type updated to ${gameData.label}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to update game type");

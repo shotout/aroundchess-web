@@ -6,7 +6,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import { usePlayPageStore } from "@/app/store/playPage";
-import { AI_OPPONENT_ROSTER, AiRosterOpponent } from "./play-vs-ai-roster-data";
+import {
+  AI_OPPONENT_ROSTER,
+  AiRosterOpponent,
+  recommendedEloRungs,
+} from "./play-vs-ai-roster-data";
 import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 
 type Opponent = { name: string; elo: number; img: string };
@@ -35,28 +39,25 @@ const buildTier = (min: number, max: number): Opponent[] =>
     ({ name, elo, img }) => ({ name, elo, img })
   );
 
-// Recommended opponents are picked from the existing AI roster around the
-// user's ELO rounded UP to the nearest 50 (629 -> 650): targets are
-// rounded -50 / +0 / +50 / +100, each slot taking the nearest listed AI.
-const RECOMMENDED_ELO_OFFSETS = [-50, 0, 50, 100];
 const DEFAULT_USER_ELO = 300;
 
+/**
+ * Recommended opponents: one ELO step below the user's nearest step, that step,
+ * then the two above. The steps come from `recommendedEloRungs` so this row and
+ * the next-game card, stats page and win modal all recommend the same ratings.
+ *
+ * `roster` (shuffled after mount) only decides *which* bot fills each step, so
+ * the faces vary between visits while the ratings stay fixed.
+ */
 const buildRecommended = (roster: AiRosterOpponent[], userElo: number): Opponent[] => {
-  const base = Math.ceil(userElo / 50) * 50;
   const used = new Set<number>();
-  const picks = RECOMMENDED_ELO_OFFSETS.map((offset) => {
-    const target = base + offset;
-    let best: AiRosterOpponent | null = null;
-    for (const o of roster) {
-      if (used.has(o.id)) continue;
-      if (!best || Math.abs(o.elo - target) < Math.abs(best.elo - target)) best = o;
-    }
-    used.add(best!.id);
-    return best!;
+  return recommendedEloRungs(userElo).map((elo) => {
+    const bot =
+      roster.find((o) => o.elo === elo && !used.has(o.id)) ??
+      roster.find((o) => o.elo === elo)!;
+    used.add(bot.id);
+    return { name: bot.name, elo: bot.elo, img: bot.img };
   });
-  return picks
-    .sort((a, b) => a.elo - b.elo)
-    .map(({ name, elo, img }) => ({ name, elo, img }));
 };
 
 // Default Recommended list for visitors with no ELO yet (not logged in): a

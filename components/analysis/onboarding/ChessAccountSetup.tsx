@@ -12,6 +12,7 @@ import DialogSpecialDiscount from "@/components/modal/DialogSpecialDiscount";
 import { useTutorial } from "@/components/TutorialProvider";
 import { usePathname, useRouter } from "next/navigation";
 import { useProfileStore } from "@/app/store/profile";
+import { refreshLeaderboard } from "@/app/store/playPage";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
@@ -42,7 +43,12 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const { setCallFetch } = useProfileFetch();
   const { setToken, sessionId, profile, setProfile } = useProfileStore();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
-  const { getTokenBalance, profile: profileApi } = useApiClient();
+  const {
+    getTokenBalance,
+    profile: profileApi,
+    getLeaderboardData,
+    getLeaderboardMe,
+  } = useApiClient();
   const { startTutorial, isTutorialPlay } = useTutorial();
   const {
     tutorialType,
@@ -185,6 +191,13 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
         setToken(data);
       }
     });
+
+    // The sync just recalculated this account's rating server-side, so the
+    // leaderboard values held in the store are stale from this point on. Pull
+    // them now instead of waiting for the next visit to /play — the ELO and
+    // rank in the top bar, and the Recommended opponents (via useEffectiveElo),
+    // would otherwise keep showing the pre-sync onboarding rating.
+    refreshLeaderboard(getLeaderboardData, getLeaderboardMe);
 
     // Check if user already completed tutorial (chesscom only)
     if (sessionId) {

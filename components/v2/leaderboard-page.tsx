@@ -307,10 +307,14 @@ export function LeaderboardPage() {
   }, [getLeaderboardData, mapEntries]);
 
   const username = profile?.username || profile?.name || "You";
-  const myElo = leaderboard?.my_elo ?? 0;
+  // Same fallback chain the play page's top bar uses. /leaderboard read only
+  // `leaderboard.*`, so an account that had just synced from Chess.com — which
+  // populates /leaderboard/me before the ranked table catches up — showed "–"
+  // for ELO, rank and moved-up here while /play showed the real numbers.
+  const myElo = leaderboard?.my_elo || leaderboardMe?.elo || 0;
   // See useEffectiveElo: new accounts have no leaderboard ELO yet.
   const effectiveElo = useEffectiveElo();
-  const myRank = leaderboard?.my_rank ?? 0;
+  const myRank = leaderboard?.my_rank || leaderboardMe?.rank || 0;
   const totalPlayers = leaderboard?.total ?? null;
 
   const displayedEntries = useMemo(
@@ -398,7 +402,11 @@ export function LeaderboardPage() {
             <div className="bg-white sm:bg-[#E6F7FE] sm:bg-[url('/images/v2/leaderboard/background.png')] bg-no-repeat bg-cover bg-center p-3 sm:p-7 rounded-3xl">
 
             <div className="pb-3">
-               <LeaderboardTopStats elo={myElo} rank={myRank} movedUp={leaderboard?.moved_up ?? null} />
+               <LeaderboardTopStats
+                 elo={myElo}
+                 rank={myRank}
+                 movedUp={leaderboard?.moved_up ?? leaderboardMe?.rank_change ?? null}
+               />
             </div>
               <LeaderboardList
                 entries={displayedEntries}
