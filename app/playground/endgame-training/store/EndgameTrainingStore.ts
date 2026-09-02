@@ -8,7 +8,7 @@ interface EndgameStore {
   isLoading: boolean;
   error: string | null;
   fetchData: () => Promise<void>;
-  clearData: () => void;
+  clearData: () => void; // Added to clear data if needed
 }
 
 export const useEndgametraining = create<EndgameStore>()(
@@ -34,9 +34,9 @@ export const useEndgametraining = create<EndgameStore>()(
       }
     }),
     {
-      name: 'endgame-storage',
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ data: state.data }),
+      name: 'endgame-storage', // unique name for localStorage key
+      storage: createJSONStorage(() => localStorage), // use localStorage
+      partialize: (state) => ({ data: state.data }), // only store the data, not loading state or error
     }
   )
 );

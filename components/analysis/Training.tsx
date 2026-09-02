@@ -23,6 +23,7 @@ const Training: React.FC<TrainingProps> = (props) => {
   const { pgn: storePgn, dataAnalysis } = usePgnStore();
   const { chessMove, setChessMove } = useChessMoveStore();
 
+  // Safe destructuring with defaults
   const trainingData = dataAnalysis?.training || {};
   const {
     criticalMistakes = { opening: [], middleGame: [], endGame: [] },
@@ -153,6 +154,7 @@ const Training: React.FC<TrainingProps> = (props) => {
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white px-4 lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
+        {/* Critical Mistakes  */}
         <div className="border border-primary border-t-4 rounded-md p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-3">
@@ -199,6 +201,7 @@ const Training: React.FC<TrainingProps> = (props) => {
           )}
         </div>
 
+        {/* Weakness Identification */}
         <div className="border border-primary border-t-4 rounded-md p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">

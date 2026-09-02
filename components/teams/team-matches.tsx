@@ -12,6 +12,7 @@ interface TeamMatchesProps {
   limit?: number
 }
 
+// Mock data - replace with real data from your backend
 const mockMatches = [
   {
     id: 1,
@@ -37,6 +38,7 @@ const mockMatches = [
     ourScore: 2,
     opponentScore: 4,
   },
+  // Add more matches as needed
 ]
 
 export function TeamMatches({ limit }: TeamMatchesProps) {

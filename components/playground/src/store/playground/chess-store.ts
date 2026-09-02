@@ -25,6 +25,7 @@ interface ChessMove {
   recorded?: boolean;
 }
 
+// At the top of the file, after imports
 export interface ChessStoreState {
   board: Board;
   currentPlayer: Player;
@@ -57,6 +58,7 @@ export interface ChessStoreState {
   getFen: () => string;
   hintArrow: [string, string] | null;
 
+  // Methods
   movePiece: (fromRow: number, fromCol: number, toRow: number, toCol: number) => boolean;
   isValidMove: (fromRow: number, fromCol: number, toRow: number, toCol: number) => boolean;
   resetGame: () => void;
@@ -109,6 +111,7 @@ export const useChessStore = create<ChessStoreState>()(
       gameStartTime: Date.now(),
       hintArrow: null,
 
+      // Methods
       movePiece: (fromRow, fromCol, toRow, toCol) => {
         const state = get();
         if (!state.isValidMove(fromRow, fromCol, toRow, toCol)) return false;
@@ -117,9 +120,11 @@ export const useChessStore = create<ChessStoreState>()(
         const piece = newBoard[fromRow][fromCol];
         const capturedPiece = newBoard[toRow][toCol];
 
+        // Check for castling BEFORE making the move
         let isCastling = false;
         if (piece?.toUpperCase() === 'K' && Math.abs(toCol - fromCol) === 2) {
           isCastling = true;
+          // Kingside castling
           if (toCol === 6) {
             const rookFromCol = 7;
             const rookToCol = 5;
@@ -129,6 +134,7 @@ export const useChessStore = create<ChessStoreState>()(
               newBoard[fromRow][rookFromCol] = null;
             }
           }
+          // Queenside castling
           else if (toCol === 2) {
             const rookFromCol = 0;
             const rookToCol = 3;
@@ -140,6 +146,7 @@ export const useChessStore = create<ChessStoreState>()(
           }
         }
 
+        // Update king moved state if king moves
         if (piece?.toUpperCase() === 'K') {
           set(state => ({
             ...state,
@@ -150,6 +157,7 @@ export const useChessStore = create<ChessStoreState>()(
           }));
         }
 
+        // Update rook moved state if rook moves
         if (piece?.toUpperCase() === 'R') {
           const side = fromCol === 0 ? 'left' : 'right';
           set(state => ({
@@ -164,8 +172,10 @@ export const useChessStore = create<ChessStoreState>()(
           }));
         }
 
+        // Check for pawn promotion BEFORE making the move
         const canPromote = promotePawn(newBoard, fromRow, fromCol, toRow, toCol, state.currentPlayer);
         if (canPromote) {
+          // Move the pawn to the promotion square
           newBoard[toRow][toCol] = state.currentPlayer === "white" ? "P" : "p";
           newBoard[fromRow][fromCol] = null;
           
@@ -185,19 +195,25 @@ export const useChessStore = create<ChessStoreState>()(
           return true;
         }
 
+        // Create a new object for eliminated pieces
         const newEliminatedPieces = {
           white: [...state.eliminatedPieces.white],
           black: [...state.eliminatedPieces.black]
         };
 
+        // Handle en passant capture
         let isEnPassant = false;
         if (state.lastMove && CheckEnpassant(newBoard, { fromRow, fromCol, toRow, toCol }, state.lastMove)) {
           const capturedPawnRow = state.lastMove.toRow;
           const capturedPawnCol = state.lastMove.toCol;
           const capturedPawn = newBoard[capturedPawnRow][capturedPawnCol];
+          // Only proceed if we're capturing a pawn
           if (capturedPawn && capturedPawn.toUpperCase() === 'P') {
+            // Add captured pawn to eliminated pieces
             newEliminatedPieces[state.currentPlayer].push(capturedPawn);
+            // Remove the captured pawn
             newBoard[capturedPawnRow][capturedPawnCol] = null;
+            // Move the capturing pawn to its new position
             newBoard[toRow][toCol] = piece;
             newBoard[fromRow][fromCol] = null;
             isEnPassant = true;
@@ -206,20 +222,24 @@ export const useChessStore = create<ChessStoreState>()(
         }
 
         if (capturedPiece) {
+          // Add to the current player's eliminated pieces collection
           const color = state.currentPlayer;
           newEliminatedPieces[color].push(capturedPiece);
         }
 
+        // Make the move (if not already made by en passant)
         if (!isEnPassant) {
           newBoard[toRow][toCol] = piece;
           newBoard[fromRow][fromCol] = null;
         }
 
+        // Check if this move puts the opponent in check or checkmate
         const opponent = state.currentPlayer === "white" ? "black" : "white";
         const isCheck = isKingInCheck(newBoard, opponent);
         const opponentHasValidMoves = hasValidMoves(newBoard, opponent);
         const isCheckmate = isCheck && !opponentHasValidMoves;
 
+        // Update game state
         set(state => ({
           ...state,
           board: newBoard,
@@ -248,6 +268,7 @@ export const useChessStore = create<ChessStoreState>()(
           historyIndex: state.historyIndex + 1,
         }));
 
+        // Handle check and checkmate after move is made
         if (isCheck) {
           if (!opponentHasValidMoves) {
             const currentState = get();
@@ -260,7 +281,7 @@ export const useChessStore = create<ChessStoreState>()(
                 reason: 'checkmate',
                 message: `${state.currentPlayer === 'white' ? 'White' : 'Black'} wins by checkmate!`
               },
-              gameStartTime: null,
+              gameStartTime: null, // Stop the timer
             }));
             playCheckmateSound();
           } else {
@@ -276,6 +297,7 @@ export const useChessStore = create<ChessStoreState>()(
             isKingInCheck: "noCheck",
             isCheckMate: "noCheckMate",
           }));
+          // Only play move sounds if it's not a check or checkmate
           if (capturedPiece) {
             playCaptureSound();
           } else if (isCastling) {
@@ -285,6 +307,7 @@ export const useChessStore = create<ChessStoreState>()(
           }
         }
 
+        // Clear hint arrow after move
         state.clearHintArrow();
 
         return true;
@@ -293,6 +316,7 @@ export const useChessStore = create<ChessStoreState>()(
         const state = get();
         const { board, currentPlayer } = state;
         
+        // Basic validation
         if (!board[fromRow]?.[fromCol]) {
           return false;
         }
@@ -300,6 +324,7 @@ export const useChessStore = create<ChessStoreState>()(
         const piece = board[fromRow][fromCol];
         const isWhitePiece = piece === piece?.toUpperCase();
         
+        // Check if it's the correct player's turn
         if ((currentPlayer === "white" && !isWhitePiece) ||
             (currentPlayer === "black" && isWhitePiece)) {
           return false;
@@ -318,6 +343,7 @@ export const useChessStore = create<ChessStoreState>()(
         );
       },
       resetGame: () => set((state) => {
+        // Clear any existing game state from localStorage
         if (typeof window !== 'undefined') {
           localStorage.removeItem('chess-store');
         }
@@ -350,7 +376,7 @@ export const useChessStore = create<ChessStoreState>()(
           boardHistory: [initialBoard],
           initialized: false,
           gameResult: null,
-          gameStartTime: Date.now(),
+          gameStartTime: Date.now(), // Ensure timer is reset to current time
         };
       }),
       undoMove: () => set((state) => {
@@ -408,12 +434,14 @@ export const useChessStore = create<ChessStoreState>()(
         const state = get();
         const newBoard = state.board.map(row => [...row]) as Board;
         
+        // Convert piece to correct case based on player color
         const promotedPiece = state.currentPlayer === "white" ? 
           piece.toUpperCase() as PieceType : 
           piece.toLowerCase() as PieceType;
           
         newBoard[row][col] = promotedPiece;
         
+        // After promotion, switch turns and clear promotion state
         set({
           board: newBoard,
           canPromotePawn: null,
@@ -424,6 +452,7 @@ export const useChessStore = create<ChessStoreState>()(
           },
         });
         
+        // Play move sound
         playMoveSound();
       },
       refetchStore: () => {},
@@ -464,6 +493,7 @@ export const useChessStore = create<ChessStoreState>()(
         let fen = '';
         let emptyCount = 0;
 
+        // Board position
         for (let row = 0; row < 8; row++) {
           if (row > 0) fen += '/';
           for (let col = 0; col < 8; col++) {
@@ -484,8 +514,10 @@ export const useChessStore = create<ChessStoreState>()(
           }
         }
 
+        // Active color
         fen += ' ' + (state.currentPlayer === 'white' ? 'w' : 'b');
 
+        // Castling availability
         let castling = '';
         if (!state.kingCheckOrMoved.white && !state.rookMoved.white.right) castling += 'K';
         if (!state.kingCheckOrMoved.white && !state.rookMoved.white.left) castling += 'Q';
@@ -493,10 +525,13 @@ export const useChessStore = create<ChessStoreState>()(
         if (!state.kingCheckOrMoved.black && !state.rookMoved.black.left) castling += 'q';
         fen += ' ' + (castling || '-');
 
+        // En passant target square (simplified)
         fen += ' -';
 
+        // Halfmove clock (for fifty-move rule)
         fen += ' ' + state.fiftyMoveRuleCounter;
 
+        // Fullmove number
         fen += ' ' + state.numberOfFullMoves;
 
         return fen;
@@ -508,6 +543,7 @@ export const useChessStore = create<ChessStoreState>()(
   )
 ) 
 
+// Add helper function to check for valid moves
 const hasValidMoves = (board: Board, player: Player) => {
   for (let fromRow = 0; fromRow < 8; fromRow++) {
     for (let fromCol = 0; fromCol < 8; fromCol++) {

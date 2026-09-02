@@ -63,6 +63,7 @@ const Filters: React.FC<FiltersProps> = ({
 
   return (
     <div className="p-0 md:p-4 xl:p-0">
+      {/* Desktop Filters */}
       <div
         className="
           hidden md:flex
@@ -72,6 +73,7 @@ const Filters: React.FC<FiltersProps> = ({
           border shadow-card
         "
       >
+        {/* selects = 60% of the row */}
         <div className="flex items-center space-x-2 w-[60%]">
           <div className="flex-1">
             <Select
@@ -108,6 +110,7 @@ const Filters: React.FC<FiltersProps> = ({
           </div>
         </div>
 
+        {/* buttons = 40% of the row */}
         <div className="flex items-center space-x-2 xl:space-x-4 w-[40%]">
           <Button
             onClick={handleApplyFilters}
@@ -149,6 +152,7 @@ const Filters: React.FC<FiltersProps> = ({
         </div>
       </div>
 
+       {/* Mobile Filters */}
       <div className="md:hidden relative w-full" ref={mobileFilterRef}>
         <div className="flex w-full items-center justify-between gap-2 mb-4 p-4 border">
           <Button

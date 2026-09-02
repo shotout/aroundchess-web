@@ -8,6 +8,8 @@ import Popup from "./Popup";
 const Welcome: React.FC = () => {
   const route = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  // Open the setup modal directly on entry (from the Board Vision menu) instead
+  // of first showing the landing card.
   const [showSetupPopup, setShowSetupPopup] = useState(true);
 
   useEffect(() => {
@@ -54,6 +56,8 @@ const Welcome: React.FC = () => {
           </div>
         )}
 
+        {/* Landing card — hidden while the setup modal is open so only the
+            dimmed board shows behind it. */}
         {!showSetupPopup && (
           <div className="relative z-10 w-full h-full flex items-center justify-center">
             <div className="absolute inset-0 flex items-center justify-center m-4">

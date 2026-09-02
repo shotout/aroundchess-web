@@ -77,10 +77,12 @@ export function ArchiveDialog({
   ]
 
   const handleRestore = () => {
+    // Implement restore logic
     setSelectedReports([])
   }
 
   const handleDelete = () => {
+    // Implement delete logic
     setSelectedReports([])
   }
 

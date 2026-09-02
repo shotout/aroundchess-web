@@ -56,6 +56,7 @@ export async function CreateRoom(
     },
   });
 
+  // Use the stats service
   await incrementTotalGames();
 
   return { roomId: createdRoom.roomId, playerId: player.id };

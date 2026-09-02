@@ -75,6 +75,7 @@ const Simple2DChess: React.FC<Simple2DChessProps> = React.memo(
         }
       };
 
+      // Initial size calculation
       const timeoutId = setTimeout(handleResize, 0);
 
       window.addEventListener("resize", handleResize);
@@ -127,7 +128,7 @@ const Simple2DChess: React.FC<Simple2DChessProps> = React.memo(
               alt={`${piece} chess piece`}
               width={squareWidth}
               height={squareWidth}
-              loading="lazy"
+              loading="lazy" // Lazy load piece images
               style={{
                 position: "absolute",
                 bottom:
@@ -143,8 +144,9 @@ const Simple2DChess: React.FC<Simple2DChessProps> = React.memo(
       });
 
       return pieceComponents;
-    }, [PieceChoosed]);
+    }, [PieceChoosed]); // Memoize based on PieceChoosed only
 
+    // Simple skeleton if size not calculated yet (avoids flashing)
     if (!boardSize) {
       return (
         <div
@@ -164,7 +166,7 @@ const Simple2DChess: React.FC<Simple2DChessProps> = React.memo(
             alt="chess board"
             width={boardSize}
             height={boardSize}
-            loading="lazy"
+            loading="lazy" // Lazy load board image
           />
         </div>
 
@@ -208,6 +210,7 @@ const Simple2DChess: React.FC<Simple2DChessProps> = React.memo(
   }
 );
 
+// Custom memoization to prevent unnecessary re-renders
 Simple2DChess.displayName = "Simple2DChess";
 export default React.memo(Simple2DChess, (prev, next) => {
   return (
@@ -215,7 +218,7 @@ export default React.memo(Simple2DChess, (prev, next) => {
     prev.orientation === next.orientation &&
     prev.arePiecesDraggable === next.arePiecesDraggable &&
     prev.arePremovesAllowed === next.arePremovesAllowed &&
-    prev.customArrows === next.customArrows &&
+    prev.customArrows === next.customArrows && // Shallow compare; deepen if needed
     prev.customSquareStyles === next.customSquareStyles &&
     prev.id === next.id &&
     prev.keys === next.keys

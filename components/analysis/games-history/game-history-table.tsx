@@ -56,6 +56,7 @@ const dummyGames: Game[] = [
     opening: "Queen's Gambit",
     platform: "aroundchess"
   },
+  // Add more dummy games as needed
 ]
 
 export function GameHistoryTable() {

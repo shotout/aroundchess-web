@@ -1,3 +1,5 @@
+// This is your Prisma schema file
+
 generator client {
   provider = "prisma-client-js"
   previewFeatures = ["metrics"]
@@ -19,6 +21,7 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @default(now()) @map("updated_at")
 
+  // Relations
   profile        Profile?
   affiliate      Affiliate?
   preferences    UserPreference?
@@ -51,6 +54,7 @@ model Profile {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
 
+  // Relations
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("profiles")
@@ -65,6 +69,7 @@ model Affiliate {
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @map("updated_at")
 
+  // Relations
   user              User     @relation(fields: [userId], references: [id])
 
   @@map("affiliates")
@@ -78,6 +83,7 @@ model UserPreference {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
 
+  // Relations
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("user_preferences")
@@ -102,6 +108,7 @@ model Game {
   playedAt    DateTime  @default(now())
   createdAt   DateTime  @default(now())
   
+  // Relations
   players     Player[]
   whiteUser   User     @relation("WhitePlayer", fields: [whitePlayer], references: [id])
   blackUser   User     @relation("BlackPlayer", fields: [blackPlayer], references: [id])
@@ -126,6 +133,7 @@ model Player {
 model GameAnalysis {
   id           String   @id @default(cuid())
   gameId       String
+  // Relations
   game         Game     @relation(fields: [gameId], references: [id])
 }
 
@@ -137,6 +145,7 @@ model Lesson {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
 
+  // Relations
   author    User      @relation(fields: [createdBy], references: [id])
   comments    Comment[]  @relation("LessonComments")
 
@@ -151,6 +160,7 @@ model News {
   publishedAt DateTime @default(now()) @map("published_at")
   createdAt   DateTime @default(now()) @map("created_at")
 
+  // Relations
   author      User      @relation(fields: [authorId], references: [id])
   comments    Comment[]  @relation("NewsComments")
 
@@ -166,6 +176,7 @@ model Comment {
   commentableType String   @map("commentable_type")
   commentableId   String   @map("commentable_id")
 
+  // Relations
   user            User     @relation(fields: [userId], references: [id], map: "comments_user_id_fkey")
   parent          Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
   replies         Comment[] @relation("CommentToComment")
@@ -186,6 +197,7 @@ model Post {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
 
+  // Relations
   author    User      @relation(fields: [userId], references: [id])
   comments    Comment[]  @relation("PostComments")
 
@@ -201,6 +213,7 @@ model Payment {
   status          String
   createdAt       DateTime @default(now()) @map("created_at")
 
+  // Relations
   user            User     @relation(fields: [userId], references: [id])
 
   @@map("payments")
@@ -212,6 +225,7 @@ model Rating {
   rating     Int
   recordedAt DateTime @default(now()) @map("recorded_at")
 
+  // Relations
   user       User     @relation(fields: [userId], references: [id])
 
   @@map("ratings")
@@ -225,6 +239,7 @@ model Notification {
   isRead    Boolean  @default(false) @map("is_read")
   createdAt DateTime @default(now()) @map("created_at")
 
+  // Relations
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("notifications")
@@ -236,6 +251,7 @@ model Friendship {
   status    String   @default("pending")
   createdAt DateTime @default(now()) @map("created_at")
 
+  // Relations
   user      User     @relation("UserFriends", fields: [userId], references: [id])
   friend    User     @relation("FriendToUser", fields: [friendId], references: [id])
 
@@ -243,6 +259,7 @@ model Friendship {
   @@map("friendships")
 }
 
+// New PlaygroundGame model
 model PlaygroundGame {
   roomId           String             @id @default(cuid())
   winner           String             @default("none")
@@ -272,11 +289,13 @@ model PlaygroundPlayer {
   drawRequest Boolean        @default(false)
   createdAt   DateTime       @default(now())
   
+  // Relations
   game        PlaygroundGame @relation(fields: [gameId], references: [roomId])
 
   @@map("playground_players")
 }
 
+// Stats model for game tracking
 model Stats {
   id         String   @id @default(uuid())
   totalGames Int      @default(0)

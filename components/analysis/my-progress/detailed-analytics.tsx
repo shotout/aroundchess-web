@@ -75,6 +75,7 @@ export function DetailedAnalytics() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
+        {/* Skill Radar Chart */}
         <Card className="p-4">
           <div className="mb-4 flex items-center justify-between">
             <div>
@@ -114,6 +115,7 @@ export function DetailedAnalytics() {
           </div>
         </Card>
 
+        {/* Time Distribution Chart */}
         <Card className="p-4">
           <div className="mb-4 flex items-center justify-between">
             <div>
@@ -155,6 +157,7 @@ export function DetailedAnalytics() {
           </div>
         </Card>
 
+        {/* Key Metrics */}
         <Card className="p-4 md:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <div>

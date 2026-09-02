@@ -12,6 +12,16 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
 import type { UsePaginationResult } from "./hook/usePagination";
 
+/**
+ * Controls only — the pagination state belongs to whoever renders the list.
+ *
+ * This used to take the array and call usePagination() itself, which meant two
+ * independent states: the caller sliced its list with one instance and these
+ * buttons drove a second. Clicking a page moved the buttons and nothing else.
+ * Callers now pass the same usePagination() result they render from, so there is
+ * one source of truth. Matches PaginationControls, which was already built this
+ * way.
+ */
 export const Pagination = ({
   currentPage,
   setCurrentPage,

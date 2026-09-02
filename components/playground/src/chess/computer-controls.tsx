@@ -10,10 +10,13 @@ export function ComputerControls() {
   const { undoMove, redoMove, resetGame } = useComputerChessStore((state) => state);
   
   const handleReset = () => {
+    // Reset the game state
     resetGame();
     localStorage.removeItem("chess-store-computer");
     localStorage.removeItem("chess-store-computer-" + window.sessionStorage.getItem('chess-tab-id'));
+    // Reset the player name
     localStorage.removeItem("computerPlayerName");
+    // Dispatch event to notify the name component
     window.dispatchEvent(new CustomEvent('computerPlayerNameChange', { 
       detail: { name: "You" } 
     }));
@@ -21,6 +24,7 @@ export function ComputerControls() {
 
   return (
     <div className="space-y-4">
+      {/* Controls */}
       <div className="bg-white/90 rounded-xl backdrop-blur-sm shadow-lg border border-blue-100/50">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-4">
           <Link

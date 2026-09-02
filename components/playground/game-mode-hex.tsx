@@ -28,8 +28,10 @@ export function GameModeHex({ href, title, description, color, mode, delay = 0 }
       className="relative group"
     >
       <Link href={href}>
+        {/* Background pattern */}
         <div className="absolute inset-0 w-[280px] sm:w-[260px] md:w-[280px] lg:w-[300px] h-[320px] sm:h-[300px] md:h-[320px] lg:h-[340px] mx-auto opacity-20 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_2px,transparent_0)] bg-[length:24px_24px] clip-hex" />
         
+        {/* Main hexagon container */}
         <div className={cn(
           "hex-container relative mx-auto",
           "w-[280px] sm:w-[260px] md:w-[280px] lg:w-[300px]",
@@ -42,6 +44,7 @@ export function GameModeHex({ href, title, description, color, mode, delay = 0 }
           "group-hover:shadow-2xl group-hover:shadow-white/10",
           color
         )}>
+          {/* Animated border */}
           <div className="absolute inset-[1px] clip-hex z-30 overflow-hidden">
             <div className="absolute inset-0 bg-[length:200%_200%] animate-subtle-shift"
                  style={{
@@ -49,6 +52,7 @@ export function GameModeHex({ href, title, description, color, mode, delay = 0 }
                  }} />
           </div>
 
+          {/* Content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 text-white z-40">
             <motion.div 
               className="mb-6"
@@ -75,6 +79,7 @@ export function GameModeHex({ href, title, description, color, mode, delay = 0 }
               {description}
             </p>
 
+            {/* Hover indicator */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2
                           opacity-0 group-hover:opacity-100
                           transform group-hover:translate-y-1
@@ -83,6 +88,7 @@ export function GameModeHex({ href, title, description, color, mode, delay = 0 }
             </div>
           </div>
 
+          {/* Corner accents */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/30 rounded-full z-50" />
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/30 rounded-full z-50" />
         </div>

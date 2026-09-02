@@ -48,6 +48,8 @@ interface GamesListProps {
     goToPreviousPage: () => void;
   };
   recentlyImportedIds?: (string | number)[];
+  /** Presentation variant. "default" preserves the legacy look used by /my-statistics
+   * and other consumers. "v2" opts into the revamped Game History design. */
   variant?: "default" | "v2";
 }
 
@@ -114,6 +116,8 @@ const fetchLastAnalysisV3 = async (
 
 const DESKTOP_GRID_TEMPLATE = "0.5fr 1.5fr 1fr 1fr 2fr 1fr 1fr 1fr 2fr 1fr 2fr";
 
+// Crisp white ring + a glow in the button's own color. Uses an inline style
+// (not a Tailwind class) so it can never be dropped by class-merging/purge.
 const v2GlowStyle = (r: number, g: number, b: number): React.CSSProperties => ({
   boxShadow: `0 0 0 2px #ffffff, 0 0 10px 3px rgba(${r}, ${g}, ${b}, 0.6)`,
 });
@@ -148,10 +152,12 @@ const GamesList: React.FC<GamesListProps> = ({
   const { isTutorialPlay, dataTutorial, stepFocused } = useTutorial();
   const { setOpenOffer } = usePricingOffer();
 
+  // Use tutorial dummy data when tutorial is active and no real games
   const displayGames = isTutorialPlay && currentGames.length === 0
     ? dataTutorial.dataHistory as Game[]
     : currentGames;
 
+  // helper to update hasViewedAnalysis flag in the persisted store arrays
   const markHasViewedAnalysisInStore = (id: string | number) => {
     try {
       const state = usePgnStore.getState();
@@ -160,6 +166,7 @@ const GamesList: React.FC<GamesListProps> = ({
 
       if (Array.isArray(gamesData)) {
         const idx = gamesData.findIndex((g: any) => g.id === id);
+        // console.log("Found game index in store:", idx);
         if (idx !== -1) {
           const newGames = [...gamesData];
           newGames[idx] = {
@@ -167,6 +174,7 @@ const GamesList: React.FC<GamesListProps> = ({
             has_viewed_analysis: true,
             hasViewedAnalysis: true,
           };
+          // console.log("Marking game as viewed in store:", newGames);
           setGamesData(newGames);
         }
       }
@@ -197,13 +205,17 @@ const GamesList: React.FC<GamesListProps> = ({
 
       if (Array.isArray(gamesData)) {
         const idx = gamesData.findIndex((g: any) => g.id === id);
+        // console.log("Found game index in store:", idx);
         if (idx !== -1) {
           const newGames = [...gamesData];
           newGames[idx] = {
             ...newGames[idx],
+            // backend field
             is_analysis: true,
+            // frontend Game type field
             isAnalysis: true,
           };
+          // console.log("Marking game as viewed in store:", newGames);
           setGamesData(newGames);
           updated = true;
         }
@@ -223,6 +235,9 @@ const GamesList: React.FC<GamesListProps> = ({
         }
       }
 
+      // Fallback: for games whose background analysis job was started
+      // with a synthetic gameId (e.g. You vs AI), try to match by PGN
+      // so that "Other Games" rows still flip to "View Results".
       if (!updated) {
         const job = getJobByGameId(id);
         const jobPgn = job?.gamePgn;
@@ -288,21 +303,28 @@ const GamesList: React.FC<GamesListProps> = ({
   >(null);
   const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
 
+  // State to detect if device is mobile
   const [isMobile, setIsMobile] = useState(false);
 
+  // Detect mobile device on mount and window resize
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 576);
     };
 
+    // Check on mount
     checkIsMobile();
 
+    // Add event listener for window resize
     window.addEventListener('resize', checkIsMobile);
 
+    // Cleanup
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
+  // Auto-open first game and start analysis when flagged from AnalyzeDifferentGame flow
   useEffect(() => {
+    // only act when flag is true, we're on my-game-history, and there is at least one game
     if (
       isFromAnalyzeDifferentGame &&
       pathname === "/my-game-history" &&
@@ -310,10 +332,13 @@ const GamesList: React.FC<GamesListProps> = ({
       currentGames.length > 0
     ) {
       const first = currentGames[0];
+      // don't open modal — trigger auto-start for the first game
       setAutoStartGameId(first.id);
+      // reset the flag so this only runs once
       try {
         setIsFromAnalyzeDifferentGame(false);
       } catch (e) {
+        // ignore
       }
     }
   }, [
@@ -329,31 +354,40 @@ const GamesList: React.FC<GamesListProps> = ({
     restorePollingJobs();
   }, [clearOldJobs, restorePollingJobs]);
 
+  // Handle tutorial step changes - open modals automatically
   useEffect(() => {
     if (!isTutorialPlay || displayGames.length === 0) return;
 
     const firstGame = displayGames[0];
 
+    // Step 1 (index 0): Close all modals, show game list
     if (stepFocused === 0) {
       setOpenGameId(null);
       setChooseAnalysisModeGameId(null);
       setProcessingAnalysisModeGameId(null);
       setGameAnalysisGameId(null);
     }
+    // Step 2 (index 1): Open AnalyzeGameHistory modal
     else if (stepFocused === 1) {
       setOpenGameId(firstGame.id);
+      // Close other modals
       setChooseAnalysisModeGameId(null);
       setProcessingAnalysisModeGameId(null);
       setGameAnalysisGameId(null);
     }
+    // Step 3 (index 2): Open ChooseAnalysisMode modal
     else if (stepFocused === 2) {
       setChooseAnalysisModeGameId(firstGame.id);
+      // Close other modals
       setOpenGameId(null);
       setProcessingAnalysisModeGameId(null);
       setGameAnalysisGameId(null);
     }
+    // Step 4 (index 3): Open ProcessingAnalysisMode or GameAnalysis modal
     else if (stepFocused === 3) {
+      // For tutorial, directly show GameAnalysis with dummy data
       setGameAnalysisGameId(firstGame.id);
+      // Set dummy v3Result for tutorial
       setV3AnalysisResult({
         summary: {
           criticalMistakes: [
@@ -386,12 +420,15 @@ const GamesList: React.FC<GamesListProps> = ({
         },
         analysisId: "tutorial-dummy-id"
       });
+      // Close other modals
       setOpenGameId(null);
       setChooseAnalysisModeGameId(null);
       setProcessingAnalysisModeGameId(null);
     }
+    // Step 5 (index 4): Keep GameAnalysis modal open
     else if (stepFocused === 4) {
       console.log("Tutorial Step 5: GameAnalysis modal should be open");
+      // Keep GameAnalysis open
       if (gameAnalysisGameId !== firstGame.id) {
         setGameAnalysisGameId(firstGame.id);
       }
@@ -418,6 +455,9 @@ const GamesList: React.FC<GamesListProps> = ({
             getProfile({}).then((response) => {
               if (response.data != null) {
                 const profileData = response.data;
+                // Bugfix: `data` here is the token-balance payload from `getTokenBalance`.
+                // Overwriting the profile store with it removes `discountInfo`, which breaks
+                // the special-offer (discounted monthly price) UI in the pricing modal.
                 setProfile(profileData);
                 if (
                   data.balance == 0 &&
@@ -449,6 +489,10 @@ const GamesList: React.FC<GamesListProps> = ({
     setProfile,
   ]);
 
+  // Ensure that when games are loaded after analyses have already completed
+  // (e.g. user analyzed a game on another page, then navigates here),
+  // we still mark the corresponding games as `is_analysis` in the local store
+  // without requiring a manual "Update Games" refresh.
   useEffect(() => {
     if (!currentGames || currentGames.length === 0) return;
 
@@ -480,6 +524,7 @@ const GamesList: React.FC<GamesListProps> = ({
             const pgnHash = createPgnHash(game.pgn);
             console.log("📤 [View Analysis] PGN Hash:", pgnHash);
 
+            // Fetch from both v2 and v3 endpoints in parallel
             const [v2Analysis, v3Analysis] = await Promise.all([
               fetchLastAnalysisV2(pgnHash, sessionId),
               fetchLastAnalysisV3(pgnHash, sessionId)
@@ -488,6 +533,7 @@ const GamesList: React.FC<GamesListProps> = ({
             console.log("📥 [View Analysis] V2 Response:", v2Analysis);
             console.log("📥 [View Analysis] V3 Response:", v3Analysis);
 
+            // Mark as viewed if needed
             if (game.hasViewedAnalysis === false) {
               console.log("📝 [View Analysis] Marking analysis as viewed for game:", game.id);
               const res = await viewAnalysisResult(game.id);
@@ -495,10 +541,12 @@ const GamesList: React.FC<GamesListProps> = ({
                 try {
                   game.hasViewedAnalysis = true as any;
                 } catch (e) {
+                  // if game is immutable, we'll still rely on store update
                 }
               }
             }
 
+            // Store both v2 and v3 results
             setV2AnalysisData(v2Analysis);
             setShortAnalysisData(v3Analysis);
 
@@ -506,6 +554,7 @@ const GamesList: React.FC<GamesListProps> = ({
               console.log("✅ [View Analysis] V3 Analysis found, opening GameAnalysis directly");
               setDisabled(false);
 
+              // Skip ChooseAnalysisMode — show the mistakes result right away
               setV3AnalysisResult({
                 ...v3Analysis.data,
                 analysisId: v3Analysis.data.analysisId || v3Analysis.data.id,
@@ -514,6 +563,7 @@ const GamesList: React.FC<GamesListProps> = ({
 
               markHasViewedAnalysisInStore(game.id);
             } else if (v3Analysis?.success && v3Analysis.data) {
+              // v3 data without a summary — the choose dialog still handles this shape
               setDisabled(false);
               setChooseAnalysisModeGameId(gameId);
               markHasViewedAnalysisInStore(game.id);
@@ -535,6 +585,7 @@ const GamesList: React.FC<GamesListProps> = ({
             console.error("❌ [View Analysis] Error fetching analysis:", error);
             setDisabled(false);
 
+            // Fallback to job result if available
             if (job && job.result) {
               console.log("📦 [View Analysis] Using job result as error fallback");
               setShortAnalysisData({ data: job.result });
@@ -553,12 +604,14 @@ const GamesList: React.FC<GamesListProps> = ({
         case "processing":
         case "waiting":
         case "finalizing":
+          // Show normal "Analyze" button but open ChooseAnalysisMode instead
           return {
             text: "View Analysis",
             icon: <Eye className="h-4 w-4 mr-1" />,
             className:
               "border-2 text-[12px] 2xl:text-[14px] border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
             onClick: () => {
+              // Analysis still running — show the loading dialog directly
               setProcessingAnalysisModeGameId(gameId);
             },
           };
@@ -583,6 +636,7 @@ const GamesList: React.FC<GamesListProps> = ({
       className:
         "border border-[#BDD0F9] bg-gradient-to-b from-blue-600 to-[#221AE9] hover:from-blue-700 hover:to-blue-800 text-white shadow-md",
       onClick: () => {
+        // Skip the depth dialog — auto-run the Standard analysis headlessly
         setAutoStartGameId(gameId);
         trackCustomEvent("StartAnalysis", gameId);
       },
@@ -621,6 +675,7 @@ const GamesList: React.FC<GamesListProps> = ({
     return numMoves;
   };
 
+  // --- v2-only presentation helpers (no effect on the default variant) ---
   const displaySource = (src: string) => {
     if (!src) return "Unknown";
     const map: Record<string, string> = {
@@ -629,6 +684,8 @@ const GamesList: React.FC<GamesListProps> = ({
       vs_ai: "Against AI",
       ai: "Against AI",
       "against ai": "Against AI",
+      // The API labels these "VS AI Game"; the filter above the table calls the
+      // same thing "Against AI", so match it.
       vs_ai_game: "Against AI",
       "vs ai game": "Against AI",
       "vs ai": "Against AI",
@@ -636,6 +693,8 @@ const GamesList: React.FC<GamesListProps> = ({
       "pgn upload": "Import",
       "pdn upload": "Import",
       import: "Import",
+      // The API also labels manually-added games "other game", which fell
+      // through the map and rendered raw in the Source column.
       other_game: "Import",
       "other game": "Import",
       other: "Import",
@@ -691,6 +750,21 @@ const GamesList: React.FC<GamesListProps> = ({
     return <GamesListSkeleton desktopRows={10} mobileCards={8} />;
   }
 
+  // if (error && !isTutorialPlay) {
+  //   return (
+  //     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center mb-4">
+  //       <AlertCircle className="h-5 w-5 mr-2" />
+  //       <span>{error.message}</span>
+  //       <a
+  //         href="/login"
+  //         className="ml-4 bg-red-600 text-white px-3 py-1 rounded"
+  //       >
+  //         Login Again
+  //       </a>
+  //     </div>
+  //   );
+  // }
+
   if (error || games.length === 0 && !isTutorialPlay) {
     return (
       <div className="w-[calc(100%+32px)] bg-[#FAFDFF] lg:bg-white lg:w-full flex flex-col items-center justify-center gap-[16px] p-[16px] lg:p-[32px] border-t lg:border border-[#C0CED4] lg:rounded-[8px] mb-[16px] mx-[-16px] lg:mx-0">
@@ -713,6 +787,7 @@ const GamesList: React.FC<GamesListProps> = ({
 
   return (
     <div className="p-0 md:p-4 xl:p-0">
+      {/* Modal Components - Rendered for both mobile and desktop */}
       {displayGames.map((game) => (
         <React.Fragment key={`modals-${game.id}`}>
           <AnalyzeGameHistory
@@ -724,6 +799,8 @@ const GamesList: React.FC<GamesListProps> = ({
               setAutoStartGameId(null);
             }}
             onAnalysisStarted={() => {
+              // Tutorial keeps the legacy ChooseAnalysisMode step; real runs
+              // jump straight to the loading dialog.
               if (isTutorialPlay) {
                 setChooseAnalysisModeGameId(game.id);
               } else {
@@ -756,6 +833,7 @@ const GamesList: React.FC<GamesListProps> = ({
 
           <ProcessingAnalysisMode
             open={processingAnalysisModeGameId === game.id}
+            // open={true}
             onOpenChange={(o) => setProcessingAnalysisModeGameId(o ? game.id : null)}
             game={game}
             onOpenGameAnalysis={(v3Result) => {
@@ -772,6 +850,7 @@ const GamesList: React.FC<GamesListProps> = ({
         </React.Fragment>
       ))}
 
+      {/* Desktop View */}
       {!isMobile && (
         <div className="hidden lg:block overflow-hidden rounded-lg border border-gray-200">
           <div
@@ -794,6 +873,8 @@ const GamesList: React.FC<GamesListProps> = ({
           </div>
 
           <div className="divide-y divide-gray-200 text-[14px] --xs xl:text-[14px] --sm">
+            {/* Show real games for tutorial, DummyList is no longer needed */}
+            {/* {true ? ( */}
             {isTutorialPlay ? (
               <DummyGameList variant={variant} />
             ) : (
@@ -816,6 +897,9 @@ const GamesList: React.FC<GamesListProps> = ({
                         data-tutorial={idx === 0 ? "1" : null}
                       >
                         <div className="flex items-center px-2 py-3 border-r border-gray-200">
+                          {/* {isNew && (
+                          <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
+                        )} */}
                           <span className="w-6 text-center text-gray-500">
                             {indexInPage}
                           </span>
@@ -885,6 +969,8 @@ const GamesList: React.FC<GamesListProps> = ({
                                 ) : (
                                   btn.icon
                                 )}
+                                {/* No width cap here — "Analyze Mistakes" has to
+                                    stay on one line. */}
                                 <span className="whitespace-nowrap">
                                   {v2 ? v2.label : btn.text}
                                 </span>
@@ -901,9 +987,11 @@ const GamesList: React.FC<GamesListProps> = ({
         </div>
       )}
 
+      {/* Mobile View */}
       {isMobile && (
         <div className="lg:hidden">
           <div className="grid md:grid-cols-2 md:gap-2 text-[14px] --xs">
+            {/* Show real games for tutorial on mobile too */}
             {displayGames.map((game) => (
                 <GameCard
                   key={game.id}

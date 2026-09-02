@@ -196,6 +196,21 @@ export const useTrainingPlanStore = create<TrainingPlanState>()(
         set({ isLoadingTopics: true, error: null });
 
         try {
+          // const cachedData = CacheUtil.getItem(cacheKey);
+          // if (cachedData) {
+          //   const { userProfile, config, topics, recommendations } = cachedData;
+          //   const autoSelectedTopics = autoSelectRecommendedTopics(recommendations);
+
+          //   set({
+          //     userProfile,
+          //     config,
+          //     topics,
+          //     recommendations,
+          //     ...autoSelectedTopics,
+          //     isLoadingTopics: false,
+          //   });
+          //   return;
+          // }
 
           const response = await apiService.get(
             endpoints.trainingPlan.getTopics,
@@ -805,6 +820,11 @@ export const useProgressStore = create<ProgressState>()(
   }))
 );
 
+/**
+ * Drops every cached view of the player's rating after a rated game finishes.
+ * Progress and the user profile both carry an ELO with a one-hour TTL, so
+ * without this the training plan keeps showing the pre-game rating.
+ */
 export const invalidateRatingCaches = (): void => {
   CacheUtil.clearAllProgress();
 
@@ -815,6 +835,7 @@ export const invalidateRatingCaches = (): void => {
   CacheUtil.clearItem(CACHE_KEYS.USER_PROFILE);
   CacheUtil.clearItem(getGameTypeCacheKey(CACHE_KEYS.USER_PROFILE, gameType));
 
+  // The stores hold the same stale data in memory for client-side navigations.
   useProgressStore.setState({ progressData: null });
   useUserStore.setState({ profile: null });
 };

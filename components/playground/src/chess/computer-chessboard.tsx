@@ -58,8 +58,9 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
     const toSquare = `${files[toCol]}${8 - toRow}`;
     const capture = board[toRow][toCol] !== null;
     const check = isKingInCheck !== "noCheck";
-    const checkmate = false;
+    const checkmate = false; // We'll handle checkmate separately
 
+    // Format piece notation correctly
     let pieceNotation = '';
     switch (piece.toUpperCase()) {
       case 'P': 
@@ -98,10 +99,12 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
         ? `${files[toCol]}${8 - toRow}${moveDetails.isCheckmate ? '#' : moveDetails.isCheck ? '+' : ''}`
         : `${moveDetails.piece}${moveDetails.isCapture ? 'x' : ''}${files[toCol]}${8 - toRow}${moveDetails.isCheckmate ? '#' : moveDetails.isCheck ? '+' : ''}`;
       
+      // Add move to history
       useComputerChessStore.getState().addMove(moveNotation);
     }
   };
 
+  // Add effect to record moves
   useEffect(() => {
     if (!lastMove || !board) return;
     
@@ -110,34 +113,39 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
     
     recordMove(lastMove.fromRow, lastMove.fromCol, lastMove.toRow, lastMove.toCol);
     
+    // Mark move as recorded
     useComputerChessStore.setState(state => ({
       ...state,
       lastMove: { ...lastMove, recorded: true }
     }));
   }, [lastMove, board, recordMove]);
 
+  // Effect to trigger computer move
   useEffect(() => {
     if (computer === currentPlayer) {
       computerMove();
     }
   }, [computer, currentPlayer, computerMove]);
 
+  // drag and drop handlers
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const target = e.currentTarget;
     
+    // Add visual feedback for valid drop targets
     if (selectedPiece) {
       const [row, col] = target.dataset.position?.split(',').map(Number) || [];
       if (isValidMove(selectedPiece.row, selectedPiece.col, row, col)) {
-        target.style.boxShadow = 'inset 0 0 0 3px rgba(52, 211, 153, 0.7)';
+        target.style.boxShadow = 'inset 0 0 0 3px rgba(52, 211, 153, 0.7)'; // Emerald green ring
       } else {
-        target.style.boxShadow = '';
+        target.style.boxShadow = ''; // No visual feedback for invalid moves
       }
     }
     e.dataTransfer.dropEffect = "move";
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    // Reset visual feedback
     const target = e.currentTarget;
     target.style.boxShadow = '';
   };
@@ -151,6 +159,7 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
     const target = e.currentTarget;
     target.style.boxShadow = '';
     
+    // Check if it's the player's turn
     if (currentPlayer !== playerColor) {
       playIncorrectMoveSound();
       return;
@@ -162,10 +171,12 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
       .map(Number);
       
     if (isValidMove(fromRow, fromCol, toRow, toCol)) {
+      // Check if there's a piece being captured
       const capturedPiece = board[toRow][toCol];
       if (capturedPiece) {
         playCaptureSound();
         if (onCapture) {
+          // If the captured piece is uppercase, it's white
           const isWhitePiece = capturedPiece === capturedPiece.toUpperCase();
           onCapture(capturedPiece, isWhitePiece ? 'white' : 'black');
         }
@@ -186,12 +197,15 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
       ((currentPlayer === playerColor && isPieceWhite) || 
        (currentPlayer === playerColor && !isPieceWhite));
 
+    // Case 1: We have a selected piece
     if (selectedPiece) {
       if (isValidMove(selectedPiece.row, selectedPiece.col, rowIndex, colIndex)) {
+        // Check if there's a piece being captured
         const capturedPiece = board[rowIndex][colIndex];
         if (capturedPiece) {
           playCaptureSound();
           if (onCapture) {
+            // If the captured piece is uppercase, it's white
             const isWhitePiece = capturedPiece === capturedPiece.toUpperCase();
             onCapture(capturedPiece, isWhitePiece ? 'white' : 'black');
           }
@@ -204,6 +218,7 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
       return;
     }
 
+    // Case 2: No selected piece, clicking on our own piece
     if (currentPlayer === playerColor) {
       if (isCurrentPlayersPiece) {
         setSelectedPiece({ row: rowIndex, col: colIndex });
@@ -215,6 +230,7 @@ export default function ComputerChessBoard({ onCapture }: ChessBoardProps) {
     }
   };
 
+  // Remove selected piece when current player changes
   useEffect(() => {
     setSelectedPiece(null);
   }, [currentPlayer]);

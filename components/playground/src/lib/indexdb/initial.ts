@@ -3,6 +3,7 @@ import { openDB } from "idb";
 export const DB_NAME = "ChessDB";
 export const STORE_NAME = "moves";
 
+// Generate a unique session ID
 const generateSessionId = () => {
   if (typeof window === 'undefined') return '';
   
@@ -15,6 +16,7 @@ const generateSessionId = () => {
   return tabId;
 };
 
+// Get store name with session ID
 export const getSessionStoreName = () => `${STORE_NAME}-${generateSessionId()}`;
 
 async function initializeDB() {

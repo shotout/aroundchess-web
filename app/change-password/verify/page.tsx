@@ -16,9 +16,15 @@ import {
 
 const BASE_URL = process.env.BASE_URL;
 
+/** mm:ss for the resend countdown. */
 const formatCountdown = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 
+/**
+ * Step 2 of the change-password flow: confirm the code emailed by
+ * /auth/reset-password. On success it stores the verified token and returns to
+ * /profile, where the "Change your Password" modal takes over.
+ */
 export default function ChangePasswordVerifyPage() {
   const router = useRouter();
   const { email, setOpen, setStep, setToken, reset } = usechangePassword();
@@ -33,6 +39,8 @@ export default function ChangePasswordVerifyPage() {
   const code = digits.join("");
   const isComplete = code.length === OTP_LENGTH;
 
+  // Reached without going through step 1 (e.g. a hard reload cleared the
+  // store) — there's no address to verify against, so start over.
   useEffect(() => {
     if (!email) {
       router.replace("/profile");
@@ -66,6 +74,7 @@ export default function ChangePasswordVerifyPage() {
       setDigitAt(index, "");
       return;
     }
+    // Pasting the whole code into one box spreads it across the rest.
     if (cleaned.length > 1) {
       setDigits((prev) => {
         const next = [...prev];
@@ -151,12 +160,14 @@ export default function ChangePasswordVerifyPage() {
     }
   };
 
+  /** Back to step 1 so a different address can be used. */
   const handleChangeEmail = () => {
     setStep("email");
     setOpen(true);
     router.push("/profile");
   };
 
+  /** Abandon the flow entirely. */
   const handleBack = () => {
     reset();
     router.push("/profile");
@@ -164,6 +175,7 @@ export default function ChangePasswordVerifyPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col">
+      {/* Mobile gets the full-bleed cyan artwork; sm+ keeps the auth backdrop. */}
       <div className="absolute inset-0 -z-10">
         <Image
           src="/images/v2/profile/Verify Email Background.png"
@@ -190,6 +202,7 @@ export default function ChangePasswordVerifyPage() {
         <SiteHeaderNew />
       </div>
 
+      {/* Mobile header: back arrow + white wordmark, per the mockup. */}
       <div className="sm:hidden flex items-center gap-3 px-4 pt-4">
         <button
           type="button"

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 const WeeklyPlan = () => {
+  // All data in a single component for now, can be moved to API calls later
   const initialWeeklyData = {
     Monday: {
       date: "March 10, 2025",
@@ -107,6 +108,7 @@ const WeeklyPlan = () => {
     },
   };
 
+  // Performance metrics data
   const metrics = [
     {
       title: "Tactical Accuracy",
@@ -138,6 +140,7 @@ const WeeklyPlan = () => {
     },
   ];
 
+  // Key statistics data
   const keyStats = [
     {
       title: "Games Won",
@@ -169,12 +172,14 @@ const WeeklyPlan = () => {
     },
   ];
 
+  // State to hold data that would come from API
   const [weeklyTrainingData, setWeeklyTrainingData] =
     useState(initialWeeklyData);
   const [dailyCompletionPercentages, setDailyCompletionPercentages] = useState<
     Record<string, number>
   >({});
 
+  // Calculate percentages for each day
   useEffect(() => {
     const percentages: Record<string, number> = {};
 
@@ -191,7 +196,9 @@ const WeeklyPlan = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
+      {/* Left Column (Weekly Training) - 60% width on larger screens */}
       <div className="md:col-span-6 flex flex-col md:p-4 rounded-lg md:shadow-md md:border md:border-primary-gray">
+        {/* Weekly Training Header */}
         <div className="mb-2">
           <div className="flex items-center justify-between mb-1">
             <h1 className="font-bold text-base">Weekly Training Schedule</h1>
@@ -201,8 +208,10 @@ const WeeklyPlan = () => {
           </h1>
         </div>
 
+        {/* Daily Sections */}
         {Object.entries(weeklyTrainingData).map(([day, dayData]) => (
           <div key={day}>
+            {/* Day header with completion status */}
             <div className="flex items-center gap-x-2 mb-1">
               <Calendar className="w-4 h-4 text-blue-base" />
               <h2 className="text-[14px] --xs">
@@ -210,6 +219,7 @@ const WeeklyPlan = () => {
               </h2>
             </div>
 
+            {/* Daily progress bar - Fixed alignment */}
             <div className="flex items-center justify-between mb-1">
               <div className="relative h-2 w-[80%] rounded-full">
                 <div className="absolute h-2 w-full bg-blue-100 rounded-full" />
@@ -225,15 +235,18 @@ const WeeklyPlan = () => {
                 </span>
               </div>
             </div>
+            {/* Daily tasks */}
             <div className="space-y-2 mb-4">
               {dayData.tasks.map((task, index) => (
                 <Card key={index} className="px-4 py-3 border rounded-lg">
                   <div className="flex justify-between">
                     <div className="flex gap-x-4">
+                      {/* Blue circle dot on the left */}
                       <div className="flex items-center">
                         <TargetIcon className="h-8 w-8 text-blue-base" />
                       </div>
 
+                      {/* Content in the middle */}
                       <div className="flex flex-col">
                         <div className="flex items-center gap-4 mb-1">
                           <h2 className="font-semibold text-[14px] --sm">
@@ -250,6 +263,7 @@ const WeeklyPlan = () => {
                       </div>
                     </div>
 
+                    {/* Checkmark on the right */}
                     <div className="flex items-center ml-2">
                       {task.completed ? (
                         <Check className="h-6 w-6 p-[2px] text-white bg-green-500 rounded-full" />
@@ -265,7 +279,9 @@ const WeeklyPlan = () => {
         ))}
       </div>
 
+      {/* Right Column (Performance Metrics and Key Statistics) - 40% width on larger screens */}
       <div className="md:col-span-4 flex flex-col gap-6 md:border md:shadow-md md:border-primary-gray md:p-4 rounded-md w-full">
+        {/* Performance Metrics Section */}
         <div className="w-full">
           <div className="mb-2">
             <h1 className="font-bold text-base">Performance Metrics</h1>
@@ -317,12 +333,14 @@ const WeeklyPlan = () => {
           </div>
         </div>
 
+        {/* Key Statistics Section */}
         <div className="w-full">
           <h1 className="text-base font-bold mb-2">Performance Trends</h1>
           <h1 className="text-[14px] --xs mb-3">Weekly improvement</h1>
           <div className="grid grid-cols-2 gap-3 w-full">
             {keyStats.map((stat, index) => (
               <Card key={index} className="p-3 rounded-lg border bg-white">
+                {/* Mobile View - Original horizontal layout */}
                 <div className="flex items-center gap-3 md:hidden">
                   <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center">
                     {stat.icon}
@@ -338,7 +356,9 @@ const WeeklyPlan = () => {
                   </div>
                 </div>
 
+                {/* Tablet and Desktop View - New centered layout */}
                 <div className="hidden md:flex md:flex-col md:items-start">
+                  {/* Icon at the top */}
                   {index === 0 && (
                     <LucideTrophy
                       className="h-6 w-6 text-yellow-500 mb-2"
@@ -355,10 +375,13 @@ const WeeklyPlan = () => {
                     <Clock3 className="h-6 w-6 text-purple-500 mb-2" />
                   )}
 
+                  {/* Value in the middle, large and bold */}
                   <h2 className="text-xl font-semibold mb-1">{stat.value}</h2>
 
+                  {/* Title below the value */}
                   <p className="text-[14px] --xs text-gray-500 mb-1">{stat.title}</p>
 
+                  {/* Trend at the bottom */}
                   {stat.trend && (
                     <p className={`text-[14px] --xs font-medium ${stat.trendColor}`}>
                       {stat.trend}

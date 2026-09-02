@@ -279,7 +279,7 @@ export const usePgnStore = create<PgnState>()(
 
       lastFetchTime: null,
       isFetching: false,
-      cacheExpiryTime: 5 * 60 * 1000,
+      cacheExpiryTime: 5 * 60 * 1000, // 5 minutes instead of 10 seconds
 
       setLastFetchTime: (time: number) => set({ lastFetchTime: time }),
       setIsFetching: (fetching: boolean) => set({ isFetching: fetching }),
@@ -303,6 +303,9 @@ export const usePgnStore = create<PgnState>()(
             lastFetchTimestamp: isActualUsernameChange
               ? Date.now()
               : state.lastFetchTimestamp,
+            // lastAnalysisFetched: isActualUsernameChange
+            //   ? false
+            //   : state.lastAnalysisFetched,
           };
         }),
       setUsernameAnalysis: (usernameAnalysis: string) =>
@@ -524,6 +527,7 @@ export const usePgnStore = create<PgnState>()(
         }),
 
       addImportedGame: (gameData: any) => {
+        // const newId = `imported_user_${Date.now()}_${Math.random()}`;
 
         const newGame: Game = {
           ...gameData,

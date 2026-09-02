@@ -1,6 +1,8 @@
+// store/NavigationStore.ts
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+// Define types for your view state
 interface ViewState {
   view: "categories" | "subcategories" | "detail";
   category?: string;
@@ -8,6 +10,7 @@ interface ViewState {
   position?: string;
   positionIndex?: number;
   movesToCheckmate?: number;
+  // Add other properties your viewState might have
 }
 
 interface NavigationStore {
@@ -41,6 +44,7 @@ export const useEndgameNavigation = create<NavigationStore>()(
       name: 'navigation-endgame', 
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
+        // Once rehydration is complete, update the hydrated flag
         if (state) {
           state.setHydrated(true);
         }

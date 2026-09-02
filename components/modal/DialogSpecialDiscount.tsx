@@ -22,9 +22,13 @@ export const DialogSpecialDiscount: React.FC<Props> = () => {
     setOpen: setOpenPricing,
     setTabType,
   } = usePricingOffer();
+  // Queue behind the playground tutorial: the offer stays armed (openOffer)
+  // but the dialog only actually opens once the tour is off screen, so the
+  // two never overlap on a first login that also ran out of analyses.
   const tourActive = usePlaygroundTourActive();
 
   useEffect(() => {
+    // only run on client
     setWidth(window?.innerWidth || 0);
     const onResize = () => setWidth(window.innerWidth);
     window.addEventListener("resize", onResize);

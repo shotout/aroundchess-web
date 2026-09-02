@@ -25,6 +25,9 @@ export const endpoints = {
   },
 };
 
+/** Axios goes over XHR, so the global fetch wrapper can't help here: renew the
+ *  token when it is stale and replay once on a 401, the same as everywhere else.
+ *  `token` is the caller's captured value; the store's is preferred when set. */
 const withFreshToken = async <T>(
   token: string,
   send: (token: string) => Promise<T>

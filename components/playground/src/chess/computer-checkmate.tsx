@@ -56,12 +56,14 @@ export function ComputerCheckMate() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
+          {/* Trophy Icon with Pulse Animation */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", duration: 0.6 }}
             className="mb-8 relative"
           >
+            {/* Pulse effect */}
             <motion.div
               className="absolute inset-0 bg-red-100 rounded-full"
               initial={{ scale: 0.8, opacity: 0.5 }}
@@ -75,6 +77,7 @@ export function ComputerCheckMate() {
             <Trophy className="w-20 h-20 text-red-500 relative" />
           </motion.div>
 
+          {/* Result Message */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -93,6 +96,7 @@ export function ComputerCheckMate() {
             </p>
           </motion.div>
 
+          {/* Action Buttons */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

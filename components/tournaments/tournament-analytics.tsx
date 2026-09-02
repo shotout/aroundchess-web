@@ -13,6 +13,7 @@ import {
   YAxis,
 } from "recharts"
 
+// Mock data - replace with real data from your backend
 const performanceData = [
   { round: "QF", wins: 8, losses: 4, rating: 1800 },
   { round: "SF", wins: 6, losses: 2, rating: 1825 },

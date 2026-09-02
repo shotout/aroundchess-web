@@ -52,6 +52,8 @@ export function ImproveSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const handleAnalyze = () => {
+    // router.push("/analysis");
+    // router.push("/register");
     if (isSignedIn) {
       router.push("/my-game-history");
     } else {
@@ -155,6 +157,9 @@ export function ImproveSection() {
                   >
                     Analyze your most recent Game now
                   </Button>
+                  {/* <span className="w-fill px-16 font-normal text-[14px] --xs sm:text-[14px] text-white my-3">
+                    No Sign-Up required
+                  </span> */}
                 </div>
               </div>
             </div>

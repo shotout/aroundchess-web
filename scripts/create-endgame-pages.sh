@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# List of all endgame topics
 topics=(
   "advanced-pawn-endgames"
   "basic-checkmates"
@@ -41,6 +42,7 @@ topics=(
   "zugzwang-positions"
 )
 
+# Create directories for each topic
 for topic in "${topics[@]}"; do
   mkdir -p "app/dashboard/learning/endgame/$topic"
 done

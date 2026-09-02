@@ -27,20 +27,25 @@ export function HintPopup({ isOpen, onClose, onHintGenerated }: HintPopupProps) 
     try {
       const currentFen = getFen()
       
+      // Calculate randomness based on ELO (similar to computerChessStore)
       const randomness = Math.max(0, Math.min(1, (2800 - elo) / 1800))
       const depth = Math.max(1, Math.floor(elo / 200))
       
+      // Get best move from engine
       const bestMove = await engine.getBestMove(currentFen, depth, randomness)
       
       if (bestMove && bestMove.length >= 4) {
         const from = bestMove.substring(0, 2).toLowerCase()
         const to = bestMove.substring(2, 4).toLowerCase()
         
+        // Format the move nicely
         const formattedMove = `${from} → ${to}`
         setRecommendedMove(formattedMove)
         
+        // Set the hint arrow in the store
         setHintArrow(from, to)
         
+        // Notify parent
         onHintGenerated(from, to)
       }
     } catch (error) {
@@ -50,6 +55,7 @@ export function HintPopup({ isOpen, onClose, onHintGenerated }: HintPopupProps) 
     }
   }
 
+  // Reset state when dialog closes
   useEffect(() => {
     if (!isOpen) {
       setIsAnalyzing(false)

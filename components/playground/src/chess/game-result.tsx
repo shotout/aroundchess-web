@@ -29,6 +29,7 @@ export const GameResult = (): ReactNode => {
 
     loadNames()
 
+    // Handle custom name change events
     const handleNameChange = (e: CustomEvent<{ color: 'white' | 'black'; name: string }>) => {
       const { color, name } = e.detail
       if (color === 'white') {
@@ -58,13 +59,13 @@ export const GameResult = (): ReactNode => {
         const confetti = new JSConfetti();
         confetti.addConfetti({
           confettiColors: [
-            "#9370DB",
-            "#48D1CC",
-            "#FF69B4",
-            "#32CD32",
-            "#FF4500",
-            "#FFD700",
-            "#4169E1",
+            "#9370DB", // Medium Purple
+            "#48D1CC", // Turquoise
+            "#FF69B4", // Hot Pink
+            "#32CD32", // Lime Green
+            "#FF4500", // Orange Red
+            "#FFD700", // Gold for emphasis
+            "#4169E1", // Royal Blue for emphasis
           ],
           confettiRadius: 6,
           confettiNumber: 500

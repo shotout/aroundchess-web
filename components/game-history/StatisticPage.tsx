@@ -61,6 +61,7 @@ const StatisticPage: React.FC = () => {
 
   return (
     <>
+      {/* <main className="w-full  bg-primary-white relative"> */}
       <main className="w-full  bg-primary-white">
         <ChessAccountSetup isLoading={isLoading} open={openAccountConnected} setOpen={() => { setOpenAccountConnected(false) }} />
         <div className="p-4 bg-[#E6F7FE] lg:bg-white">

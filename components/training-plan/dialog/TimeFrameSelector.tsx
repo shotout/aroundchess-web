@@ -23,6 +23,7 @@ const TimeframeSelector: React.FC<TimeframeSelectorProps> = ({
   currentElo,
   labelText,
 }) => {
+  // Determine what type of data we're showing based on the passed value and labelText
   const getValueType = () => {
     if (labelText) return labelText;
     if (currentElo?.includes("%")) return "Accuracy";

@@ -98,6 +98,7 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
   }, []);
   return (
     <div className="relative" style={{ width: boardWidth, height: boardWidth }}>
+      {/* <span className="text-white bg-[red]">{boardWidth / 8}</span> */}
       <Image
         src={"/boards/glass.png"}
         alt="blueglass"
@@ -119,9 +120,11 @@ const GlassBoard: React.FC<GlassBoardProps> = ({ position, boardWidth }) => {
           }}
           customPieces={twoDPieces}
           customLightSquareStyle={{
+            // backgroundColor: "#ff000070",
             backgroundColor: "transparent",
           }}
           customDarkSquareStyle={{
+            // backgroundColor: "#00ff0080",
             backgroundColor: "transparent",
           }}
           animationDuration={100}

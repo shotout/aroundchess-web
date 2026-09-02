@@ -4,6 +4,7 @@ export default function PrivacyPolicy() {
   return (
     <div className="flex-1 flex-col p-4 lg:py-12 lg:px-8  min-h-screen">
       <div className="w-full mx-auto bg-white rounded-lg  p-4">
+        {/* Header */}
         <header className="text-center mb-12">
           <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
             AROUNDCHESS
@@ -13,6 +14,7 @@ export default function PrivacyPolicy() {
           </h2>
         </header>
 
+        {/* Introduction */}
         <section className="mb-10">
           <p className="text-gray-700 leading-relaxed mb-4">
             The purpose of the present document is to define how aroundchess
@@ -51,6 +53,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* Personal Data Collection */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             PERSONAL DATA WE MAY COLLECT ABOUT YOU
@@ -80,6 +83,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* How We Use Data */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             HOW WE USE YOUR PERSONAL DATA
@@ -136,6 +140,7 @@ export default function PrivacyPolicy() {
           </ul>
         </section>
 
+        {/* Marketing */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             MARKETING AND OPTING OUT
@@ -150,6 +155,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* Data Disclosure - Users */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             DISCLOSURE OF YOUR PERSONAL DATA – TO OTHER AROUNDCHESS USERS
@@ -165,6 +171,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* Data Disclosure - External */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             DISCLOSURE OF YOUR PERSONAL DATA – OUTSIDE AROUNDCHESS
@@ -284,6 +291,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* Data Security */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             KEEPING YOUR DATA SECURE
@@ -333,6 +341,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* Profiling */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             PROFILING
@@ -345,6 +354,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* Cookies */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             USE OF COOKIES
@@ -389,6 +399,7 @@ export default function PrivacyPolicy() {
             cookies completely.
           </p>
 
+          {/* Cookie Table */}
           <div className="mb-8">
             <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center">
               DESCRIPTION OF COOKIES
@@ -564,6 +575,7 @@ export default function PrivacyPolicy() {
           </div>
         </section>
 
+        {/* Other Information */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             INFORMATION ABOUT OTHER INDIVIDUALS
@@ -584,6 +596,7 @@ export default function PrivacyPolicy() {
           </ul>
         </section>
 
+        {/* Sensitive Data Warning */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             DO NOT USE AROUNDCHESS FOR PRIVATE AND SENSITIVE DATA
@@ -605,6 +618,7 @@ export default function PrivacyPolicy() {
           </div>
         </section>
 
+        {/* Links to Other Sites */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             LINKS TO OTHER SITES
@@ -620,6 +634,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* Legal Basis */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             WHAT IS THE LEGAL BASIS FOR OUR PROCESSING YOUR PERSONAL DATA
@@ -685,6 +700,7 @@ export default function PrivacyPolicy() {
           </div>
         </section>
 
+        {/* Your Rights */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             YOUR RIGHTS
@@ -770,6 +786,7 @@ export default function PrivacyPolicy() {
           </div>
         </section>
 
+        {/* Data Retention */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             HOW LONG WE KEEP YOUR DATA
@@ -782,6 +799,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* Other Provisions */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             OTHER IMPORTANT PROVISIONS
@@ -797,6 +815,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
+        {/* Contact Details */}
         <section className="mb-10">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
             OUR CONTACT DETAILS
@@ -820,6 +839,7 @@ export default function PrivacyPolicy() {
           </div>
         </section>
 
+        {/* Footer */}
         <footer className="border-t border-gray-200 pt-6">
           <p className="text-[14px] --sm text-gray-600 text-center">
             Last update of this Privacy Policy: 5 June, 2025.

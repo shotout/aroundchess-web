@@ -48,6 +48,12 @@ export function defaultPositions() {
       black: "Hikaru",
       url: "https://www.chess.com/live/game/2485413336",
     },
+    // {
+    //   "fen": "1r1q1rk1/4ppbp/2np1np1/1bp2F2/p3P1P1/2PP2NP/P2Q2B1/1RBN1RK1 w - - 1 18",
+    //   "white": "Hikaru",
+    //   "black": "Maitreia",
+    //   "url": "https://www.chess.com/live/game/2485419520"
+    // },
     {
       fen: "8/p7/1p1k2p1/2p2p1p/2P1r2P/3K2P1/PP3R2/8 w - - 2 31",
       white: "Maitreia",

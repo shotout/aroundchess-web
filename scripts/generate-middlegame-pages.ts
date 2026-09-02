@@ -289,6 +289,7 @@ export default function ${componentName}Page() {
 }`
 }
 
+// Generate page.tsx for each topic
 topics.forEach(topic => {
   const pagePath = path.join('app/dashboard/learning/middlegame', topic, 'page.tsx')
   fs.writeFileSync(pagePath, generatePageContent(topic))

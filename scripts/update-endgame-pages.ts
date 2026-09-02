@@ -51,6 +51,7 @@ export default function ${topic.split('-').map(word => word.charAt(0).toUpperCas
   return <EndgameTopicPage topic={${importName}} topicId="${topic}" />
 }`
 
+// Create directories and files
 topics.forEach(topic => {
   const dir = path.join(process.cwd(), 'app/dashboard/learning/endgame', topic)
   if (!fs.existsSync(dir)) {

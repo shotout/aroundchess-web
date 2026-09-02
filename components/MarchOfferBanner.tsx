@@ -33,6 +33,7 @@ const readDismissedState = () => {
 
     const todayStamp = getLocalDateStamp();
 
+    // Migrate the previous boolean-based dismissal to today's date-only behavior.
     if (storedValue === "true") {
       window.localStorage.setItem(MARCH_BANNER_STORAGE_KEY, todayStamp);
       return true;
@@ -53,6 +54,7 @@ const writeDismissedState = (dismissed: boolean) => {
 
     window.localStorage.removeItem(MARCH_BANNER_STORAGE_KEY);
   } catch {
+    // Ignore storage failures so the banner still works.
   }
 };
 
@@ -67,6 +69,9 @@ export function MarchOfferBanner() {
   const bannerRef = useRef<HTMLDivElement | null>(null);
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const promoEndLabel = usePromoEndDateLabel();
+  // Members already have the plan this banner sells, so the campaign is simply
+  // not active for them — folding it into one flag keeps every show path
+  // (initial, reset event, midnight re-show) gated the same way.
   const isMember = useHasMembership();
   const isPromoActive = usePromoActive() && !isMember;
 
@@ -81,6 +86,7 @@ export function MarchOfferBanner() {
     );
   }, []);
 
+  // Re-runs once /v4/app_setting lands, and again whenever the backend flips the promo.
   useEffect(() => {
     if (!isPromoActive || readDismissedState()) {
       setIsVisible(false);

@@ -104,6 +104,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     ...selectedEndgames,
   ];
 
+  // Initialize data when dialog opens
   const initializeDialogData = useCallback(async () => {
     if (!open || !sessionId || hasInitialized) return;
 
@@ -119,6 +120,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     }
   }, [open, sessionId, mode, fetchTopics, fetchExistingTopics, hasInitialized]);
 
+  // Reset state when dialog closes
   const resetDialogState = useCallback(() => {
     if (!open) {
       setHasInitialized(false);
@@ -313,19 +315,23 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
     onPlanCreated,
   ]);
 
+  // Check if all requirements are met to enable the Create button
   const isRequirementsMet = useCallback(() => {
     if (!config?.requirements) return false;
 
     const requirements = config.requirements;
 
+    // Check Opening requirements (exact count)
     const whiteOpeningMet = selectedWhiteOpenings.length === requirements.opening?.white;
     const blackOpeningMet = selectedBlackOpenings.length === requirements.opening?.black;
 
+    // Check Middlegame requirements (between min and max)
     const middlegameCount = selectedMiddlegames.length;
     const middlegameMet = 
       middlegameCount >= (requirements.middlegame?.min || 0) && 
       middlegameCount <= (requirements.middlegame?.max || Infinity);
 
+    // Check Endgame requirements (between min and max)
     const endgameCount = selectedEndgames.length;
     const endgameMet = 
       endgameCount >= (requirements.endgame?.min || 0) && 

@@ -24,6 +24,10 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
+// handleSignOut() calls the logout endpoint through apiRequest, so a 401 on
+// that call would re-enter sign-out forever. Module scope: the flag has to be
+// shared by every useApiClient() instance, and it is reset by the /login
+// navigation reloading the app.
 let isSigningOut = false;
 
 export function useApiClient() {
@@ -44,6 +48,8 @@ export function useApiClient() {
       .catch(() => {})
       .finally(() => {
         clearAll();
+        // Training-plan data is cached per account in localStorage; leaving it
+        // behind serves this user's progress to whoever logs in next.
         CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
@@ -84,6 +90,11 @@ export function useApiClient() {
             url += `?${query}`;
           }
 
+          // Thrown messages end up in toast.error(error.message) on most
+          // screens, so a server message that quotes its own internals (an
+          // expired Stripe key, a connection string) can't be passed straight
+          // through. Swapping it here covers every caller at once; the original
+          // still reaches the console, with credentials redacted.
           const safeMessageFor = (message: unknown, fallback: string) => {
             const safe = toSafeApiErrorMessage(message, path, fallback);
             if (typeof message === "string" && message !== safe) {
@@ -92,6 +103,8 @@ export function useApiClient() {
             return safe;
           };
 
+          // FormData bodies can only be consumed once, so the retry below has
+          // to rebuild the init object rather than reuse it.
           const sendWith = (token: string) => {
             const mewUrl = url?.includes("?")
               ? url + "&t=" + Date.now()
@@ -102,9 +115,11 @@ export function useApiClient() {
                 Accept: "*/*",
                 Authorization: `Bearer ${token}`,
                 ...headers,
+                // Don't set Content-Type for FormData, let the browser set it with the boundary
                 ...(!body || !(body instanceof FormData)
                   ? { "Content-Type": "application/json" }
                   : {}),
+                // cache: "no-store",
               },
               body:
                 method !== "GET"
@@ -115,10 +130,15 @@ export function useApiClient() {
             });
           };
 
+          // The access token only lives an hour, so renew it up front once it
+          // is nearly stale rather than letting the request fail first.
           if (!path.includes("/auth/logout") && shouldRefreshBeforeRequest()) {
             await refreshSession();
           }
 
+          // Read the token at send time, not from the closure: a concurrent
+          // request may have already refreshed it, and replaying with the stale
+          // one would burn a second (rotated) refresh token needlessly.
           let response = await sendWith(
             useProfileStore.getState().sessionId || sessionId
           );
@@ -126,13 +146,22 @@ export function useApiClient() {
           if (!response.ok) {
             const errorData = (await response.json().catch(() => ({}))) as any;
 
+            // Handle 401 Unauthorized - the access token expired. Trade the
+            // refresh token for a new one and replay the request once so the
+            // user stays logged in; only sign out if that exchange fails.
             if (errorData.statusCode === 401 || response.status === 401) {
+              // Logging out with an already-dead token is a no-op, not
+              // something worth spending a refresh token on.
               if (path.includes("/auth/logout")) {
                 throw new Error("Session expired");
               }
 
               const refreshed = await refreshSession();
 
+              // Only an outright rejection ends the session. A transport
+              // failure (offline, 5xx, a socket dropped on wake-from-sleep)
+              // leaves the refresh token valid, so surface the error and let
+              // the next request try again instead of kicking the user out.
               if (refreshed.status === "unavailable") {
                 throw new Error("Could not reach the server. Please try again.");
               }
@@ -149,6 +178,9 @@ export function useApiClient() {
                   .json()
                   .catch(() => ({}))) as any;
 
+                // A 401 on a token we just minted isn't an expiry — it's this
+                // endpoint refusing the request (permissions, membership, …),
+                // so report it rather than destroying a valid session.
                 if (retryError.statusCode === 401 || response.status === 401) {
                   throw new Error(
                     safeMessageFor(retryError.message, "Request not allowed")
@@ -162,6 +194,8 @@ export function useApiClient() {
                 }
               }
             } else if (errorData.statusCode != 404) {
+              // Handle other errors (except 404)
+              // console.log("errorData", url, errorData, response);
               throw new Error(
                 safeMessageFor(errorData.message, "API request failed")
               );
@@ -170,6 +204,7 @@ export function useApiClient() {
 
           const responseData = await response.json();
           if (method == "POST") {
+            // toast.success(responseData.message || "Request successful");
           }
           return responseData;
         } else {

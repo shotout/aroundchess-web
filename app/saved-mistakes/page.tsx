@@ -32,6 +32,7 @@ export default function FeedbackLog() {
               <Navigation>
                 <ChessAccountSetup isLoading={isLoading} />
                 <div className="w-full">
+                  {/* <MistakeLog /> */}
                   <SavedMistakePage />
                 </div>
               </Navigation>

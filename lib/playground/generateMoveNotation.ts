@@ -10,6 +10,7 @@ export function generateMoveNotation(
   isCheck?: boolean,
   isCheckmate?: boolean
 ): string {
+  // Handle both function signatures
   let piece: string;
   let from: { row: number; col: number };
   let to: { row: number; col: number };
@@ -17,11 +18,13 @@ export function generateMoveNotation(
   let isCapture: boolean;
 
   if (typeof moveOrPiece === 'string') {
+    // Parameter-style call
     piece = moveOrPiece;
     from = { row: boardOrFromRow as number, col: fromCol! };
     to = { row: toRow!, col: toCol! };
     isCapture = capturedPiece !== null && capturedPiece !== undefined;
   } else {
+    // Object-style call
     piece = moveOrPiece.type;
     from = { row: moveOrPiece.fromRow, col: moveOrPiece.fromCol };
     to = { row: moveOrPiece.toRow, col: moveOrPiece.toCol };
@@ -31,15 +34,18 @@ export function generateMoveNotation(
 
   piece = piece.toUpperCase();
   
+  // Convert coordinates to chess notation
   const files = 'abcdefgh';
   const ranks = '87654321';
   const fromSquare = `${files[from.col]}${ranks[from.row]}`;
   const toSquare = `${files[to.col]}${ranks[to.row]}`;
   
+  // Special case for castling
   if (piece === 'K' && Math.abs(to.col - from.col) === 2) {
     return `${to.col > from.col ? 'O-O' : 'O-O-O'}${isCheckmate ? '#' : isCheck ? '+' : ''}`;
   }
   
+  // Special case for pawns
   if (piece === 'P') {
     if (isCapture) {
       return `${fromSquare[0]}x${toSquare}${isCheckmate ? '#' : isCheck ? '+' : ''}`;
@@ -47,5 +53,6 @@ export function generateMoveNotation(
     return `${toSquare}${isCheckmate ? '#' : isCheck ? '+' : ''}`;
   }
   
+  // For other pieces
   return `${piece}${isCapture ? 'x' : ''}${toSquare}${isCheckmate ? '#' : isCheck ? '+' : ''}`;
 }

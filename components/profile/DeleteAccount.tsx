@@ -17,8 +17,10 @@ import { useApiClient } from "@/functions/api-client";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import CacheUtil from "@/app/training-plan/api/cacheUtils";
 
+/** Where subscribers manage an auto-renewing plan. */
 const APPLE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions/";
 
+/** The permanence warning, shown in the info box on both variants. */
 const PERMANENCE_NOTE = (
   <>
     Please note that account deletion is{" "}
@@ -42,6 +44,13 @@ const DeleteAccount = () => {
   } = useProfileStore();
   const { clearAll } = usePgnStore();
 
+  // Subscribers get an extra warning first: deleting the account here does not
+  // stop the store from billing them.
+  //
+  // `isMember` / `isMemberMonthly` are the canonical subscriber flags — set in
+  // useProfileFetch from getActiveMembership's `membershipPackage.type`
+  // (YEARLY / MONTHLY). Don't also require `activeMembership.autoRenew`: it is
+  // frequently absent on the payload, which silently hid this warning.
   const isSubscriber = Boolean(isMember || isMemberMonthly);
 
   const baseUrl = process.env.BASE_URL;
@@ -53,6 +62,8 @@ const DeleteAccount = () => {
       console.error("Error during sign out:", error);
     } finally {
       clearAll();
+      // Training-plan data is cached per account in localStorage; leaving it
+      // behind serves this user's progress to whoever logs in next.
       CacheUtil.clearAll();
 
       localStorage.removeItem("sessionId");
@@ -89,6 +100,8 @@ const DeleteAccount = () => {
         throw new Error(`Failed to delete account: ${response.status}`);
       }
 
+      // Clear the session, then show the confirmation. `replace` so Back can't
+      // return to the now-unauthenticated profile page.
       await handleLogout();
       setIsOpen(false);
       router.replace("/delete-account");
@@ -108,6 +121,7 @@ const DeleteAccount = () => {
     <div className="flex flex-col gap-4">
       <div className="flex flex-row items-center justify-between border-0 border-b-2 border-b-[#C0CED4] pb-1"></div>
 
+      {/* Info bar with the Delete Account trigger on the right */}
       <div className="flex flex-col md:flex-row border border-blue-500 bg-blue-50 bg-opacity-8 rounded-[12px] p-3 md:px-4 items-center gap-3">
         <div className="flex items-center gap-x-2 flex-1">
           <Info className="w-5 h-5 text-blue-500 flex-shrink-0" />
@@ -125,6 +139,7 @@ const DeleteAccount = () => {
 
           <DialogContent className="w-[92%] max-w-[560px] max-h-[95%] rounded-[24px] sm:rounded-[16px] overflow-y-auto">
             <DialogHeader className="text-center">
+              {/* Chess knight icon with red X */}
               <div className="flex justify-center mb-4">
                 <Image
                   src={"/images/delete-knight.png"}
@@ -144,6 +159,8 @@ const DeleteAccount = () => {
               </DialogDescription>
             </DialogHeader>
 
+            {/* Warning info box inside modal — subscribers get the
+                cancel-your-subscription note above the permanence note. */}
             <div className="flex border border-blue-500 bg-blue-50 rounded-[8px] px-3 py-3 items-center gap-x-2 my-4">
               <Info className="w-5 h-5 text-blue-500 flex-shrink-0" />
               <div className="flex flex-col gap-2">
@@ -166,6 +183,7 @@ const DeleteAccount = () => {
               </div>
             </div>
 
+            {/* Error message */}
             {error && (
               <div className="flex border border-red-500 bg-red-50 rounded-md p-3 items-center gap-x-2 my-4">
                 <X className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
@@ -173,6 +191,7 @@ const DeleteAccount = () => {
               </div>
             )}
 
+            {/* Side by side on mobile too (mockup); the footer default stacks. */}
             <DialogFooter className="flex flex-row gap-3 sm:gap-3 sm:space-x-0">
               <button
                 className="flex-1 border border-red-600 text-red-600 bg-white hover:bg-red-50 px-4 py-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

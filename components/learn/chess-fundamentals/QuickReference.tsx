@@ -30,6 +30,7 @@ const chessTerms: Term[] = [
     definition: 'Developing a bishop to b2 or g2 (b7 or g7 for Black) after moving the knight pawn one square.',
     category: 'strategy'
   },
+  // Add more terms as needed
 ]
 
 const shortcuts = [

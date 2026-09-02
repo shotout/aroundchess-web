@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# List of all middlegame topics
 topics=(
   "attacking-patterns"
   "attacking-the-king"
@@ -41,6 +42,7 @@ topics=(
   "zugzwang-creation"
 )
 
+# Create directories for each topic
 for topic in "${topics[@]}"; do
   mkdir -p "app/dashboard/learning/middlegame/$topic"
 done

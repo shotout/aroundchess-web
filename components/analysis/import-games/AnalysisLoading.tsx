@@ -33,6 +33,7 @@ export function AnalysisLoading() {
           }}
           className="relative w-16 h-16"
         >
+          {/* Chess piece animation */}
           <svg
             viewBox="0 0 24 24"
             fill="none"

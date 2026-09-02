@@ -73,6 +73,9 @@ useEffect(() => {
 
       const data = await response.json();
 
+      // The API wraps failures in a 200 response ({ success: false, message,
+      // statusCode }), so response.ok alone isn't enough — surface the real
+      // message ("Email Address not found", "Your password is incorrect", …).
       if (!response.ok || data?.success === false) {
         throw new Error(data.message || "Login failed");
       }
@@ -92,6 +95,9 @@ useEffect(() => {
             if (statusData.success && statusData.data) {
               const { isActive, canLogin } = statusData.data;
 
+              // Require an explicit false. `!undefined && !undefined` is true,
+              // so a renamed/missing field in the status payload would lock
+              // every user out of a perfectly healthy account.
               if (isActive === false && canLogin === false) {
                 try {
                   await fetch(`${baseUrl}/auth/logout`, {
@@ -139,6 +145,7 @@ useEffect(() => {
             setProfile(normalizedProfile);
             setProfileShow(profileData)
             try {
+              // Await the backend promo window in case it is still loading.
               if (isPromoWindowActive(await ensurePromoAppSetting())) {
                 window.sessionStorage.setItem(MARCH_OFFER_DIALOG_SESSION_KEY, "true");
               }
@@ -152,14 +159,18 @@ useEffect(() => {
               profileData.data?.onboardElo ??
                 profileData.onboardElo ??
                 profileData.data?.onboard_elo;
+            // Prefer the explicit chess.com connection flag; fall back to the
+            // legacy "has a username" heuristic while the backend field rolls out.
             const userIsChesscomConnected =
               profileData.data?.is_chesscom_connected ??
               profileData.is_chesscom_connected ??
               Boolean(userUsername && userUsername.trim() !== "");
 
             if (userIsChesscomConnected) {
+              // Connected → skip onboarding entirely, ignoring onboard_elo.
               router.push("/playground/play-vs-ai");
             } else if (!userOnboardElo) {
+              // Not connected and no level set yet → show the knowledge screen.
               router.push("/chess-knowledge");
             } else {
               router.push("/playground/play-vs-ai");
@@ -284,8 +295,12 @@ useEffect(() => {
 
   return (
     <>
+      {/* See the register page: dvh keeps header + form inside the space the
+          keyboard leaves, so the footer below can't ride up over the form. */}
       <div className="h-[100dvh] flex flex-col">
         <SiteHeaderNew />
+        {/* dvh tracks the keyboard, vh doesn't, and the min-height floor must
+            not apply on mobile. */}
         <main
           className="relative flex items-center justify-center p-4 sm:p-6 md:p-8
                      h-[calc(100dvh-72px)] lg:h-[calc(100dvh-97px)]

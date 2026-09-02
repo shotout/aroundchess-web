@@ -1,3 +1,4 @@
+
 const AnalyzeGameSteps: any[] = [
   {
     target: "[data-tutorial='1']",
@@ -36,6 +37,7 @@ const AnalyzeGameSteps: any[] = [
   }
 ];
 
+// New You vs AI Tutorial Steps
 const PlayVsAISteps: any[] = [
   {
     target: "[data-tutorial='play-vs-ai-step-1']",
@@ -127,6 +129,7 @@ const PlayingVsAISteps: any[] = [
 ]
 
 const tutorials: Record<string, any[]> = {
+  // "/analysis": AnalyzeGameSteps,
   "/my-game-history": AnalyzeGameSteps,
   "/playground/play-vs-ai": PlayVsAISteps,
   "/playground/play-vs-ai/playing": PlayVsAISteps

@@ -61,6 +61,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
     checkSession();
   }, [sessionId, isSignedIn]);
 
+  // Helper function to find ID from mistakeLogs
   const findIdFromMistakeLogs = (move: string, moveNumber: number, category: string) => {
     if (!mistakeLogs) return null;
 
@@ -74,10 +75,12 @@ const EndGame: React.FC<EndgameProps> = (props) => {
     return matchingItem?.id || matchingItem?.mistakeLogId || matchingItem?._id;
   };
 
+  // Initialize local data from dataAnalysis and merge with mistakeLogs IDs
   useEffect(() => {
     if (dataAnalysis?.endGame) {
       const endGameData = dataAnalysis.endGame;
 
+      // Merge bestMoves
       if (endGameData.bestMoves && Array.isArray(endGameData.bestMoves)) {
         const mergedBestMoves = endGameData.bestMoves.map((item: any) => {
           const id = findIdFromMistakeLogs(item.move, item.moveNumber, "bestMoves");
@@ -94,6 +97,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
         setLocalBestMoves(mergedBestMoves);
       }
 
+      // Merge badMoves
       if (endGameData.badMoves && Array.isArray(endGameData.badMoves)) {
         const mergedBadMoves = endGameData.badMoves.map((item: any) => {
           const id = findIdFromMistakeLogs(item.move, item.moveNumber, "badMoves");
@@ -112,6 +116,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
     }
   }, [dataAnalysis, mistakeLogs]);
 
+  // Handle save log
   const handleSaveLog = async (id: string, arrayType: 'bestMoves' | 'badMoves', index: number) => {
     if (loadingToggle) return;
 
@@ -141,6 +146,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
         });
       }
 
+      // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
@@ -152,6 +158,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
     }
   };
 
+  // Handle unsave log
   const handleUnsaveLog = async (id: string, arrayType: 'bestMoves' | 'badMoves', index: number) => {
     if (loadingToggle) return;
 
@@ -181,6 +188,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
         });
       }
 
+      // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
@@ -192,6 +200,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
     }
   };
 
+  // Use local data if available, fallback to dataAnalysis
   const bestMoves = localBestMoves.length > 0 ? localBestMoves : (dataAnalysis?.endGame?.bestMoves ?? []);
   const badMoves = localBadMoves.length > 0 ? localBadMoves : (dataAnalysis?.endGame?.badMoves ?? []);
   const getBadgeClass = (type: string) => {
@@ -239,15 +248,18 @@ const EndGame: React.FC<EndgameProps> = (props) => {
   };
 
   const handleOnClickMovement = (move: any) => {
+    // Determine player color based on moveNumber
     const movementDetails = dataAnalysis?.movementDetails;
 
-    let playerType = "white";
+    let playerType = "white"; // default
 
     if (movementDetails) {
+      // Check if the move exists in white's moves
       const whiteMove = movementDetails.white?.find(
         (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
       );
 
+      // Check if the move exists in black's moves
       const blackMove = movementDetails.black?.find(
         (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
       );
@@ -259,6 +271,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
       }
     }
 
+    // Enrich the move object with the player type
     const enrichedMove = {
       ...move,
       type: playerType,
@@ -266,6 +279,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
 
     setChessMove(enrichedMove);
 
+    // Scroll to chessboard using ref from store
     setTimeout(() => {
       scrollToChessboard();
     }, 100);
@@ -274,6 +288,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
   return (
     <>
       <div className="flex flex-col justify-center gap-4 bg-white lg:justify-start xl:max-h-[800px] xl:min-h-[800px] lg:overflow-auto">
+        {/* best moves  */}
         <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md md:p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">
@@ -443,6 +458,7 @@ const EndGame: React.FC<EndgameProps> = (props) => {
             </button>
           )}
         </div>
+        {/* critical mistakes moves  */}
         <div className="border-t border-[#C0CED4] sm:border sm:border-primary sm:border-t-4 sm:rounded-md md:p-3">
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex flex-row items-center gap-2">

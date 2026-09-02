@@ -45,6 +45,7 @@ function findExplanationForItem(
   item: any,
   sections: AnalyzeSections
 ): string | null {
+  // Hide Opening entirely
   if (item?.gamePhase === "Opening") return null;
 
   const moveNumber = toNumber(item?.moveNumber);
@@ -126,6 +127,7 @@ function findRecommendationForItem(
       ? sections.middleGame?.badMoves || []
       : sections.endGame?.badMoves || [];
 
+  // Prefer concrete guidance tied to the mistake itself
   const badMatch =
     badList.find(
       (x) =>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Timer, ChevronUp, ChevronDown } from "lucide-react"
 
+// Mock data - replace with real data from your backend
 const mockLiveMatch = {
   id: 1,
   team1: {
@@ -69,6 +70,7 @@ export function LiveMatchPanel() {
             className="space-y-4"
           >
             <div className="space-y-4">
+              {/* Team 1 */}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{mockLiveMatch.team1.name}</p>
@@ -80,6 +82,7 @@ export function LiveMatchPanel() {
                 <span className="text-2xl font-bold">{mockLiveMatch.team1.score}</span>
               </div>
 
+              {/* Team 2 */}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{mockLiveMatch.team2.name}</p>
@@ -91,6 +94,7 @@ export function LiveMatchPanel() {
                 <span className="text-2xl font-bold">{mockLiveMatch.team2.score}</span>
               </div>
 
+              {/* Game Info */}
               <div className="rounded-lg bg-muted p-4 space-y-2">
                 <div className="flex items-center justify-between text-[14px] --sm">
                   <span>Move {mockLiveMatch.currentMove}</span>

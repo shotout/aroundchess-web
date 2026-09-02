@@ -29,6 +29,7 @@ export const CheckMate = (): ReactNode => {
 
     loadNames()
 
+    // Handle custom name change events
     const handleNameChange = (e: CustomEvent<{ color: 'white' | 'black'; name: string }>) => {
       const { color, name } = e.detail
       if (color === 'white') {
@@ -38,6 +39,7 @@ export const CheckMate = (): ReactNode => {
       }
     }
 
+    // Listen for both storage and custom events
     window.addEventListener('playerNameChange', handleNameChange as EventListener)
     window.addEventListener('storage', (e) => {
       if (e.key === "whitePlayerName" || e.key === "blackPlayerName") {
@@ -58,23 +60,24 @@ export const CheckMate = (): ReactNode => {
         const confetti = new JSConfetti();
         confetti.addConfetti({
           confettiColors: [
-            "#9370DB",
-            "#48D1CC",
-            "#FF69B4",
-            "#32CD32",
-            "#FF4500",
-            "#FFD700",
-            "#4169E1",
+            "#9370DB", // Medium Purple
+            "#48D1CC", // Turquoise
+            "#FF69B4", // Hot Pink
+            "#32CD32", // Lime Green
+            "#FF4500", // Orange Red
+            "#FFD700", // Gold for emphasis
+            "#4169E1", // Royal Blue for emphasis
           ],
           confettiRadius: 6,
           confettiNumber: 500
         });
+        // Add a second wave of confetti for more impact
         setTimeout(() => {
           confetti.addConfetti({
             confettiColors: [
-              "#FFD700",
-              "#4169E1",
-              "#FF69B4"
+              "#FFD700", // Gold
+              "#4169E1", // Royal Blue
+              "#FF69B4"  // Hot Pink
             ],
             confettiNumber: 200,
             confettiRadius: 8

@@ -19,6 +19,7 @@ interface UseFiltersResult {
   handleClearFilters: () => void;
 }
 
+// Updated filter function that only considers color and results
 export const filterGames = (
   gamesData: Game[],
   filters: FilterState
@@ -27,6 +28,7 @@ export const filterGames = (
 
   let filtered = [...gamesData];
 
+  // Filter by color
   if (filters.color !== "All Colors") {
     filtered = filtered.filter(
       (game) =>
@@ -35,6 +37,7 @@ export const filterGames = (
     );
   }
 
+  // Filter by results
   if (filters.results !== "All Results") {
     const resultMap: Record<string, string> = {
       Wins: "WIN",
@@ -50,6 +53,7 @@ export const filterGames = (
   return filtered;
 };
 
+// Updated count function that only considers color and results
 export const countActiveFilters = (
   filters: FilterState,
   defaultFilters: FilterState
@@ -71,6 +75,7 @@ export function useFilters(gamesData: Game[]): UseFiltersResult {
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
 
+  // Default filter values
   const defaultFilters = useMemo<DefaultFilters>(
     () => ({
       timeRange: "All Times",
@@ -82,6 +87,7 @@ export function useFilters(gamesData: Game[]): UseFiltersResult {
     []
   );
 
+  // Current filter state
   const currentFilters = useMemo<FilterState>(
     () => ({
       timeRange,
@@ -93,21 +99,25 @@ export function useFilters(gamesData: Game[]): UseFiltersResult {
     [timeRange, gameType, color, gameFormat, results]
   );
 
+  // Update active filters count (only count color and results)
   useEffect(() => {
     const count = countActiveFilters(currentFilters, defaultFilters);
     setActiveFiltersCount(count);
     setFiltersApplied(count > 0);
   }, [currentFilters, defaultFilters]);
 
+  // Apply filters to games (only apply color and results filters)
   useEffect(() => {
     const filtered = filterGames(gamesData, currentFilters);
     setFilteredGames(filtered);
   }, [gamesData, currentFilters]);
 
+  // Handle filter application
   const handleApplyFilters = () => {
     setShowFilters(false);
   };
 
+  // Handle filter clearing
   const handleClearFilters = () => {
     setTimeRange(defaultFilters.timeRange);
     setGameType(defaultFilters.gameType);

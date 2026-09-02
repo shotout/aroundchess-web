@@ -12,6 +12,7 @@ jobs:
           URL="${{ github.event.issue.html_url || github.event.pull_request.html_url }}"
           BODY="${{ github.event.issue.body || github.event.pull_request.body }}"
 
+          # Compose a richer description
           DESC="**GitHub Link:** $URL\n\n**Description:**\n$BODY"
 
           curl --fail -sS -X POST "https://api.trello.com/1/cards?key=$TRELLO_KEY&token=$TRELLO_TOKEN" \

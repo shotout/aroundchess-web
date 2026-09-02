@@ -60,6 +60,7 @@ const SavedMistakePage = () => {
   const [mistakePreviousDetail, setMistakePreviousDetail] = useState<any>({
     id: "",
   });
+  // const [tabSelected, setSelectedTab] = useState<string>("saved");
   const [MistakeType, setMistakeType] = useState<string>("");
   const [GamePhase, setGamePhase] = useState<string>("");
   const [selectedHistory, setSelectedHistory] = useState<string>("1");
@@ -97,6 +98,7 @@ const SavedMistakePage = () => {
       setMovementDetails(dataDetail.movementDetail);
       setPlayerInfo(dataDetail.playerInfo);
 
+      // Enrich mistake logs with Analyze Game sections and hide Opening/missing
       try {
         const hash = await sha256Hex(dataDetail.pgn || "");
         const analysisRes = await getAnalysisByPgnHash(hash);
@@ -111,6 +113,7 @@ const SavedMistakePage = () => {
         );
         setMistakeLogs(enriched as any);
       } catch (e) {
+        // If enrichment fails, still set original (but Opening items may still appear)
         setMistakeLogs(dataDetail.mistakeLogs);
       }
       setLoadingPrevious(false);
@@ -164,6 +167,7 @@ const SavedMistakePage = () => {
     setTabSelected("previous");
     setChessMove({});
     if (mistakePreviousDetail.id) {
+      // Refresh detail to ensure enrichment applied when switching tabs
       fetchMistakePreviousDetailForFilter(mistakePreviousDetail.id, false);
     }
   };
@@ -345,6 +349,7 @@ const SavedMistakePage = () => {
     );
   };
 
+  // Show loading only if not hydrated or if we're fetching and don't have cached data
   if (!hydrated || (isFetching && !hasCachedData)) return <DotSpinner />;
 
   return (
@@ -366,6 +371,7 @@ const SavedMistakePage = () => {
         </Link>
 
         <Link href={'/saved-mistakes'} className={`flex items-center gap-[8px] w-[50%] lg:max-w-fit justify-center py-[12px] px-[24px] lg:rounded-t-[12px] bg-[#ECF4FF] lg:bg-[#221AE9] lg:text-white relative text-[#221AE9] before:content-[''] before:w-full before:absolute before:bottom-4px before:left-0 border-b-[4px] border-[#221AE9]`}>
+          {/* <Image src="/icons/sidebar-saved-mistakes-icon.svg" alt="icon" width={24} height={24} className="lg:invert lg:brightness-0" /> */}
           <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fillRule="evenodd" clipRule="evenodd" fill={window.innerWidth > 1280 ? "#FFF" : "#221AE9"} d="M6.34797 0V3.17611H9.51815V0H6.34797ZM15.8661 3.17611V5.59056C16.0106 5.68958 16.1474 5.79621 16.2842 5.90284C16.3071 5.91808 16.3299 5.93331 16.3451 5.94854C16.4971 6.07041 16.6492 6.20751 16.786 6.3446H19.0287V3.16849H15.8585L15.8661 3.17611ZM12.6883 0V3.17611H15.8585V0H12.6883ZM0 0V3.17611H3.17018V0H0ZM0 15.8958H3.17018V12.7197H0V15.8958ZM0 9.53595H3.17018V6.35984H0V9.53595ZM9.51815 5.01932C9.91347 4.84414 9.90967 5.26254 10.343 5.17114C10.5675 5.72665 10.5447 5.72665 10.9894 5.17114C11.1871 5.13306 10.7615 5.04217 10.9591 5.01932C10.5679 5.01983 11.6359 5.68146 11.6359 5.17114C11.864 5.14829 11.9205 5.17114 12.1562 5.17114C12.331 5.17114 12.5135 5.00409 12.6883 5.01932V3.19134H9.51815V5.02694V5.01932ZM6.66204 12.7121C6.5404 12.2017 6.46438 11.6686 6.46438 11.1202C6.46438 10.5718 6.5404 10.0386 6.66204 9.52833H3.17778V12.7044H6.66204V12.7121ZM6.84212 7.14434C6.84212 7.14434 6.88774 7.08341 6.91054 7.04533C7.1006 6.8016 7.30586 6.5731 7.52633 6.35222H6.34037V7.89838C6.48481 7.6318 6.65967 7.38046 6.84212 7.13673V7.14434ZM3.17778 6.35984H6.34797V3.18373H3.17778V6.35984Z"/>
             <path fill={window.innerWidth > 1280 ? "#FFF" : "#221AE9"} d="M19.7045 7.67563L17.208 5.17924C17.1033 5.07374 16.9787 4.9901 16.8414 4.93318C16.7041 4.87626 16.5569 4.84719 16.4083 4.84766H7.5922C7.29217 4.84766 7.00443 4.96684 6.79228 5.17898C6.58012 5.39112 6.46094 5.67884 6.46094 5.97885V17.2907C6.46094 17.5907 6.58012 17.8785 6.79228 18.0906C7.00443 18.3027 7.29217 18.4219 7.5922 18.4219H18.9049C19.2049 18.4219 19.4926 18.3027 19.7048 18.0906C19.9169 17.8785 20.0361 17.5907 20.0361 17.2907V8.47524C20.0366 8.32663 20.0075 8.17942 19.9506 8.04215C19.8937 7.90488 19.81 7.78029 19.7045 7.67563ZM18.9049 17.2907H17.208V13.3316C17.208 13.0316 17.0888 12.7438 16.8766 12.5317C16.6645 12.3196 16.3767 12.2004 16.0767 12.2004H10.4204C10.1203 12.2004 9.8326 12.3196 9.62044 12.5317C9.40829 12.7438 9.2891 13.0316 9.2891 13.3316V17.2907H7.5922V5.97885H16.4083L18.9049 8.47524V17.2907ZM15.5111 7.67563C15.5111 7.82564 15.4515 7.9695 15.3454 8.07557C15.2393 8.18164 15.0954 8.24123 14.9454 8.24123H10.986C10.836 8.24123 10.6921 8.18164 10.586 8.07557C10.48 7.9695 10.4204 7.82564 10.4204 7.67563C10.4204 7.52563 10.48 7.38177 10.586 7.2757C10.6921 7.16963 10.836 7.11004 10.986 7.11004H14.9454C15.0954 7.11004 15.2393 7.16963 15.3454 7.2757C15.4515 7.38177 15.5111 7.52563 15.5111 7.67563Z"/>
@@ -387,6 +393,9 @@ const SavedMistakePage = () => {
 
       {savedMistakes.length > 0 ? (
         <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
+          {/* <div className="lg:mt-2">
+            <ChessContent />
+          </div> */}
           <div className="xl:w-full">
             <SavedMistakes onClickSeePrevious={handleGoPrevious} />
           </div>
@@ -395,6 +404,100 @@ const SavedMistakePage = () => {
         <SavedMistakes onClickSeePrevious={handleGoPrevious} />
       )}
 
+      {/* <Tabs
+        defaultValue="saved"
+        className="w-full p-0"
+        value={tabSelected}
+        onValueChange={setTabSelected}
+      >
+        <TabsList className="grid w-full h-[50px] lg:h-[62px] grid-cols-2 bg-[#F2FBFE] border border-[#C0CED4] p-1">
+          <TabsTrigger
+            onClick={() => {
+              setTabSelected("saved");
+              setChessMove({});
+              if (savedMistakes.length > 0) {
+                setPgn(savedMistakes[0].pgn);
+                setPlayerInfo(savedMistakes[0].playerInfo);
+                setTitleGame(savedMistakes[0].title);
+                setMovementDetails(savedMistakes[0].movementDetail);
+                setPreviousAnalysesDetail(savedMistakes[0]);
+              }
+            }}
+            value="saved"
+            className={`${
+              tabSelected == "saved"
+                ? `rounded-[6px] border border-[#C0CED4]`
+                : ` `
+            }`}
+          >
+            <span
+              className={`text-[16px] ${
+                tabSelected == "saved" ? `font-semibold` : `font-normal`
+              } lg:py-2`}
+            >
+              Saved Feedback
+            </span>
+          </TabsTrigger>
+          <TabsTrigger
+            onClick={handleGoPrevious}
+            value="previous"
+            className={`${
+              tabSelected != "saved"
+                ? `rounded-[6px] border border-[#C0CED4]`
+                : ` `
+            }`}
+          >
+            <span
+              className={`text-[16px] ${
+                tabSelected != "saved" ? `font-semibold` : `font-normal`
+              } lg:py-2`}
+            >
+              Previous Analyses
+            </span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="saved" className="gap-2">
+          <span className="hidden lg:block font-semibold text-[20px]">
+            Saved Feedback
+          </span>
+          {savedMistakes.length > 0 ? (
+            <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
+              <div className="lg:mt-2">
+                <ChessContent />
+              </div>
+              <div className="xl:w-3/4">
+                <SavedMistakes onClickSeePrevious={handleGoPrevious} />
+              </div>
+            </div>
+          ) : (
+            <SavedMistakes onClickSeePrevious={handleGoPrevious} />
+          )}
+        </TabsContent>
+
+        <TabsContent value="previous">
+          <div className="hidden lg:block">{renderFilters()}</div>
+          <div className="flex flex-col xl:flex-row-reverse gap-4 bg-white">
+            {!previousAnalyses ||
+            (previousAnalyses != null &&
+              Object.keys(previousAnalyses).length === 0) ? null : (
+              <ChessContent />
+            )}
+            <div className="block lg:hidden">{renderFilters()}</div>
+            {previousAnalyses.length == 0 ? (
+              <EmptyLog
+                title="You have not yet Analyses"
+                content="Analyze Game now"
+                noButton={true}
+              />
+            ) : (
+              <div className="xl:w-3/4">
+                <PreviousAnalysis />
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs> */}
     </main>
   );
 };

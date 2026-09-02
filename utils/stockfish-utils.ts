@@ -46,6 +46,13 @@ export function useStockfishAnalysis() {
     []
   );
 
+  /**
+   * Analyze multiple chess positions with Stockfish
+   * @param fenPositions Array of FEN position strings to analyze
+   * @param depth Maximum depth for Stockfish analysis (default: 20)
+   * @param moveTime Time in milliseconds for each position analysis (default: 60000)
+   * @returns Array of analysis results for each position
+   */
   const batchStockfishAnalysis = useCallback(
     async (
       fenPositions: string[],
@@ -67,6 +74,8 @@ export function useStockfishAnalysis() {
         const colorToMove = fenParts.length > 1 ? fenParts[1] : "w";
         const colorName = colorToMove === "w" ? "White" : "Black";
         count = Math.round(((i + 1) / fenPositions.length) * 100);
+
+        // Update progress state after each position
 
         console.log(`Analyzing position for ${colorName}:`, fen);
         console.log(`Analyzing position progress: ${progress}`);
@@ -162,6 +171,14 @@ export function useStockfishAnalysis() {
     [sessionId]
   );
 
+  /**
+   * Analyze a PGN and send results to API
+   * @param pgn PGN string to analyze (required)
+   * @param username Optional username for the analysis
+   * @param depth Maximum depth for Stockfish analysis (default: 20)
+   * @param moveTime Time in milliseconds for each position analysis (default: 60000)
+   * @returns Analysis results
+   */
   const proceedAnalysis = useCallback(
     async (
       pgn: string,
@@ -297,3 +314,30 @@ export function useStockfishAnalysis() {
   };
 }
 
+// Example usage in a component:
+// const AnalysisComponent = () => {
+//   const { proceedAnalysis, isAnalyzing, progress, error } = useStockfishAnalysis();
+//   const [pgn, setPgn] = useState('');
+//   const [results, setResults] = useState(null);
+//
+//   const handleAnalyze = async () => {
+//     try {
+//       const analysisResults = await proceedAnalysis(pgn);
+//       setResults(analysisResults);
+//     } catch (err) {
+//       console.error("Analysis failed:", err);
+//     }
+//   };
+//
+//   return (
+//     <div>
+//       <textarea value={pgn} onChange={(e) => setPgn(e.target.value)} placeholder="Paste PGN here" />
+//       <button onClick={handleAnalyze} disabled={isAnalyzing || !pgn}>
+//         {isAnalyzing ? 'Analyzing...' : 'Analyze PGN'}
+//       </button>
+//       {isAnalyzing && <progress value={progress} max="100" />}
+//       {error && <div className="error">{error.message}</div>}
+//       {results && <pre>{JSON.stringify(results, null, 2)}</pre>}
+//     </div>
+//   );
+// };

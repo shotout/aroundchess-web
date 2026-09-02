@@ -72,6 +72,7 @@ const LessonInfoSection: React.FC<LessonInfoSectionProps> = ({
         </p>
       </div>
 
+      {/* Desktop View */}
       <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="shadow-sm">
           <CardHeader className="pb-2">
@@ -96,6 +97,7 @@ const LessonInfoSection: React.FC<LessonInfoSectionProps> = ({
         </Card>
       </div>
 
+      {/* Mobile View */}
       <div className="md:hidden">
         <Accordion key={"primary"} title={getPrimaryLabel()} content={renderSafeList(primaryItems)} />
         <Accordion key={"second"} title={getSecondaryLabel()} content={renderSafeList(secondaryItems)} />

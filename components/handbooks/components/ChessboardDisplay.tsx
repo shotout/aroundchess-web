@@ -47,6 +47,20 @@ const ChessboardDisplay: React.FC<ChessboardDisplayProps> = ({
           position={fenPosition}
           arePiecesDraggable={true}
         />
+        {/* <TwoDChessboard
+          key={`board-${slug}`}
+          position={fenPosition}
+          arePiecesDraggable={true}
+          arePiecesClickable
+          boardWidth={boardSize ?? 0}
+          onPromotionPieceSelect={function (
+            piece?: PromotionPieceOption,
+            promoteFromSquare?: Square,
+            promoteToSquare?: Square
+          ): boolean {
+            throw new Error("Function not implemented.");
+          }}
+        /> */}
       </div>
     </div>
   );

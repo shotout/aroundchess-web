@@ -60,6 +60,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
               </div>
             </div>
 
+            {/* Winning Techniques Section */}
             <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col h-full p-4 gap-y-3">
               <h3 className="text-[14px] --sm md:text-base font-bold">
                 Winning Techniques
@@ -94,6 +95,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
     );
   }
 
+  // For lessons with middlegame data (regardless of category)
   if (hasMiddlegameData) {
     return (
       <motion.div
@@ -105,6 +107,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
       >
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Common Patterns Section */}
             <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col gap-y-3 h-full p-4">
               <h3 className="text-[14px] --sm md:text-base font-bold">
                 Common Patterns
@@ -132,6 +135,7 @@ const PatternsTab: React.FC<PatternsTabProps> = ({ lesson }) => {
               </div>
             </div>
 
+            {/* Tactical Motifs Section */}
             <div className="border rounded-lg shadow-sm overflow-hidden flex flex-col h-full gap-y-3 p-4">
               <h3 className="text-[14px] --sm md:text-base font-bold">
                 Tactical Motifs

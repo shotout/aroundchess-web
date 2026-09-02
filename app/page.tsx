@@ -52,7 +52,7 @@ export default function Home() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("contact") === "true") {
-      setOpen(true);
+      setOpen(true); // Open the contact modal
     }
   }, []);
 

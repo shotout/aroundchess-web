@@ -48,6 +48,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
   };
   return (
     <footer className={cn("bg-[#E6F7FE] py-4", className)}>
+      {/* modal */}
 
       <div className="flex flex-col px-4 md:px-6 lg:px-12 lg:py-2 lg:pt-8">
         <div className="relative flex flex-row items-center bg-[#D9E8F4] border border-[#25CEDA] min-h-[366px] sm:min-h-[205px] w-full rounded-[16px] mb-[64px] ">
@@ -247,6 +248,16 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
                 className="hidden md:block w-[320px] object-contain"
               />
           </div>
+          {/* <div className="hidden sm:flex justify-end">
+            <Image
+              src={"/images/switzerland.png"}
+              alt="made-in-switzerland"
+              quality={100}
+              width={600}
+              height={600}
+              className="w-[140px] h-[96px] sm:w-[286px] sm:h-[96px] object-contain"
+            />
+          </div> */}
         </div>
         
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">

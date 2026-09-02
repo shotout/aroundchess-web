@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Crown, MoreHorizontal, Shield, User } from "lucide-react"
 
+// Mock data - replace with real data from your backend
 const mockMembers = [
   {
     id: 1,
@@ -36,6 +37,7 @@ const mockMembers = [
     image: "https://avatars.githubusercontent.com/u/2345678",
     joinedAt: "2024-01-15",
   },
+  // Add more mock members as needed
 ]
 
 const roleIcons = {

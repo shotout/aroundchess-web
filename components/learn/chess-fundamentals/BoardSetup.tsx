@@ -5,7 +5,7 @@ import { CompleteButton } from '@/components/learn/chess-fundamentals/CompleteBu
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 import { Chess } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import { Chessboard } from 'react-chessboard' // Added missing import
 
 const setupSteps = [
   {

@@ -1,3 +1,4 @@
+// components/InitialAvatar.tsx
 import React, { useMemo } from 'react';
 
 interface InitialAvatarProps {
@@ -13,6 +14,7 @@ const InitialAvatar: React.FC<InitialAvatarProps> = ({
   className = '',
   textColor = 'text-white',
 }) => {
+  // Get initials from name
   const initials = useMemo(() => {
     if (!name) return '?';
     
@@ -27,6 +29,7 @@ const InitialAvatar: React.FC<InitialAvatarProps> = ({
     );
   }, [name]);
 
+  // Generate a consistent color based on the name
   const avatarColor = useMemo(() => {
     if (!name) return 'bg-gray-400';
     
@@ -43,6 +46,7 @@ const InitialAvatar: React.FC<InitialAvatarProps> = ({
       'bg-cyan-500',
     ];
     
+    // Use name to generate a consistent index
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -51,6 +55,7 @@ const InitialAvatar: React.FC<InitialAvatarProps> = ({
     return colors[Math.abs(hash) % colors.length];
   }, [name]);
 
+  // Size classes
   const sizeClasses = {
     sm: 'w-8 h-8 text-[14px] --xs',
     md: 'w-12 h-12 text-[14px] --sm',

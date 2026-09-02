@@ -39,6 +39,7 @@ export function LearningProgressProvider({
   const [progress, setProgress] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Load data from localStorage after initial render
   useEffect(() => {
     const savedSections = localStorage.getItem("chessFundamentalsProgress");
     const savedProgress = localStorage.getItem(
@@ -54,6 +55,7 @@ export function LearningProgressProvider({
     setIsInitialized(true);
   }, []);
 
+  // Update localStorage when sections change, but only after initialization
   useEffect(() => {
     if (!isInitialized) return;
 

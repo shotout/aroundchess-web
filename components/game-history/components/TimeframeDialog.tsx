@@ -32,6 +32,7 @@ export default function TimeframeDialog({ open, setOpen, onSave }: Props) {
 
     useEffect(() => {
         if (open && isMobile && scrollContainerRef.current) {
+            // Delay scroll to ensure content is rendered
             setTimeout(() => {
                 if (scrollContainerRef.current) {
                     scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;

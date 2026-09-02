@@ -92,7 +92,8 @@ export function ChooseDepthAnalyze({
   const [open, setOpen] = useState(false);
   const { sessionId } = useProfileStore();
 
-  const [usernameStatus, setUsernameStatus] = useState("idle");
+  // New states for username validation
+  const [usernameStatus, setUsernameStatus] = useState("idle"); // "idle", "loading", "found", "not-found"
 
   const [debouncedQuery, setDebouncedQuery] = useState(username);
 
@@ -143,6 +144,7 @@ export function ChooseDepthAnalyze({
       );
       setDataAnalysis(responseAnalysis.data);
 
+      // Close the dialog
       setOpen(false);
 
       console.log("responseAnalysis:", responseAnalysis);
@@ -197,9 +199,11 @@ export function ChooseDepthAnalyze({
     setEstimateSecond(basicTime.second);
   }, [pgnParam]);
   const formatTimeToMinutesSeconds = (seconds: number): string => {
+    // Calculate minutes and remaining seconds
     let second = Math.round(seconds / 5) * 5;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.round(second % 60);
+    // Format as "xx minutes xx seconds"
     if (minutes > 0) {
       return `${minutes} minute${
         minutes !== 1 ? "s" : ""
@@ -287,6 +291,7 @@ export function ChooseDepthAnalyze({
                     Analysis can take up to:
                   </span>
                   <span className="font-medium text-[14px] --10px  ">
+                    {/* <span className="font-medium text-[11px] text-[#221AE9] border border-[#221AE9] rounded-[4px] p-[4px]"> */}
                     {estimate}
                   </span>
                 </div>

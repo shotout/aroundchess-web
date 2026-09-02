@@ -54,7 +54,7 @@ export const getLastMoveHighlightStyle = (
     left,
     width: `${squareSize}%`,
     height: `${squareSize}%`,
-    background: color ? color : "rgba(125, 172, 201, 0.5)",
+    background: color ? color : "rgba(125, 172, 201, 0.5)", // Highlight color for last move
     pointerEvents: "none",
     zIndex: 9,
   };
@@ -82,7 +82,7 @@ export const getHintHighlightStyle = (
     left,
     width: `${squareSize}%`,
     height: `${squareSize}%`,
-    background: color ? color : "rgba(255, 0, 0, 0.2)",
+    background: color ? color : "rgba(255, 0, 0, 0.2)", // Light red for hints
     pointerEvents: "none",
     zIndex: 11,
   };
@@ -113,10 +113,10 @@ export const getInvalidMoveHighlightStyle = (
     alignItems: "center",
     justifyContent: "center",
     color: "red",
-    fontSize: "2rem",
+    fontSize: "2rem", // Adjust font size for the red X emoji
     fontWeight: "bold",
     pointerEvents: "none",
     zIndex: 12,
-    content: "\u274C",
+    content: "\u274C", // Unicode for the red X emoji
   };
 };

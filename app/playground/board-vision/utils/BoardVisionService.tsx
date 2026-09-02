@@ -8,6 +8,7 @@ export interface Position {
   black: string;
   url: string;
   username?: string;
+  /** Which side the signed-in player was, resolved once per game. */
   userColor?: "white" | "black";
   whiteProfilePic?: string;
   blackProfilePic?: string;
@@ -17,14 +18,32 @@ export interface Position {
 export interface QuizGame {
   pgn: string;
   username: string;
+  /** "white"/"black" from the game-history row — the reliable signal for which
+   *  side the player was (see resolveUserSide). */
   playerColor?: string;
+  /** The opponent's name from the same row, used when colour is missing. */
   opponent?: string;
+  /** The opponent's rating from the same row — vs-AI and uploaded PGNs carry no
+   *  Elo headers, so this is the only rating those games have. */
   rating?: string | number;
 }
 
 const sameName = (a?: string, b?: string) =>
   !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
 
+/**
+ * Which side of a game the signed-in player was.
+ *
+ * The PGN names alone can't answer this: `username` on a game-history row is
+ * not always the player's name in that game's headers (app-generated PGNs carry
+ * the account's display name, imports carry whatever handle the file used, and
+ * an empty field falls back to the connected chess.com handle — which can even
+ * match the opponent). Getting it wrong swaps the two player rows and flips the
+ * board, so trust the row's own `color` first, then the opponent's name, and
+ * only then fall back to matching the username.
+ *
+ * Returns null when nothing resolves, so callers keep their previous behaviour.
+ */
 export function resolveUserSide(
   white: string,
   black: string,
@@ -103,6 +122,8 @@ export const ChessService = {
       userCountry?: string;
       opponentCountry?: string;
     },
+    /** The game-history row's own fields, used to resolve the player's side and
+     *  to fill in a rating the PGN never carried. */
     record?: { playerColor?: string; opponent?: string; rating?: string | number }
   ): Promise<Position[]> {
     try {
@@ -139,12 +160,16 @@ export const ChessService = {
         white = headers.White || username;
         black = headers.Black || profileInfo?.opponentName || "Opponent";
         url = headers.Site || "#";
+        // Shown on the player rows next to each name.
         whiteElo = headers.WhiteElo || undefined;
         blackElo = headers.BlackElo || undefined;
       } catch (e) {
         console.error("Error extracting PGN headers:", e);
       }
 
+      // Which side the player was — from the game record, not the raw username
+      // (see resolveUserSide). Everything else on the row follows from it: the
+      // player's name, the opponent's name, and which picture belongs where.
       const userColor = resolveUserSide(
         white,
         black,
@@ -161,6 +186,9 @@ export const ChessService = {
             ? white
             : profileInfo?.opponentName || record?.opponent || black;
 
+      // vs-AI games and uploaded PGNs usually carry no WhiteElo/BlackElo header,
+      // which left both player rows without a rating. The game-history row knows
+      // the opponent's, so fill that side in when the header is silent.
       const recordRating =
         record?.rating !== undefined &&
         record?.rating !== null &&
@@ -221,6 +249,10 @@ export const ChessService = {
               continue;
             }
 
+            // getUserGameFromPgn resolves the player's side (colour first, then
+            // the row's opponent, then the username) and names both rows from
+            // it, so the opponent it reports is the one used for grouping below
+            // — this loop no longer second-guesses it from the headers.
             const positions = await this.getUserGameFromPgn(
               pgn,
               username,
@@ -285,10 +317,13 @@ export const ChessService = {
             }
           }
 
+          // Take only up to 10 positions
           selectedPositions = selectedPositions.slice(0, 10);
 
+          // Shuffle final selection for randomness in quiz order
           resolve(shuffle(selectedPositions));
         } else {
+          // Just use regular selection if we don't have enough variety
           const shuffledPositions = shuffle(allPositions);
           resolve(
             shuffledPositions.slice(0, Math.min(10, shuffledPositions.length))

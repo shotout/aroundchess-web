@@ -45,6 +45,7 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
       <h3 className="text-lg font-semibold">Position-Specific Analysis</h3>
       
       <div className="grid gap-4 md:grid-cols-2">
+        {/* Piece Activity */}
         <Card className="p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Swords className="h-5 w-5 text-blue-500" />
@@ -72,6 +73,7 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
           </div>
         </Card>
 
+        {/* Pawn Structure */}
         <Card className="p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Castle className="h-5 w-5 text-green-500" />
@@ -104,6 +106,7 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
           </div>
         </Card>
 
+        {/* King Safety */}
         <Card className="p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-yellow-500" />
@@ -136,6 +139,7 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
           </div>
         </Card>
 
+        {/* Space Advantage */}
         <Card className="p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Target className="h-5 w-5 text-purple-500" />
@@ -166,6 +170,7 @@ export function PositionAnalysis({ metrics }: PositionAnalysisProps) {
           </div>
         </Card>
 
+        {/* Key Squares */}
         <Card className="p-4 space-y-3 md:col-span-2">
           <div className="flex items-center gap-2">
             <Crown className="h-5 w-5 text-red-500" />

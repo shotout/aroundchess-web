@@ -59,6 +59,7 @@ export function ChooseColor() {
                   variant={"outline"}
                   onClick={() => {
                     updateComputer("white");
+                    // Computer will move automatically due to the useEffect in ComputerChessBoard
                   }}
                 >
                   <Image

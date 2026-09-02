@@ -13,6 +13,11 @@ export default function PageHeader({ activeTab, viewState }: PageHeaderProps) {
       <div className=" text-[14px] --sm lg:text-2xl font-bold text-gray-800">
         {activeTab === "board" ? (
           <></>
+          // <div className="flex justify-center md:justify-start items-center">
+          //   <Image src={"/images/choose-board.svg"} alt="Choose board icon" width={24} height={24} className="md:hidden mr-2" />
+          //   <AlertCircle className="mr-2 hidden md:block" />
+          //   <h1>Choose your board presentation :</h1>
+          // </div>
         ) : (
           <div className="flex justify-center md:justify-start items-center">
             <Image

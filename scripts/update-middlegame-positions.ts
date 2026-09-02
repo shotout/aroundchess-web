@@ -12,6 +12,7 @@ const __dirname = path.dirname(__filename);
 
 const MIDDLEGAME_DIR = path.join(__dirname, '../app/dashboard/learning/middlegame');
 
+// Function to update a single page
 function updatePage(pagePath: string, position: string) {
   if (!fs.existsSync(pagePath)) {
     console.log(`Page not found: ${pagePath}`);
@@ -20,6 +21,7 @@ function updatePage(pagePath: string, position: string) {
 
   let content = fs.readFileSync(pagePath, 'utf8');
   
+  // Update the FEN position
   content = content.replace(
     /const\s+initialPosition\s*=\s*['"].*?['"]/,
     `const initialPosition = '${position}'`
@@ -29,6 +31,7 @@ function updatePage(pagePath: string, position: string) {
   console.log(`Updated ${pagePath}`);
 }
 
+// Update all pages
 Object.entries(middlegamePositions).forEach(([topic, position]) => {
   const pagePath = path.join(MIDDLEGAME_DIR, topic, 'page.tsx');
   updatePage(pagePath, position);

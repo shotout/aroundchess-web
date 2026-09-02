@@ -306,6 +306,7 @@ export function AnalyzeGameDialog({
         className="w-full mx-auto rounded-lg max-w-sm md:max-w-xl bg-white overflow-y-auto max-h-[95%]"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Header */}
         <div className="p-4 border-b">
           <h2 className="text-xl font-semibold">Analyze your games</h2>
           <p className="text-[14px] --sm text-black mt-2">
@@ -315,7 +316,9 @@ export function AnalyzeGameDialog({
           </p>
         </div>
 
+        {/* Content */}
         <div className="p-4">
+          {/* Custom Tabs */}
           <div className="w-full mb-4">
             <div className="grid w-full grid-cols-2 bg-[#DEDEDE] p-1 rounded-md">
               <button
@@ -340,6 +343,7 @@ export function AnalyzeGameDialog({
             </div>
           </div>
 
+          {/* Tab Content */}
           {activeTab === "auto" && (
             <div className="space-y-4">
               <div className="space-y-2">
@@ -389,6 +393,7 @@ export function AnalyzeGameDialog({
                 <p className="block text-base sm:text-[14px] --sm text-black">
                   Select Game
                 </p>
+                {/* Custom Select */}
                 <div className="relative">
                   <select
                     disabled={usernameStatus !== "found"}

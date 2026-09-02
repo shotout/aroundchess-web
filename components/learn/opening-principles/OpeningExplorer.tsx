@@ -69,6 +69,7 @@ export function OpeningExplorer() {
   }
 
   const handleCustomFen = () => {
+    // In a real application, you would validate the FEN string here
     setCurrentOpening(customFen)
   }
 

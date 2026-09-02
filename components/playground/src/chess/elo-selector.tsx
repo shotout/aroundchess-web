@@ -76,6 +76,7 @@ export function ELOSelector() {
           </div>
         </div>
 
+        {/* Add Tournament Mode Toggle */}
         <TournamentModeToggle />
       </div>
     </div>

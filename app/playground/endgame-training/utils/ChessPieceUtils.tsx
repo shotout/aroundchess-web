@@ -52,16 +52,17 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   if (count > 1) {
     return (
       <div
-        className="flex space-x-0"
+        className="flex space-x-0" // Changed from space-x-1 to space-x-0
         style={{
           display: "inline-flex",
           alignItems: "flex-end",
-          margin: "0 2px",
+          margin: "0 2px", // Reduced margin from 4px to 2px
         }}
       >
         {Array.from({ length: count }).map((_, index) => (
           <div key={index} className="inline-block px-0.5">
             {" "}
+            {/* Changed from px-1 to px-0.5 */}
             <Image
               src={imagePath}
               alt={`${type} chess piece`}
@@ -78,6 +79,7 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   return (
     <div className="inline-block px-0.5">
       {" "}
+      {/* Changed from px-1 to px-0.5 */}
       <Image
         src={imagePath}
         alt={`${type} chess piece`}
@@ -180,7 +182,7 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
   const parsedPieces = parsePiece(subcategoryName);
 
   const configs: Record<string, PieceConfig> = {
-    "Queen": {
+    "Queen": { // "Queen and King": {
       text: "Queen, King <span class='font-bold'>VS</span> King",
       pieces: [
         { type: "queen", color: "text-blue-500" },
@@ -189,7 +191,7 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
         { type: "king", color: "text-indigo-700" },
       ],
     },
-    "Rook": {
+    "Rook": { // "Rook and King": {
       text: "Rook, King <span class='font-bold'>VS</span> King",
       pieces: [
         { type: "rook", color: "text-blue-500" },
@@ -198,7 +200,7 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
         { type: "king", color: "text-indigo-700" },
       ],
     },
-    "Two Rooks": {
+    "Two Rooks": { // "Two Rooks and King": {
       text: "Rook, Rook, King <span class='font-bold'>VS</span> King",
       pieces: [
         { type: "rook", color: "text-blue-500", count: 2 },
@@ -248,6 +250,7 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
 
     if (vsIndex >= 0) {
       const leftPieces = parsedPieces.slice(0, vsIndex);
+      // We'll ignore rightPieces except for the king
 
       const leftWithoutKing = leftPieces.filter((p) => p.type !== "king");
 
@@ -267,6 +270,7 @@ export const getPieceConfig = (subcategoryName: string): PieceConfig => {
 
       finalPieces.push({ type: "vs", color: "text-blue-500" });
 
+      // Only add the black king, ignore other black pieces
       finalPieces.push({
         type: "king",
         color: "text-indigo-700",

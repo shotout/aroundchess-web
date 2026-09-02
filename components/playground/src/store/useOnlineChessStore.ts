@@ -37,11 +37,13 @@ const useOnlineChessStore = create<OnlineChessStore>((set, get) => ({
     gameState: { ...state.gameState, ...gameState }
   })),
   isValidMove: (fromRow, fromCol, toRow, toCol) => {
+    // Basic validation - can be expanded based on chess rules
     return true;
   },
   movePiece: (fromRow, fromCol, toRow, toCol) => {
     const state = get();
     if (state.isValidMove(fromRow, fromCol, toRow, toCol)) {
+      // Implement move logic here
       return true;
     }
     return false;

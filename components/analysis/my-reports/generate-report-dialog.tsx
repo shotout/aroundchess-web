@@ -37,6 +37,7 @@ export function GenerateReportDialog({
   const [format, setFormat] = useState("pdf")
 
   const handleGenerate = () => {
+    // Implement report generation logic
     onOpenChange(false)
   }
 

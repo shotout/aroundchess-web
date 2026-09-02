@@ -144,8 +144,8 @@ export const PremiumSubsContent: React.FC<{
     useApiClient();
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen } = useContactUs();
-  const [packageFilter, setPackageFilter] = useState(initialFilter);
-  const [paySelected, setPaySelected] = useState("");
+  const [packageFilter, setPackageFilter] = useState(initialFilter); // monthly, yearly
+  const [paySelected, setPaySelected] = useState(""); // monthly, yearly
   const [isMobile, setIsMobile] = useState(false);
   const handleOpenContactUs = () => {
     setOpenPricing(false);
@@ -189,6 +189,7 @@ export const PremiumSubsContent: React.FC<{
   const monthlyDiscounted = Math.round(9.99 * marchMultiplier * 100) / 100;
   const yearlyDiscounted = Math.round(79.99 * marchMultiplier * 100) / 100;
 
+  // Ensure we have membership packages loaded (fallback to API if needed)
   const resolveMembershipPackages = async () => {
     let packagesArray: any[] = [];
 
@@ -201,6 +202,7 @@ export const PremiumSubsContent: React.FC<{
       packagesArray = Object.values(allMembershipPackages);
     }
 
+    // If nothing in store, fetch from backend
     if (!packagesArray.length) {
       try {
         const response = await getAllMembershipPackage({});
@@ -287,6 +289,9 @@ export const PremiumSubsContent: React.FC<{
     }
     setParamsPayment(body);
     trackCustomEvent("InitiateCheckoutSubscription", body);
+    // A checkout that doesn't come back with a URL — failed 200 body, or a
+    // thrown request — used to read `res.data.url` off nothing and take the page
+    // down. Report the shared payment line instead and log the detail.
     try {
       const res = await checkoutSessions(body);
       if (res?.data?.url) {
@@ -307,16 +312,21 @@ export const PremiumSubsContent: React.FC<{
     } finally {
       setPaySelected("");
     }
+    // const data = await res.json();
+    // const stripe = await stripePromise;
+    // await stripe?.redirectToCheckout({ sessionId: data.id });
   };
   const handleSignUp = () => {
     window.location.href = "/register";
   };
 
+  // refs to detect which package card is centered in the horizontal scroll
   const containerRef = useRef<HTMLDivElement | null>(null);
   const monthlyCardRef = useRef<HTMLDivElement | null>(null);
   const freeCardRef = useRef<HTMLDivElement | null>(null);
   const yearlyCardRef = useRef<HTMLDivElement | null>(null);
 
+  // on scroll detect which card is nearest to the container center and set the filter
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !isMobile) return;
@@ -353,6 +363,8 @@ export const PremiumSubsContent: React.FC<{
           }
         });
 
+        // Only update filter if it's different - this helps with button highlighting
+        // but doesn't affect which cards are shown on mobile
         if (closestKey !== null && closestKey !== packageFilter) {
           setPackageFilter(closestKey);
         }
@@ -367,6 +379,7 @@ export const PremiumSubsContent: React.FC<{
     };
   }, [packageFilter, isMobile]);
 
+  // helper to scroll a card into center of the container and set the packageFilter
   const scrollToAndSet = (
     ref: React.RefObject<HTMLDivElement>,
     key: "monthly" | "yearly"
@@ -385,6 +398,7 @@ export const PremiumSubsContent: React.FC<{
       containerRect.left -
       (containerRect.width / 2 - nodeRect.width / 2);
 
+    // animate scroll
     container.scrollTo({
       left: container.scrollLeft + offset,
       behavior: "smooth",
@@ -482,6 +496,7 @@ export const PremiumSubsContent: React.FC<{
         className={`flex w-[84vw] md:w-auto md:min-w-[320px] mx-auto overflow-x-scroll gap-4 pt-[8px] lg:overflow-x-hidden sm:grid sm:gap-4 sm:grid-cols-2 snap-x snap-mandatory scroll-smooth`}
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
+        {/* free */}
         {(isMobile || packageFilter === "monthly") && (
           <div
             ref={freeCardRef}
@@ -554,10 +569,16 @@ export const PremiumSubsContent: React.FC<{
           </div>
         )}
         
+        {/* monthly */}
         {(isMobile ||
           packageFilter === "monthly" ||
           packageFilter === "yearly") && (
           <div ref={monthlyCardRef} className="w-[84vw] md:w-auto md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#130F83] to-[#00FFBB] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
+            {/* <div className="absolute -top-2 left-0 right-0 flex justify-center">
+              <div className="bg-[#A855F7] px-3 py-1 rounded-full text-[14px] --xs font-medium">
+                For frequent Chess Players
+              </div>
+            </div> */}
 
             {!isMemberMonthly &&
               profile?.discountInfo?.hasActiveDiscount &&
@@ -701,6 +722,7 @@ export const PremiumSubsContent: React.FC<{
           </div>
         )}
 
+        {/* yearly */}
         {(isMobile || packageFilter === "yearly") && (
           <div ref={yearlyCardRef}
             className="w-[84vw] md:w-auto md:min-w-[320px] lg:min-w-full bg-gradient-to-br from-[#221AE9] to-[#25CEDA] text-white p-4 md:order-none rounded-xl shadow-md relative flex flex-col snap-center flex-shrink-0">
@@ -709,6 +731,14 @@ export const PremiumSubsContent: React.FC<{
                 For frequent Chess Players
               </div>
             </div>
+
+            {/* {!isMember &&
+            profile?.discountInfo?.hasActiveDiscount &&
+            isPass > 0 && (
+            <div className="flex justify-center items-center my-2">
+              <CountdownTimerDiscount />
+            </div>
+            )} */}
 
             <div className="flex items-center gap-3 mb-3 pt-1">
               <div className="p-1 rounded-full">

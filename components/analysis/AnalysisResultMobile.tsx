@@ -105,11 +105,13 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
 
   useEffect(() => {
     if (summary && username) {
+      // Set default orientation to user's color so they start at bottom
       setOrientation(defaultUserOrientation);
       setBoardOrientation(defaultUserOrientation);
     }
   }, [summary, username, defaultUserOrientation]);
 
+  // Sync orientation with boardOrientation so player is always at bottom
   useEffect(() => {
     setOrientation(boardOrientation);
   }, [boardOrientation]);
@@ -148,6 +150,7 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
 
   const parsePgn = (pgnText: string): boolean => {
     try {
+      // console.log("parsePgn", pgnText);
       const tempGame = new Chess();
       tempGame.loadPgn(pgnText);
 
@@ -341,11 +344,14 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { /// INI DIPAHAMI
     if (chessMove.index != null) {
       const colorIndex = chessMove.type == "black" ? 1 : 0;
       let indexOf = chessMove.index * 2 + colorIndex;
+      // console.log("indexOf", indexOf);
       const data = parsedMoves[indexOf];
+      // console.log("parsedMoves", parsedMoves);
+      // console.log("data move", data);
       if (data != null) {
         setCurrentMoveIndex(parsedMoves.indexOf(data) + 1);
         setCurrentMove(parsedMoves.indexOf(data) + 1);
@@ -355,6 +361,8 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
       const data = parsedMoves.filter(
         (i) => i.san == chessMove.move && i.color == color
       );
+      // console.log("parsedMoves", parsedMoves);
+      // console.log("data move", data);
       if (data.length > 0) {
         setCurrentMoveIndex(parsedMoves.indexOf(data[0]) + 1);
         setCurrentMove(parsedMoves.indexOf(data[0]) + 1);
@@ -662,6 +670,7 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
     }
   }, [handleHeightChange, refWrap]);
 
+  // Set chessboard ref in store for scroll functionality
   useEffect(() => {
     if (refWrap.current) {
       setChessboardRef(refWrap.current);
@@ -674,6 +683,10 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
       id="chessboard-container"
       ref={refWrap}
       className={`flex justify-center gap-4 bg-[#E6F7FE] py-4 px-4 mt-[-16px] ml-[-16px] z-10 w-[calc(100vw)]`}
+      // className={`${
+      //   hideDiv &&
+      //   "fixed top-24 left-0 right-0 w-full z-10 border-b border-b-input"
+      // } flex justify-center gap-4 bg-white pb-4`}
     >
       <div className="w-full flex flex-col gap-4">
         <div className="w-full flex flex-col gap-4">
@@ -710,6 +723,7 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
                 arePiecesClickable={false}
                 arePiecesDraggable={false}
                 boardWidth={
+                  // hideDiv ? boardSize - 80 : 
                   is3DMode ? boardSize : boardSize
                 }
                 orientation={orientation}
@@ -759,6 +773,7 @@ const AnalysisResultMobile = ({handleHeightChange}: {handleHeightChange: (height
               <TwoDChessboard
                 arePiecesClickable={false}
                 boardWidth={
+                  // hideDiv ? boardSize - 80 :
                    is3DMode ? boardSize : boardSize
                 }
                 arePiecesDraggable={false}

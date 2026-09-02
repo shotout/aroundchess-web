@@ -35,12 +35,14 @@ function ResetPassword() {
 
   return (
     <div className="min-h-screen flex flex-col relative">
+      {/* Background */}
       <div className="absolute inset-0 -z-10 bg-cover mb-48">
         <Image fill src={"/images/auth-background.png"} className="" alt={""} />
       </div>
 
       <SiteHeaderNew />
 
+      {/* Main Content */}
       <main className="flex-grow flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md xl:max-w-[668px] z-10 bg-white/20 backdrop-blur-lg rounded-xl shadow-xl border border-white/30 p-8">
           <div className="flex items-center mb-6">
@@ -104,6 +106,7 @@ function ResetPassword() {
               <div className="mb-6">
                 <div className="flex justify-center my-6">
                   <div className="relative w-32 h-32 flex items-center justify-center">
+                    {/* Success icon with background */}
                     <div className="absolute inset-0 bg-green-100 rounded-full opacity-30"></div>
                     <div className="z-10">
                       <CheckCircle className="h-16 w-16 text-green-500" />

@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 
+// Progress Components - to be implemented
 import { ProgressDashboard } from "@/components/analysis/my-progress/progress-dashboard"
 import { SkillDistribution } from "@/components/analysis/my-progress/skill-distribution"
 import { ProgressTimeline } from "@/components/analysis/my-progress/progress-timeline"
@@ -58,6 +59,7 @@ export default function ProgressPage() {
         </div>
       </div>
 
+      {/* Progress Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">
           <div className="flex items-center space-x-2">

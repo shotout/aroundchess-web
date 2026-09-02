@@ -15,7 +15,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 bg-black/30" /> {/* Overlay for better text contrast */}
       </div>
       <div className="flex items-center justify-center p-8 lg:p-12">
         {children}

@@ -23,6 +23,7 @@ export function ChessTheme() {
   const { setPieceTheme, pieceTheme, boardTheme, setBoardTheme } =
     useThemeStore((state) => state);
 
+  // Function to determine current theme
   const getCurrentTheme = () => {
     if (boardTheme.light === defaultBoardTheme.light) return "default";
     if (boardTheme.light === greenWhiteBoardTheme.light) return "green-white";

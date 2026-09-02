@@ -27,6 +27,7 @@ export function MainDashboard() {
       return
     }
 
+    // TODO: Add your filter logic here
     toast.success("Filtering data...")
   }
 
@@ -37,6 +38,7 @@ export function MainDashboard() {
         <p className="text-muted-foreground">Here's your comprehensive chess performance overview</p>
       </div>
 
+      {/* Date Range */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <div className="w-full">
           <p className="text-[14px] --sm text-muted-foreground mb-2">Start Date</p>
@@ -90,31 +92,37 @@ export function MainDashboard() {
         </div>
       </div>
 
+      {/* Statistics Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Overall Statistics */}
         <Card>
           <CardHeader>
             <CardTitle>Overall Statistics</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
+              {/* Total Games */}
               <div className="rounded-lg border bg-card p-4">
                 <p className="text-[14px] --sm text-muted-foreground">Total Games</p>
                 <p className="text-3xl font-bold mt-2">0</p>
                 <p className="text-[14px] --xs text-muted-foreground mt-1">Lifetime matches</p>
               </div>
 
+              {/* Win Rate */}
               <div className="rounded-lg border bg-card p-4">
                 <p className="text-[14px] --sm text-muted-foreground">Win Rate</p>
                 <p className="text-3xl font-bold text-green-500 mt-2">0.00%</p>
                 <p className="text-[14px] --xs text-muted-foreground mt-1">Victory percentage</p>
               </div>
 
+              {/* Average Rating */}
               <div className="rounded-lg border bg-card p-4">
                 <p className="text-[14px] --sm text-muted-foreground">Average Rating</p>
                 <p className="text-3xl font-bold text-blue-500 mt-2">0</p>
                 <p className="text-[14px] --xs text-muted-foreground mt-1">Current performance</p>
               </div>
 
+              {/* Best Rating */}
               <div className="rounded-lg border bg-card p-4">
                 <p className="text-[14px] --sm text-muted-foreground">Best Rating</p>
                 <p className="text-3xl font-bold text-purple-500 mt-2">N/A</p>
@@ -124,6 +132,7 @@ export function MainDashboard() {
           </CardContent>
         </Card>
 
+        {/* Win Rate Chart */}
         <Card>
           <CardHeader>
             <CardTitle>Win Rate</CardTitle>
@@ -135,6 +144,7 @@ export function MainDashboard() {
           </CardContent>
         </Card>
 
+        {/* Game Types */}
         <Card>
           <CardHeader>
             <CardTitle>Game Types</CardTitle>
@@ -147,6 +157,7 @@ export function MainDashboard() {
         </Card>
       </div>
 
+      {/* Rating History */}
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Rating History</CardTitle>
@@ -158,8 +169,11 @@ export function MainDashboard() {
         </CardContent>
       </Card>
 
+      {/* Bottom Grid */}
       <div className="grid grid-cols-12 gap-6 mb-64">
+        {/* Left Column - 70% */}
         <div className="col-span-12 lg:col-span-8 space-y-6">
+          {/* Recent Games */}
           <Card className="w-full">
             <CardHeader>
               <CardTitle>Recent Games</CardTitle>
@@ -169,6 +183,7 @@ export function MainDashboard() {
             </CardContent>
           </Card>
 
+          {/* Chess News */}
           <Card className="w-full">
             <CardHeader>
               <CardTitle>Chess News</CardTitle>
@@ -179,7 +194,9 @@ export function MainDashboard() {
           </Card>
         </div>
 
+        {/* Right Column - 30% */}
         <div className="col-span-12 lg:col-span-4 space-y-6">
+          {/* Tactics & Puzzles */}
           <Card className="w-full">
             <CardHeader>
               <CardTitle>Tactics & Puzzles</CardTitle>
@@ -189,6 +206,7 @@ export function MainDashboard() {
             </CardContent>
           </Card>
 
+          {/* Daily Tips */}
           <Card className="w-full">
             <CardHeader>
               <CardTitle>Daily Tips</CardTitle>

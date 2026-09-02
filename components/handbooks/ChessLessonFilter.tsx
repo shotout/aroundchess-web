@@ -41,6 +41,20 @@ const ChessLessonFilter: React.FC<ChessLessonFilterProps> = ({
         />
       </div>
 
+      {/* <div className="w-full md:w-[40%] xl:w-auto 2xl:w-[40%] flex justify-between gap-x-1 xl:gap-x-2">
+        {difficulties.map((difficulty) => (
+          <button
+            key={difficulty}
+            className={`flex-1 border rounded-md md:flex-initial md:px-6 xl:px-12 h-10 flex items-center justify-center text-[14px] --xs lg:text-[14px] --sm whitespace-nowrap overflow-hidden ${
+              difficultyFilter === difficulty ? "bg-blue-base text-white" : ""
+            }`}
+            onClick={() => handleDifficultyChange(difficulty)}
+            disabled={isFiltering}
+          >
+            {difficulty}
+          </button>
+        ))}
+      </div> */}
     </div>
   );
 };

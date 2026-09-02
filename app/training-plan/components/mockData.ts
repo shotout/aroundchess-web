@@ -91,6 +91,7 @@ export const skillLevelsData: SkillLevel[] = [
   },
 ];
 
+// Goals data
 export const goalsData: Goal[] = [
   {
     id: "goal1",
@@ -102,11 +103,13 @@ export const goalsData: Goal[] = [
   }
 ];
 
+// Duration data
 export const durationData: Duration = {
   text: "Avg. Time to Invest Daily:",
   value: "~80 mins"
 };
 
+// Training Plan Key Info
 export const trainingPlanKeyInfo = {
   keyToReachNextLevel: "Continued practice with improved openings and deeper study of middlegame and endgame concepts will gradually raise your play.",
   approximateDuration: "6-9 Months"

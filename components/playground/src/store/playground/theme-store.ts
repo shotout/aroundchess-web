@@ -35,6 +35,7 @@ export const useThemeStore = create(
     {
       name: 'theme-store',
       onRehydrateStorage: () => (state) => {
+        // Ensure default theme is set
         if (!state) {
           return;
         }

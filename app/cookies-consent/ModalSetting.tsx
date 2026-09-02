@@ -11,14 +11,14 @@ export function ModalSetting() {
   }, [open]);
 
   const [settings, setSettings] = useState({
-    essential: true,
+    essential: true, // Always enabled
     marketing: true,
     functional: true,
     analytics: true,
   });
 
   const toggleSetting = (key: string) => {
-    if (key === "essential") return;
+    if (key === "essential") return; // Essential cookies can't be disabled
     setSettings((prev: any) => ({
       ...prev,
       [key]: !prev[key],
@@ -31,6 +31,7 @@ export function ModalSetting() {
     setSetting(settings);
     setOpen(false);
     window.location.reload()
+    // Here you would typically save to localStorage or send to your backend
   };
 
   return (
@@ -44,6 +45,7 @@ export function ModalSetting() {
           </div>
         </DialogHeader>
         <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(80vh-200px)]">
+          {/* Essential Cookies */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900">Essential Cookies</h3>
@@ -60,6 +62,7 @@ export function ModalSetting() {
             </p>
           </div>
 
+          {/* Marketing Cookies */}
           <div className="space-y-3 pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900">
@@ -89,6 +92,7 @@ export function ModalSetting() {
             </p>
           </div>
 
+          {/* Functional Cookies */}
           <div className="space-y-3 pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900">
@@ -117,6 +121,7 @@ export function ModalSetting() {
             </p>
           </div>
 
+          {/* Analytics Cookies */}
           <div className="space-y-3 pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900">
@@ -146,6 +151,7 @@ export function ModalSetting() {
           </div>
         </div>
 
+        {/* Footer */}
         <div className="p-6 border-t border-gray-200">
           <button
             onClick={handleSaveChanges}

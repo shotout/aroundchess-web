@@ -60,6 +60,7 @@ export async function handleDrawAccept(gameId: string) {
       },
     });
 
+    // Use the stats service instead
     await incrementDraws();
 
     await pusherServer.trigger(`game-${gameId}`, "draw-accepted", {});

@@ -38,6 +38,7 @@ export function LayoutDialog({
   const [rememberLayout, setRememberLayout] = useState(false)
 
   const handleApply = () => {
+    // Implement layout change logic
     onOpenChange(false)
   }
 

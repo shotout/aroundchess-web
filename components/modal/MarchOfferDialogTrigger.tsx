@@ -19,6 +19,9 @@ export function MarchOfferDialogTrigger() {
   const isEligibleRoute = pathname === "/analysis" || pathname === "/my-game-history";
   const isMember = useHasMembership();
 
+  // Members have nothing to buy here. The membership call can land after the
+  // dialog opened, so close it as soon as we know rather than only gating the
+  // initial show.
   useEffect(() => {
     if (isMember && open) {
       setOpen(false);
@@ -52,6 +55,8 @@ export function MarchOfferDialogTrigger() {
 
       isModalShown = true;
 
+      // Re-checked at fire time: the membership call may have resolved during
+      // the delay. Drop the pending flag either way so it can't fire later.
       if (hasMembership()) {
         window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
         return;

@@ -27,7 +27,7 @@ export function ImportDropzone({ onAnalyze }: ImportDropzoneProps) {
     accept: {
       "application/x-chess-pgn": [".pgn"],
     },
-    maxSize: 5 * 1024 * 1024,
+    maxSize: 5 * 1024 * 1024, // 5MB
     maxFiles: 1,
   })
 

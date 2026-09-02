@@ -12,8 +12,10 @@ export const promotePawn = (
 ): typePromotePawn | null => {
   const piece = board[fromRow][fromCol];
   
+  // Check if it's a pawn
   if (piece !== (currentPlayer === "white" ? "P" : "p")) return null;
   
+  // Check if white pawn reaches the top rank (row 0)
   if (currentPlayer === "white" && toRow === 0) {
     return {
       row: toRow,
@@ -22,6 +24,7 @@ export const promotePawn = (
     };
   }
   
+  // Check if black pawn reaches the bottom rank (row 7)
   if (currentPlayer === "black" && toRow === 7) {
     return {
       row: toRow,

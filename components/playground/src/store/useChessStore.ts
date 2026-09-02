@@ -48,6 +48,7 @@ interface ChessState {
   targetELO: number;
   setTargetELO: (elo: number) => void;
   
+  // Methods
   movePiece: (fromRow: number, fromCol: number, toRow: number, toCol: number) => boolean;
   isValidMove: (fromRow: number, fromCol: number, toRow: number, toCol: number) => boolean;
   promotePawn: (row: number, col: number, newPiece: string) => void;
@@ -95,6 +96,7 @@ export const useChessStore = create(
       targetELO: 1500,
       setTargetELO: (elo) => set((state) => ({ ...state, targetELO: elo })),
 
+      // Action to move a piece
       movePiece: (fromRow, fromCol, toRow, toCol) => {
         const { board, currentPlayer, isValidMove, lastMove, computer } = get();
         const state = get();
@@ -104,15 +106,18 @@ export const useChessStore = create(
         const piece = newBoard[fromRow][fromCol];
         let capturedPiece = null;
 
+        // Handle regular captures
         if (newBoard[toRow][toCol]) {
           capturedPiece = newBoard[toRow][toCol];
         }
 
+        // Handle en passant captures
         if (lastMove && CheckEnpassant(newBoard, { fromRow, fromCol, toRow, toCol }, lastMove)) {
           capturedPiece = newBoard[lastMove.toRow][lastMove.toCol];
           newBoard[lastMove.toRow][lastMove.toCol] = null;
         }
 
+        // Make the move
         newBoard[toRow][toCol] = piece;
         newBoard[fromRow][fromCol] = null;
 
@@ -121,12 +126,14 @@ export const useChessStore = create(
           OpponentKingCheck = true;
         }
 
+        // Handle captured pieces
         const newEliminatedPieces = { ...state.eliminatedPieces };
         if (capturedPiece) {
           const captureColor = capturedPiece === capturedPiece.toUpperCase() ? 'white' : 'black';
           newEliminatedPieces[captureColor] = [...newEliminatedPieces[captureColor], capturedPiece];
         }
 
+        // Update rook moved state for castling
         if (piece?.toUpperCase() === 'R') {
           const isWhite = piece === 'R';
           const isLeftRook = fromCol === 0;
@@ -146,16 +153,19 @@ export const useChessStore = create(
           }
         }
 
+        // Handle castling move
         if (piece?.toUpperCase() === 'K' && Math.abs(toCol - fromCol) === 2) {
           const isKingside = toCol === 6;
           const row = currentPlayer === 'white' ? 7 : 0;
           const rookFromCol = isKingside ? 7 : 0;
           const rookToCol = isKingside ? 5 : 3;
           
+          // Move the rook
           newBoard[row][rookToCol] = newBoard[row][rookFromCol];
           newBoard[row][rookFromCol] = null;
         }
 
+        // Update state immediately
         set({
           board: newBoard,
           currentPlayer: currentPlayer === "white" ? "black" : "white",
@@ -172,6 +182,7 @@ export const useChessStore = create(
 
         playMoveSound();
 
+        // Save state after update
         get().saveMove(JSON.stringify({
           ...state,
           board: newBoard,
@@ -190,6 +201,7 @@ export const useChessStore = create(
         return true;
       },
 
+      // Check if the move is valid
       isValidMove: (fromRow, fromCol, toRow, toCol) => {
         const { board, currentPlayer, kingCheckOrMoved, rookMoved } = get();
         if (
@@ -227,18 +239,21 @@ export const useChessStore = create(
         return temp;
       },
 
+      // Promote Pawn
       promotePawn: (row, col, newPiece) => {
         const { board, currentPlayer } = get();
         const newBoard = board.map((row) => [...row]);
         
+        // Ensure proper case for the promoted piece
         const promotedPiece = currentPlayer === "black" 
           ? newPiece.toLowerCase() 
           : newPiece.toUpperCase();
         
         newBoard[row][col] = promotedPiece;
 
+        // Update the state with all necessary fields
         set((state) => ({
-          ...state,
+          ...state, // Preserve other state
           board: newBoard,
           canPromotePawn: null,
           lastMove: {
@@ -248,19 +263,21 @@ export const useChessStore = create(
             toRow: row,
             toCol: col
           },
-          movingPiece: null,
+          movingPiece: null, // Reset moving piece
           isKingInCheck: isKingInCheck(newBoard as (PieceType | null)[][], currentPlayer)
             ? currentPlayer === "white"
               ? "white"
               : "black"
             : "noCheck",
-          currentPlayer: currentPlayer === "white" ? "black" : "white",
-          historyIndex: state.historyIndex + 1
+          currentPlayer: currentPlayer === "white" ? "black" : "white", // Switch player after promotion
+          historyIndex: state.historyIndex + 1 // Increment history index
         }));
 
+        // Play move sound for better user feedback
         playMoveSound();
       },
 
+      // Save state of the board
       saveMove: async (nextState: string) => {
         const state = JSON.parse(nextState);
         const db = await getDB();
@@ -363,6 +380,7 @@ export const useChessStore = create(
           numberOfFullMoves: 0,
         });
 
+        // Clear IndexedDB store
         getDB().then(db => {
           const storeName = getSessionStoreName();
           const transaction = db.transaction(storeName, 'readwrite');

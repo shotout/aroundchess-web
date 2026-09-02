@@ -152,6 +152,7 @@ export const useV3PollingManager = () => {
 
           forceStopPolling(gameId);
           
+          // Fetch last-analysis to get complete data including analysisId
           try {
             const resultPgn = d.result?.gameInfo?.pgn || d.gameInfo?.pgn || gamePgn;
             if (resultPgn) {
@@ -185,8 +186,10 @@ export const useV3PollingManager = () => {
               }
             }
           } catch (fetchError) {
+            // Fallback to original result if fetch fails
           }
           
+          // Fallback: use original result
           const analysisId = d.id || d.analysisId || d.result?.id;
           updateJob(gameId, {
             status: "completed",

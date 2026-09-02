@@ -18,7 +18,8 @@ export function SignOutButton() {
         throw error;
       }
 
-      window.location.href = "/login";
+      // Redirect to login page or home page
+      window.location.href = "/login"; // Or use Next.js router
     } catch (error) {
       console.error("Logout failed:", error);
     }

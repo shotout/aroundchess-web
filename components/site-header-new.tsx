@@ -48,9 +48,31 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
 
   const handleStartAnalysis = async () => {
     try {
+      // Set loading state immediately
+      // setIsLoading(true);
+      // setEstimateMinute(0);
+      // setEstimateSecond(4);
+      // setError(null);
 
+      // Navigate to analysis page first
       router.push("/my-game-history");
 
+      // Load the data in background
+      // const [resFamousGame, resAnalysis] = await Promise.all([
+      //   fetch("/local-data/famous-game.txt"),
+      //   fetch("/local-data/analysis.json"),
+      // ]);
+
+      // const pgnLocal = await resFamousGame.text();
+      // const responseAnalysis = await resAnalysis.json();
+
+      // setPgn(pgnLocal);
+      // setDataAnalysis(responseAnalysis);
+
+      // // Keep loading for exactly 4 seconds
+      // setTimeout(() => {
+      //   setIsLoading(false);
+      // }, 4000);
     } catch (err) {
       setIsLoading(false);
       setError(err instanceof Error ? err : new Error("Failed to fetch PGN"));
@@ -87,6 +109,8 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
       .then(() => {})
       .finally(() => {
         clearAll();
+        // Training-plan data is cached per account in localStorage; leaving it
+        // behind serves this user's progress to whoever logs in next.
         CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
@@ -121,6 +145,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
     >
       <div className="container px-4 md:px-6 lg:px-12 mx-auto w-full h-full">
         <div className="flex items-center justify-between h-full">
+          {/* Left: Logo */}
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center space-x-2">
               <Image
@@ -134,7 +159,9 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
             </Link>
           </div>
 
+          {/* Center: Desktop Navigation */}
           <div className="hidden xl:flex justify-center items-center gap-6 flex-1">
+            {/* Analyze Button - Outside of NavigationMenu */}
             <div className="group inline-flex h-9 w-max items-center justify-center rounded-[4px] px-3 py-2 text-[14px] --sm font-medium xl:text-[14px] --xs xl:px-2 xl:py-1.5">
               <Button
                 onClick={handleStartAnalysis}
@@ -156,6 +183,7 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
               </Button>
             </div>
 
+            {/* Navigation Menu - Properly structured */}
             <div className="border border-input rounded-[8px] p-[16px]">
               <NavigationMenu>
                 <NavigationMenuList className="group gap-4 flex flex-1 list-none items-center justify-center gap-[40px]">
@@ -208,7 +236,9 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
             </div>
           </div>
 
+          {/* Right: Mobile Menu / Desktop Auth Buttons */}
           <div className="flex items-center gap-2">
+            {/* Mobile: Hamburger */}
             <div className="flex xl:hidden items-center gap-2">
               <Sheet>
                 <SheetTrigger asChild>
@@ -233,12 +263,13 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
                     isMember={isMember || isMemberMonthly}
                     token={token.balance}
                     handleOpenOffer={handleOpenOffer}
-                    handleStartAnalysis={handleStartAnalysis}
+                    handleStartAnalysis={handleStartAnalysis} // Pass the same function
                   />
                 </SheetContent>
               </Sheet>
             </div>
 
+            {/* Desktop: Auth Buttons */}
             <div className="hidden xl:flex items-center gap-2">
               {!isSignedIn ? (
                 <div className="flex items-center gap-5">
@@ -324,6 +355,7 @@ function MobileNav(props: mobileProps) {
   const { username } = usePgnStore();
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
 
+  // Full sidebar links (same as main Sidebar component)
   const sidebarLinks = [
     {
       name: "Chess Blogs",
@@ -405,6 +437,95 @@ function MobileNav(props: mobileProps) {
       ]
     },
 
+    /*
+    {
+      name: "Dashboard",
+      icon: "/icons/sidebar-dashboard-icon.png",
+      iconActive: "/icons/sidebar-dashboard-icon-active.png",
+      children: [
+        {
+          name: "Analyze Game",
+          href: "/analysis",
+          icon: "/icons/sidebar-analyze-icon.png",
+          iconActive: "/icons/sidebar-analyze-icon-active.png",
+          permission: true,
+        },
+        {
+          name: "My Game History",
+          href: "/my-game-history",
+          icon: "/icons/sidebar-game-history.png",
+          iconActive: "/icons/sidebar-game-history-active.png",
+        },
+        {
+          name: "Feedback Log",
+          href: "/feedback-log",
+          icon: "/icons/sidebar-mistake-log-icon.png",
+          iconActive: "/icons/sidebar-mistake-log-icon-active.png",
+        },
+        {
+          name: "My Training Plan",
+          href: "/training-plan",
+          icon: "/icons/sidebar-training-plan-icon.png",
+          iconActive: "/icons/sidebar-training-plan-icon-active.png",
+        },
+      ],
+    },
+    {
+      name: "Handbook : Chess Theory",
+      icon: "/icons/sidebar-theory-icon.png",
+      iconActive: "/icons/sidebar-theory-icon-active.png",
+      children: [
+        {
+          name: "Opening Theory",
+          href: "/opening-theory",
+          icon: "/icons/sidebar-opening-theory-icon.png",
+          iconActive: "/icons/sidebar-opening-theory-icon-active.png",
+        },
+        {
+          name: "Middlegame Strategy",
+          href: "/middlegame-strategy",
+          icon: "/icons/sidebar-middlegame-strategy-icon.png",
+          iconActive: "/icons/sidebar-middlegame-strategy-icon-active.png",
+        },
+        {
+          name: "Endgame Mastery",
+          href: "/endgame-mastery",
+          icon: "/icons/sidebar-endgame-mastery-icon.png",
+          iconActive: "/icons/sidebar-endgame-mastery-icon-active.png",
+        },
+      ],
+    },
+    {
+      name: "Playground : Practice",
+      icon: "/icons/sidebar-playground-practice-icon.png",
+      iconActive: "/icons/sidebar-playground-practice-icon-active.png",
+      children: [
+        {
+          name: "You vs AI",
+          href: "/playground/play-vs-ai",
+          icon: "/icons/sidebar-play-vs-ai-icon.png",
+          iconActive: "/icons/sidebar-play-vs-ai-icon-active.png",
+        },
+        {
+          name: "Puzzles",
+          href: "/playground/puzzle",
+          icon: "/icons/sidebar-puzzle-icon.png",
+          iconActive: "/icons/sidebar-puzzle-icon-active.png",
+        },
+        {
+          name: "Board Vision",
+          href: "/playground/board-vision",
+          icon: "/icons/sidebar-board-vision-icon.png",
+          iconActive: "/icons/sidebar-board-vision-icon-active.png",
+        },
+        {
+          name: "Endgame Training",
+          href: "/playground/endgame-training",
+          icon: "/icons/sidebar-endgame-training-icon.png",
+          iconActive: "/icons/sidebar-endgame-training-icon-active.png",
+        },
+      ],
+    }, */
   ];
 
   const handleNavigation = (href: string, hasPermission: boolean) => {
@@ -419,6 +540,7 @@ function MobileNav(props: mobileProps) {
     router.push("/profile");
   };
 
+  // Show simple navigation for non-logged-in users
   if (!props.isSignedIn) {
     return (
       <div className="flex flex-col ml-4 self-center">
@@ -484,6 +606,7 @@ function MobileNav(props: mobileProps) {
 
   return (
     <div className="flex h-full flex-col">
+      {/* Logo Section */}
       <div className="flex h-20 items-center px-6 justify-center border-b">
         <Link href="/" className="flex items-center justify-center">
           <Image
@@ -497,6 +620,7 @@ function MobileNav(props: mobileProps) {
         </Link>
       </div>
 
+      {/* Token Section */}
       <div className="flex flex-col justify-center pb-[16px] px-[16px] border-b gap-2">
         <div className="flex flex-row items-center justify-center gap-2">
           <Image
@@ -560,6 +684,7 @@ function MobileNav(props: mobileProps) {
         )}
       </div>
 
+      {/* Navigation Links */}
       <div className="flex-1 py-3 px-2 overflow-y-auto">
         <nav className="space-y-5">
           {sidebarLinks.map((section: any) => {
@@ -686,6 +811,7 @@ function MobileNav(props: mobileProps) {
         </nav>
       </div>
 
+      {/* Profile Section */}
       <div className="mt-auto border-t border-gray-200 p-4">
         <button
           onClick={handleToProfile}

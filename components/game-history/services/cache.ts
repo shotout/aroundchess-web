@@ -20,6 +20,7 @@ export const isCacheValid = <T>(
   const now = Date.now();
   const cacheAge = now - lastFetched;
 
+  // Check if cache has expired
   if (cacheAge >= expiration) {
     console.log(
       `Cache validation failed: Expired (age: ${Math.round(
@@ -29,11 +30,13 @@ export const isCacheValid = <T>(
     return false;
   }
 
+  // Additional validation for arrays
   if (Array.isArray(cachedData)) {
     if (cachedData.length === 0) {
       console.log(
         "Cache validation warning: Empty array, but considering valid"
       );
+      // Don't invalidate empty arrays - they might be legitimately empty
       return true;
     }
     console.log(
@@ -44,6 +47,7 @@ export const isCacheValid = <T>(
     return true;
   }
 
+  // Additional validation for objects
   if (typeof cachedData === "object" && cachedData !== null) {
     const hasData = Object.keys(cachedData).length > 0;
     if (!hasData) {
@@ -60,6 +64,7 @@ export const isCacheValid = <T>(
     return true;
   }
 
+  // For primitive types, just check if cache hasn't expired
   console.log(
     `Cache validation passed: Primitive value, age: ${Math.round(
       cacheAge / 1000
@@ -92,6 +97,7 @@ export const getFromCacheOrFetch = async <T>(
   return await fetchFn();
 };
 
+// Helper function to debug cache state with more detailed info
 export const debugCacheState = <T>(
   lastFetched: number | null,
   cachedData: T | null,
@@ -128,7 +134,7 @@ export const debugCacheState = <T>(
 
 export const shouldForceRefresh = (
   lastFetched: number | null,
-  forceRefreshThreshold: number = 60 * 60 * 1000
+  forceRefreshThreshold: number = 60 * 60 * 1000 // 1 hour
 ): boolean => {
   if (!lastFetched) return true;
 

@@ -204,6 +204,7 @@ export function OnlineBoard({
     e.preventDefault();
   };
 
+  // remove selected piece if the current player changes
   useEffect(() => {
     setSelectedPiece(null);
   }, [gameState.currentPlayer]);
@@ -314,6 +315,7 @@ export function OnlineBoard({
             </div>
           ))
         )}
+        {/* Add symbolic notation */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
           {Array.from({ length: 8 }).map((_, index) => (
             <div

@@ -46,10 +46,12 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
         return () => window.removeEventListener('resize', updateArrowWidth);
     }, []);
 
+    // Match the calculation from TwoDChessboard: boardWidth - boardWidth / 8.2
     const actualBoardSize = Math.round(boardSize - boardSize / 8.2);
     const padding = (boardSize - actualBoardSize) / 2;
     const actualSquareSize = actualBoardSize / 8;
 
+    // Convert chess notation to coordinates
     const squareToCoords = (square: string): { x: number; y: number } => {
         const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
         const rank = parseInt(square[1]) - 1;
@@ -66,6 +68,7 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
         return { x, y };
     };
 
+    // Shorten line end to make room for arrowhead
     const shortenLineEnd = (fromX: number, fromY: number, toX: number, toY: number, shortenBy: number = 12) => {
         const dx = toX - fromX;
         const dy = toY - fromY;
@@ -80,6 +83,7 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
         };
     };
 
+    // Create L-shaped path for knight moves
     const createLShapedPath = (from: string, to: string): string => {
         const fromCoords = squareToCoords(from);
         const toCoords = squareToCoords(to);
@@ -91,25 +95,35 @@ export const CustomChessArrows: React.FC<CustomChessArrowsProps> = ({
 
         const fileDiff = fileTo - fileFrom;
 
+        // Determine intermediate point for L-shape
+        // We'll use the corner of the L as the intermediate point
         let midSquare: string;
 
         if (Math.abs(fileDiff) === 2) {
+            // Move 2 squares horizontally first, then 1 vertically
+            // Intermediate square: destination file, starting rank
             midSquare = String.fromCharCode('a'.charCodeAt(0) + fileTo) + (rankFrom + 1);
         } else {
+            // Move 2 squares vertically first, then 1 horizontally
+            // Intermediate square: starting file, destination rank
             midSquare = String.fromCharCode('a'.charCodeAt(0) + fileFrom) + (rankTo + 1);
         }
 
         const midCoords = squareToCoords(midSquare);
 
+        // Shorten the final segment to make room for arrowhead
         const shortenedEnd = shortenLineEnd(midCoords.x, midCoords.y, toCoords.x, toCoords.y);
 
+        // Create path: start -> corner point -> shortened end
         return `M ${fromCoords.x} ${fromCoords.y} L ${midCoords.x} ${midCoords.y} L ${shortenedEnd.x} ${shortenedEnd.y}`;
     };
 
+    // Create straight path for non-knight moves
     const createStraightPath = (from: string, to: string): string => {
         const fromCoords = squareToCoords(from);
         const toCoords = squareToCoords(to);
 
+        // Shorten the line to make room for arrowhead
         const shortenedEnd = shortenLineEnd(fromCoords.x, fromCoords.y, toCoords.x, toCoords.y);
 
         return `M ${fromCoords.x} ${fromCoords.y} L ${shortenedEnd.x} ${shortenedEnd.y}`;

@@ -1,3 +1,4 @@
+// components/CircularProgress.tsx
 interface CircularProgressProps {
   percentage: number;
   label?: string;

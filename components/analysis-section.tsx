@@ -91,10 +91,12 @@ export function AnalysisSection() {
   const [current, setCurrent] = useState(0);
   const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
 
+  // Memoize the sign-in status to prevent unnecessary re-renders
   const isSignedIn = useMemo(() => {
     return sessionId && sessionId.length > 0;
   }, [sessionId]);
 
+  // Handle image loading for each slide
   const handleImageLoad = useCallback((index: number) => {
     setImagesLoaded((prev) => ({ ...prev, [index]: true }));
   }, []);
@@ -108,7 +110,11 @@ export function AnalysisSection() {
   }, []);
 
   const handleAnalysis = useCallback(() => {
+    // if (isSignedIn) {
       router.push("/my-game-history");
+    // } else {
+    //   router.push("/register");
+    // }
   }, [router]);
 
   const goToSlide = useCallback((index: number) => {
@@ -136,6 +142,7 @@ export function AnalysisSection() {
                 </span>
               </div>
 
+              {/* Wrapping tab navigation — mobile/tablet only */}
               <div className="flex xl:hidden flex-wrap gap-2 mt-3 justify-center">
                 {analysis.map((item, index) => (
                   <button
@@ -152,8 +159,10 @@ export function AnalysisSection() {
                 ))}
               </div>
 
+              {/* Fixed height carousel container */}
               <div className="border border-input md:border 2 rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
                 <div className="flex flex-col xl:flex-row w-full min-h-[600px] sm:min-h-[500px] xl:min-h-auto">
+                  {/* Image container with fixed dimensions */}
                   <div className="flex items-start border border-input sm:border-none w-full xl:w-[58%] overflow-hidden rounded-[8px] bg-white">
                     <div className="relative bg-white rounded-[8px] p-[8px] border border-[#DEDEDE] w-full flex xl:items-center">
                       <div className="relative w-full aspect-square">
@@ -182,6 +191,8 @@ export function AnalysisSection() {
                           </motion.div>
                         </AnimatePresence>
 
+                        {/* Floating prev/next buttons on image — mobile/tablet only.
+                            Hidden at the boundaries instead of disabled. */}
                         {current > 0 && (
                           <button
                             onClick={prevSlide}
@@ -205,6 +216,7 @@ export function AnalysisSection() {
                     </div>
                   </div>
 
+                  {/* Content container with fixed height */}
                   <div className="px-1 lg:px-6 w-full xl:w-[42%] md:mt-2 flex flex-col ">
                     <div className="xl:overflow-hidden">
                       <AnimatePresence mode="wait">
@@ -230,7 +242,10 @@ export function AnalysisSection() {
                             className="block mt-1 text-[14px] --xs sm:text-md lg:text-[16px] font-normal text-[#364152] lg:text-left leading-[1.2] line-clamp-3 [&_b]:font-bold"
                           />
 
+                          {/* Cards: horizontal scroll on mobile, vertical stack on desktop */}
+                          {/* Outer: block-level overflow-x scroll — height driven by inner flex child */}
                           <div className="mt-4 overflow-x-auto xl:overflow-y-auto xl:max-h-[400px]">
+                            {/* Inner: flex row on mobile, block stack on desktop */}
                             <div className="flex xl:block gap-3 xl:gap-0 xl:space-y-3 pb-2 xl:pb-0">
                               <div className="w-[240px] xl:w-auto flex-shrink-0 border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4">
                                 <span className="text-[#221AE9] text-[14px] --sm sm:text-md font-bold">
@@ -270,6 +285,7 @@ export function AnalysisSection() {
                       </AnimatePresence>
                     </div>
 
+                    {/* Button — desktop only (mobile version is after navigation) */}
                     <div className="hidden xl:flex flex-col w-full items-center justify-center pt-4">
                       <button
                         onClick={handleAnalysis}
@@ -282,7 +298,9 @@ export function AnalysisSection() {
                 </div>
               </div>
 
+              {/* Navigation controls — always visible */}
               <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 pt-4 md:pt-1">
+                {/* Left Arrow */}
                 <button
                   onClick={prevSlide}
                   disabled={current === 0}
@@ -295,6 +313,7 @@ export function AnalysisSection() {
                   />
                 </button>
 
+                {/* Dot Indicators */}
                 <div className="flex gap-1.5 sm:gap-2">
                   {analysis.map((_, index) => (
                     <button
@@ -310,6 +329,7 @@ export function AnalysisSection() {
                   ))}
                 </div>
 
+                {/* Right Arrow */}
                 <button
                   onClick={nextSlide}
                   disabled={current === analysis.length - 1}
@@ -325,6 +345,7 @@ export function AnalysisSection() {
                 </button>
               </div>
 
+              {/* Button — mobile only, after navigation */}
               <div className="xl:hidden pt-3">
                 <button
                   onClick={handleAnalysis}

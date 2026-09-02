@@ -33,6 +33,7 @@ export default function ChessBoard() {
     col: number;
   } | null>(null);
 
+  // drag and drop handlers
   const handleDrop = (
     e: React.DragEvent<HTMLDivElement>,
     toRow: number,
@@ -53,6 +54,7 @@ export default function ChessBoard() {
     e.dataTransfer.dropEffect = "move";
   };
 
+  // remove selected piece if the current player changes
   useEffect(() => {
     setSelectedPiece(null);
   }, [currentPlayer]);
@@ -148,6 +150,7 @@ export default function ChessBoard() {
             </div>
           ))
         )}
+        {/* Add symbolic notation */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
           {Array.from({ length: 8 }).map((_, index) => (
             <div

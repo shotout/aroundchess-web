@@ -5,6 +5,7 @@ import { isKingInCheck } from "../../../utils/kingCheck";
 import { incrementWins } from "../../services/stats";
 import type { Board, GameState, PieceType, Winner } from "../../../types/chess"
 
+//  This function is used to get the game state from the database
 export async function getGameState(gameId: string) {
   const game = await prisma.game.findUnique({ where: { roomId: gameId } });
   const players = await prisma.player.findMany({
@@ -92,6 +93,7 @@ export async function handlePlayerResign(gameId: string, playerId: string) {
     },
   });
 
+  // Use the stats service
   await incrementWins(winner as "white" | "black");
 
   await pusherServer.trigger(`room-${gameId}`, "resign", {

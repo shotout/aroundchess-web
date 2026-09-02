@@ -13,7 +13,7 @@ interface LearningPoint {
   title: string
   description: string
   example: string
-  position: string
+  position: string // FEN position
   explanation: string[]
 }
 

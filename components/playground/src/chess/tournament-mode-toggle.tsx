@@ -11,6 +11,7 @@ export function TournamentModeToggle() {
   const targetELO = useComputerChessStore(state => state.targetELO);
   const toggleTournamentMode = useComputerChessStore(state => state.toggleTournamentMode);
 
+  // Only show for high ELO ratings
   if (targetELO <= 2600) return null;
 
   return (

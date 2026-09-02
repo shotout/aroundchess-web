@@ -95,6 +95,7 @@ export function BenefitsOf() {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
+          {/* Mobile: horizontal scroll */}
           <div
             ref={scrollRef}
             onScroll={handleScroll}
@@ -125,6 +126,7 @@ export function BenefitsOf() {
             </div>
           </div>
 
+          {/* Desktop: grid */}
           <div className="hidden xl:grid grid-cols-4 gap-6">
             {benefits.map((item, index) => (
               <div
@@ -150,6 +152,7 @@ export function BenefitsOf() {
           </div>
         </motion.div>
 
+        {/* Mobile: pagination arrows + dots */}
         <div className="xl:hidden flex flex-row items-center justify-center gap-2 pt-4">
           <button
             onClick={() => {

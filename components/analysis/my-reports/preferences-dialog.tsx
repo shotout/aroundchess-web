@@ -48,6 +48,7 @@ export function PreferencesDialog({
   const [previewMode, setPreviewMode] = useState("detailed")
 
   const handleSave = () => {
+    // Implement preferences save logic
     onOpenChange(false)
   }
 

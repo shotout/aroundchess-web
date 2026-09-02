@@ -1,3 +1,4 @@
+// Define types here if they are only used for pieces
 export type PieceType =
   | 'p'
   | 'n'
@@ -14,6 +15,7 @@ export type PieceType =
 
 export type Piece = `${'w' | 'b'}${PieceType}`
 
+// Mapping of piece types to names
 const pieceNames: { [key in PieceType]: string } = {
   p: 'Pawn',
   n: 'Knight',
@@ -29,23 +31,26 @@ const pieceNames: { [key in PieceType]: string } = {
   K: 'King',
 }
 
+// Mapping of piece types to values
 export const pieceValues: { [key in PieceType]: number } = {
-  p: 1,
-  n: 3,
-  b: 3,
-  r: 5,
-  q: 9,
-  k: 0,
-  P: 1,
-  N: 3,
-  B: 3,
-  R: 5,
-  Q: 9,
-  K: 0,
+  p: 1, // Pawn
+  n: 3, // Knight
+  b: 3, // Bishop
+  r: 5, // Rook
+  q: 9, // Queen
+  k: 0, // King (not used in material calculation)
+  P: 1, // Pawn (uppercase handled for completeness)
+  N: 3, // Knight
+  B: 3, // Bishop
+  R: 5, // Rook
+  Q: 9, // Queen
+  K: 0, // King
 }
 
+// Function to get the name of a piece based on its type
 export const getPieceName = (pieceType: PieceType): string =>
   pieceNames[pieceType]
 
+// Optional utility function to get the value of a piece
 export const getPieceValue = (pieceType: PieceType): number =>
   pieceValues[pieceType]

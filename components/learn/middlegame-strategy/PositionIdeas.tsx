@@ -104,6 +104,7 @@ export const positionIdeas: Record<string, PositionIdea[]> = {
     { type: 'tactical', description: 'Create tactical opportunities with piece placement' },
     { type: 'strategic', description: 'Coordinate minor pieces effectively' }
   ]
+  // Add more position ideas for other topics...
 }
 
 export function PositionIdeas({ ideas }: PositionIdeasProps) {

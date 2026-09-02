@@ -65,6 +65,7 @@ export const useProfileFetch = () => {
     if (sessionId.length > 0 && alreadyFetch == false) {
       setAlreadyFetch(true);
       setCallingNumber((i) => i + 1);
+      // if (alreadyFetchProfile == false) {
       setAlreadyFetchProfile(true);
       getProfile({}).then((response) => {
         if (response.data != null) {
@@ -101,6 +102,8 @@ export const useProfileFetch = () => {
         }
       });
 
+      // }
+
       getAllMembershipPackage({}).then((response) => {
         if (response.data != null) {
           const data = response.data;
@@ -116,6 +119,10 @@ export const useProfileFetch = () => {
         }
       });
 
+      // getPuzzle().then((res) => {
+      //   const logs = res.data;
+      //   setPuzzleLog(logs);
+      // });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId, callFetch]);

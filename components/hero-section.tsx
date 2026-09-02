@@ -83,6 +83,8 @@ export function HeroSection() {
             />
           </motion.div>
 
+          {/* The home hero always shows the pre-login chessboard preview, even
+              for signed-in users (only the navbar reflects the session). */}
           <motion.div
             className="w-full text-center flex flex-col items-center"
             variants={fadeInUp}
@@ -104,6 +106,22 @@ export function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
+      {/* <div className="block z-2 absolute  w-[100%] h-[620px] lg:h-auto">
+        <Image
+          src={
+            width > 1024
+              ? "/images/homepage/hero-banner-homepage.png"
+              : width > 572
+                ? "/images/homepage/hero-banner-homepage-tablet.png"
+                : "/images/homepage/hero-banner-homepage-mobile.png"
+          }
+          alt="herobanner"
+          width={1000}
+          height={1000}
+          className="w-[100%] h-[80vh] sm:h-[90vh] md:h-[80vh] lg:h-auto object-cover z-2 relative overflow-hidden"
+          priority
+        />
+      </div> */}
     </section>
   );
 }

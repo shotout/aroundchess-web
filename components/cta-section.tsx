@@ -40,6 +40,16 @@ export function CTASection() {
               <div className="mt-2 sm:mt-6">
                 <div className="flex flex-col w-3/3 mx-2 md:mx-1 lg:mx-12 justify-end gap-4">
                   <div className="flex w-full flex-col sm:flex-row gap-4">
+                    {/* <div className="w-full sm:w-2/3">
+                      <p className="text-white text-left mb-2">Email</p>
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        className="bg-[#FFFFFF25] border-gray-700 text-white placeholder:text-gray-400"
+                      />
+                    </div> */}
                     <Button
                       asChild
                       size="lg"
@@ -55,6 +65,9 @@ export function CTASection() {
                       </Link>
                     </Button>
                   </div>
+                  {/* <p className="text-[14px] --xs sm:text-[14px] --sm text-gray-400">
+                    No credit card required. 7-day free trial.
+                  </p> */}
                 </div>
               </div>
             </div>

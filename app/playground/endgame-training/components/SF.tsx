@@ -43,7 +43,7 @@ export default function StockfishEngine({
   depth = 10,
   isAutoSolution,
   onSolutionComplete,
-  onMovePlay,
+  onMovePlay, // ADDED: Sound callback prop
 }: StockfishEngineProps) {
   const engine = useMemo(() => new Engine(), []);
   const [_, setPositionEvaluation] = useState<number>(0);
@@ -74,6 +74,7 @@ export default function StockfishEngine({
               });
 
               if (move) {
+                // ADDED: Play sound for the engine move
                 if (onMovePlay) {
                   onMovePlay(move);
                 }
@@ -106,9 +107,11 @@ export default function StockfishEngine({
               }
             }
           } catch (error) {
+            // Silently catch and ignore errors
           }
         });
       } catch (error) {
+        // Silently catch and ignore errors
       }
     },
     [
@@ -123,7 +126,7 @@ export default function StockfishEngine({
       depth,
       isAutoSolution,
       onSolutionComplete,
-      onMovePlay,
+      onMovePlay, // ADDED: Include in dependencies
     ]
   );
 
@@ -167,10 +170,12 @@ export default function StockfishEngine({
               });
             }
           } catch (error) {
+            // Silently catch and ignore errors
           }
         }
       );
     } catch (error) {
+      // Silently catch and ignore errors
     }
   }, [
     position,

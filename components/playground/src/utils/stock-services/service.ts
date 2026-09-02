@@ -55,4 +55,5 @@ export const getStockfishEvaluation = async (fen: string, depth: number = 20) =>
     mode: "eval"
   });
   
+  // Rest of the function remains unchanged
 }

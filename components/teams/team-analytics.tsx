@@ -14,11 +14,13 @@ import {
   Cell,
 } from "recharts"
 
+// Mock data - replace with real data from your backend
 const performanceData = [
   { month: "Jan", rating: 1800, wins: 8, losses: 4 },
   { month: "Feb", rating: 1825, wins: 10, losses: 3 },
   { month: "Mar", rating: 1850, wins: 12, losses: 2 },
   { month: "Apr", rating: 1875, wins: 9, losses: 5 },
+  // Add more months as needed
 ]
 
 const moveAnalysis = [

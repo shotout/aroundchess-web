@@ -304,7 +304,9 @@ export const BasicRulesLesson = () => {
 
   return (
     <div>
+      {/* Main Content */}
       <div className="container mx-auto py-6">
+        {/* Controls */}
         <div className="flex justify-end gap-2 mb-6">
           <Button 
             variant="outline" 
@@ -341,6 +343,7 @@ export const BasicRulesLesson = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+          {/* Left Sidebar - Piece Selection */}
           <div className="md:col-span-2">
             <div className="bg-card rounded-lg border shadow-sm">
               <div className="p-4 border-b">
@@ -376,6 +379,7 @@ export const BasicRulesLesson = () => {
             </div>
           </div>
 
+          {/* Center - Interactive Board */}
           <div className="md:col-span-6">
             <div className="bg-white rounded-lg border shadow-sm">
               <div className="aspect-square w-full p-4">
@@ -389,6 +393,7 @@ export const BasicRulesLesson = () => {
               </div>
             </div>
 
+            {/* Right Sidebar - Rules and Info */}
             <div className="mt-6">
               <div className="bg-card rounded-lg border shadow-sm">
                 <div className="p-4 border-b">

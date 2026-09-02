@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
+// Loading and error handling component
 export function FetchStatusManager({
   loading = false,
   error = null,
@@ -36,6 +37,7 @@ export function FetchStatusManager({
   return null;
 }
 
+// Not found state component
 export function PositionNotFound({
   isCheckmateMode,
   params,
@@ -69,6 +71,7 @@ export function PositionNotFound({
   );
 }
 
+// Header component
 export function PositionHeader({
   getBackLinkTarget,
   getBackLinkText,

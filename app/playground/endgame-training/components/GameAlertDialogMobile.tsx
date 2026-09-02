@@ -106,6 +106,7 @@ const GameAlertDialogMobile = ({
       console.error("Error checking game status:", error);
     }
 
+    // Default case
     return {
       title: "Game Over",
       message: "The game has ended.",
@@ -148,6 +149,7 @@ const GameAlertDialogMobile = ({
   const colorStyles = getColorStyles();
 
   return (
+    // Only show on mobile (md and smaller)
     <div className="md:hidden">
       <AnimatePresence>
         {open && (
@@ -187,6 +189,7 @@ const GameAlertDialogMobile = ({
                   </div>
                 )}
 
+                {/* Close Button */}
                 <button
                   onClick={onClose}
                   className="absolute top-4 right-4 text-[#0a142f] hover:text-black z-10"
@@ -194,6 +197,7 @@ const GameAlertDialogMobile = ({
                   <X size={20} />
                 </button>
 
+                {/* Content */}
                 <div className="relative z-10">
                   <div className="mb-6">
                     <h1
@@ -212,6 +216,7 @@ const GameAlertDialogMobile = ({
                     )}
                   </div>
 
+                  {/* Action Buttons */}
                   <div className="flex gap-x-1 w-full justify-between">
                     <button
                       className="flex flex-1 gap-x-1 bg-white text-[14px] --xs items-center justify-center px-3 py-2 text-blue-base rounded-full border border-primary-gray whitespace-nowrap flex-shrink-0"

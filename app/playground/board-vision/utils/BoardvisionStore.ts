@@ -13,6 +13,7 @@ import {
   QuizGame,
 } from "../types/default-pgn";
 
+// Helper function to detect if a move is a knight move (L-shaped)
 const isKnightMove = (from: string, to: string): boolean => {
   const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
   const rankFrom = parseInt(from[1]) - 1;
@@ -22,6 +23,7 @@ const isKnightMove = (from: string, to: string): boolean => {
   const fileDiff = Math.abs(fileTo - fileFrom);
   const rankDiff = Math.abs(rankTo - rankFrom);
 
+  // Knight moves: 2 squares in one direction, 1 in perpendicular
   return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
 };
 
@@ -375,6 +377,9 @@ export const useBoardVisionStore = create<BoardVisionState>()(
           }
 
           set({
+            // The resolved player name for the first game, not the raw row's
+            // username — that field isn't always the player's name in the PGN,
+            // and this value is the fallback for positions that carry none.
             username:
               positions[0]?.username || games[0]?.username || get().username,
             userGame: {
@@ -680,12 +685,14 @@ export const useBoardVisionStore = create<BoardVisionState>()(
         } catch (error) {
           console.error("Error generating question:", error);
 
+          // Create a fallback question
           const fallbackQuestion: GameQuestion = {
             text: "How many legal moves are available?",
             answers: [0, 1, 2, 3],
             correctAnswer: 0,
           };
 
+          // Update with fallback question
           if (forUserGame) {
             set({
               userGame: {

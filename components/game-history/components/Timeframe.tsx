@@ -19,6 +19,7 @@ export default function Timeframe({ onDateChange, disabled = false }: TimeframeP
             setDateRange("All Time");
         }
 
+        // Call parent callback
         if (onDateChange) {
             onDateChange(startDate, endDate);
         }

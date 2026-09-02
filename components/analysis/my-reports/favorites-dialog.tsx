@@ -74,6 +74,7 @@ export function FavoritesDialog({
   ]
 
   const handleRemoveFavorite = (id: string) => {
+    // Implement remove from favorites logic
     setSelectedReports(selectedReports.filter((reportId) => reportId !== id))
   }
 

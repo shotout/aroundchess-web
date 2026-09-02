@@ -19,6 +19,7 @@ export function ComputerMoveNotation() {
 
     loadNames()
 
+    // Handle custom name change events
     const handleNameChange = (e: CustomEvent<{ color: 'white' | 'black'; name: string }>) => {
       const { color, name } = e.detail
       if (color === 'white') {
@@ -26,6 +27,7 @@ export function ComputerMoveNotation() {
       }
     }
 
+    // Listen for both storage and custom events
     window.addEventListener('computerPlayerNameChange', handleNameChange as EventListener)
     window.addEventListener('storage', (e) => {
       if (e.key === "computerWhitePlayerName") {
@@ -44,6 +46,7 @@ export function ComputerMoveNotation() {
       <div className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Game Information</h3>
         
+        {/* Current Turn */}
         <div className="bg-blue-50 rounded-lg p-4 mb-6">
           <div className="flex justify-between items-center">
             <span className="text-[14px] --sm text-gray-600">Current Turn</span>
@@ -51,6 +54,7 @@ export function ComputerMoveNotation() {
           </div>
         </div>
 
+        {/* Move History */}
         <div>
           <h4 className="text-[14px] --sm font-medium text-gray-900 mb-4">Move History</h4>
           <div className={`relative ${moves.length > 8 ? 'h-[200px]' : ''}`}>

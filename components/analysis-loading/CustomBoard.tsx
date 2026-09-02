@@ -14,7 +14,8 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
   position,
   boardOrientation,
 }) => {
-  const [boardSize, setBoardSize] = useState(700);
+  // Board size configuration
+  const [boardSize, setBoardSize] = useState(700); // Default size
   const boardWidth = 600;
 
   useEffect(() => {
@@ -30,12 +31,16 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
     console.log("Resizing board...", window.innerWidth, isPortrait);
 
     if (isPortrait) {
+      // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
+      // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
       console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
+      // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
+      // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
       console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
@@ -101,6 +106,7 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
 
     return pieceComponents;
   }, []);
+  // Frame dimensions
   const framePadding = 20;
   const frameBottom = 110;
 
@@ -110,6 +116,8 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
       style={{
         width: `${boardSize + framePadding * 2}px`,
         height: `${boardSize + framePadding}px`,
+        // background:'red'
+        // height: `${boardSize + framePadding + frameBottom}px`,
       }}
     >
       <div
@@ -146,6 +154,28 @@ const CustomBoard: React.FC<CustomChessBoardProps> = ({
           }}
         />
       </div>
+      {/* <div
+        style={{
+          position: "absolute",
+          top: "5.5%",
+          left: "-20%",
+          width: "139%",
+          height: "97%",
+          pointerEvents: "none", // Allow clicking through to the board
+        }}
+      >
+        <img
+          src="/3d-pieces/chess.png"
+          alt="Chess board frame"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "fill", // Changed from "cover" to maintain aspect ratio
+            padding: "0",
+            margin: "0",
+          }}
+        />
+      </div> */}
     </div>
   );
 };

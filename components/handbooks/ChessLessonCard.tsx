@@ -32,6 +32,7 @@ interface ChessLessonCardProps {
 }
 
 const ReadStatusIndicator = ({ readStatus }: { readStatus?: boolean }) => {
+  // Always maintain the same container size to prevent layout shifts
   const containerClass =
     "absolute top-2 right-2 h-8 w-8 xl:h-12 xl:w-12 rounded-full flex items-center justify-center";
 
@@ -43,6 +44,7 @@ const ReadStatusIndicator = ({ readStatus }: { readStatus?: boolean }) => {
     );
   }
 
+  // If not read
   if (!readStatus) {
     return (
       <div className={`${containerClass} bg-[#FFC000] p-1`}>
@@ -56,6 +58,7 @@ const ReadStatusIndicator = ({ readStatus }: { readStatus?: boolean }) => {
     );
   }
 
+  // If read
   return (
     <div className={`${containerClass} bg-[#00858E] p-1`}>
       <Image
@@ -99,13 +102,19 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
             </div>
 
             <div className="xl:px-1 2xl:px-4 flex flex-col flex-1 min-h-0">
+              {/* Content area that grows */}
               <div className="flex-1">
+                {/* Mobile layout */}
                 <div className="flex flex-col lg:hidden">
+                  {/* <h1 className="text-[14px] --xs border border-blue-base text-blue-base px-2 py-1 self-start">
+                    {lesson.difficulty}
+                  </h1> */}
                   <h3 className="flex items-center font-medium text-gray-900 text-[14px] --xs h-[42px] line-clamp-2 mb-[8px]">
                     {lesson.title}
                   </h3>
                 </div>
 
+                {/* Desktop layout */}
                 <div className="hidden lg:flex justify-between">
                   <h1 className="font-semibold h-10 line-clamp-2">
                     {lesson.title}
@@ -113,6 +122,7 @@ const ChessLessonCard = React.memo<ChessLessonCardProps>(
                 </div>
               </div>
 
+              {/* Button stays at bottom */}
               <div className="w-full flex items-center justify-center space-x-2 rounded-full h-10 px-2 py-2 cursor-pointer btn-primary">
                 <BookOpen className="h-4 w-4" />
                 <span className="text-[3.6vw] --10px md:text-[14px] --sm">Start Learning</span>

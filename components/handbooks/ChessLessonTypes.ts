@@ -70,11 +70,13 @@ export interface BaseLesson {
   readStatus?: boolean;
 }
 
+// Common overview structure for all lesson types
 export interface LessonOverview {
   learningObjectives: Objective[];
   prerequisites: Prerequisite[];
 }
 
+// Opening-specific interfaces
 export interface KeyIdea {
   id: number;
   variationId: number;
@@ -91,6 +93,7 @@ export interface Variation {
 }
 
 export interface OpeningOverview extends LessonOverview {
+  // No additional fields for opening overview
 }
 
 export interface OpeningLesson extends BaseLesson {
@@ -98,6 +101,7 @@ export interface OpeningLesson extends BaseLesson {
   overview?: OpeningOverview;
 }
 
+// Middlegame-specific interfaces
 export interface Pattern {
   id: number;
   handbookId: string;
@@ -136,6 +140,7 @@ export interface MiddlegameLesson extends BaseLesson {
   overview?: MiddlegameOverview;
 }
 
+// Endgame-specific interfaces
 export interface WinningTechnique {
   id: number;
   handbookId: string;
@@ -191,20 +196,25 @@ export interface EndgameLesson extends BaseLesson {
 
 export type ChessLesson = OpeningLesson | MiddlegameLesson | EndgameLesson;
 
+// Store state interface that works with any lesson type
 export interface ChessLessonState<T extends ChessLesson> {
+  // Data
   allLessons: T[];
   filteredLessons: T[];
   lessonDetails: Record<string, T>;
   pagination: Pagination | null;
 
+  // Filter states
   difficultyFilter: DifficultyFilter;
   searchTerm: string;
 
+  // Loading states
   isLoading: boolean;
   isLoadingMore: boolean;
   error: string | null;
   initialized: boolean;
 
+  // Actions
   fetchAllLessons: (sessionId?: string) => Promise<void>;
   fetchLessonDetails: (id: string, sessionId?: string) => Promise<T | null>;
   setDifficultyFilter: (difficulty: DifficultyFilter) => void;
@@ -213,6 +223,7 @@ export interface ChessLessonState<T extends ChessLesson> {
   applyFilters: () => void;
 }
 
+// Extended interface for stores that support read/unread functionality
 export interface ExtendedChessLessonState<T extends ChessLesson>
   extends ChessLessonState<T> {
   readStatusMap: Record<string, boolean>;
@@ -224,6 +235,7 @@ export interface ExtendedChessLessonState<T extends ChessLesson>
   fetchReadStatuses: (sessionId?: string) => Promise<void>;
 }
 
+// Type guard functions to differentiate between lesson types
 export function isOpeningLesson(lesson: ChessLesson): lesson is OpeningLesson {
   return lesson.category === "opening" && "variations" in lesson;
 }
@@ -238,6 +250,7 @@ export function isEndgameLesson(lesson: ChessLesson): lesson is EndgameLesson {
   return lesson.category === "endgame";
 }
 
+// Helper function to get the appropriate base URL path based on lesson type
 export function getLessonBasePath(lessonType: LessonType): string {
   switch (lessonType) {
     case "opening":
@@ -251,6 +264,7 @@ export function getLessonBasePath(lessonType: LessonType): string {
   }
 }
 
+// Helper function to get appropriate tab options based on lesson type
 export function getLessonTabOptions(
   lessonType: LessonType
 ): { id: string; label: string }[] {

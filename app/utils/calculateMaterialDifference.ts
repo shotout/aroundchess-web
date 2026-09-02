@@ -21,7 +21,7 @@ export const calculateMaterialDifference = (
     })
   })
 
-  return whiteMaterial - blackMaterial
+  return whiteMaterial - blackMaterial // Positive value favors white, negative favors black
 }
 
 export const getMaterialDifferences = (board: ReturnType<Chess['board']>) => {

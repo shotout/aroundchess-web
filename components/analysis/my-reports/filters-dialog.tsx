@@ -109,10 +109,12 @@ export function FiltersDialog({
   }
 
   const handleApplyFilter = () => {
+    // Implement filter application logic
     onOpenChange(false)
   }
 
   const handleSaveFilter = () => {
+    // Implement filter saving logic
   }
 
   const handleLoadFilter = (filter: SavedFilter) => {

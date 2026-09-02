@@ -242,6 +242,7 @@ const template = (topic: string) => '"use client"\n\n' +
   '  )\n' +
   '}\n'
 
+// Generate pages for each topic
 topics.forEach(topic => {
   const dir = path.join('app/dashboard/learning/endgame', topic)
   const file = path.join(dir, 'page.tsx')

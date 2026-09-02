@@ -4,6 +4,12 @@ import { authedFetch } from "@/functions/authed-fetch";
 
 const endpoint = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || "";
 
+// Every call here goes through authedFetch: the `sessionId` arguments are kept
+// as the "am I signed in" guard, but the token actually sent is the current one
+// from the store, renewed and replayed on a 401. Passing a captured sessionId
+// straight to fetch() is what produced "Session expired or inactive" errors on
+// pages left open past the access token's hour.
+
 export interface GameTypeData {
   game_type: string;
   elo: number;

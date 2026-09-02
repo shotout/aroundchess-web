@@ -13,10 +13,13 @@ interface Character {
   gender: 'male' | 'female';
 }
 
+// Helper function to get unique players for an ELO level
 const getUniquePlayers = (elo: number, count: number) => {
   const players = [];
   const allPlayers = generateName(elo);
   
+  // Take the first 'count' players from the array
+  // This ensures consistent order since generateName returns a fixed array
   for (let i = 0; i < count && i < allPlayers.length; i++) {
     const player = allPlayers[i];
     players.push({
@@ -30,7 +33,9 @@ const getUniquePlayers = (elo: number, count: number) => {
   return players;
 };
 
+// Modify generateName to include gender information
 const generateName = (elo: number): Array<{ name: string; flag: string; gender: 'male' | 'female' }> => {
+  // Beginner players (250-850)
   if (elo === 250) {
     return [
       { name: 'Thomas', flag: '🇩🇪', gender: 'male' },
@@ -80,6 +85,7 @@ const generateName = (elo: number): Array<{ name: string; flag: string; gender: 
     ];
   }
 
+  // Intermediate players (900-1400)
   if (elo === 900) {
     return [
       { name: 'Takeshi', flag: '🇯🇵', gender: 'male' },
@@ -125,6 +131,7 @@ const generateName = (elo: number): Array<{ name: string; flag: string; gender: 
     ];
   }
 
+  // Advanced players (1500-2100)
   if (elo === 1500) {
     return [
       { name: 'Andrei', flag: '🇷🇴', gender: 'male' },
@@ -174,6 +181,7 @@ const generateName = (elo: number): Array<{ name: string; flag: string; gender: 
     ];
   }
 
+  // Master players (2200-2450)
   if (elo === 2200) {
     return [
       { name: 'Mikhail', flag: '🇷🇺', gender: 'male' },
@@ -197,6 +205,7 @@ const generateName = (elo: number): Array<{ name: string; flag: string; gender: 
     ];
   }
 
+  // Fallback (should never happen with our ELO ranges)
   return [{ name: 'Unknown', flag: '🏳️', gender: 'male' }];
 };
 
@@ -207,15 +216,18 @@ const categories = [
   { id: 'master', name: 'Master', range: [2200, 2450], color: 'bg-blue-50' },
 ] as const;
 
+// Function to get a deterministic avatar number based on name and ELO
 const getAvatarNumber = (name: string, elo: number, gender: 'male' | 'female'): number => {
+  // Create a deterministic hash from name and ELO
   const str = `${name}-${elo}`;
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
+    hash = hash & hash; // Convert to 32bit integer
   }
   
+  // Get a positive number between 1 and 35
   const positiveHash = Math.abs(hash);
   return (positiveHash % 35) + 1;
 };
@@ -234,6 +246,7 @@ export function ComputerCharacterSelector() {
   const [selectedCategory, setSelectedCategory] = React.useState('beginner');
   const [selectedCharacterId, setSelectedCharacterId] = React.useState<string | null>(null);
   
+  // Generate characters for the selected category only
   const characters = React.useMemo(() => {
     const currentCategory = categories.find(c => c.id === selectedCategory)!;
     const result: (Character & { avatarNumber: number })[] = [];
@@ -277,6 +290,7 @@ export function ComputerCharacterSelector() {
 
   return (
     <div className="w-full space-y-4">
+      {/* Tabs */}
       <div className="flex w-full border rounded-lg overflow-hidden">
         {categories.map((category) => (
           <button
@@ -300,6 +314,7 @@ export function ComputerCharacterSelector() {
         ))}
       </div>
 
+      {/* Character Grid */}
       <div className="border rounded-xl p-6 bg-white">
         <div className="grid grid-cols-6 gap-4">
           {characters.map((character) => {

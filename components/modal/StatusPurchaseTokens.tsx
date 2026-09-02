@@ -44,12 +44,13 @@ export function StatusPurchaseTokens() {
 
   useEffect(() => {
     if (status != "waiting") return;
+    // Cycle the trailing dots through empty, ., .. and ...
     const timer = setInterval(() => {
       setDots((prevDots) => {
         if (prevDots === "") return ".";
         if (prevDots === ".") return "..";
         if (prevDots === "..") return "...";
-        return "";
+        return ""; // Reset when it reaches ...
       });
     }, 2000);
 
@@ -64,6 +65,7 @@ export function StatusPurchaseTokens() {
     router.replace("/profile");
   };
   const handleAnalyze = () => {
+    // Redirect to game history instead of showing AnalyzeGameDialog
     router.replace("/my-game-history");
   };
   const handleFailed = () => {
@@ -82,6 +84,7 @@ export function StatusPurchaseTokens() {
         }}
         className={`rounded-lg max-w-sm sm:max-w-[1141px] sm:max-h-[95%] lg:p-[32px] bg-white border border-[#C0CED4] max-h-[95%] overflow-y-hidden`}
       >
+        {/* Radix requires an accessible name on every DialogContent */}
         <DialogTitle className="sr-only">Payment status</DialogTitle>
         <div className="flex flex-col justify-center items-center">
           <div className="flex flex-row items-center justify-center gap-3">
@@ -98,6 +101,7 @@ export function StatusPurchaseTokens() {
             <span className="font-semibold text-[18px] text-[#2e2e2e] text-center">
               {content}
               {status == "waiting" && (
+                /* Reserve the dots' width so only the dots animate, not the text */
                 <span className="inline-block w-[1.1em] text-left whitespace-pre">
                   {dots}
                 </span>

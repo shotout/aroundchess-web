@@ -17,8 +17,10 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
   position,
   boardOrientation,
 }) => {
-  const [boardSize, setBoardSize] = useState<number | any>(700);
+  // Board size configuration
+  const [boardSize, setBoardSize] = useState<number | any>(700); // Default size
   useEffect(() => {
+    // handleResize();
   }, [window?.innerWidth]);
   useEffect(() => {
     if (size) {
@@ -32,6 +34,7 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
     const height = window?.innerHeight;
     const isPortrait = height > width;
     const minPadding = 0;
+    // const maxSize = window.innerWidth > 1300 ? window.innerWidth / 5 : 400;
     const maxSize =
       window?.innerWidth < 1440
         ? window?.innerWidth / 2.5
@@ -39,12 +42,16 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
     console.log("Resizing board...", window?.innerWidth, isPortrait);
 
     if (isPortrait) {
+      // In portrait mode, use screen width as the primary constraint
       const availableWidth = width - minPadding * 2;
+      // Use 85% of available width for mobile, 90% for tablets
       const sizeFactor = width <= 430 ? 0.85 : 0.9;
       setBoardSize(Math.min(maxSize, availableWidth * sizeFactor + 20));
       console.log(Math.min(maxSize, availableWidth * sizeFactor));
     } else {
+      // In landscape, use height as the primary constraint
       const availableHeight = height - minPadding * 2;
+      // Use 80% of available height
       setBoardSize(Math.min(maxSize, availableHeight * 0.8));
       console.log("size board...", Math.min(maxSize, availableHeight * 0.8));
     }
@@ -135,6 +142,7 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
     });
     return pieceComponents;
   }, []);
+  // Frame dimensions
   const framePadding = 20;
   const frameBottom = 110;
 
@@ -144,6 +152,7 @@ const BoardWood: React.FC<BoardWoodBoardProps> = ({
       style={{
         width: `${boardSize + framePadding * 2}px`,
         height: `${boardSize + framePadding}px`,
+        // height: `${boardSize + framePadding + frameBottom}px`,
       }}
     >
       <div

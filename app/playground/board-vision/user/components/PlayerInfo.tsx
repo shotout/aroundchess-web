@@ -2,6 +2,15 @@ import React from "react";
 import { GamePlayerAvatar } from "@/components/v2/game-player-avatar";
 import { PlayerInfoProps } from "../../types/default-pgn";
 
+/**
+ * A player row above/below the board: avatar, name, ELO — same treatment as the
+ * vs-AI game screen's player bars.
+ *
+ * It used to fetch the avatar and country from api.chess.com on every mount and
+ * render a country flag. The flag is gone (design) and the picture now comes
+ * from the app's own data like everywhere else, so drawing a player row no
+ * longer depends on a third-party request.
+ */
 const PlayerInfo: React.FC<PlayerInfoProps> = ({
   profilePic,
   playerName,

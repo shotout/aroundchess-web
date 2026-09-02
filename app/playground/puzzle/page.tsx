@@ -89,10 +89,16 @@ useEffect(() => {
       : "01." + (new Date().getMonth() + 2) + "." + new Date().getFullYear();
 
   const handleGetLog = async () => {
+    // apiRequest resolves to null when there is no session yet (signed out, or
+    // the store hasn't hydrated), and rejects on a network failure — neither
+    // should take the page down with "Cannot read properties of null".
     const res: any = await getUsagePuzzle().catch(() => null);
     const usage = Number(res?.data?.totalPuzzlesThisMonth) || 0;
     setRemainingPuzzle(usage);
     if (usage >= 20 && (!isMember&&!isMemberMonthly)) {
+      // toast.error(
+      //   `No free puzzles left this month. Free Puzzles reset on ${nextMonth}. Get Unlimited Puzzles now by clicking the button below.`
+      // );
       setOpen(true);
     }
   };

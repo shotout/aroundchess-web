@@ -65,6 +65,7 @@ export default function NewsPage() {
         setArticles(fetchedArticles)
       } catch (error) {
         console.error("Error fetching news:", error)
+        // TODO: Add proper error handling UI
       } finally {
         setIsLoading(false)
       }
@@ -91,13 +92,16 @@ export default function NewsPage() {
 
   const filteredArticles = articles
     .sort((a, b) => {
+      // Show pinned articles first
       if (a.isPinned && !b.isPinned) return -1
       if (!a.isPinned && b.isPinned) return 1
+      // Then sort by date
       return new Date(b.date).getTime() - new Date(a.date).getTime()
     })
 
   return (
     <div className="container mx-auto p-4 space-y-6">
+      {/* Page Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Chess News</h1>
         <p className="text-muted-foreground">Stay updated with the latest chess news, tournaments, and player insights from around the world.</p>
@@ -105,6 +109,7 @@ export default function NewsPage() {
 
       <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
         <div className="w-full md:w-3/4">
+          {/* Search and Filters */}
           <Card className="mb-6">
             <CardContent className="p-4">
               <div className="flex flex-col space-y-4">
@@ -151,6 +156,7 @@ export default function NewsPage() {
             </CardContent>
           </Card>
 
+          {/* News Grid */}
           {isLoading ? (
             <NewsSkeletonGrid />
           ) : filteredArticles.length === 0 ? (
@@ -219,6 +225,7 @@ export default function NewsPage() {
           )}
         </div>
 
+        {/* Sidebar */}
         <div className="w-full md:w-1/4 space-y-4">
           <Card>
             <CardHeader className="p-4">

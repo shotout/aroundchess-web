@@ -122,6 +122,7 @@ const ForgotPasswordPage: NextPage = () => {
     }
   }
 
+  // Verify the token first
   async function verifyToken(e: React.FormEvent) {
     e.preventDefault();
     setIsVerifying(true);
@@ -158,6 +159,7 @@ const ForgotPasswordPage: NextPage = () => {
     }
   }
 
+  // Reset password with the verified token
   async function resetPassword(e: React.FormEvent) {
     e.preventDefault();
     setIsResettingPassword(true);
@@ -231,6 +233,7 @@ const ForgotPasswordPage: NextPage = () => {
 
       toast.success("Reset code resent to your email!");
 
+      // Clear the input fields and reset verification state
       setVerificationCode("");
       setTokenVerified(false);
       if (codeInputRef.current) {
@@ -332,6 +335,7 @@ const ForgotPasswordPage: NextPage = () => {
               )}
             </div>
 
+            {/* Step 1: Email Input */}
             {!emailSent && !resetComplete ? (
               <div className="flex-1">
                 <form
@@ -375,7 +379,7 @@ const ForgotPasswordPage: NextPage = () => {
                   </button>
                 </form>
               </div>
-            ) :
+            ) : /* Step 2: Token Verification */
             emailSent && !tokenVerified && !resetComplete ? (
               <div className="text-center flex-1 flex flex-col">
                 <div className="mb-6">
@@ -416,6 +420,7 @@ const ForgotPasswordPage: NextPage = () => {
                               newCode[index] = value;
                               setVerificationCode(newCode.join(""));
 
+                              // Auto-focus next input when a digit is entered
                               if (value && index < 5) {
                                 const nextInput = document.getElementById(
                                   `verificationCode-${index + 1}`
@@ -424,6 +429,7 @@ const ForgotPasswordPage: NextPage = () => {
                               }
                             }}
                             onKeyDown={(e) => {
+                              // Handle backspace to move to previous input
                               if (
                                 e.key === "Backspace" &&
                                 !verificationCode[index] &&
@@ -441,6 +447,7 @@ const ForgotPasswordPage: NextPage = () => {
                                 .getData("text")
                                 .trim();
                               if (/^\d+$/.test(pastedData)) {
+                                // Get only up to 6 digits
                                 const digits = pastedData
                                   .substring(0, 6)
                                   .split("");
@@ -451,6 +458,7 @@ const ForgotPasswordPage: NextPage = () => {
                                       .substring(0, 6)
                                 );
 
+                                // Focus the next empty input or the last input if all filled
                                 if (digits.length < 6) {
                                   const nextInput = document.getElementById(
                                     `verificationCode-${Math.min(
@@ -467,6 +475,9 @@ const ForgotPasswordPage: NextPage = () => {
                             autoCapitalize="none"
                             autoCorrect="off"
                             maxLength={1}
+                            // 6 x 56px + gaps overflows a 390px screen, which is
+                            // what squeezed the boxes together. Same responsive
+                            // sizing the register page's code inputs use.
                             className="bg-white/40 border-white/40 rounded-md w-[11.5vw] h-[11.5vw] sm:h-14 sm:w-14 text-black text-center text-xl font-medium"
                           />
                         ))}
@@ -507,7 +518,7 @@ const ForgotPasswordPage: NextPage = () => {
                   </button>
                 </div>
               </div>
-            ) :
+            ) : /* Step 3: Password Reset */
             tokenVerified && !resetComplete ? (
               <div className="flex-1 flex flex-col">
                 <form onSubmit={resetPassword} className="space-y-6">
@@ -565,6 +576,8 @@ const ForgotPasswordPage: NextPage = () => {
                   <div className="mb-6 bg-[#FAFDFF] border border-[#C0CED4] rounded-[4px] p-[8px]">
                     <div className="flex flex-row flex-wrap">
                       {validatedConditions.map((condition, index) => (
+                        // One rule per line on mobile (two columns wrapped every
+                        // label), two columns from md — as on the register page.
                         <div key={condition.id} className="w-full md:w-1/2">
                           <div className="flex flex-row items-center">
                             <Image
@@ -629,7 +642,7 @@ const ForgotPasswordPage: NextPage = () => {
                   </button>
                 </div>
               </div>
-            ) :
+            ) : /* Step 4: Success */
             resetComplete ? (
               <div className="text-center flex-1 flex flex-col items-center justify-center">
                 <div className="relative w-32 h-32 mb-6">

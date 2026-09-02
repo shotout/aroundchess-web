@@ -28,11 +28,14 @@ import { toast } from "sonner";
 import DotSpinner from "../Spinner";
 import { useTutorial } from "@/components/TutorialProvider";
 
+// Utility function to format camelCase/PascalCase to spaced words
 const formatMistakeType = (text: string): string => {
     if (!text) return text;
+    // Add space before capital letters and trim
     return text
         .replace(/([A-Z])/g, ' $1')
         .trim()
+        // Capitalize first letter
         .replace(/^./, str => str.toUpperCase());
 };
 
@@ -49,7 +52,10 @@ interface Props {
   v3Result?: any;
   isTutorialPlay?: boolean;
   playerColor?: "white" | "black";
+  /** When set, open directly on the critical mistake at this move number
+   *  (used by Saved Mistakes so "View Analysis" jumps to the saved move). */
   initialMoveNumber?: number;
+  /** Optional move SAN to disambiguate when two mistakes share a move number. */
   initialMove?: string;
 }
 
@@ -70,19 +76,23 @@ export default function GameAnalysis({
     const { sessionId } = useProfileStore();
     const { setSavedMistakes } = usePgnStore();
 
+    // Get isTutorialPlay from useTutorial hook (prioritize this over prop)
     const { isTutorialPlay: isTutorialPlayFromHook } = useTutorial();
     const isTutorialPlay = isTutorialPlayFromHook ?? isTutorialPlayProp ?? false;
 
+    // Determine player color from props or v3Result
     const detectedPlayerColor: "white" | "black" = useMemo(() => {
         if (playerColor) {
             return playerColor;
         }
 
+        // Check gameInfo.isPlayerWhite first (primary source)
         if (v3Result?.gameInfo?.isPlayerWhite !== undefined) {
             const color = v3Result.gameInfo.isPlayerWhite ? "white" : "black";
             return color;
         }
 
+        // Try to detect from v3Result metadata if available
         if (v3Result?.playerColor) {
             return v3Result.playerColor;
         }
@@ -90,6 +100,7 @@ export default function GameAnalysis({
             return v3Result.metadata.playerColor;
         }
 
+        // Try to detect from PGN headers if available
         if (v3Result?.pgn) {
             try {
                 const pgnHeaders = v3Result.pgn.match(/\[Black\s+"([^"]+)"\]/i);
@@ -100,9 +111,11 @@ export default function GameAnalysis({
                     }
                 }
             } catch (error) {
+                // Silent error handling
             }
         }
 
+        // Default to white if cannot detect
         return "white";
     }, [playerColor, v3Result]);
 
@@ -126,12 +139,14 @@ export default function GameAnalysis({
         };
     }, []);
 
+    // Initialize local mistakes from v3Result
     useEffect(() => {
         if (v3Result?.summary?.criticalMistakes) {
             setLocalMistakes(v3Result.summary.criticalMistakes);
         }
     }, [v3Result, isTutorialPlay]);
 
+    // Index of the mistake matching the requested move (Saved Mistakes deep-link).
     const initialSlideIndex = useMemo(() => {
         if (initialMoveNumber == null || localMistakes.length === 0) return -1;
         const byNumberAndMove = localMistakes.findIndex(
@@ -145,6 +160,7 @@ export default function GameAnalysis({
         );
     }, [localMistakes, initialMoveNumber, initialMove]);
 
+    // Jump the carousel to that mistake once the dialog is open and slides exist.
     useEffect(() => {
         if (!open || initialSlideIndex < 0) return;
         const id = setTimeout(() => {
@@ -154,6 +170,7 @@ export default function GameAnalysis({
         return () => clearTimeout(id);
     }, [open, initialSlideIndex]);
 
+    // Handle save bookmark
     const handleSaveLog = async (index: number) => {
         if (loadingBookmark) return;
         
@@ -175,6 +192,7 @@ export default function GameAnalysis({
         try {
             const res = await saveMistakeLog({ mistakeLogId: mistakeId });
             
+            // Update local state
             setLocalMistakes(prev => {
                 const newList = [...prev];
                 newList[index] = {
@@ -185,6 +203,7 @@ export default function GameAnalysis({
                 return newList;
             });
             
+            // Refresh saved mistakes in global store
             const savedData = await getMistakeSaved({ page: 1, limit: 10 });
             if (savedData?.data && Array.isArray(savedData.data)) {
                 setSavedMistakes(savedData.data);
@@ -199,6 +218,7 @@ export default function GameAnalysis({
         }
     };
 
+    // Handle unsave bookmark
     const handleUnsaveLog = async (index: number) => {
         if (loadingBookmark) return;
         
@@ -220,6 +240,7 @@ export default function GameAnalysis({
         try {
             const res = await unsaveMistakeLog({ mistakeLogId: mistakeId });
             
+            // Update local state
             setLocalMistakes(prev => {
                 const newList = [...prev];
                 newList[index] = {
@@ -230,6 +251,7 @@ export default function GameAnalysis({
                 return newList;
             });
             
+            // Refresh saved mistakes in global store
             const savedData = await getMistakeSaved({ page: 1, limit: 10 });
             if (savedData?.data && Array.isArray(savedData.data)) {
                 setSavedMistakes(savedData.data);
@@ -381,6 +403,7 @@ const GameAnalysisSlide = ({
 }) => {
     const [game, setGame] = useState(new Chess());
     const [boardSize, setBoardSize] = useState(240);
+    // Set initial orientation based on player color
     const [orientation, setOrientation] = useState<BoardOrientation>(playerColor);
     const [is3DMode, setIs3DMode] = useState<boolean>(false);
     const [customArrows, setCustomArrows] = useState<ArrowConfig[]>([]);
@@ -388,10 +411,12 @@ const GameAnalysisSlide = ({
     const { setStyleChoosed } = useChessBoardThemeStore();
     const { chessMove, setChessMove } = useChessMoveStore();
 
+    // Update orientation when playerColor changes
     useEffect(() => {
         setOrientation(playerColor);
     }, [playerColor]);
 
+    // Helper function to detect if a move is a knight move (L-shaped)
     const isKnightMove = (from: string, to: string): boolean => {
         const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
         const rankFrom = parseInt(from[1]) - 1;
@@ -401,6 +426,7 @@ const GameAnalysisSlide = ({
         const fileDiff = Math.abs(fileTo - fileFrom);
         const rankDiff = Math.abs(rankTo - rankFrom);
 
+        // Knight moves: 2 squares in one direction, 1 in perpendicular
         return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
     };
 
@@ -432,6 +458,7 @@ const GameAnalysisSlide = ({
         }
     }, []);
 
+    // Load FEN position from mistake when it changes
     useEffect(() => {
         if (mistake?.fen) {
             try {
@@ -444,16 +471,19 @@ const GameAnalysisSlide = ({
         }
     }, [mistake]);
 
+    // Generate arrows for badMove (red) and goodMove (green)
     useEffect(() => {
         const arrows: ArrowConfig[] = [];
 
+        // Red arrow for bad move
         if (mistake?.arrows?.badMove) {
             const badMove = mistake.arrows.badMove;
 
+            // Check if it's an object with startSquare and endSquare
             if (badMove.startSquare && badMove.endSquare) {
                 const from = badMove.startSquare;
                 const to = badMove.endSquare;
-                const color = "rgba(239, 68, 68, 0.5)";
+                const color = "rgba(239, 68, 68, 0.5)"; // Red color with 50% opacity
                 const isKnight = isKnightMove(from, to);
 
                 arrows.push({
@@ -466,12 +496,14 @@ const GameAnalysisSlide = ({
         } else {
         }
 
+        // Green arrow for good move (could be goodMove or bestMove)
         const goodMove = mistake?.arrows?.goodMove || mistake?.arrows?.bestMove;
         if (goodMove) {
+            // Check if it's an object with startSquare and endSquare
             if (goodMove.startSquare && goodMove.endSquare) {
                 const from = goodMove.startSquare;
                 const to = goodMove.endSquare;
-                const color = "rgba(34, 197, 94, 0.5)";
+                const color = "rgba(34, 197, 94, 0.5)"; // Green color with 50% opacity
                 const isKnight = isKnightMove(from, to);
 
                 arrows.push({
@@ -505,6 +537,7 @@ const GameAnalysisSlide = ({
                 </div>
             ) : (
                 <div className="w-full flex flex-col gap-[10px] items-center justify-center mb-[16px] shrink-0">
+                    {/* <Image src="/images/analysis/chessboard2d.png" alt="analysis" width={320} height={320} className="mb-[10px]" /> */}
                     <div
                         style={{ width: boardSize }}
                         className="flex flex-row self-end sm:self-center justify-end items-center gap-3"
@@ -521,7 +554,70 @@ const GameAnalysisSlide = ({
                         
                         <SettingBoard />
                     
+                        {/* <button onClick={toggleBoardMode}>
+                            <Image
+                                src={`/icons/${!is3DMode ? `3d-icon` : `2d-icon`}.png`}
+                                alt="icon"
+                                width={22}
+                                height={27}
+                                className="w-[22px] h-[27px] object-contain"
+                            />
+                        </button> */}
                     </div>
+
+                    {/* <motion.div
+                        initial={{ rotateX: 180 }}
+                        animate={!is3DMode ? { opacity: 0, display: "hidden" } : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }}
+                        transition={{
+                            duration: 0.6,
+                            stiffness: 500,
+                            damping: 30,
+                            ease: [0.4, 0.0, 0.2, 1],
+                            type: "tween",
+                        }}
+                        style={{
+                            width: boardSize,
+                            display: is3DMode ? "flex" : "none",
+                            backfaceVisibility: "hidden",
+                            transformStyle: "preserve-3d",
+                            position: "relative",
+                        }}
+                    >
+                        {is3DMode && (
+                            <>
+                                <ThreeDBoard
+                                    arePiecesClickable={false}
+                                    arePiecesDraggable={false}
+                                    boardWidth={boardSize}
+                                    orientation={orientation}
+                                    position={game.fen()}
+                                    onSquareClick={function (square: Square): void {
+                                        throw new Error("Function not implemented.");
+                                    }}
+                                    onSquareRightClick={function (square: Square): void {
+                                        throw new Error("Function not implemented.");
+                                    }}
+                                    onPromotionPieceSelect={function (
+                                        piece?: PromotionPieceOption,
+                                        promoteFromSquare?: Square,
+                                        promoteToSquare?: Square
+                                    ): boolean {
+                                        throw new Error("Function not implemented.");
+                                    }}
+                                    promotionToSquare={null}
+                                    showPromotionDialog={false}
+                                    customArrows={[]}
+                                    areArrowsAllowed={false}
+                                    customArrowColor={""}
+                                />
+                                <CustomChessArrows
+                                    arrows={customArrows}
+                                    boardSize={boardSize}
+                                    orientation={orientation}
+                                />
+                            </>
+                        )}
+                    </motion.div> */}
 
                     <motion.div
                         initial={{ rotateX: 180 }}
@@ -544,11 +640,14 @@ const GameAnalysisSlide = ({
                             position: "relative",
                         }}
                     >
+                        {/* {!is3DMode && (
+                        <> */}
                             <TwoDChessboard
                                 arePiecesClickable={false}
                                 arePiecesDraggable={false}
                                 boardWidth={boardSize}
                                 orientation={orientation}
+                                // orientation={"black"}
                                 position={game.fen()}
                                 onSquareClick={function (square: Square): void {
                                     throw new Error("Function not implemented.");
@@ -573,7 +672,10 @@ const GameAnalysisSlide = ({
                                 arrows={customArrows}
                                 boardSize={boardSize}
                                 orientation={orientation}
+                                // orientation={"black"}
                             />
+                        {/* </>
+                        )} */}
                     </motion.div>
                 </div>
             )}
@@ -680,6 +782,7 @@ const AnalysisHelpfulSlide = (
 
             setFeedbackSent(true);
         } catch (error: any) {
+            // Silent error handling
         } finally {
             setIsSubmitting(false);
         }

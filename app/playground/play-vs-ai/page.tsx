@@ -18,6 +18,11 @@ export default function PlayVSAI() {
     }
   }, []);
 
+  // Deep links that land on the Play VS AI card (#play-vs-ai): the leaderboard's
+  // "Play Now" and the mobile menu's "Play vs AI". The hero is rendered inside a
+  // Suspense boundary, so poll briefly until it mounts rather than relying on
+  // the browser's one-shot hash scroll. hashchange covers tapping the menu entry
+  // while already on this page, where the component never remounts.
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | null = null;
 
@@ -52,6 +57,8 @@ export default function PlayVSAI() {
         onClose={() => setShowAnalyzePopup(false)}
       />
       <DayStreakLoginTrigger suppressed={showAnalyzePopup} />
+      {/* Mounted only once the analyze popup is closed so the tour's
+          auto-start never opens over it. */}
       {!showAnalyzePopup && <PlaygroundTourGate />}
       <Suspense>
         <PlayPage />

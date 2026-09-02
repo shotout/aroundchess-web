@@ -70,16 +70,19 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
   const prevFenHistory = useRef<string[]>([]);
 
   useEffect(() => {
+    // Update material differences when the position changes
     const board = chessGame.current.board();
     const { whiteMaterialDifference, blackMaterialDifference } =
       getMaterialDifferences(board);
     setWhiteMaterialDifference(whiteMaterialDifference);
     setBlackMaterialDifference(blackMaterialDifference);
 
+    // Update the active player if the game is not over
     if (!chessGame.current.isGameOver() && !gameEnded) {
       setActivePlayer(chessGame.current.turn() === "w" ? "white" : "black");
     }
 
+    // Check for game over
     if (!gameEnded && chessGame.current.isGameOver()) {
       setGameEnded(true);
       onGameOver();
@@ -87,8 +90,9 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
   }, [position, gameEnded, onGameOver]);
 
   useEffect(() => {
+    // Handle changes to fenHistory and position
     if (fenHistory.length < prevFenHistory.current.length) {
-      setLastMove(null);
+      setLastMove(null); // Clear last move if history has been shortened
     }
 
     if (currentMoveIndex >= 0 && currentMoveIndex < fenHistory.length) {
@@ -98,8 +102,10 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
       setActivePlayer(chessGame.current.turn() === "w" ? "white" : "black");
     }
 
+    // Save fenHistory to local storage
     localStorage.setItem("fenHistory", JSON.stringify(fenHistory));
 
+    // Load previous fenHistory on initial render
     if (prevFenHistory.current.length === 0) {
       const savedHistory = JSON.parse(
         localStorage.getItem("fenHistory") || "[]"
@@ -148,25 +154,33 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
 
       const expectedMove = puzzleMoves[currentMoveIndex];
       if (!expectedMove) {
+        // console.error('No more moves in the puzzle.')
         return false;
       }
 
       const expectedFrom = expectedMove.slice(0, 2);
       const expectedTo = expectedMove.slice(2, 4);
 
+      // Check if the move is legal
       const legalMoves = game.moves({ square: fromSquare, verbose: true });
       const isMoveLegal = legalMoves.some((m) => m.to === toSquare);
 
       if (!isMoveLegal) {
-        return false;
+        // console.error(`Illegal move from ${fromSquare} to ${toSquare}`)
+        return false; // No invalid highlighting for illegal moves
       }
 
+      // Check if the move matches the puzzle's expected move
       if (fromSquare !== expectedFrom || toSquare !== expectedTo) {
-        setInvalidMoveSquares([toSquare]);
-        setTimeout(() => setInvalidMoveSquares([]), 500);
+        // console.error(
+        //   `Invalid move. Expected: ${expectedFrom} to ${expectedTo}, got: ${fromSquare} to ${toSquare}`
+        // )
+        setInvalidMoveSquares([toSquare]); // Highlight invalid square
+        setTimeout(() => setInvalidMoveSquares([]), 500); // Clear after 1 second
         return false;
       }
 
+      // Perform the move
       const move = game.move({ from: fromSquare, to: toSquare });
       if (move) {
         const currentFen = game.fen();
@@ -200,9 +214,11 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
       const game = chessGame.current;
       const pieceAtSquare = game.get(square);
 
+      // Case 1: A piece is already selected
       if (selectedSquare) {
         const fromSquare = selectedSquare;
 
+        // Case 1a: Clicking on a different piece of the same color
         if (
           pieceAtSquare &&
           pieceAtSquare.color === game.turn() &&
@@ -213,30 +229,37 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
           return;
         }
 
+        // Case 1b: Clicking on the same square (deselect)
         if (fromSquare === square) {
           handleClearSelection();
           return;
         }
 
+        // Case 1c: Attempt to move to the square
         const toSquare = square;
 
+        // Delegate move validation and execution to makeMoveCallback
         const moveSuccessful = makeMoveCallback(fromSquare, toSquare);
         if (moveSuccessful) {
-          handleClearSelection();
+          handleClearSelection(); // Clear selection only after a successful move
         } else {
         }
 
         return;
       }
 
+      // Case 2: No piece is selected yet
       if (pieceAtSquare) {
+        // Select the piece and highlight its moves
         if (pieceAtSquare.color === game.turn() && !isComputerTurn) {
           setSelectedSquare(square);
           getPossibleMoves(square);
         } else {
+          // Clear selection if the piece doesn't belong to the current player
           handleClearSelection();
         }
       } else {
+        // No piece on the clicked square; clear selection
         handleClearSelection();
       }
     },
@@ -282,42 +305,44 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
     setHighlightedSquares(
       (prev) =>
         prev.includes(square)
-          ? prev.filter((s) => s !== square)
-          : [...prev, square]
+          ? prev.filter((s) => s !== square) // Remove square if already highlighted
+          : [...prev, square] // Add square if not highlighted
     );
   }, []);
 
   const customSquareStyles = useMemo(() => {
     return highlightedSquares.reduce((acc, square) => {
-      acc[square] = { backgroundColor: "rgb(255, 5, 5, 0.25)" };
+      acc[square] = { backgroundColor: "rgb(255, 5, 5, 0.25)" }; // Correctly type the styles
       return acc;
-    }, {} as Record<string, Record<string, string | number>>);
+    }, {} as Record<string, Record<string, string | number>>); // Match the expected type
   }, [highlightedSquares]);
 
   const resetPuzzleHandler = useCallback(() => {
-    chessGame.current = new Chess();
-    resetPuzzle();
-    setCurrentMoveIndex(0);
-    setMoveProcessed(false);
-    setGameEnded(false);
+    chessGame.current = new Chess(); // Reset the chess game instance
+    resetPuzzle(); // Clear the current puzzle state
+    setCurrentMoveIndex(0); // Reset the move index
+    setMoveProcessed(false); // Reset move processing state
+    setGameEnded(false); // Reset the game-ended state
   }, [resetPuzzle, setFenHistory, setCurrentMoveIndex]);
 
   const getNextPuzzleHandler = useCallback(() => {
-    chessGame.current = new Chess();
-    setCurrentMoveIndex(0);
-    setMoveProcessed(false);
-    setGameEnded(false);
-    getNextPuzzle();
+    chessGame.current = new Chess(); // Reset the chess game instance
+    setCurrentMoveIndex(0); // Reset the move index
+    setMoveProcessed(false); // Reset move processing state
+    setGameEnded(false); // Reset the game-ended state
+    getNextPuzzle(); // Proceed to the next puzzle
   }, [setFenHistory, setCurrentMoveIndex, getNextPuzzle]);
 
   const isComputerTurn = currentMoveIndex % 2 === 0;
 
   useEffect(() => {
-    if (gameEnded) return;
-    if (!isComputerTurn || moveProcessed) return;
+    // Ensure computer only moves at the latest position
+    if (gameEnded) return; // Exit if the game has ended
+    if (!isComputerTurn || moveProcessed) return; // Exit if not the computer's turn or move already processed
 
+    // Check if we're at the end of the move history
     const isAtCurrentMove = currentMoveIndex === fenHistory.length - 1;
-    if (!isAtCurrentMove) return;
+    if (!isAtCurrentMove) return; // Prevent move execution if not at the latest move
 
     const move = puzzleMoves[currentMoveIndex];
     if (move) {
@@ -327,15 +352,15 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
       const delay = setTimeout(() => {
         const moveResult = makeMoveCallback(fromSquare, toSquare);
         if (moveResult) {
-          setMoveProcessed(true);
+          setMoveProcessed(true); // Mark move as processed only after success
         }
-      }, 2000);
+      }, 2000); // 2-second delay for move execution
 
-      return () => clearTimeout(delay);
+      return () => clearTimeout(delay); // Cleanup timeout on re-render or dependency change
     }
   }, [
     currentMoveIndex,
-    fenHistory.length,
+    fenHistory.length, // Track changes in fenHistory length
     puzzleMoves,
     gameEnded,
     isComputerTurn,
@@ -344,6 +369,7 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
   ]);
 
   useEffect(() => {
+    // Reset moveProcessed only after the player's turn is processed
     if (currentMoveIndex % 2 !== 0 && moveProcessed) {
       setMoveProcessed(false);
     }
@@ -382,6 +408,7 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
       )}
 
       <div className="flex justify-between w-full mb-4">
+        {/* Top Player */}
         <PlayerInfo
           playerName={`Opponent`}
           isActive={
@@ -391,8 +418,8 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
           color={boardOrientation === "white" ? "black" : "white"}
           materialDifference={
             boardOrientation === "white"
-              ? blackMaterialDifference
-              : whiteMaterialDifference
+              ? blackMaterialDifference // Show black's material difference at the top
+              : whiteMaterialDifference // Show white's material difference at the top
           }
         />
       </div>
@@ -423,6 +450,7 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
       </div>
 
       <div className="flex justify-between w-full mt-4">
+        {/* Bottom Player */}
         <PlayerInfo
           playerName={`Player`}
           isActive={
@@ -432,8 +460,8 @@ const PuzzleGame: React.FC<PuzzleGameProps> = ({
           color={boardOrientation === "white" ? "white" : "black"}
           materialDifference={
             boardOrientation === "white"
-              ? whiteMaterialDifference
-              : blackMaterialDifference
+              ? whiteMaterialDifference // Show white's material difference at the bottom
+              : blackMaterialDifference // Show black's material difference at the bottom
           }
         />
       </div>

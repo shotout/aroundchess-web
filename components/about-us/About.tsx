@@ -70,7 +70,9 @@ export default function About() {
         <div className="w-full">
           <div className="border-2 border-cyan-200 rounded-2xl p-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+              {/* Content Section */}
               <div className="lg:col-span-2 space-y-6">
+                {/* Header with Badge */}
                 <div className="flex items-center gap-4 mb-6">
                   <div className="bg-cyan-400 flex items-center gap-x-2 text-white px-4 py-2 rounded-lg font-bold text-[14px] --sm lg:text-lg">
                     <Image
@@ -87,6 +89,7 @@ export default function About() {
                   </h2>
                 </div>
 
+                {/* Description Paragraphs */}
                 <div className="space-y-4 text-gray-700 leading-relaxed">
                   <p className="text-[14px] -- lg:text-[18px] leading-[1.2]">
                     AroundChess was built with the insight and experience of
@@ -108,6 +111,7 @@ export default function About() {
                 </div>
               </div>
 
+              {/* Image Section */}
               <div className="lg:col-span-1">
                 <div className="relative rounded-xl overflow-hidden">
                   <Image

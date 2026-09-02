@@ -29,6 +29,7 @@ export const useChessProfile = () => {
     checkComplete: false,
   });
 
+  // Use ref to prevent multiple simultaneous API calls
   const fetchingRef = useRef(false);
 
   const checkProfile = useCallback(async () => {
@@ -41,6 +42,7 @@ export const useChessProfile = () => {
       return;
     }
 
+    // Check cache first
     const cached = profileCache.get(sessionId);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
       setUsername(cached.username);
@@ -70,6 +72,7 @@ export const useChessProfile = () => {
       if (response?.success && response?.data?.username) {
         const fetchedUsername = response.data.username;
 
+        // Cache the result
         profileCache.set(sessionId, {
           username: fetchedUsername,
           timestamp: Date.now(),
@@ -107,6 +110,7 @@ export const useChessProfile = () => {
     }
   }, [sessionId, setUsername]);
 
+  // Initial check when sessionId changes
   useEffect(() => {
     if (username) {
       setState({
@@ -135,7 +139,7 @@ export const useChessProfile = () => {
 
   const refetch = useCallback(() => {
     if (sessionId) {
-      profileCache.delete(sessionId);
+      profileCache.delete(sessionId); // Clear cache
       checkProfile();
     }
   }, [sessionId, checkProfile]);

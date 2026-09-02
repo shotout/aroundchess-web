@@ -289,6 +289,7 @@ export default function ${topic.split('-').map(word => word.charAt(0).toUpperCas
   )
 }`
 
+// Generate pages for each topic
 topics.forEach(topic => {
   const dir = path.join(process.cwd(), 'app/dashboard/learning/endgame', topic)
   const file = path.join(dir, 'page.tsx')

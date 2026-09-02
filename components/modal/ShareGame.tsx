@@ -32,6 +32,7 @@ export function ShareGame() {
 
   return (
     <>
+      {/* Desktop/Tablet Version */}
       <div className="">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent
@@ -44,6 +45,7 @@ export function ShareGame() {
             }}
             className="rounded-lg hidden sm:block max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-white max-h-[95%] overflow-y-hidden"
           >
+            {/* Radix requires an accessible name on every DialogContent */}
             <DialogTitle className="sr-only">Share this Game</DialogTitle>
             <DialogHeader className="flex items-center z-20">
               <span className="text-center font-medium text-[18px] w-2/3">
@@ -91,6 +93,7 @@ export function ShareGame() {
         </Dialog>
       </div>
 
+      {/* Mobile Version */}
       <div className="sm:hidden">
         <AnimatePresence>
           {open && (

@@ -20,6 +20,7 @@ export function PinnedSectionsProvider({ children }: { children: React.ReactNode
   const [pinnedSections, setPinnedSections] = useState<PinnedSection[]>([])
   const [isInitialized, setIsInitialized] = useState(false)
 
+  // Load pinned sections from localStorage
   useEffect(() => {
     const savedSections = localStorage.getItem('chessFundamentalsPinnedSections')
     if (savedSections) {
@@ -28,6 +29,7 @@ export function PinnedSectionsProvider({ children }: { children: React.ReactNode
     setIsInitialized(true)
   }, [])
 
+  // Save pinned sections to localStorage
   useEffect(() => {
     if (!isInitialized) return
     localStorage.setItem('chessFundamentalsPinnedSections', JSON.stringify(pinnedSections))

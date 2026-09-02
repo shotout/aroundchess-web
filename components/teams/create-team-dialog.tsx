@@ -34,6 +34,7 @@ export function CreateTeamDialog({ open, onOpenChange }: CreateTeamDialogProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    // TODO: Implement team creation logic
     setLoading(false)
     onOpenChange(false)
   }

@@ -59,6 +59,16 @@ export function ChessPiece({
     }
     e.dataTransfer.setData("text/plain", `${position.row},${position.col}`);
 
+    // draging image pops the slider out of the screen
+
+    // if (imgRef.current) {
+    //   const dragImage = imgRef.current.cloneNode(true) as HTMLImageElement;
+    //   dragImage.style.width = "80px";
+    //   dragImage.style.height = "80px";
+    //   document.body.appendChild(dragImage);
+    //   e.dataTransfer.setDragImage(dragImage, 48, 48);
+    //   setTimeout(() => document.body.removeChild(dragImage), 0);
+    // }
   };
 
   const translateX =

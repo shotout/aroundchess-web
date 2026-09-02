@@ -39,8 +39,10 @@ export const useDataCache = () => {
     setIsFetching(true);
 
     try {
+      // Only fetch savedMistakes if not skipped AND no cached data exists
       if (!skipSavedMistakes) {
         const savedData = await getMistakeSaved({ page: 1, limit: 10 });
+        // Only update if we got valid data, otherwise keep cached data
         if (savedData?.data && Array.isArray(savedData.data)) {
           setSavedMistakes(savedData.data);
           if (savedData.data.length > 0) {
@@ -49,6 +51,7 @@ export const useDataCache = () => {
         }
       }
 
+      // Force-refresh to avoid backend cache for previous analyses
       const prevData = await getMistakePrevious({ force: 1 });
       console.log("prevData",prevData)
       if (prevData?.data && Array.isArray(prevData.data) && prevData.data.length > 0) {
@@ -89,6 +92,7 @@ export const useDataCache = () => {
       setLastFetchTime(Date.now());
     } catch (error) {
       console.error('Error fetching data:', error);
+      // Don't clear cached data on error - just keep what we have
     } finally {
       setIsFetching(false);
     }
@@ -100,11 +104,16 @@ export const useDataCache = () => {
     const hasCachedData = savedMistakes.length > 0 || previousAnalyses.length > 0;
     const hasSavedMistakes = savedMistakes.length > 0;
 
+    // Only fetch if no cached data, OR if we have cached data but it's expired (not on initial load)
     if (!hasCachedData) {
+      // No cached data - always fetch
       await fetchAllData();
     } else if (lastFetchTime && shouldRefetch()) {
+      // Has cached data AND cache is expired (lastFetchTime exists) - refetch
+      // Skip fetching savedMistakes if they already exist to preserve all bookmarks
       await fetchAllData(hasSavedMistakes);
     }
+    // If hasCachedData and no lastFetchTime (initial load), just use cached data
   }, [hydrated, shouldRefetch, fetchAllData, savedMistakes.length, previousAnalyses.length, lastFetchTime]);
 
   useEffect(() => {

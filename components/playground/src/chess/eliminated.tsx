@@ -15,6 +15,7 @@ const calculatePoints = (piece: string) => {
   return values[piece] || 0
 }
 
+// Shows black pieces captured by white
 export function WhiteEliminatedPieces() {
   const eliminatedPieces = useChessStore((state) => state.eliminatedPieces.white)
   const { pieceTheme } = useThemeStore()
@@ -36,7 +37,7 @@ export function WhiteEliminatedPieces() {
           <div key={index} className="relative group">
             <div className="w-6 h-6 hover:scale-110 transition-transform">
               <Image
-                src={`/${pieceTheme}/black/${piece.toUpperCase()}.png`}
+                src={`/${pieceTheme}/black/${piece.toUpperCase()}.png`} // Always show black pieces
                 alt={piece}
                 width={24}
                 height={24}
@@ -64,6 +65,7 @@ export function WhiteEliminatedPieces() {
   )
 }
 
+// Shows white pieces captured by black
 export function BlackEliminatedPieces() {
   const eliminatedPieces = useChessStore((state) => state.eliminatedPieces.black)
   const { pieceTheme } = useThemeStore()
@@ -85,7 +87,7 @@ export function BlackEliminatedPieces() {
           <div key={index} className="relative group">
             <div className="w-6 h-6 hover:scale-110 transition-transform">
               <Image
-                src={`/${pieceTheme}/white/${piece}.png`}
+                src={`/${pieceTheme}/white/${piece}.png`} // Always show white pieces
                 alt={piece}
                 width={24}
                 height={24}

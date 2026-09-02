@@ -97,6 +97,9 @@ export const DummyList = () => {
                 data-tutorial={idx === 0 ? "1" : ""}
               >
                 <div className="flex items-center px-2 py-3 border-r border-gray-200">
+                  {/* {isNew && (
+                    <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
+                  )} */}
                   <span className="w-6 text-center text-gray-500">
                     {indexInPage}
                   </span>
@@ -178,6 +181,9 @@ export const DummyList = () => {
               style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
             >
               <div className="flex items-center px-2 py-3 border-r border-gray-200">
+                {/* {isNew && (
+                    <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
+                  )} */}
                 <span className="w-6 text-center text-gray-500">
                   {indexInPage + 1}
                 </span>
@@ -263,6 +269,9 @@ export const DummyList = () => {
                 data-tutorial={idx === 0 ? "1" : ""}
               >
                 <div className="flex items-center px-2 py-3 border-r border-gray-200">
+                  {/* {isNew && (
+                    <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
+                  )} */}
                   <span className="w-6 text-center text-gray-500">
                     {indexInPage}
                   </span>
@@ -344,6 +353,9 @@ export const DummyList = () => {
               style={{ gridTemplateColumns: DESKTOP_GRID_TEMPLATE }}
             >
               <div className="flex items-center px-2 py-3 border-r border-gray-200">
+                {/* {isNew && (
+                    <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
+                  )} */}
                 <span className="w-6 text-center text-gray-500">
                   {indexInPage + 1}
                 </span>

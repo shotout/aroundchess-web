@@ -20,25 +20,28 @@ import { boardToFen } from '../utils/boardToFen';
 import { generateMoveNotation } from '../utils/generateMoveNotation';
 import { CheckEnpassant } from '../utils/enpassant';
 
+// Add this helper function at the top level
 function mapELOToStockfishSettings(elo: number, tournamentMode: boolean = false): { depth: number; randomness: number } {
+  // Tournament mode for maximum strength
   if (tournamentMode && elo >= 2800) {
-    return { depth: 15, randomness: 0.0 };
+    return { depth: 15, randomness: 0.0 }; // Tournament strength
   }
 
-  if (elo <= 250) return { depth: 1, randomness: 1.0 };
-  else if (elo <= 400) return { depth: 1, randomness: 0.95 };
-  else if (elo <= 600) return { depth: 2, randomness: 0.90 };
-  else if (elo <= 800) return { depth: 2, randomness: 0.85 };
-  else if (elo <= 1000) return { depth: 3, randomness: 0.80 };
-  else if (elo <= 1200) return { depth: 4, randomness: 0.70 };
-  else if (elo <= 1400) return { depth: 5, randomness: 0.60 };
-  else if (elo <= 1600) return { depth: 6, randomness: 0.50 };
-  else if (elo <= 1800) return { depth: 8, randomness: 0.40 };
-  else if (elo <= 2000) return { depth: 10, randomness: 0.30 };
-  else if (elo <= 2200) return { depth: 12, randomness: 0.20 };
-  else if (elo <= 2400) return { depth: 14, randomness: 0.15 };
-  else if (elo <= 2600) return { depth: 16, randomness: 0.10 };
-  else return { depth: 18, randomness: 0.01 };
+  // Regular mode with optimized performance
+  if (elo <= 250) return { depth: 1, randomness: 1.0 };        // Complete beginner
+  else if (elo <= 400) return { depth: 1, randomness: 0.95 };  // Just learned rules
+  else if (elo <= 600) return { depth: 2, randomness: 0.90 };  // Starting to think
+  else if (elo <= 800) return { depth: 2, randomness: 0.85 };  // Basic understanding
+  else if (elo <= 1000) return { depth: 3, randomness: 0.80 }; // Developing player
+  else if (elo <= 1200) return { depth: 4, randomness: 0.70 }; // Casual player
+  else if (elo <= 1400) return { depth: 5, randomness: 0.60 }; // Club player
+  else if (elo <= 1600) return { depth: 6, randomness: 0.50 }; // Strong club player
+  else if (elo <= 1800) return { depth: 8, randomness: 0.40 }; // Expert
+  else if (elo <= 2000) return { depth: 10, randomness: 0.30 }; // Candidate Master
+  else if (elo <= 2200) return { depth: 12, randomness: 0.20 }; // Master
+  else if (elo <= 2400) return { depth: 14, randomness: 0.15 }; // International Master
+  else if (elo <= 2600) return { depth: 16, randomness: 0.10 }; // Grandmaster
+  else return { depth: 18, randomness: 0.01 };                  // Super Grandmaster
 }
 
 interface Character {
@@ -53,6 +56,7 @@ interface Character {
 const useComputerChessStore = create<ComputerChessStoreState>()(
   persist(
     (set, get) => ({
+      // Initial state
       board: initialBoard,
       currentPlayer: "white" as Player,
       lastMove: null,
@@ -111,12 +115,14 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           return false;
         }
 
+        // Check for pawn promotion BEFORE making the move
         const piece = state.board[fromRow][fromCol];
         if (!piece) return false;
         
         const isPawnPromotion = piece.toUpperCase() === 'P' && (toRow === 0 || toRow === 7);
         if (isPawnPromotion) {
           const newBoard = state.board.map(row => [...row]);
+          // Move the pawn to the promotion square
           newBoard[toRow][toCol] = state.currentPlayer === "white" ? "P" : "p";
           newBoard[fromRow][fromCol] = null;
           
@@ -137,23 +143,28 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           return true;
         }
 
+        // Check for castling BEFORE making the move
         const isCastling = piece.toUpperCase() === 'K' && Math.abs(toCol - fromCol) === 2;
         if (isCastling) {
           const isKingSide = toCol === 6;
           const rookFromCol = isKingSide ? 7 : 0;
           const rookToCol = isKingSide ? 5 : 3;
           
+          // Create new board for castling
           const newBoard = state.board.map(row => [...row]);
           
+          // Move the king
           newBoard[toRow][toCol] = piece;
           newBoard[fromRow][fromCol] = null;
           
+          // Move the rook
           const rook = newBoard[fromRow][rookFromCol];
           if (rook) {
             newBoard[fromRow][rookToCol] = rook;
             newBoard[fromRow][rookFromCol] = null;
             playCastlingSound();
             
+            // Update state with castling move
             set({
               board: newBoard,
               currentPlayer: state.currentPlayer === "white" ? "black" : "white",
@@ -180,42 +191,53 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           }
         }
 
+        // Track king and rook movements for castling
         const isKing = piece.toUpperCase() === 'K';
         const isRook = piece.toUpperCase() === 'R';
         const isWhitePiece = piece === piece.toUpperCase();
         
+        // Create new board for the move
         const newBoard = JSON.parse(JSON.stringify(state.board));
         const newEliminatedPieces = { ...state.eliminatedPieces };
 
+        // Handle en passant capture BEFORE making the move
         let isEnPassant = false;
         if (state.lastMove && CheckEnpassant(state.board, { fromRow, fromCol, toRow, toCol }, state.lastMove)) {
           const capturedPawnRow = state.lastMove.toRow;
           const capturedPawnCol = state.lastMove.toCol;
           const capturedPawn = state.board[capturedPawnRow][capturedPawnCol];
           if (capturedPawn) {
+            // Add captured pawn to the current player's eliminated pieces
             const capturedPawnColor = capturedPawn === capturedPawn.toUpperCase() ? 'white' : 'black';
             newEliminatedPieces[state.currentPlayer].push(capturedPawn);
+            // Remove the captured pawn
             newBoard[capturedPawnRow][capturedPawnCol] = null;
             isEnPassant = true;
             playCaptureSound();
           }
         }
 
+        // Make the move
         newBoard[toRow][toCol] = piece;
         newBoard[fromRow][fromCol] = null;
 
+        // Update eliminated pieces if there's a regular capture
         const capturedPiece = state.board[toRow][toCol];
         if (capturedPiece && !isEnPassant) {
+          // Add the captured piece to the appropriate list based on player color
           if (state.playerColor === 'black') {
+            // Keep existing behavior for black player
             const capturedPieceColor = capturedPiece === capturedPiece.toUpperCase() ? 'white' : 'black';
             newEliminatedPieces[capturedPieceColor].push(capturedPiece);
           } else {
+            // For white player, add captured pieces to black's list
             const capturedPieceColor = capturedPiece === capturedPiece.toUpperCase() ? 'white' : 'black';
             newEliminatedPieces[capturedPieceColor === 'white' ? 'black' : 'white'].push(capturedPiece);
           }
           playCaptureSound();
         }
 
+        // Update king and rook movement tracking
         const newKingCheckOrMoved = { ...state.kingCheckOrMoved };
         const newRookMoved = { ...state.rookMoved };
 
@@ -228,6 +250,7 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           newRookMoved[color][side] = true;
         }
 
+        // Record the move
         const moveDetails: ChessMove = {
           type: piece,
           fromRow,
@@ -236,12 +259,14 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           toCol,
         };
 
+        // Check for checkmate or stalemate
         const nextPlayer = state.currentPlayer === "white" ? "black" : "white";
         const isInCheck = isKingInCheck(newBoard, nextPlayer);
         let gameResult: GameResult | null = null;
 
         if (isInCheck) {
           playCheckSound();
+          // Check if it's checkmate
           const hasValidMoves = hasAnyValidMoves(newBoard, nextPlayer);
           if (!hasValidMoves) {
             playCheckmateSound();
@@ -254,12 +279,14 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
               moveCount: state.moves.length,
               duration: 0
             };
+            // Set isCheckMate state
             set(state => ({
               ...state,
               isCheckMate: state.currentPlayer
             }));
           }
         } else {
+          // Check for stalemate
           const hasValidMoves = hasAnyValidMoves(newBoard, nextPlayer);
           if (!hasValidMoves) {
             gameResult = {
@@ -274,14 +301,18 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           }
         }
 
+        // Determine if move is a capture
         const isCapture = state.board[toRow][toCol] !== null;
 
+        // Play sound effects
         if (!isEnPassant && !isCapture) {
           playMoveSound();
         }
 
+        // Record move in algebraic notation
         const moveText = get().recordMove(fromRow, fromCol, toRow, toCol, piece, isCapture || isEnPassant);
 
+        // Update game state
         set({
           board: newBoard,
           lastMove: moveDetails,
@@ -296,10 +327,11 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           eliminatedPieces: newEliminatedPieces
         });
 
+        // If it's computer's turn, schedule the computer move
         if (state.computer === nextPlayer && !gameResult) {
           setTimeout(() => {
             get().computerMove();
-          }, 2000);
+          }, 2000); // Increased delay for computer moves
         }
 
         return true;
@@ -308,13 +340,16 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
       isValidMove: (fromRow, fromCol, toRow, toCol) => {
         const state = get();
         
+        // Get the piece that's moving
         const piece = state.board[fromRow][fromCol];
         if (!piece) {
           return false;
         }
         
+        // Get piece color
         const isPieceWhite = piece === piece.toUpperCase();
         
+        // If it's computer's turn, allow only computer moves
         if (state.computer === state.currentPlayer) {
           const isComputerPiece = (state.computer === 'white' && isPieceWhite) ||
                                  (state.computer === 'black' && !isPieceWhite);
@@ -334,17 +369,20 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           );
         }
         
+        // If it's player's turn, verify piece ownership
         const isPlayerPiece = (state.playerColor === 'white' && isPieceWhite) || 
                             (state.playerColor === 'black' && !isPieceWhite);
         if (!isPlayerPiece) {
           return false;
         }
 
+        // Check if it's the correct player's turn
         if ((state.currentPlayer === "white" && !isPieceWhite) || 
             (state.currentPlayer === "black" && isPieceWhite)) {
           return false;
         }
 
+        // Check if move is possible according to chess rules
         return isMovePossible(
           state.board,
           fromRow,
@@ -368,8 +406,10 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
         let moveText = '';
         
         if (piece.toUpperCase() === 'P') {
+          // Pawn moves
           moveText = isCapture ? fromSquare[0] + 'x' + toSquare : toSquare;
         } else {
+          // Piece moves
           moveText = piece.toUpperCase() + (isCapture ? 'x' : '') + toSquare;
         }
         
@@ -413,6 +453,7 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
         isColorSelectionOpen: true,
         playerColor: 'white',
         isBoardFlipped: false,
+        // Preserve the selected character and opponent name
         selectedCharacter: {
           id: '250-0',
           name: 'Thomas',
@@ -458,6 +499,7 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           stockfishSettings: mapELOToStockfishSettings(state.targetELO, state.tournamentMode)
         });
 
+        // If computer is white, trigger its move immediately
         if (color === "white") {
           const updatedState = get();
           updatedState.computerMove();
@@ -493,6 +535,7 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
         const computer = color === 'white' ? 'black' : 'white';
         console.log('Store - Computer color will be:', computer);
         
+        // Initialize all computer-related state in one place
         const defaultCharacter: Character = {
           id: '250-0',
           name: 'Thomas',
@@ -505,8 +548,8 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
         set({ 
           playerColor: color,
           computer,
-          currentPlayer: 'white',
-          isBoardFlipped: color === 'black',
+          currentPlayer: 'white', // Game always starts with white
+          isBoardFlipped: color === 'black', // Flip board when playing as black
           selectedCharacter: defaultCharacter,
           opponentName: defaultCharacter.name,
           targetELO: defaultCharacter.elo
@@ -519,11 +562,14 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
         const state = get();
         const board = state.board.map(row => [...row]);
         
+        // Promote the pawn
         board[row][col] = piece;
         
+        // Update the board history and move history
         const newBoardHistory = [...state.boardHistory, board];
         const newMoveHistory = [...state.moveHistory];
         if (state.lastMove) {
+          // Create a new move that represents the promotion
           newMoveHistory.push({
             type: piece,
             fromRow: row,
@@ -533,6 +579,7 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           });
         }
 
+        // Check for check/checkmate in the new position
         const nextPlayer = state.currentPlayer === "white" ? "black" : "white";
         const isInCheck = isKingInCheck(board, nextPlayer);
         
@@ -547,6 +594,7 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           historyIndex: newBoardHistory.length - 1
         });
 
+        // Play sound and trigger computer's move if needed
         playPromoteSound();
         if (state.computer === nextPlayer) {
           setTimeout(() => {
@@ -562,14 +610,17 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
           return;
         }
 
+        // Add initial delay before computer starts thinking
         await new Promise(resolve => setTimeout(resolve, 500));
 
         try {
           const fen = boardToFen(state.board, state);
           const stockfish = getStockfishService();
           
+          // Wait for Stockfish to be ready
           await stockfish.waitReady();
           
+          // Get the best move using current settings
           const move = await stockfish.getBestMove(
             fen,
             state.stockfishSettings.depth,
@@ -580,14 +631,18 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
             return;
           }
 
+          // Parse the move string (e.g., "e7e8q" for queen promotion)
           const fromCol = move.charCodeAt(0) - 'a'.charCodeAt(0);
           const fromRow = 8 - parseInt(move[1]);
           const toCol = move.charCodeAt(2) - 'a'.charCodeAt(0);
           const toRow = 8 - parseInt(move[3]);
           
+          // Make the move
           get().movePiece(fromRow, fromCol, toRow, toCol);
 
+          // If this was a promotion move (move string has 5th character)
           if (move.length === 5) {
+            // Map promotion piece character to actual piece
             const promotionMap: { [key: string]: PieceType } = {
               'q': state.computer === 'white' ? 'Q' : 'q',
               'r': state.computer === 'white' ? 'R' : 'r',
@@ -597,6 +652,7 @@ const useComputerChessStore = create<ComputerChessStoreState>()(
             
             const promotionPiece = promotionMap[move[4]];
             if (promotionPiece) {
+              // Automatically promote the pawn to the chosen piece
               get().promotePawn(toRow, toCol, promotionPiece);
             }
           }

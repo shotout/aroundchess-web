@@ -59,6 +59,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
     checkSession();
   }, [sessionId, isSignedIn]);
 
+  // Helper function to find ID from mistakeLogs
   const findIdFromMistakeLogs = (move: string, moveNumber: number, category: string) => {
     if (!mistakeLogs) return null;
 
@@ -72,10 +73,12 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
     return matchingItem?.id || matchingItem?.mistakeLogId || matchingItem?._id;
   };
 
+  // Initialize local data from dataAnalysis and merge with mistakeLogs IDs
   useEffect(() => {
     if (dataAnalysis?.middleGame) {
       const middleGameData = dataAnalysis.middleGame;
 
+      // Merge bestMoves
       if (middleGameData.bestMoves && Array.isArray(middleGameData.bestMoves)) {
         const mergedBestMoves = middleGameData.bestMoves.map((item: any) => {
           const id = findIdFromMistakeLogs(item.move, item.moveNumber, "bestMoves");
@@ -92,6 +95,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
         setLocalBestMoves(mergedBestMoves);
       }
 
+      // Merge badMoves
       if (middleGameData.badMoves && Array.isArray(middleGameData.badMoves)) {
         const mergedBadMoves = middleGameData.badMoves.map((item: any) => {
           const id = findIdFromMistakeLogs(item.move, item.moveNumber, "badMoves");
@@ -110,6 +114,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
     }
   }, [dataAnalysis, mistakeLogs]);
 
+  // Handle save log
   const handleSaveLog = async (id: string, arrayType: 'bestMoves' | 'badMoves', index: number) => {
     if (loadingToggle) return;
 
@@ -139,6 +144,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
         });
       }
 
+      // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
@@ -150,6 +156,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
     }
   };
 
+  // Handle unsave log
   const handleUnsaveLog = async (id: string, arrayType: 'bestMoves' | 'badMoves', index: number) => {
     if (loadingToggle) return;
 
@@ -179,6 +186,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
         });
       }
 
+      // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
@@ -190,10 +198,12 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
     }
   };
 
+  // Use local data if available, fallback to dataAnalysis
   const bestMoves = localBestMoves.length > 0 ? localBestMoves : (dataAnalysis?.middleGame?.bestMoves ?? []);
   const badMoves = localBadMoves.length > 0 ? localBadMoves : (dataAnalysis?.middleGame?.badMoves ?? []);
 
   useEffect(() => {
+    // Data analysis middleGame initialized
   }, [dataAnalysis]);
 
   const getBadgeClass = (type: string) => {
@@ -241,15 +251,18 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
   };
 
   const handleOnClickMovement = (move: any) => {
+    // Determine player color based on moveNumber
     const movementDetails = dataAnalysis?.movementDetails;
 
-    let playerType = "white";
+    let playerType = "white"; // default
 
     if (movementDetails) {
+      // Check if the move exists in white's moves
       const whiteMove = movementDetails.white?.find(
         (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
       );
 
+      // Check if the move exists in black's moves
       const blackMove = movementDetails.black?.find(
         (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
       );
@@ -261,6 +274,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
       }
     }
 
+    // Enrich the move object with the player type
     const enrichedMove = {
       ...move,
       type: playerType,
@@ -268,6 +282,7 @@ const MiddleGame: React.FC<MiddleGameProps> = (props) => {
 
     setChessMove(enrichedMove);
 
+    // Scroll to chessboard using ref from store
     setTimeout(() => {
       scrollToChessboard();
     }, 100);

@@ -20,6 +20,9 @@ const EmptyLog: React.FC<emptyLogProps> = ({
     router.push("/my-game-history");
   };
   return (
+    // Mobile sat in a full-viewport box with the content centred, which left a
+    // large dead gap above the illustration and below the button. Let the block
+    // size to its content; desktop keeps the centred layout.
     <div className="flex flex-col w-full lg:h-auto justify-start lg:justify-center gap-[24px] rounded-[16px] items-center px-[16px] pt-[24px] lg:pt-[16px] pb-[16px] mb-[16px]">
       <Image
         alt=""
@@ -34,6 +37,11 @@ const EmptyLog: React.FC<emptyLogProps> = ({
             <span>You have not saved <br className="lg:hidden" />any Mistakes yet.</span>
           )}
         </span>
+        {/* <span className="font-meidum text-[18px] text-[#585858]">
+          {content
+            ? content
+            : `Go to the "Previous Analyses" Tab or analyze another Game now`}
+        </span> */}
       </div>
 
       <div className="w-full flex justify-center">
@@ -45,6 +53,14 @@ const EmptyLog: React.FC<emptyLogProps> = ({
         </button>
       </div>
 
+      {/* {!noButton && (
+        <button
+          onClick={onClickSeePrevious}
+          className="w-full rounded-full btn-secondary font-medium text-[16px] h-[44px]"
+        >
+          See Previous Analyses
+        </button>
+      )} */}
     </div>
   );
 };

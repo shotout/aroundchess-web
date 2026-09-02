@@ -83,6 +83,7 @@ export interface GameEndResult {
 }
 
 export interface ChessState {
+  // State properties
   board: (PieceType | null)[][]
   currentPlayer: Player
   selectedPiece: { row: number; col: number } | null
@@ -106,6 +107,7 @@ export interface ChessState {
   gameResults: GameResult[]
   gameResult: GameEndResult | null;
 
+  // Methods
   movePiece: (fromRow: number, fromCol: number, toRow: number, toCol: number) => boolean
   isValidMove: (fromRow: number, fromCol: number, toRow: number, toCol: number) => boolean
   resetGame: () => void
@@ -137,6 +139,7 @@ export type EliminatedPieces = {
   black: string[];
 };
 
+// Helper function to convert PieceType to ChessPiece
 export function convertToChessPiece(piece: PieceType | null): ChessPiece {
   if (!piece) return null;
   return {
@@ -145,6 +148,7 @@ export function convertToChessPiece(piece: PieceType | null): ChessPiece {
   };
 }
 
+// Helper function to convert board
 export function convertBoard(board: (PieceType | null)[][]): ChessPiece[][] {
   return board.map(row => 
     row.map(piece => convertToChessPiece(piece))

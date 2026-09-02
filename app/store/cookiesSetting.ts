@@ -24,7 +24,7 @@ export const useModalSetting = create<ModalSettingState>()(
       open: false,
       setOpen: (open) => set({ open }),
       setting: {
-        essential: false,
+        essential: false, // Always enabled
         marketing: false,
         functional: false,
         analytics: false,

@@ -21,6 +21,7 @@ import GameAnalysis from "./GameAnalysis";
 interface GameCardProps {
   gameData: Game;
   isNewlyImported?: boolean;
+  /** "default" preserves the legacy look; "v2" opts into the revamped design. */
   variant?: "default" | "v2";
 }
 
@@ -100,6 +101,8 @@ const GameCard: React.FC<GameCardProps> = ({
       vs_ai: "Against AI",
       ai: "Against AI",
       "against ai": "Against AI",
+      // The API also sends "VS AI Game" — same thing the table filter calls
+      // "Against AI".
       vs_ai_game: "Against AI",
       "vs ai game": "Against AI",
       "vs ai": "Against AI",
@@ -111,6 +114,8 @@ const GameCard: React.FC<GameCardProps> = ({
     return map[src.toLowerCase().trim()] ?? src;
   };
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
+  // Analyze/Retry now skip the depth dialog: this flag makes AnalyzeGameHistory
+  // auto-run the Standard analysis headlessly (its dialog never opens).
   const [autoStartAnalyze, setAutoStartAnalyze] = useState(false);
   const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
   const [shortAnalysisData, setShortAnalysisData] = useState<any>(null);
@@ -149,6 +154,8 @@ const GameCard: React.FC<GameCardProps> = ({
     } else if (isTutorialPlay && stepFocused == 5 && isNewlyImported) {
       return {
         text: "View Analysis",
+        // Eye, matching the desktop table's button for the same state
+        // (GameList's analysed row). CheckCircle was this card's alone.
         icon: <Eye className="h-4 w-4 mr-2" />,
         className:
           "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
@@ -158,6 +165,8 @@ const GameCard: React.FC<GameCardProps> = ({
         disabled: true,
       };
     } else if (autoStartAnalyze) {
+      // Analysis is being kicked off headlessly — hold the button until the
+      // loading dialog takes over (or the run fails and re-enables it).
       return {
         text: "Starting...",
         icon: <Loader2 className="h-4 w-4 mr-2 animate-spin" />,
@@ -169,6 +178,8 @@ const GameCard: React.FC<GameCardProps> = ({
     } else if (gameData.isAnalysis || (job && job.status === "completed")) {
       return {
         text: "View Analysis",
+        // Eye, matching the desktop table's button for the same state
+        // (GameList's analysed row). CheckCircle was this card's alone.
         icon: <Eye className="h-4 w-4 mr-2" />,
         className:
           "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
@@ -179,6 +190,7 @@ const GameCard: React.FC<GameCardProps> = ({
             const pgnHash = createPgnHash(gameData.pgn);
             console.log("📤 [GameCard - View Analysis] PGN Hash:", pgnHash);
 
+            // Fetch from both v2 and v3 endpoints in parallel
             const [v2Analysis, v3Analysis] = await Promise.all([
               fetchLastAnalysisV2(pgnHash, sessionId),
               fetchLastAnalysisV3(pgnHash, sessionId)
@@ -187,18 +199,21 @@ const GameCard: React.FC<GameCardProps> = ({
             console.log("📥 [GameCard - View Analysis] V2 Response:", v2Analysis);
             console.log("📥 [GameCard - View Analysis] V3 Response:", v3Analysis);
 
+            // Store both v2 and v3 results
             setV2AnalysisData(v2Analysis);
             setShortAnalysisData(v3Analysis);
 
             if (v3Analysis?.success && v3Analysis.data?.summary) {
               console.log("✅ [GameCard - View Analysis] V3 Analysis found, opening GameAnalysis directly");
 
+              // Skip ChooseAnalysisMode — show the mistakes result right away
               setV3AnalysisResult({
                 ...v3Analysis.data,
                 analysisId: v3Analysis.data.analysisId || v3Analysis.data.id,
               });
               setGameAnalysisOpen(true);
             } else if (v3Analysis?.success && v3Analysis.data) {
+              // v3 data without a summary — the choose dialog still handles this shape
               setIsChooseAnalysisModeOpen(true);
             } else {
               console.log("⚠️ [GameCard - View Analysis] No v3 analysis found in response");
@@ -215,6 +230,7 @@ const GameCard: React.FC<GameCardProps> = ({
           } catch (error) {
             console.error("❌ [GameCard - View Analysis] Error fetching analysis:", error);
 
+            // Fallback to job result if available
             if (job && job.result) {
               console.log("📦 [GameCard - View Analysis] Using job result as error fallback");
               setShortAnalysisData({ data: job.result });
@@ -234,12 +250,14 @@ const GameCard: React.FC<GameCardProps> = ({
         case "processing":
         case "waiting":
         case "finalizing":
+          // Show "View Analysis" button (green) to indicate analysis is in progress
           return {
             text: "View Analysis",
             icon: <Eye className="h-4 w-4 mr-2" />,
             className:
               "border border-white bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:[#018F34] hover:to-[#018F34] text-white shadow-sm ring-1 ring-green-200",
             onClick: () => {
+              // Analysis still running — show the loading dialog directly
               setProcessingAnalysisModeOpen(true);
             },
             disabled: false,
@@ -292,6 +310,7 @@ const GameCard: React.FC<GameCardProps> = ({
         autoStart={autoStartAnalyze}
         onAutoStartComplete={() => setAutoStartAnalyze(false)}
         onAnalysisStarted={() => {
+          // Skip ChooseAnalysisMode — go straight to the loading dialog
           setProcessingAnalysisModeOpen(true);
         }}
         onShortAnalysisReceived={(data) => {
@@ -385,6 +404,9 @@ const GameCard: React.FC<GameCardProps> = ({
 
         {(() => {
           const buttonContent = getButtonContent();
+          // Inline boxShadow (not a Tailwind class) so it can't be dropped by the
+          // shadcn Button's own class-merging — a crisp white ring plus a glow in
+          // the button's own color, matching the desktop table's v2 buttons.
           const v2ClassName =
             buttonContent.text === "View Analysis"
               ? "bg-gradient-to-b from-[#0AD847] to-[#018F34] hover:opacity-90 text-white"
@@ -409,6 +431,10 @@ const GameCard: React.FC<GameCardProps> = ({
               disabled={buttonContent.disabled}
             >
               {buttonContent.icon}
+              {/* v2 relabels these two to match the desktop table, which calls
+                  them "See Mistakes" and "Analyze Mistakes". Renamed here rather
+                  than in getButtonContent so the branch conditions above keep
+                  reading against the original, version-neutral names. */}
               <h1 className="text-[14px] --xs">
                 {isV2 && buttonContent.text === "View Analysis"
                   ? "See Mistakes"
@@ -420,6 +446,11 @@ const GameCard: React.FC<GameCardProps> = ({
           );
         })()}
 
+        {/* {isNewlyImported && (
+          <span className="absolute top-2 right-2 px-2 py-0.5 bg-green-500 text-white text-[14px] --xs rounded-full">
+            New
+          </span>
+        )} */}
       </div>
     </>
   );

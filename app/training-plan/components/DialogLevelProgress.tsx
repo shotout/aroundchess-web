@@ -94,9 +94,9 @@ const DialogLevelProgress: React.FC<DialogLevelProgressProps> = ({
     }
 
     return [
-      skillLevels[currentIndex],
-      skillLevels[nextIndex],
-      skillLevels[nextIndex + 1],
+      skillLevels[currentIndex], // Current level (left)
+      skillLevels[nextIndex], // Next goal (center)
+      skillLevels[nextIndex + 1], // Level after next goal (right)
     ];
   };
 

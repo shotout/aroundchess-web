@@ -49,6 +49,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       transition={{ duration: 0.2 }}
     >
       <div className="flex flex-col xl:flex-row xl:gap-6">
+        {/* Learning Objectives Section - For all lesson types */}
         <div className="border p-4 xl:w-[70%]">
           <h3 className="font-semibold mb-2">Learning Objectives:</h3>
           <div className="flex">
@@ -83,6 +84,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </div>
 
+        {/* Prerequisites Section - For all lesson types */}
         <div className="border p-4 mt-6 xl:mt-0 xl:w-[30%]">
           <h3 className="font-semibold mb-2">Prerequisites:</h3>
           <div className="flex flex-wrap gap-2">
@@ -112,6 +114,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </div>
       </div>
 
+      {/* Strategic Concepts Section - For middlegame lessons */}
       {hasMiddlegameData && (
         <div className="border p-4 mt-6">
           <h3 className="font-semibold mb-2">Strategic Concepts:</h3>
@@ -148,6 +151,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </div>
       )}
 
+      {/* Theoretical Knowledge Section - For endgame lessons */}
       {hasEndgameData && (
         <div className="border p-4 mt-6">
           <h3 className="font-semibold mb-2">Theoretical Knowledge:</h3>

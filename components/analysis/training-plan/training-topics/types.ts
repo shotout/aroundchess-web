@@ -12,11 +12,11 @@ export type TrainingTopic = {
   title: string
   description: string
   difficulty: Difficulty
-  estimatedTime: string
+  estimatedTime: string // e.g., "2 hours", "45 minutes"
   prerequisites?: string[]
   objectives: string[]
   resources: Resource[]
-  relatedTopics?: string[]
+  relatedTopics?: string[] // IDs of related topics
 }
 
 export type OpeningVariation = {
@@ -27,10 +27,10 @@ export type OpeningVariation = {
 }
 
 export type OpeningTopic = TrainingTopic & {
-  eco?: string
+  eco?: string // ECO code if applicable
   variations: OpeningVariation[]
   forColor: 'white' | 'black' | 'both'
-  popularityLevel: 1 | 2 | 3 | 4 | 5
+  popularityLevel: 1 | 2 | 3 | 4 | 5 // 1 = rare, 5 = very popular
   recommendedFor: Difficulty[]
 }
 

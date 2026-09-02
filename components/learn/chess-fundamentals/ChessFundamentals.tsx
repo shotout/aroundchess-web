@@ -117,6 +117,7 @@ function ChessFundamentalsContent({
   const { progress, isCompleted, completeLesson } = useLearningProgress()
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Title Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-primary mb-4">Chess Fundamentals</h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -140,7 +141,9 @@ function ChessFundamentalsContent({
         ))}
       </div>
 
+      {/* Main Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        {/* Main Content */}
         <div className="col-span-1 md:col-span-3 lg:col-span-4">
           <Card>
             <CardContent className="p-6">
@@ -254,6 +257,7 @@ function ChessFundamentalsContent({
           </Card>
         </div>
 
+        {/* Right Panel */}
         <div className="col-span-1 md:col-span-3 lg:col-span-2">
           <div className="sticky top-4 space-y-6">
             <Card className="shadow-sm">

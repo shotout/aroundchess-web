@@ -60,6 +60,7 @@ export default function AnalysisPage() {
       username.length > 0 &&
       stepFocused <= 5
     ) {
+      // setOpenNewAnalysis(true);
       setIsFromGameHistory(false);
     } else {
       setOpenNewAnalysis(false);

@@ -61,8 +61,10 @@ const UserPGN: React.FC = () => {
     }
   }, [loadingError]);
 
+  // Handle initialization after hydration
   useEffect(() => {
     if (_hasHydrated) {
+      // Small delay to ensure all data is properly loaded
       const timer = setTimeout(() => {
         setIsInitializing(false);
       }, 100);
@@ -71,6 +73,8 @@ const UserPGN: React.FC = () => {
     }
   }, [_hasHydrated]);
 
+  // Each position carries the player's name for its game (game history can mix
+  // chess.com, vs-AI and uploaded games); the store username is a fallback.
   const effectiveUsername = currentPosition?.username || username;
 
   const getUserInfo = () => {
@@ -87,10 +91,15 @@ const UserPGN: React.FC = () => {
     const isBlackUser =
       currentPosition.black?.toLowerCase() === effectiveUsername.toLowerCase();
 
+    // If username matches neither player, you might want to handle this case
     if (!isWhiteUser && !isBlackUser && !currentPosition.userColor) {
       console.warn("Username does not match either player in the position");
+      // You could default to white or show an error
     }
 
+    // The side resolved when the game was loaded (from the game record's colour)
+    // wins: `username` alone mis-identifies the player whenever the record's
+    // username isn't their name in that PGN.
     const actuallyWhiteUser = currentPosition.userColor
       ? currentPosition.userColor === "white"
       : isWhiteUser;
@@ -113,6 +122,7 @@ const UserPGN: React.FC = () => {
     router.push("/playground/board-vision/default");
   };
 
+  // Show loading while waiting for hydration
   if (!_hasHydrated || isInitializing) {
     return (
       <>
@@ -128,6 +138,7 @@ const UserPGN: React.FC = () => {
     );
   }
 
+  // After hydration, check if we have game data
   if (!currentPosition || !gameQuestion) {
     return (
       <>

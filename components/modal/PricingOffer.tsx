@@ -12,6 +12,8 @@ import {
 } from "../ui/dialog";
 import { usePathname, useRouter } from "next/navigation";
 
+/** The mobile paywall lives at its own route so the app header's back arrow and
+ *  menu stay usable; below this width the dialog hands over to that page. */
 export const PAYWALL_ROUTE = "/premium";
 const PAYWALL_PAGE_MAX_WIDTH = 640;
 
@@ -20,6 +22,8 @@ export const PricingOffer: React.FC = () => {
   const pathname = usePathname();
   const { open, setOpen } = usePricingOffer();
 
+  // Read the width during the first client render (not in an effect) so mobile
+  // never flashes the dialog before the redirect lands.
   const [viewportWidth, setViewportWidth] = useState(() =>
     typeof window === "undefined" ? 0 : window.innerWidth
   );
@@ -33,9 +37,13 @@ export const PricingOffer: React.FC = () => {
 
   const isMobile = viewportWidth > 0 && viewportWidth < PAYWALL_PAGE_MAX_WIDTH;
 
+  // On mobile, any setOpen(true) from the ~10 call sites is turned into a
+  // navigation to PAYWALL_ROUTE instead of opening the dialog. Every call site
+  // keeps using the store, so none of them need to know about the route.
   useEffect(() => {
     if (!open || !isMobile) return;
     setOpen(false);
+    // Already on the paywall page — just swallow the open request.
     if (pathname !== PAYWALL_ROUTE) router.push(PAYWALL_ROUTE);
   }, [open, isMobile, pathname, router, setOpen]);
 
@@ -44,6 +52,7 @@ export const PricingOffer: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogPortal>
+        {/* Flat colour, no chess-piece pattern image — per the mockup. */}
         <DialogContent
           className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] sm:max-w-[680px] xl:max-w-[1141px] max-h-[97%] rounded-lg bg-[#F7FCFF] p-4 sm:p-6 shadow-xl overflow-y-auto z-[1000]`}
         >

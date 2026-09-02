@@ -48,6 +48,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
     checkSession();
   }, [sessionId, isSignedIn]);
 
+  // Helper function to find ID from mistakeLogs
   const findIdFromMistakeLogs = (move: string, moveNumber: number) => {
     if (!mistakeLogs || !mistakeLogs.threats) return null;
 
@@ -58,6 +59,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
     return matchingItem?.id || matchingItem?.mistakeLogId || matchingItem?._id;
   };
 
+  // Initialize local data from dataAnalysis and merge with mistakeLogs IDs
   useEffect(() => {
     if (dataAnalysis?.threats) {
       const mergedData = dataAnalysis.threats.map((item: any) => {
@@ -77,6 +79,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
     }
   }, [dataAnalysis, mistakeLogs]);
 
+  // Handle save log
   const handleSaveLog = async (id: string, index: number) => {
     if (loadingToggle) return;
 
@@ -94,6 +97,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
         return newList;
       });
 
+      // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
@@ -105,6 +109,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
     }
   };
 
+  // Handle unsave log
   const handleUnsaveLog = async (id: string, index: number) => {
     if (loadingToggle) return;
 
@@ -122,6 +127,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
         return newList;
       });
 
+      // Refresh saved mistakes
       const savedData = await getMistakeSaved({ page: 1, limit: 10 });
       if (savedData?.data && Array.isArray(savedData.data)) {
         setSavedMistakes(savedData.data);
@@ -133,18 +139,22 @@ const Threats: React.FC<ThreatsProps> = (props) => {
     }
   };
 
+  // Use local data if available, fallback to dataAnalysis
   const threats = localThreatsData.length > 0 ? localThreatsData : (dataAnalysis?.threats ?? []);
 
   const handleOnClickMovement = (move: any) => {
+    // Determine player color based on moveNumber
     const movementDetails = dataAnalysis?.movementDetails;
 
-    let playerType = "white";
+    let playerType = "white"; // default
 
     if (movementDetails) {
+      // Check if the move exists in white's moves
       const whiteMove = movementDetails.white?.find(
         (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
       );
 
+      // Check if the move exists in black's moves
       const blackMove = movementDetails.black?.find(
         (m: any) => m.moveNumber === move.moveNumber && m.move === move.move
       );
@@ -156,6 +166,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
       }
     }
 
+    // Enrich the move object with the player type
     const enrichedMove = {
       ...move,
       type: playerType,
@@ -163,6 +174,7 @@ const Threats: React.FC<ThreatsProps> = (props) => {
 
     setChessMove(enrichedMove);
 
+    // Scroll to chessboard using ref from store
     setTimeout(() => {
       scrollToChessboard();
     }, 100);

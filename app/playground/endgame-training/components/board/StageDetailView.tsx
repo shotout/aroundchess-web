@@ -159,11 +159,13 @@ const MobileMoveBoxes = ({ moveHistory }: MobileMoveBoxesProps) => {
                 const relativePosition = columnPosition - scrollLeft;
                 const fadeZone = 120;
 
+                // Fade effect untuk sebelah kiri (di bawah label White/Black)
                 if (scrollLeft > 0 && relativePosition < fixedColumnWidth) {
                   const overlap = fixedColumnWidth - relativePosition;
                   opacity = Math.max(0.2, 1 - overlap / fadeZone);
                 }
 
+                // Fade effect untuk sebelah kanan saat scroll
                 const rightEdge = scrollLeft + containerWidth;
                 const columnRightEdge = columnPosition + columnWidth;
                 const distanceFromRight = rightEdge - columnRightEdge;
@@ -253,6 +255,7 @@ export default function StageDetailView({
   const [isCheckmateMode, setIsCheckmateMode] = useState<boolean>(false);
   const [movesToCheckmate, setMovesToCheckmate] = useState<number | null>(null);
 
+  // New state for Syzygy analysis
   const [syzygyMateDistance, setSyzygyMateDistance] = useState<number | null>(
     null
   );
@@ -367,30 +370,38 @@ export default function StageDetailView({
     }
   }, [position, game, isSolved]);
 
+  // ADD THIS FUNCTION TO HANDLE MOVES WITH SOUND
   const handleMoveWithSound = useCallback(
     (move: any) => {
       if (move) {
+        // Play sound for the move
         playSound(game, move);
 
+        // Update move history
         setMoveHistory((prev) => [...prev, move]);
 
+        // Update current move index
         setCurrentMoveIndex((prev) => prev + 1);
 
+        // Update position
         setPosition(game.fen());
       }
     },
     [game]
   );
 
+  // Move navigation functions
   const handlePreviousMove = useCallback(() => {
     if (currentMoveIndex > 0) {
       const newIndex = currentMoveIndex - 1;
       setCurrentMoveIndex(newIndex);
 
       if (newIndex === 0) {
+        // Go to initial position
         game.load(initialFen || game.fen());
         setPosition(initialFen);
       } else {
+        // Replay moves up to the new index
         game.load(initialFen || game.fen());
         const history = game.history({ verbose: true });
         for (let i = 0; i < newIndex; i++) {
@@ -408,6 +419,7 @@ export default function StageDetailView({
       const newIndex = currentMoveIndex + 1;
       setCurrentMoveIndex(newIndex);
 
+      // Replay moves up to the new index
       game.load(initialFen || game.fen());
       for (let i = 0; i < newIndex; i++) {
         if (moveHistory[i]) {
@@ -678,14 +690,17 @@ export default function StageDetailView({
     if (moveHistory.length === 0) return;
 
     try {
+      // Undo the last move
       const lastMove = game.undo();
       if (!lastMove) return;
 
+      // Update move history and position
       const newMoveHistory = moveHistory.slice(0, -1);
       setMoveHistory(newMoveHistory);
       setPosition(game.fen());
       setCurrentMoveIndex(newMoveHistory.length);
 
+      // Reset solved state if we undo
       setIsSolved(false);
       setShowGameEndDialog(false);
       setShowHint(false);
@@ -693,6 +708,7 @@ export default function StageDetailView({
       setOptionSquares({});
       setMoveSquares({});
 
+      // Update Syzygy analysis for new position
       updateSyzygyAnalysis();
     } catch (e) {
       console.error("Error undoing move:", e);
@@ -764,10 +780,12 @@ export default function StageDetailView({
     return false;
   }, [game, playerColor]);
 
+  // Rotate board function
   const handleSwitch = useCallback(() => {
     setBoardOrientation((prev) => (prev === "white" ? "black" : "white"));
   }, []);
 
+  // Toggle 3D/2D mode and sync with global store
   const handleToggle3DMode = useCallback(() => {
     const newMode = !is3DMode;
     setIs3DMode(newMode);
@@ -776,13 +794,16 @@ export default function StageDetailView({
     setStyleChoosed(newMode ? "3d" : "2d");
   }, [is3DMode]);
 
+  // Mobile button renderers
   const renderMobileButtons = () => {
     return (
       <div className="sm:hidden px-4 py-2 border-b">
+        {/* Mobile navigation buttons */}
         <div className="sm:hidden">
           {renderMobileNavigation()}
         </div>
 
+        {/* Game control buttons */}
         <div className="space-y-2">
           {!isSolved && (
             <div className="flex gap-x-[6px] w-full justify-center">
@@ -820,6 +841,19 @@ export default function StageDetailView({
                 </span>
               </button>
 
+              {/* <button
+                onClick={resetPosition}
+                className="flex gap-x-[2px] items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
+              >
+                <Image
+                  src={"/endgame-training/rematch.png"}
+                  alt="restart icon"
+                  width={10}
+                  height={10}
+                />
+                <span className="text-[14px] --10px">Restart</span>
+              </button> */}
+
               <button
                 onClick={navigateNext}
                 className="flex gap-x-[4px] items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
@@ -854,6 +888,19 @@ export default function StageDetailView({
                 Share PGN/FEN
               </button>
 
+              {/* <button
+                onClick={resetPosition}
+                className="flex gap-x-1 flex-1 items-center justify-center px-3 py-2 bg-white rounded-full btn-tertiary whitespace-nowrap flex-shrink-0"
+              >
+                <Image
+                  src={"/endgame-training/rematch.png"}
+                  alt="restart icon"
+                  width={12}
+                  height={12}
+                />
+                <span className="text-[11px]">Rematch</span>
+              </button> */}
+
               <button
                 onClick={navigateNext}
                 className="flex gap-x-1 flex-1 items-center justify-center px-3 py-2 btn-primary rounded-full border whitespace-nowrap flex-shrink-0"
@@ -885,6 +932,26 @@ export default function StageDetailView({
             <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
           </svg>
         </button>
+        {/* <button
+          disabled={currentMoveIndex === 0}
+          onClick={handlePreviousMove}
+          className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+            currentMoveIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          <ChevronLeft size={20} color="#000" />
+        </button>
+        <button
+          disabled={currentMoveIndex >= moveHistory.length}
+          onClick={handleNextMove}
+          className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+            currentMoveIndex >= moveHistory.length
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
+        >
+          <ChevronRight size={20} color="#000" />
+        </button> */}
         <button
           onClick={resetPosition}
           className="rounded-[4px] flex-1 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9]"
@@ -992,6 +1059,15 @@ export default function StageDetailView({
               </button>
               <SettingBoard />
 
+              {/* <button onClick={handleToggle3DMode}>
+                <Image
+                  src={`/icons/${is3DMode ? `2d-icon` : `3d-icon`}.png`}
+                  alt="icon"
+                  width={is3DMode ? 15 : 20}
+                  height={is3DMode ? 15 : 20}
+                  className="object-contain"
+                />
+              </button> */}
             </div>
             <div className="xl:border bg-white border-gray-200 p-0 sm:mb-2 lg:mb-0 rounded-md flex flex-col">
               <div className="relative w-full flex flex-col justify-center items-center">
@@ -1042,9 +1118,18 @@ export default function StageDetailView({
               </div>
             </div>
 
+            {/* Mobile controls below board */}
             {renderMobileButtons()}
             
             <div className="px-4 py-2 flex flex-col gap-y-1">
+              {/* <div className="sm:hidden">
+                <SyzygyAnalysis
+                  mateDistance={syzygyMateDistance}
+                  playerColor={playerColor}
+                  currentTurn={game.turn()}
+                  isLoading={isSyzygyLoading}
+                />
+              </div> */}
               {!isSolved && (
                 <div className="flex sm:hidden flex-col items-center justify-center gap-y-3 bg-blue-base/10 border border-blue-base rounded-[4px] p-0">
                   <div className="flex  flex-col items-center py-1 justify-center gap-x-3 gap-y-2">
@@ -1066,11 +1151,13 @@ export default function StageDetailView({
               )}
             </div>
 
+            {/* Mobile move history */}
             <div className="sm:hidden px-4 py-3">
               <MobileMoveBoxes moveHistory={moveHistory} />
             </div>
           </div>
 
+          {/* Desktop sidebar */}
           <div className="hidden bg-white sm:flex border border-gray-200 rounded-md flex-col xl:col-span-4">
             <div className="flex justify-between flex-col h-full">
               <div className="w-full">

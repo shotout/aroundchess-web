@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 
+// User Profile Card Skeleton
 export const UserProfileCardSkeleton: React.FC = () => (
   <div className="xl:border xl:border-blue-base lg:rounded-md bg-[#F6F9FF] shadow-sm">
     <div className="p-4 gap-y-4 flex flex-col animate-pulse">
@@ -12,8 +13,10 @@ export const UserProfileCardSkeleton: React.FC = () => (
         <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
       </div>
 
+      {/* Skill Progress Track Skeleton */}
       <div className="mt-8">
         <div className="w-full space-y-6">
+          {/* Desktop version */}
           <div className="hidden xl:grid grid-cols-6 gap-2">
             {Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className="flex flex-col items-center space-y-2">
@@ -31,6 +34,7 @@ export const UserProfileCardSkeleton: React.FC = () => (
             ))}
           </div>
 
+          {/* Mobile version */}
           <div className="grid xl:hidden grid-cols-3 gap-2">
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="flex flex-col items-center space-y-2">
@@ -48,6 +52,7 @@ export const UserProfileCardSkeleton: React.FC = () => (
             ))}
           </div>
 
+          {/* Progress bar skeleton */}
           <div className="relative h-20">
             <div className="relative w-full mt-6">
               <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 xl:grid-cols-6 z-10">
@@ -69,6 +74,7 @@ export const UserProfileCardSkeleton: React.FC = () => (
         </div>
       </div>
 
+      {/* Goals section skeleton */}
       <div className="bg-gradient-to-r from-[#D7EBFF] to-[#FFFFFF00] rounded-lg p-4 border border-[#3871EC33]/30">
         <div className="flex items-start gap-3">
           <div className="w-12 h-12 bg-gray-200 rounded"></div>
@@ -89,6 +95,7 @@ export const UserProfileCardSkeleton: React.FC = () => (
   </div>
 );
 
+// Training Plan Display Skeleton
 export const TrainingPlanDisplaySkeleton: React.FC = () => (
   <div className="xl:border xl:border-gray-200 p-4 rounded-lg shadow-sm overflow-hidden">
     <div className="flex w-full flex-col gap-y-4 animate-pulse">
@@ -97,6 +104,7 @@ export const TrainingPlanDisplaySkeleton: React.FC = () => (
         <div className="w-5 h-5 bg-gray-200 rounded lg:hidden"></div>
       </div>
 
+      {/* Day selector skeleton */}
       <div className="flex overflow-x-auto gap-2 pb-2">
         {Array.from({ length: 7 }).map((_, index) => (
           <div key={index} className="flex-1 flex-shrink-0 min-w-[100px]">
@@ -108,6 +116,7 @@ export const TrainingPlanDisplaySkeleton: React.FC = () => (
         ))}
       </div>
 
+      {/* Training sections skeleton */}
       {Array.from({ length: 3 }).map((_, sectionIndex) => (
         <div
           key={sectionIndex}
@@ -149,6 +158,7 @@ export const TrainingPlanDisplaySkeleton: React.FC = () => (
         </div>
       ))}
 
+      {/* Tactics section skeleton */}
       <div className="border border-gray-200 rounded-lg p-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
           <div className="flex items-center gap-2 mb-2 sm:mb-0">
@@ -170,6 +180,7 @@ export const TrainingPlanDisplaySkeleton: React.FC = () => (
   </div>
 );
 
+// Progress Display Skeleton
 export const ProgressDisplaySkeleton: React.FC = () => (
   <div className="space-y-4 p-4 xl:p-0 animate-pulse">
     <Card className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
@@ -198,6 +209,7 @@ export const ProgressDisplaySkeleton: React.FC = () => (
 
     <div className="md:grid md:grid-cols-5 gap-6">
       <div className="md:col-span-3 flex flex-col gap-6 border rounded-md p-4">
+        {/* Chart skeletons */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -219,6 +231,7 @@ export const ProgressDisplaySkeleton: React.FC = () => (
       </div>
 
       <div className="md:col-span-2 flex flex-col rounded-md border p-4 gap-6 mt-6 md:mt-0">
+        {/* Recent games skeleton */}
         <div>
           <div className="h-5 bg-gray-200 rounded w-32 mb-4"></div>
           <div className="space-y-3">
@@ -235,6 +248,7 @@ export const ProgressDisplaySkeleton: React.FC = () => (
           </div>
         </div>
 
+        {/* Performance trends skeleton */}
         <div>
           <div className="h-5 bg-gray-200 rounded w-40 mb-4"></div>
           <div className="grid grid-cols-2 gap-3">
@@ -257,6 +271,7 @@ export const ProgressDisplaySkeleton: React.FC = () => (
   </div>
 );
 
+// Training Plan Card Skeleton (for when no plan exists)
 export const TrainingPlanCardSkeleton: React.FC = () => (
   <div className="relative w-full h-full p-8 bg-gradient-to-b from-[#EAEAEA] via-white to-[#EAEAEA] flex items-center justify-center border lg:rounded-md overflow-hidden animate-pulse">
     <div className="w-full p-8 xl:max-w-[643px] 2xl:max-w-[700px] sm:mx-7 bg-white/70 rounded-md flex flex-col gap-4 items-center justify-center">
@@ -271,6 +286,7 @@ export const TrainingPlanCardSkeleton: React.FC = () => (
   </div>
 );
 
+// Component that shows minimal skeleton while checking for plan
 export const PlanCheckSkeleton: React.FC = () => (
   <div className="flex items-center justify-center p-12 border border-gray-200 rounded-lg animate-pulse">
     <div className="flex flex-col items-center gap-4">

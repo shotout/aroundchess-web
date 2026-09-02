@@ -9,7 +9,7 @@ interface V3AnalysisJob {
   startedAt: number;
   finalizingStartedAt?: number;
   result?: any;
-  analysisId?: string;
+  analysisId?: string; // ID for feedback
   error?: string;
   isPolling?: boolean;
   statusUrl?: string;
@@ -43,10 +43,11 @@ export const useV3BackgroundAnalysisStore = create<V3BackgroundAnalysisState>()(
       pollingIntervals: new Map(),
 
       addJob: (gameId, jobId, statusUrl, gamePgn, depth) => {
+        // map depths to estimated durations (in seconds)
         const estimateMap: Record<number, number> = {
-          12: 101,
-          16: 150,
-          18: 113,
+          12: 101, // 1:41 -> 101s
+          16: 150, // 2:30 -> 150s
+          18: 113, // 1:53 -> 113s
         };
         const estimatedDurationSeconds = depth ? (estimateMap[depth] || 150) : undefined;
         set((state) => ({

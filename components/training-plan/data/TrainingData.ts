@@ -1,3 +1,4 @@
+// Types and Interfaces
 export interface GoalType {
     id: string;
     name: string;
@@ -20,6 +21,7 @@ export interface GoalType {
   
   export type DifficultyLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert' | null;
   
+  // Goal Types Data
   export const goalTypes: GoalType[] = [
     { id: "elo", name: "ELO Rating", iconName: "Target" },
     { id: "topics", name: "Training Topics", iconName: "BarChart" },
@@ -27,12 +29,15 @@ export interface GoalType {
     { id: "puzzles", name: "Puzzles", iconName: "Puzzle" },
   ];
   
+  // Duration Types Data
   export const durationTypes: TrainingDurationOption[] = [
     { id: "target", name: "Target", iconName: "Target" },
     { id: "timeframe", name: "Timeframe", iconName: "Calendar" },
   ];
   
+  // Training Topics Data
   export const trainingTopics: TrainingTopic[] = [
+    // Opening topics
     {
       id: 'kings-indian-defense-1',
       name: 'King\'s Indian Defense',
@@ -62,6 +67,7 @@ export interface GoalType {
       category: 'opening'
     },
     
+    // Middlegame topics
     {
       id: 'space-advantage-1',
       name: 'Space Advantage',
@@ -91,6 +97,7 @@ export interface GoalType {
       category: 'middlegame'
     },
     
+    // Endgame topics
     {
       id: 'drawing-techniques-1',
       name: 'Drawing Techniques',

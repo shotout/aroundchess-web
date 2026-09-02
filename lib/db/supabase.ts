@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 
+// Load environment variables
 if (process.env.NODE_ENV !== 'production') {
   config({ path: resolve(__dirname, '../../.env') });
 }
@@ -16,6 +17,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
   `);
 }
 
+// Create a single supabase client for interacting with your database
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     persistSession: false,

@@ -47,6 +47,7 @@ export function BulkActionsDialog({
   const [notifyOnComplete, setNotifyOnComplete] = useState(true)
 
   const handleAction = () => {
+    // Implement bulk action logic
     onOpenChange(false)
   }
 

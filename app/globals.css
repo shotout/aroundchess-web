@@ -197,6 +197,9 @@ div {
 p {
   font-family: "AloeveraDisplay-Regular";
 }
+/* Bold in this app is a font-family swap (every face is font-weight:normal),
+   so raw <b>/<strong> from API-driven HTML (e.g. FAQ answers) wouldn't render
+   bold on their own. Map them to the Bold face where rich content is shown. */
 .faq-answer b,
 .faq-answer strong {
   font-family: "AloeveraDisplay-Bold";
@@ -250,6 +253,9 @@ p {
   position: relative;
 }
 
+/* .btn-primary:hover {
+  transform: translateY(-1px);
+} */
 
 .btn-primary:focus {
   outline: none;
@@ -258,10 +264,14 @@ p {
     inset 0 -2px 2px 0 rgba(28, 23, 166, 0.7), 0 0 0 3px rgba(34, 26, 233, 0.3);
 }
 
+/* .btn-primary:active {
+  transform: translateY(1px);
+} */
 
+/* Updated btn-secondary class */
 .btn-secondary {
   background-color: #81cff3;
-  color: #221ae9;
+  color: #221ae9; /* or a darker color for better contrast */
   border: 1px solid #3ca0ce;
   padding: 0.5rem 1rem;
   box-shadow: 0 0 1px 2px rgba(129, 207, 243, 0.7),
@@ -338,8 +348,8 @@ p {
 }
 
 .hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -449,6 +459,8 @@ div[data-radix-popper-content-wrapper=""] {
   background-color: transparent !important;
 }
 
+/* Zoom slider in the "Edit Profile Picture" crop dialog: filled blue track
+   left of the thumb, grey to the right, in both WebKit and Firefox. */
 .profile-zoom-range {
   -webkit-appearance: none;
   appearance: none;

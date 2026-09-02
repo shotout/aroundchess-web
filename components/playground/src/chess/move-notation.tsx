@@ -19,6 +19,7 @@ export function MoveNotation() {
 
     loadNames()
 
+    // Handle custom name change events
     const handleNameChange = (e: CustomEvent<{ color: 'white' | 'black'; name: string }>) => {
       const { color, name } = e.detail
       if (color === 'white') {
@@ -28,6 +29,7 @@ export function MoveNotation() {
       }
     }
 
+    // Listen for both storage and custom events
     window.addEventListener('playerNameChange', handleNameChange as EventListener)
     window.addEventListener('storage', (e) => {
       if (e.key === "whitePlayerName" || e.key === "blackPlayerName") {

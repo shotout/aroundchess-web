@@ -28,6 +28,14 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
       <div className="w-full">
         <div className="flex items-center justify-between border-b pb-4 p-6">
           <div className="flex items-center gap-[14px]">
+            {/* {" "}
+            <Image
+              src={"/board-vision/board-vision.png"}
+              alt="board vision"
+              width={40}
+              height={40}
+              className="w-7 h-7 xl:w-10 xl:h-10 mr-2"
+            /> */}
 
             <Link href="/playground/board-vision">
               <svg width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -86,10 +94,10 @@ const QuestionPanel: React.FC<QuestionPanelProps> = ({
                         className={`border rounded-md p-2 xl:p-3 flex items-center justify-between cursor-pointer shadow-sm ${
                           isSelected
                             ? isIncorrect
-                              ? "bg-[#FD0000] text-primary-white"
-                              : "bg-turqouise-base text-white"
+                              ? "bg-[#FD0000] text-primary-white" // Wrong answer styling
+                              : "bg-turqouise-base text-white" // Correct or not yet evaluated
                             : shouldHighlightCorrect
-                            ? "bg-turqouise-base text-white"
+                            ? "bg-turqouise-base text-white" // Highlight correct answer when user chose wrong
                             : "bg-white hover:bg-teal-50"
                         }`}
                         onClick={() =>

@@ -45,6 +45,7 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
           </div>
         </Card>
 
+        {/* Accuracy Card */}
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
           <h1 className="text-[14px] --sm font-semibold">Average Accuracy</h1>
           <div className="flex flex-col">
@@ -54,6 +55,7 @@ const PerformanceInsightsSection: React.FC<PerformanceInsightsProps> = ({
           </div>
         </Card>
 
+        {/* Blunder Rate Card */}
         <Card className="p-3 rounded-lg shadow-sm md:shadow md:border bg-white">
           <h1 className="text-[14px] --sm font-semibold">Blunder Rate</h1>
           <div className="flex flex-col">

@@ -112,11 +112,13 @@ export const ${topic.replace(/-/g, '')}: BaseEndgameTopic = {
   ]
 }`
 
+// Create the directory if it doesn't exist
 const dir = path.join(process.cwd(), 'components/analysis/training-plan/training-topics/endgame')
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir, { recursive: true })
 }
 
+// Generate files
 topics.forEach(topic => {
   const filePath = path.join(dir, `${topic}.ts`)
   fs.writeFileSync(filePath, template(topic))

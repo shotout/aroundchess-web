@@ -291,9 +291,16 @@ export function AnalysisSection() {
                   >
                     Analyze your most recent Game now
                   </Button>
+                  {/* <Button
+                    variant="link"
+                    className="w-fill text-black px-7 sm:px-16 font-normal text-[14px] --sm sm:text-md"
+                  >
+                    No Sign-Up required
+                  </Button> */}
                 </div>
               </div>
               <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 pt-4 md:pt-1">
+                {/* Left Arrow */}
                 <button
                   disabled={current == 0}
                   onClick={prevSlide}
@@ -304,6 +311,7 @@ export function AnalysisSection() {
                     color={current != 0 ? "#221AE9" : "#221AE950"}
                   />
                 </button>
+                {/* Dot Indicators */}
                 <div className="flex gap-1.5 sm:gap-2">
                   {analysis.map((_, index) => (
                     <button
@@ -317,6 +325,7 @@ export function AnalysisSection() {
                     />
                   ))}
                 </div>
+                {/* Right Arrow */}
                 <button
                   disabled={current == analysis.length}
                   onClick={nextSlide}

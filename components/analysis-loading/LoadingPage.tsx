@@ -138,6 +138,27 @@ const LoadingPage: React.FC = (props) => {
       setEstimateSecond(estimateS);
       countdownAfter.setTime(estimateM, estimateS);
       countdownAfter.start();
+      // if (estimateMinute >= 30) {
+      //   setEstimateMinute(4);
+      //   setEstimateSecond(10);
+      //   countdownAfter.setTime(6, 30);
+      //   countdownAfter.start();
+      // } else if (estimateMinute >= 20) {
+      //   setEstimateMinute(3);
+      //   setEstimateSecond(10);
+      //   countdownAfter.setTime(5, 30);
+      //   countdownAfter.start();
+      // } else if (estimateMinute >= 10) {
+      //   setEstimateMinute(3);
+      //   setEstimateSecond(10);
+      //   countdownAfter.setTime(4, 30);
+      //   countdownAfter.start();
+      // } else if (estimateMinute >= 5) {
+      //   setEstimateMinute(2);
+      //   setEstimateSecond(10);
+      //   countdownAfter.setTime(3, 30);
+      //   countdownAfter.start();
+      // }
     } else {
       console.log("estimateMinute", estimateMinute, estimateSecond);
       if (!analyzeComplete) {

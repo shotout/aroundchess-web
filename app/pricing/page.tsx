@@ -83,6 +83,7 @@ export default function PricingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
+              {/* 7-Day Trial Card */}
               <PricingCard
                 title="7-Day Trial"
                 price="Free"
@@ -98,6 +99,7 @@ export default function PricingPage() {
                 onSubscribe={() => handleSubscription('trial')}
               />
 
+              {/* Premium Plan */}
               <PricingCard
                 title="Premium"
                 price="$5.99"
@@ -114,6 +116,7 @@ export default function PricingPage() {
                 highlighted={true}
               />
 
+              {/* Annual Plan */}
               <PricingCard
                 title="Annual Premium"
                 price="$4.49"
@@ -131,6 +134,7 @@ export default function PricingPage() {
                 badge="Most Popular"
               />
 
+              {/* Lifetime Plan */}
               <PricingCard
                 title="Lifetime"
                 price="$125"
@@ -290,6 +294,7 @@ export default function PricingPage() {
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
             >
+              {/* Add decorative background elements */}
               <div className="absolute top-1/2 left-1/4 w-[300px] h-[300px] bg-blue-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse-slow"></div>
               <div className="absolute bottom-0 right-1/4 w-[250px] h-[250px] bg-purple-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse-slow"></div>
 
