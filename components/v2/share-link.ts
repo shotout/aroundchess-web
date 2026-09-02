@@ -123,6 +123,21 @@ export function ordinalSuffix(n: number): string {
   return n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
 }
 
+/**
+ * Caption for a share, matching the mobile app verbatim — the RN build passes
+ * `useShareImage('My game on AroundChess')` on the play screen and
+ * `useShareImage('My rank on the AroundChess leaderboard')` on the leaderboard,
+ * so a share from the web now reads exactly like one from the app.
+ *
+ * Deliberately shorter than `shareCardMeta().text`, which stays rich because it
+ * is the /s page's OG description, not a share caption.
+ */
+export function shareMessage(spec: ShareCardSpec): string {
+  return spec.kind === "result"
+    ? "My game on AroundChess"
+    : "My rank on the AroundChess leaderboard";
+}
+
 export function shareCardMeta(spec: ShareCardSpec): {
   fileName: string;
   title: string;

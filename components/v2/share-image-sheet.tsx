@@ -9,56 +9,79 @@ import {
   shareCardImageUrl,
   shareCardMeta,
   shareCardUrl,
+  shareMessage,
   type ShareCardSpec,
 } from "@/components/v2/share-link";
-
-type ShareMode = "compose" | "paste" | "attach" | "story";
 
 interface Network {
   id: string;
   label: string;
   icon: string;
-  mode: ShareMode;
-  web: (text: string, url: string) => string;
+  /**
+   * Instagram is routed to Stories by `shareImageTo()`, which takes the PNG as
+   * a full-bleed background and has no text parameter at all.
+   */
+  story?: boolean;
+  /**
+   * Targets the app deliberately shares without a caption: Instagram (Stories
+   * has nowhere to put one) and Facebook (`shareToFacebookApp()` attaches
+   * none — Meta's policy forbids pre-filled text and the SDK drops it).
+   */
+  noCaption?: boolean;
+  web: (caption: string, url: string) => string;
 }
+
+// `filename: 'aroundchess'` in the app's share payload, and one `AroundChess`
+// gallery album for every saved card — so one name here too, rather than a
+// different one per card kind.
+const SHARE_FILE_NAME = "aroundchess.png";
+
+// The mobile app sends the bare message with no link — it has no shareable web
+// URL to attach. The web build appends the /s link because that is the only way
+// a recipient can open the card; set this to false for captions byte-identical
+// to the app's.
+const INCLUDE_SHARE_LINK = true;
 
 const NETWORKS: Network[] = [
   {
     id: "instagram",
     label: "Instagram",
     icon: "/images/v2/play-vs-ai/icon_instagram.png",
-    mode: "story",
+    story: true,
+    noCaption: true,
     web: () => "https://www.instagram.com/",
   },
   {
     id: "whatsapp",
     label: "WhatsApp",
     icon: "/images/v2/play-vs-ai/Icon-whatsapp.png",
-    mode: "attach",
-    web: (text) => `https://wa.me/?text=${encodeURIComponent(text)}`,
+    web: (caption) => `https://wa.me/?text=${encodeURIComponent(caption)}`,
   },
   {
     id: "x",
     label: "X",
     icon: "/images/v2/play-vs-ai/Icon-x.png",
-    mode: "compose",
-    web: (text, url) =>
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+    // No `url` param: the caption already carries the link, and passing both
+    // makes X render it twice.
+    web: (caption) =>
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}`,
   },
   {
     id: "discord",
     label: "Discord",
     icon: "/images/v2/play-vs-ai/Icon-discord.png",
-    mode: "paste",
     web: () => "https://discord.com/channels/@me",
   },
   {
     id: "facebook",
     label: "Facebook",
     icon: "/images/v2/play-vs-ai/Icon-facebook.png",
-    mode: "compose",
-    web: (text, url) =>
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
+    noCaption: true,
+    // No `quote`: the app attaches no caption here, and Facebook drops the
+    // parameter for unapproved apps anyway. `u` is the sharer's required
+    // subject, not a caption, so it stays.
+    web: (_caption, url) =>
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
   },
 ];
 
@@ -135,6 +158,24 @@ function openApp(scheme: string, fallback: string) {
   window.location.href = scheme;
 }
 
+/**
+ * Navigate to a share target, reusing a tab opened earlier in the same tap
+ * when there is one. Returns false when the browser refused to open anything
+ * (popup blocker) so the caller can report it, mirroring the app's
+ * `notify('Could not open X.')` instead of failing silently.
+ */
+function openTarget(tab: Window | null, target: string): boolean {
+  if (tab && !tab.closed) {
+    tab.location.href = target;
+    return true;
+  }
+  try {
+    return !!window.open(target, "_blank", "noopener,noreferrer");
+  } catch {
+    return false;
+  }
+}
+
 function shareableFile(blob: Blob, fileName: string): File | null {
   if (!isMobile()) return null;
   try {
@@ -196,40 +237,33 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
   const savedRef = useRef(false);
   const saveOnce = (): boolean => {
     if (!blob || savedRef.current) return false;
-    download(blob, meta.current.fileName);
+    download(blob, SHARE_FILE_NAME);
     savedRef.current = true;
     return true;
   };
 
   const shareTo = async (network: Network) => {
     if (!blob) return;
-    const { fileName, text, title } = meta.current;
+    const { title } = meta.current;
     const url = shareCardUrl(specRef.current, window.location.origin);
-    const story = network.mode === "story";
-    const caption =
-      network.mode === "compose" || network.mode === "paste"
-        ? `${text} ${url}`
-        : text;
-    const target = network.web(text, url);
+    const story = !!network.story;
+    // One caption for every target, matching the app's single `message` arg.
+    const message = shareMessage(specRef.current);
+    const caption = INCLUDE_SHARE_LINK ? `${message} ${url}` : message;
+    const target = network.web(caption, url);
 
-    const file = shareableFile(blob, fileName);
+    const file = shareableFile(blob, SHARE_FILE_NAME);
     if (file) {
-      // Instagram drops the `text` payload when a file rides along, so the
-      // caption goes to the clipboard instead. Deliberately not awaited: an
-      // await here spends the tap's user activation and iOS Safari then
-      // rejects navigator.share.
-      const copying = story ? copyText(caption) : null;
+      // Closest thing the web has to `shareSingle({url, type, message})`: the
+      // image always rides along, and the two targets the app shares
+      // caption-free stay caption-free here.
       try {
         await (navigator as any).share(
-          story ? { files: [file] } : { files: [file], title, text: caption }
+          network.noCaption
+            ? { files: [file] }
+            : { files: [file], title, text: caption }
         );
-        if (story) {
-          toast(
-            (await copying)
-              ? "In Instagram, tap Story — then press and hold the canvas to paste your caption."
-              : "In Instagram, tap Story, then add your caption."
-          );
-        }
+        if (story) toast("In Instagram, tap Story — your card is the background.");
         return;
       } catch (err) {
         if ((err as any)?.name === "AbortError") return;
@@ -241,8 +275,12 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
       // roll: the Stories editor only accepts a file handed over by Meta's
       // native sharing API (pasteboard stickers on iOS, a content:// intent on
       // Android), and neither is reachable from a web page.
-      const copied = await copyText(caption);
-      const hint = copied ? " Caption copied." : "";
+      //
+      // The app's fallback is a FEED share, which does carry `message` — so
+      // unlike the Stories path above, this one keeps the caption, on the
+      // clipboard where the feed composer can take it.
+      const copiedCaption = await copyText(caption);
+      const hint = copiedCaption ? " Caption copied." : "";
 
       if (isIOS()) {
         // A blob download lands in Files, not Photos, so the story camera's
@@ -264,17 +302,20 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
       } else {
         // The composer has no linkable route — /create/* is read as a username
         // on a cold load — so the home feed is the closest safe landing spot.
-        window.open(target, "_blank", "noopener,noreferrer");
+        if (!openTarget(null, target)) {
+          toast(`Could not open ${network.label}.`);
+          return;
+        }
         toast(`${state} — upload it via Create › Post.${hint}`);
       }
       return;
     }
 
-    if (network.mode === "compose") {
-      window.open(target, "_blank", "noopener,noreferrer");
-      return;
-    }
-
+    // Every remaining target takes the same shape of payload the app sends it:
+    // the image, plus the caption for everything except Facebook. Previously X
+    // and Facebook opened a text-only intent and the card never left this page
+    // — the row says "Share image via", so the image now always goes too.
+    // Opened before the await so the tap's user activation is still live.
     let tab: Window | null = null;
     try {
       tab = window.open("", "_blank");
@@ -283,29 +324,33 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
       tab = null;
     }
 
-    let message: string;
-    if (network.mode === "paste") {
-      const copied = await copyText(caption);
-      message = copied
-        ? `Message copied — paste it into ${network.label} and the card comes with it.`
-        : `Copy this and paste it into ${network.label}: ${caption}`;
-    } else {
-      const copied = await copyImage(blob, caption);
-      if (!copied) saveOnce();
-      message = copied
-        ? `Image copied — press Ctrl+V in ${network.label} to send it.`
-        : `Image saved — attach it to your ${network.label} post.`;
+    // Both flavours in one clipboard write, so a paste lands the card in
+    // Discord and the caption in a text box. Falls back to a download, which
+    // is the only way left to attach the image by hand.
+    const copied = await copyImage(
+      blob,
+      network.noCaption ? undefined : caption
+    );
+    if (!copied) saveOnce();
+
+    if (!openTarget(tab, target)) {
+      toast(`Could not open ${network.label}.`);
+      return;
     }
 
-    if (tab && !tab.closed) tab.location.href = target;
-    else window.open(target, "_blank", "noopener,noreferrer");
-    toast(message);
+    toast(
+      copied
+        ? network.noCaption
+          ? `Image copied — press Ctrl+V in ${network.label} to send it.`
+          : `Image and caption copied — press Ctrl+V in ${network.label} to send it.`
+        : `Image saved — attach it to your ${network.label} post.`
+    );
   };
 
   const handleSave = () => {
     if (!blob) return;
     // An explicit tap always writes a copy, even if a share already saved one.
-    download(blob, meta.current.fileName);
+    download(blob, SHARE_FILE_NAME);
     savedRef.current = true;
     toast("Image saved.");
   };
