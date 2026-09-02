@@ -12,7 +12,7 @@ import {
   type ShareCardSpec,
 } from "@/components/v2/share-link";
 
-type ShareMode = "compose" | "paste" | "attach";
+type ShareMode = "compose" | "paste" | "attach" | "story";
 
 interface Network {
   id: string;
@@ -27,7 +27,7 @@ const NETWORKS: Network[] = [
     id: "instagram",
     label: "Instagram",
     icon: "/images/v2/play-vs-ai/icon_instagram.png",
-    mode: "attach",
+    mode: "story",
     web: () => "https://www.instagram.com/",
   },
   {
@@ -113,6 +113,22 @@ function isMobile(): boolean {
   return /Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1;
 }
 
+const INSTAGRAM_STORY_APP = "instagram://story-camera";
+
+function openApp(scheme: string, fallback: string) {
+  const timer = window.setTimeout(() => {
+    if (document.visibilityState === "visible") window.location.href = fallback;
+  }, 1500);
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (document.visibilityState === "hidden") window.clearTimeout(timer);
+    },
+    { once: true }
+  );
+  window.location.href = scheme;
+}
+
 function shareableFile(blob: Blob, fileName: string): File | null {
   if (!isMobile()) return null;
   try {
@@ -169,21 +185,68 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  // The browser may prompt for a location on every download, so the card is
+  // written to disk at most once per sheet no matter how many networks are used.
+  const savedRef = useRef(false);
+  const saveOnce = (): boolean => {
+    if (!blob || savedRef.current) return false;
+    download(blob, meta.current.fileName);
+    savedRef.current = true;
+    return true;
+  };
+
   const shareTo = async (network: Network) => {
     if (!blob) return;
     const { fileName, text, title } = meta.current;
     const url = shareCardUrl(specRef.current, window.location.origin);
-    const caption = network.mode === "attach" ? text : `${text} ${url}`;
+    const story = network.mode === "story";
+    const caption =
+      network.mode === "compose" || network.mode === "paste"
+        ? `${text} ${url}`
+        : text;
     const target = network.web(text, url);
 
     const file = shareableFile(blob, fileName);
     if (file) {
+      // Instagram drops the `text` payload when a file rides along, so the
+      // caption goes to the clipboard instead. Deliberately not awaited: an
+      // await here spends the tap's user activation and iOS Safari then
+      // rejects navigator.share.
+      const copying = story ? copyText(caption) : null;
       try {
-        await (navigator as any).share({ files: [file], title, text: caption });
+        await (navigator as any).share(
+          story ? { files: [file] } : { files: [file], title, text: caption }
+        );
+        if (story) {
+          toast(
+            (await copying)
+              ? "Pick Instagram › Stories — your caption is copied, ready to paste."
+              : "Pick Instagram › Stories, then add your caption."
+          );
+        }
         return;
       } catch (err) {
         if ((err as any)?.name === "AbortError") return;
       }
+    }
+
+    if (story) {
+      // No share sheet: get the card onto disk, keep the caption ready, and
+      // open Instagram — it only ever accepts an uploaded file, never a paste.
+      const fresh = saveOnce();
+      const state = fresh ? "Image saved" : "Image already in your downloads";
+      const copied = await copyText(caption);
+      const hint = copied ? " Caption copied." : "";
+      if (isMobile()) {
+        openApp(INSTAGRAM_STORY_APP, target);
+        toast(`${state} — pick it in the story camera.${hint}`);
+      } else {
+        // The composer has no linkable route — /create/* is read as a username
+        // on a cold load — so the home feed is the closest safe landing spot.
+        window.open(target, "_blank", "noopener,noreferrer");
+        toast(`${state} — upload it via Create › Post.${hint}`);
+      }
+      return;
     }
 
     if (network.mode === "compose") {
@@ -207,7 +270,7 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
         : `Copy this and paste it into ${network.label}: ${caption}`;
     } else {
       const copied = await copyImage(blob, caption);
-      if (!copied) download(blob, fileName);
+      if (!copied) saveOnce();
       message = copied
         ? `Image copied — press Ctrl+V in ${network.label} to send it.`
         : `Image saved — attach it to your ${network.label} post.`;
@@ -220,7 +283,9 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
 
   const handleSave = () => {
     if (!blob) return;
+    // An explicit tap always writes a copy, even if a share already saved one.
     download(blob, meta.current.fileName);
+    savedRef.current = true;
     toast("Image saved.");
   };
 

@@ -739,6 +739,14 @@ export default function PlayingPage() {
     handleRematch();
   };
 
+  // The board's reset (round arrow) throws the current position away just like
+  // "New Game" does, so it takes the same "restart" warning. request() runs the
+  // rematch straight away when the guard is not armed — no moves played yet, or
+  // the game is already over, so there is no progress to lose.
+  const requestReset = () => {
+    requestLeave("restart", handleReset);
+  };
+
   const LOCAL_STORAGE_KEY = "vs-ai-current-game";
 
   const saveGameState = useCallback(() => {
@@ -1957,6 +1965,14 @@ export default function PlayingPage() {
     
     // Open dialog for new game selection
     setShowPlayVSAIModal(true);
+  };
+
+  // "New Game" mid-game throws away the current position, so it has to go
+  // through the leave guard's "restart" warning. request() runs the reset
+  // straight away when the guard is not armed (no moves played yet, or the
+  // game is already over) — there is no progress to lose then.
+  const requestNewGame = () => {
+    requestLeave("restart", handleNewGame);
   };
 
   const handleClosePlayVSAI = () => {
@@ -3286,7 +3302,7 @@ export default function PlayingPage() {
                       <ChevronRight size={24} color="#000" />
                     </button> */}
                     <button
-                      onClick={handleReset}
+                      onClick={requestReset}
                       className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3333,7 +3349,7 @@ export default function PlayingPage() {
             {statusGame === "Ongoing" ? (
               <ButtonPlaying
                 handleHint={requestHint}
-                handleNewGame={handleNewGame}
+                handleNewGame={requestNewGame}
                 handleResign={requestResign}
                 canResign={hasMoved}
                 myColor={myColor}
@@ -3609,7 +3625,7 @@ export default function PlayingPage() {
                       <ChevronRight size={24} color="#000" />
                     </button> */}
                     <button
-                      onClick={handleReset}
+                      onClick={requestReset}
                       className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3638,7 +3654,7 @@ export default function PlayingPage() {
                 {statusGame === "Ongoing" && !isTutorialPlay ? (
                   <ButtonPlaying
                     handleHint={requestHint}
-                    handleNewGame={handleNewGame}
+                    handleNewGame={requestNewGame}
                     handleResign={requestResign}
                     canResign={hasMoved}
                     myColor={myColor}
