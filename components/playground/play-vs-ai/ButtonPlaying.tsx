@@ -10,7 +10,6 @@ interface ButtonPlayingProps {
   handleHint: () => void;
   handleResign: () => void;
   handleNewGame: () => void;
-  canResign?: boolean;
 }
 
 export const ButtonPlaying = ({
@@ -21,7 +20,6 @@ export const ButtonPlaying = ({
   handleHint,
   handleResign,
   handleNewGame,
-  canResign = true,
 }: ButtonPlayingProps) => {
   return (
     <motion.div
@@ -67,8 +65,7 @@ export const ButtonPlaying = ({
       </button>
       <button
         onClick={handleResign}
-        disabled={!canResign}
-        className="flex flex-row justify-center bg-[#E6F7FE] border-[#C6EEFE] shadow-inner shadow-white drop-shadow sm:bg-white items-center min-h-[32px] md:min-h-[40px] w-1/3 px-4 py-2 border sm:border-[#DEDEDE] rounded-full sm:rounded-[8px] hover:bg-gray-100 gap-1 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#E6F7FE] sm:disabled:hover:bg-white"
+        className="flex flex-row justify-center bg-[#E6F7FE] border-[#C6EEFE] shadow-inner shadow-white drop-shadow sm:bg-white items-center min-h-[32px] md:min-h-[40px] w-1/3 px-4 py-2 border sm:border-[#DEDEDE] rounded-full sm:rounded-[8px] hover:bg-gray-100 gap-1 "
       >
         <Image
           src={"/images/play-vs-ai/resign.png"}

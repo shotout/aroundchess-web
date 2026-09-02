@@ -68,6 +68,10 @@ const DEFAULT_SKILL_LEVELS = [
   },
 ];
 
+/**
+ * Highest tier the rating has reached, using the same table the track renders
+ * so the label next to the ELO can never disagree with the bar beside it.
+ */
 export const getLevelTitleForElo = (
   currentElo: number,
   skillLevels: { title: string; elo: number }[] = DEFAULT_SKILL_LEVELS
@@ -237,9 +241,10 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
   const nextGoalIndex = getNextGoalLevelIndex();
   const mobileLevels = getMobileDisplayLevels();
 
-  const MAX_BADGE_POSITION = 85;
-  const trianglePosition = currentEloPercentage * 0.8333 + 9.5;
-  const badgePosition = Math.min(trianglePosition, MAX_BADGE_POSITION);
+  // Calculate positions for triangle and badge separately
+  const MAX_BADGE_POSITION = 85; // Maximum safe position for badge (to prevent cutoff)
+  const trianglePosition = currentEloPercentage * 0.8333 + 9.5; // Actual triangle position
+  const badgePosition = Math.min(trianglePosition, MAX_BADGE_POSITION); // Badge stops at threshold
 
   const badgeClass =
     "w-max h-6 md:h-7 rounded-full flex justify-center items-center text-[11.6px] md:text-[14px] --xs px-[10px] md:px-[16px] font-semibold";
@@ -258,7 +263,9 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
     <div className="relative">
       <TooltipProvider delayDuration={300} skipDelayDuration={100}>
         <div className="relative w-full space-y-6 overflow-x-scroll">
-          <div className="w-[640px] lg:w-full grid grid-cols-6 gap-2">
+          {/* Narrower fixed track on mobile so more of the six levels fit in
+              the viewport before scrolling, matching the mockup. */}
+          <div className="w-[500px] md:w-[640px] lg:w-full grid grid-cols-6 gap-2">
             {skillLevels.map((level, index) => {
               const isReached = (currentElo || 0) >= level.elo;
               const isNextGoal = index === nextGoalIndex;
@@ -278,14 +285,17 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
               return (
                 <div
                   key={level.id}
-                  className="flex flex-col items-center relative w-full space-y-2"
+                  className="flex flex-col items-center relative w-full space-y-0.5 md:space-y-2"
                 >
-                  <div className="h-8 flex items-center justify-center">
-                    {isCompleted && !isNextGoal && (
-                      <div className="w-6 h-6 bg-gradient-to-b from-[#26E279] via-[#029A46] to-[#029A46] rounded-full flex items-center justify-center">
-                        <Check className="h-4 w-4 text-white font-light" />
-                      </div>
-                    )}
+                  {/* Reserves room for the badge / check above the piece. h-6
+                      on mobile is the exact height of both (the badge is h-6,
+                      the check circle w-6 h-6), so nothing is clipped — the
+                      old h-8 was simply 8px of dead air. */}
+                  {/* Reserves the room the "Your Next Goal" badge floats into.
+                      The completed check no longer lives here — it sits on top
+                      of its own piece instead (see below), so on a short piece
+                      it isn't stranded at the top of the column. */}
+                  <div className="h-6 md:h-8 flex items-center justify-center">
                     {isNextGoal && (
                       <div className="absolute -top-0 left-1/2 transform -translate-x-1/2">
                         <div
@@ -298,18 +308,54 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                     )}
                   </div>
 
-                  <div className="relative h-[98px] flex justify-center items-end">
+                  {/* Height tracks the tallest piece — grandmaster at 1.8x
+                      scale is 100.8px, so 56px at the 0.55 mobile scale. The
+                      pieces align items-end on a shared baseline, so this can't
+                      go lower without the tall ones overflowing upward. */}
+                  <div className="relative h-[56px] md:h-[98px] flex justify-center items-end">
+                    {/* <div className="inline-flex items-end h-full">
+                      <div className="relative w-fit h-fit flex items-end">
+                        <Image
+                          src={imagePath}
+                          alt={level.title}
+                          width={regularWidth}
+                          height={regularHeight}
+                          className="object-contain align-bottom"
+                        />
+                      </div>
+                    </div> */}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="inline-flex items-end h-full">
                           <div className="relative w-fit h-fit flex items-end">
+                            {/* Each level has its own scale factor, so the size
+                                is computed in JS and handed to CSS as a
+                                variable — that's what lets the mobile
+                                breakpoint scale it without duplicating the
+                                image or resorting to a transform (which would
+                                shrink the art but keep the layout box). */}
                             <Image
                               src={imagePath}
                               alt={level.title}
                               width={regularWidth}
                               height={regularHeight}
-                              className="object-contain align-bottom"
+                              style={
+                                {
+                                  "--piece-w": `${regularWidth}px`,
+                                  "--piece-h": `${regularHeight}px`,
+                                } as React.CSSProperties
+                              }
+                              className="object-contain align-bottom w-[calc(var(--piece-w)*0.55)] h-[calc(var(--piece-h)*0.55)] md:w-[var(--piece-w)] md:h-[var(--piece-h)]"
                             />
+                            {/* Anchored to the image, not the column, so it
+                                tracks each piece's own height instead of
+                                floating at a fixed distance above the tall
+                                ones and far above the short ones. */}
+                            {isCompleted && !isNextGoal && (
+                              <div className="absolute left-1/2 -translate-x-1/2 -top-[22px] md:-top-[30px] w-5 h-5 md:w-6 md:h-6 bg-gradient-to-b from-[#26E279] via-[#029A46] to-[#029A46] rounded-full flex items-center justify-center">
+                                <Check className="h-3 w-3 md:h-4 md:w-4 text-white font-light" />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </TooltipTrigger>
@@ -336,10 +382,10 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   </div>
 
                   <div className="text-center w-full space-y-1">
-                    <div className="font-semibold text-[14px] --sm flex items-center justify-center">
+                    <div className="font-semibold text-[12px] md:text-[14px] --sm flex items-center justify-center">
                       <span className="truncate max-w-full">{level.title}</span>
                     </div>
-                    <div className="text-[14px] --xs text-gray-600 flex items-center justify-center">
+                    <div className="text-[11px] md:text-[14px] --xs text-gray-600 flex items-center justify-center">
                       <span className="whitespace-nowrap">ELO {level.elo}</span>
                     </div>
                   </div>
@@ -348,7 +394,88 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
             })}
           </div>
 
-          <div className="w-[640px] lg:w-full relative h-20 block">
+          {/* <div className="hidden grid-cols-6 gap-2">
+            {mobileLevels.map((level, mobileIndex) => {
+              const isReached = (currentElo || 0) >= level.elo;
+              const isNextGoal =
+                level.elo > (currentElo || 0) && mobileIndex === 1;
+              const imagePath = getImagePath(level.id, isReached, isNextGoal);
+              const isCompleted = isReached;
+
+              const mobileWidth = 36;
+              const mobileHeight = 50;
+
+              return (
+                <div
+                  key={`mobile-${level.id}`}
+                  className="flex flex-col items-center relative w-full space-y-2"
+                >
+                  <div className="h-8 flex items-center justify-center">
+                    {isCompleted && !isNextGoal && (
+                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                        <Check className="h-4 w-4 text-white" />
+                      </div>
+                    )}
+                    {isNextGoal && (
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                        <div
+                          className={`${badgeClass} bg-gradient-to-b from-[#FFA600] to-[#FFCD7C] text-black`}
+                        >
+                          Your Next Goal
+                        </div>
+                        <div className="w-4 h-4 bg-[#FFCD7C] -z-[1] rotate-45 absolute left-1/2 -bottom-1 -translate-x-1/2"></div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative flex h-16 w-12 justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="absolute bottom-0 flex justify-center">
+                          <Image
+                            src={imagePath}
+                            alt={level.title}
+                            width={mobileWidth}
+                            height={mobileHeight}
+                            className={`object-contain`}
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        align="start"
+                        sideOffset={20}
+                        alignOffset={100}
+                        className="bg-blue-base/5 backdrop-blur-3xl border border-blue-base shadow-lg rounded-md"
+                      >
+                        <div className="flex flex-col gap-y-1 p-2">
+                          <h3 className="font-semibold text-[14px] --sm">
+                            {level.title}
+                          </h3>
+                          <p className="text-[14px] --xs text-gray-600">
+                            ELO Requirement: {level.elo}
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+
+                  <div className="text-center w-full space-y-1">
+                    <div className="font-semibold text-[14px] --xs flex items-center justify-center">
+                      <span className="truncate max-w-full">{level.title}</span>
+                    </div>
+                    <div className="text-[14px] --10px text-gray-600 flex items-center justify-center">
+                      <span className="whitespace-nowrap">ELO {level.elo}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div> */}
+
+          {/* Width must match the level track above it — the dots sit under
+              the pieces, so the two share the same six-column geometry. */}
+          <div className="w-[500px] md:w-[640px] lg:w-full relative h-16 md:h-20 block">
             <div className="relative w-full mt-6">
               <div className="absolute -translate-y-1/2 w-full grid grid-cols-6 z-[5]">
                 {skillLevels.map((level, index) => {
@@ -356,6 +483,64 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
                   return (
                     <div
                       key={`indicator-desktop-${level.id}`}
+                      className="flex items-center justify-center"
+                    >
+                      <div
+                        className={`w-5 h-5 border-[3px] md:w-7 md:h-7 md:border-4 rounded-full ${
+                          isReached
+                            ? "bg-purple-600 border-blue-base"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div
+                className="absolute top-1/2 -translate-y-1/2 h-2.5 md:h-4 rounded-full bg-gray-200 z-0"
+                style={{
+                  left: "calc(8.33% + 3.5px)",
+                  width: "calc(83.33% - 7px)",
+                }}
+              >
+                <div
+                  className="h-full bg-blue-base rounded-full"
+                  style={{
+                    width: `${currentEloPercentage}%`,
+                  }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Badge container - stops at safe position to prevent cutoff */}
+            <div
+              className="absolute -translate-x-1/2 top-8"
+              style={{
+                left: `${badgePosition}%`,
+                bottom: 0,
+              }}
+            >
+              {/* Green triangle indicator - centered on badge */}
+              <div className={`${badgePosition < 10 ? 'left-[calc(50%-8px)]' : 'left-1/2'} w-4 h-4 -z-[1] bg-[#26E279] rotate-45 absolute top-0 -translate-x-1/2 -translate-y-1/2`}></div>
+
+              {/* Badge text */}
+              <div
+                className={`${badgeClass} bg-gradient-to-b from-[#26E279] to-[#029A46] text-white`}
+              >
+                Your current ELO
+              </div>
+            </div>
+          </div>
+
+          {/* <div className="relative h-20 xl:hidden">
+            <div className="relative w-full mt-6">
+              <div className="absolute -translate-y-1/2 w-full grid grid-cols-3 z-10">
+                {mobileLevels.map((level, index) => {
+                  const isReached = (currentElo || 0) >= level.elo;
+                  return (
+                    <div
+                      key={`indicator-mobile-${level.id}`}
                       className="flex items-center justify-center"
                     >
                       <div
@@ -373,14 +558,14 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
               <div
                 className="absolute top-1/2 -translate-y-1/2 h-4 rounded-full bg-gray-200 z-0"
                 style={{
-                  left: "calc(8.33% + 3.5px)",
-                  width: "calc(83.33% - 7px)",
+                  left: "calc(16.67% + 3.5px)",
+                  width: "calc(66.67% - 7px)",
                 }}
               >
                 <div
                   className="h-full bg-blue-base rounded-full"
                   style={{
-                    width: `${currentEloPercentage}%`,
+                    width: `${mobileEloPercentage}%`,
                   }}
                 ></div>
               </div>
@@ -389,20 +574,20 @@ const SkillProgressTrack: React.FC<SkillProgressTrackProps> = ({
             <div
               className="absolute -translate-x-1/2 top-8"
               style={{
-                left: `${badgePosition}%`,
+                left: `${
+                  ((mobileEloPercentage * 0.6667) / 100) * 100 + 16.67
+                }%`,
                 bottom: 0,
               }}
             >
-              <div className={`${badgePosition < 10 ? 'left-[calc(50%-8px)]' : 'left-1/2'} w-4 h-4 -z-[1] bg-[#26E279] rotate-45 absolute top-0 -translate-x-1/2 -translate-y-1/2`}></div>
-
+              <div className="w-4 h-4 bg-[#26E279] -z-[1] rotate-45 absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"></div>
               <div
                 className={`${badgeClass} bg-gradient-to-b from-[#26E279] to-[#029A46] text-white`}
               >
                 Your current ELO
               </div>
             </div>
-          </div>
-
+          </div> */}
         </div>
       </TooltipProvider>
     </div>

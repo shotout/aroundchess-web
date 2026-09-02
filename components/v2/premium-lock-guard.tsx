@@ -10,11 +10,18 @@ interface PremiumLockGuardProps {
   description: string;
 }
 
+/**
+ * Blocks a premium-only area for users without a membership. Renders a lock
+ * modal over the page; closing it navigates back so the content stays
+ * inaccessible. Use the presets below so each area keeps consistent copy.
+ */
 export function PremiumLockGuard({ image, description }: PremiumLockGuardProps) {
   const router = useRouter();
   const { isMember, isMemberMonthly, hydrated } = useProfileStore();
   const isSubscribed = !!(isMember || isMemberMonthly);
 
+  // Wait for the persisted profile to rehydrate so premium members never see
+  // the lock flash on load.
   if (!hydrated || isSubscribed) return null;
 
   return (
@@ -29,6 +36,7 @@ export function PremiumLockGuard({ image, description }: PremiumLockGuardProps) 
           <X className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
         </button>
 
+        {/* Lock badge overlaps the artwork's bottom-left corner (design). */}
         <div className="relative w-[110px] sm:w-[260px] mx-auto">
           <Image
             src={image}
@@ -67,6 +75,7 @@ export function PremiumLockGuard({ image, description }: PremiumLockGuardProps) 
   );
 }
 
+/** Lock for the Practice area (menu, Puzzles, Board Vision, Endgame Training). */
 export function PracticePremiumGuard() {
   return (
     <PremiumLockGuard
@@ -76,6 +85,7 @@ export function PracticePremiumGuard() {
   );
 }
 
+/** Lock for the Learn area (menu, Training Plan, Handbook). */
 export function LearnPremiumGuard() {
   return (
     <PremiumLockGuard

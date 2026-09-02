@@ -55,8 +55,6 @@ import { ButtonBoard } from "./ButtonBoard";
 import { ButtonFinish } from "./ButtonFinish";
 import { ButtonPlaying } from "./ButtonPlaying";
 import { PlayVsAiConfirmModal } from "@/components/v2/play-vs-ai-confirm-modal";
-import { PlayVsAiLeaveGuardModal } from "@/components/v2/play-vs-ai-leave-guard-modal";
-import { useGameLeaveGuard } from "@/app/store/gameLeaveGuard";
 import { PlayVsAiWinModal, WIN_LOTTIE } from "@/components/v2/play-vs-ai-win-modal";
 import { PlayVsAiLoseModal, LOSE_LOTTIE } from "@/components/v2/play-vs-ai-lose-modal";
 import { PlayVsAiDrawModal, DRAW_LOTTIE } from "@/components/v2/play-vs-ai-draw-modal";
@@ -357,26 +355,17 @@ export default function PlayingPage() {
   const { isTutorialPlay, stepFocused } = useTutorial();
   const router = useRouter();
   const pathname = usePathname();
-  const {
-    pending: leaveGuard,
-    request: requestLeave,
-    open: openLeaveGuard,
-    setArmed: setLeaveGuardArmed,
-    confirm: confirmLeaveGuard,
-    dismiss: dismissLeaveGuard,
-  } = useGameLeaveGuard();
+  /** Mobile board back arrow. This page is reached from more than just the Play
+   *  VS AI lobby — e.g. "Play against this Opponent" on the opponent stats page
+   *  — so return to wherever the user actually came from, and only fall back to
+   *  the lobby when there is no history (deep link, fresh tab). */
   const handleMobileBack = useCallback(() => {
-    requestLeave("leave", () => {
-      if (typeof window !== "undefined" && window.history.length > 1) {
-        router.back();
-        return;
-      }
-      router.push("/playground/play-vs-ai");
-    });
-  }, [router, requestLeave]);
-  const handleBackToLobby = useCallback(() => {
-    requestLeave("leave", () => router.push("/playground/play-vs-ai"));
-  }, [router, requestLeave]);
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push("/playground/play-vs-ai");
+  }, [router]);
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
   const { isMember, isMemberMonthly, token } = useProfileStore();
@@ -413,12 +402,21 @@ export default function PlayingPage() {
   const { open: gameEndOpen, setOpen: setOpenGameStatus } = useGameEndStatus();
   const { leaderboard, setLeaderboard, leaderboardMe, setLeaderboardMe } =
     usePlayPageStore();
+  // Onboarding-based rating, used when neither leaderboard endpoint has one.
   const effectiveElo = useEffectiveElo();
 
+  /** The rating the end-of-game modals should show, in the same order the play
+   *  page's top bar uses: the rated leaderboard ELO, then the provisional one
+   *  from /leaderboard/me (an account still calibrating isn't on the
+   *  leaderboard, so my_elo is 0 there), then the onboarding ELO. Without the
+   *  fallbacks a calibrating player saw "Your Current ELO 0" and a 0 change. */
   const readElo = (lb: any, me: any): number =>
     Number(lb?.my_elo) || Number(me?.elo) || effectiveElo || 0;
 
+  // Modal states for analysis dialogs
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
+  // Skip-depth-dialog flow: makes AnalyzeGameHistory auto-run the Standard
+  // analysis headlessly (the depth dialog only ever opens in the tutorial).
   const [autoStartAnalyze, setAutoStartAnalyze] = useState(false);
   const [isChooseAnalysisModeOpen, setIsChooseAnalysisModeOpen] = useState(false);
   const [hasAnalysis, setHasAnalysis] = useState(false);
@@ -428,11 +426,16 @@ export default function PlayingPage() {
   const [gameAnalysisOpen, setGameAnalysisOpen] = useState(false);
   const [v3AnalysisResult, setV3AnalysisResult] = useState<any>(null);
   
+  // New Game dialog state
   const [showPlayVSAIModal, setShowPlayVSAIModal] = useState<boolean>(false);
 
   useEffect(() => {
+    // Track modal states
   }, [isAnalyzeOpen, isChooseAnalysisModeOpen, processingAnalysisModeOpen, gameAnalysisOpen, hasAnalysis]);
 
+  // Warm the win/lose/streak celebration animations while the game is being
+  // played so the result modals render them instantly instead of fetching on
+  // open.
   useEffect(() => {
     preloadLottie(WIN_LOTTIE);
     preloadLottie(LOSE_LOTTIE);
@@ -470,6 +473,8 @@ export default function PlayingPage() {
   const [moveClassification, setMoveClassification] = useState<string>("");
   const [depth] = useState<number>(20);
   const [hintClicked, setHintClicked] = useState<boolean>(false);
+  // Whether the player used a hint or undo at any point in the current game;
+  // reported to the leaderboard with the game result.
   const usedHintRef = useRef<boolean>(false);
   const [confirmAction, setConfirmAction] = useState<"undo" | "hint" | null>(
     null
@@ -479,9 +484,16 @@ export default function PlayingPage() {
   const [showWinModal, setShowWinModal] = useState<boolean>(false);
   const [showLoseModal, setShowLoseModal] = useState<boolean>(false);
   const [showDrawModal, setShowDrawModal] = useState<boolean>(false);
+  // Day-streak celebration: armed when the streak increments after a game
+  // save, shown only once the win/loss/draw end-modal has been shown and
+  // closed — and, for lost/drawn games that go into analysis, only after the
+  // analysis flow is done (see analysisFlowActive below).
   const [pendingCelebration, setPendingCelebration] = useState<number | null>(
     null
   );
+  // Whether the pending celebration is a reward (free-token) day. Driven by
+  // the backend's `isGem` flag on the current streak day rather than a fixed
+  // 7-day cycle, so configurable gem days show the reward modal correctly.
   const [pendingCelebrationReward, setPendingCelebrationReward] =
     useState<boolean>(false);
   const [endModalShown, setEndModalShown] = useState<boolean>(false);
@@ -534,13 +546,13 @@ export default function PlayingPage() {
 
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
-  const hasMoved = game.history().length > 0;
   const containerRef = useRef<HTMLDivElement>(null);
   const movementDetailsRef = useRef<HTMLDivElement>(null);
   const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
 
   const [redoStack, setRedoStack] = useState<string[]>([]);
 
+  // User-drawn arrows state (for right-click drag arrow drawing)
   const [userDrawnArrows, setUserDrawnArrows] = useState<{
     from: string;
     to: string;
@@ -549,6 +561,7 @@ export default function PlayingPage() {
   }[]>([]);
   const [arrowDrawStart, setArrowDrawStart] = useState<string | null>(null);
 
+  // Pre-move queue state
   const [preMoveQueue, setPreMoveQueue] = useState<Array<{
     from: string;
     to: string;
@@ -558,6 +571,7 @@ export default function PlayingPage() {
 
   const isYourTurn = myColor === "white" ? "w" : "b";
 
+  // Helper function to detect if a move is a knight move (L-shaped)
   const isKnightMove = useCallback((from: string, to: string): boolean => {
     const fileFrom = from.charCodeAt(0) - 'a'.charCodeAt(0);
     const rankFrom = parseInt(from[1]) - 1;
@@ -567,9 +581,11 @@ export default function PlayingPage() {
     const fileDiff = Math.abs(fileTo - fileFrom);
     const rankDiff = Math.abs(rankTo - rankFrom);
 
+    // Knight moves: 2 squares in one direction, 1 in perpendicular
     return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
   }, []);
 
+  // Convert hint arrows to ArrowConfig format for CustomChessArrows
   const customArrowsConfig = useMemo(() => {
     if (!bestLine || bestLine.length === 0 || !bestLine.split(" ")?.[0] || !hintClicked) {
       return [];
@@ -582,17 +598,18 @@ export default function PlayingPage() {
     return [{
       from,
       to,
-      color: "rgba(28, 22, 194, 0.5)",
+      color: "rgba(28, 22, 194, 0.5)", // Purple hint color with opacity
       isKnightMove: isKnightMove(from, to)
     }];
   }, [bestLine, hintClicked, isKnightMove]);
 
+  // Pre-move square highlights
   const preMoveSquareStyles = useMemo(() => {
     const styles: Record<string, CSSProperties> = {};
     preMoveQueue.forEach((preMove, index) => {
       const color = index === 0
-        ? "rgba(255, 100, 100, 0.5)"
-        : "rgba(255, 150, 100, 0.4)";
+        ? "rgba(255, 100, 100, 0.5)"  // Red for next pre-move
+        : "rgba(255, 150, 100, 0.4)"; // Orange for subsequent
       styles[preMove.from] = { backgroundColor: color };
       styles[preMove.to] = { backgroundColor: color };
     });
@@ -618,16 +635,26 @@ export default function PlayingPage() {
     for (let i = 0; i < movesToUndo; i++) {
       const move = game.undo();
       if (move) {
-        newRedoStack.push(game.pgn());
+        newRedoStack.push(game.pgn()); // Or store move details to replay
       }
     }
     
+    // Ideally we want to support redo, but chess.js undo is destructive. 
+    // To support redo we would need to replay PGN.
+    // For now, per requirement "return to previous position... to move", we focus on Undo.
+    // We clear redo stack if we want strict "Takeback" behavior, or we try to manage it.
+    // Given complexity, let's just focus on getting the Board State correct for moving.
+    
+    // Rebuild history from game state
     const newFen = game.fen();
     setGamePosition(newFen);
     
+    // Reconstruct fenHistory based on current game state history
+    // This is expensive but accurate. Or we can just slice the existing fenHistory.
     setFenHistory((prev) => prev.slice(0, prev.length - movesToUndo));
     setCurrentMoveIndex((prev) => Math.max(0, prev - movesToUndo));
     
+    // Reset game status if it was over
     if (statusGame !== "Ongoing") {
       setStatusGame("Ongoing");
       setWinnerColor("");
@@ -686,10 +713,14 @@ export default function PlayingPage() {
   };
 
   const handleRedo = () => {
+    // Redo logic is complex with chess.js without full PGN reload.
+    // For now, we will disable this or keep it as navigation if we didn't truncate history?
+    // But we ARE truncating history to allow moves.
+    // So Right Arrow is effectively disabled after a Takeback until a new move is made.
   };
 
   const handleReset = () => {
-    requestLeave("restart", handleRematch);
+    handleRematch();
   };
 
   const LOCAL_STORAGE_KEY = "vs-ai-current-game";
@@ -709,7 +740,9 @@ export default function PlayingPage() {
     }
   }, [game, AIChoosed, statusGame, currentGameId]);
 
+  // Create game object from PGN with stable ID using useMemo
   const gameFromPgn = useMemo(() => {
+    // Use canonical PGN from backend if available (after save), otherwise use local PGN
     const currentPgn = analysisPgn ?? game.pgn();
     const pgnHash = createPgnHash(currentPgn);
     const gameId = `play-vs-ai-${pgnHash}`;
@@ -740,15 +773,9 @@ export default function PlayingPage() {
     restorePollingJobs();
   }, [clearOldJobs, restorePollingJobs]);
 
+  // Check if analysis exists for this game
   useEffect(() => {
-    setLeaveGuardArmed(statusGame === "Ongoing" && !isTutorialPlay && hasMoved);
-    return () => {
-      setLeaveGuardArmed(false);
-      dismissLeaveGuard();
-    };
-  }, [statusGame, isTutorialPlay, hasMoved, setLeaveGuardArmed, dismissLeaveGuard]);
-
-  useEffect(() => {
+    // Skip analysis check during tutorial
     if (isTutorialPlay) {
       return;
     }
@@ -756,6 +783,7 @@ export default function PlayingPage() {
     const checkAnalysis = () => {
       const job = getJobByGameId(gameFromPgn.id);
 
+      // Ensure the job is completed, has a result, AND the PGN matches this game
       const hasCompletedAnalysis =
         job?.status === "completed" &&
         !!job.result &&
@@ -765,11 +793,13 @@ export default function PlayingPage() {
     };
 
     checkAnalysis();
+    // Poll every second to check for completed analysis
     const interval = setInterval(checkAnalysis, 1000);
 
     return () => clearInterval(interval);
   }, [gameFromPgn.id, gameFromPgn.pgn, getJobByGameId, hasAnalysis, isTutorialPlay]);
 
+  // Auto-open AnalyzeGameHistory modal when tutorial reaches step 4
   useEffect(() => {
     if (isTutorialPlay && stepFocused === 2) {
       setIsAnalyzeOpen(false);
@@ -783,6 +813,7 @@ export default function PlayingPage() {
     }
   }, [isTutorialPlay, stepFocused]);
 
+  // Auto-open ChooseAnalysisMode modal when tutorial reaches step 5
   useEffect(() => {
     if (isTutorialPlay && stepFocused === 4) {
       setIsAnalyzeOpen(false);
@@ -791,8 +822,10 @@ export default function PlayingPage() {
     }
   }, [isTutorialPlay, stepFocused]);
 
+  // Auto-open GameAnalysis modal when tutorial reaches step 6
   useEffect(() => {
     if (isTutorialPlay && stepFocused === 5) {
+      // Set dummy v3Result for tutorial with complete data including FEN and arrows
       setV3AnalysisResult({
         summary: {
           criticalMistakes: [
@@ -928,12 +961,13 @@ export default function PlayingPage() {
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
+  // Set dummy data when tutorial is active to show "Analyze Now" button
   useEffect(() => {
     if (isTutorialPlay && pathname.includes("/playground/play-vs-ai/playing")) {
       setStatusGame("Win");
       setWinnerColor(myColor);
       setLoserColor(myColor === "white" ? "black" : "white");
-      setHasAnalysis(false);
+      setHasAnalysis(false); // Ensure "Analyze Now" button shows instead of "Show Analysis"
     }
   }, [isTutorialPlay, pathname, myColor]);
 
@@ -948,6 +982,7 @@ export default function PlayingPage() {
     }
   }, [game.history().length === 0]);
 
+  // Auto-scroll Movement Details to bottom when new moves are added
   useEffect(() => {
     if (movementDetailsRef.current) {
       movementDetailsRef.current.scrollTop = movementDetailsRef.current.scrollHeight;
@@ -985,6 +1020,7 @@ export default function PlayingPage() {
       return;
     }
 
+    // Clear user-drawn arrows and pre-move queue on any left-click
     if (userDrawnArrows.length > 0) {
       setUserDrawnArrows([]);
     }
@@ -995,6 +1031,7 @@ export default function PlayingPage() {
     setBestline("");
 
     if (!moveFrom) {
+      // Click-to-select with dots: show legal moves and mark current square
       const hasMoveOptions = getMoveOptions(square);
       if (hasMoveOptions) {
         setPreviousSquare(square);
@@ -1024,6 +1061,7 @@ export default function PlayingPage() {
           setPreviousSquare(undefined);
           return;
         }
+        // Change selected piece: update dots for the new origin square
         const hasMoveOptions = getMoveOptions(square);
         if (hasMoveOptions) {
           setPreviousSquare(square);
@@ -1077,6 +1115,7 @@ export default function PlayingPage() {
       }
 
       if (move === null) {
+        // If move failed, try treating the clicked square as a new origin
         const hasMoveOptions = getMoveOptions(square);
         if (hasMoveOptions) {
           setPreviousSquare(square);
@@ -1178,7 +1217,9 @@ export default function PlayingPage() {
   };
 
   const onSquareRightClick = (square: Square) => {
-    const colour = "rgba(235, 97, 80, 0.8)";
+    // Note: This is kept for backwards compatibility but arrow drawing
+    // is now handled via mouse events on the board container
+    const colour = "rgba(235, 97, 80, 0.8)"; // Red like chess.com
     setRightClickedSquares({
       ...rightClickedSquares,
       [square]: {
@@ -1188,42 +1229,53 @@ export default function PlayingPage() {
     });
   };
 
+  // Arrow drawing handlers for right-click drag functionality
   const onArrowDrawEnd = useCallback((fromSquare: string, toSquare: string) => {
     if (fromSquare === toSquare) {
+      // Same square - no arrow
       return;
     }
 
+    // Determine arrow color based on piece at starting square and direction
     const pieceAtFrom = game.get(fromSquare as Square);
     const playerColorCode = myColor === "white" ? "w" : "b";
 
     let arrowColor: string;
 
     if (pieceAtFrom) {
+      // Starting from a piece - color based on whose piece it is
       arrowColor = pieceAtFrom.color === playerColorCode
-        ? "rgba(255, 170, 0, 0.8)"
-        : "rgba(0, 100, 255, 0.8)";
+        ? "rgba(255, 170, 0, 0.8)"  // Yellow - own piece
+        : "rgba(0, 100, 255, 0.8)"; // Blue - opponent piece
     } else {
+      // Starting from empty square - color based on direction
       const fromRank = parseInt(fromSquare[1]);
       const toRank = parseInt(toSquare[1]);
 
+      // Bottom-up is "my direction", top-down is "opponent direction"
+      // For white: bottom = rank 1, going up means toRank > fromRank
+      // For black: bottom = rank 8 (flipped), going up means toRank < fromRank
       const isGoingUp = myColor === "white"
         ? toRank > fromRank
         : toRank < fromRank;
 
       arrowColor = isGoingUp
-        ? "rgba(255, 170, 0, 0.8)"
-        : "rgba(0, 100, 255, 0.8)";
+        ? "rgba(255, 170, 0, 0.8)"  // Yellow - my direction (bottom-up)
+        : "rgba(0, 100, 255, 0.8)"; // Blue - opponent direction (top-down)
     }
 
     setUserDrawnArrows(prev => {
+      // Check if arrow already exists (toggle behavior)
       const existingIndex = prev.findIndex(
         a => a.from === fromSquare && a.to === toSquare
       );
 
       if (existingIndex >= 0) {
+        // Remove existing arrow
         return prev.filter((_, i) => i !== existingIndex);
       }
 
+      // Add new arrow
       return [...prev, {
         from: fromSquare,
         to: toSquare,
@@ -1235,20 +1287,23 @@ export default function PlayingPage() {
     setArrowDrawStart(null);
   }, [isKnightMove, game, myColor]);
 
+  // Clear user arrows on left-click
   const clearUserArrows = useCallback(() => {
     if (userDrawnArrows.length > 0) {
       setUserDrawnArrows([]);
     }
   }, [userDrawnArrows.length]);
 
+  // Helper to get square from mouse event via data-square attribute
   const getSquareFromEvent = useCallback((e: React.MouseEvent): string | null => {
     const target = e.target as HTMLElement;
     const squareEl = target.closest('[data-square]');
     return squareEl?.getAttribute('data-square') || null;
   }, []);
 
+  // Mouse event handlers for arrow drawing
   const handleBoardMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button === 2) {
+    if (e.button === 2) { // Right-click
       e.preventDefault();
       const square = getSquareFromEvent(e);
       if (square) {
@@ -1258,7 +1313,7 @@ export default function PlayingPage() {
   }, [getSquareFromEvent]);
 
   const handleBoardMouseUp = useCallback((e: React.MouseEvent) => {
-    if (e.button === 2 && arrowDrawStart) {
+    if (e.button === 2 && arrowDrawStart) { // Right-click release
       const square = getSquareFromEvent(e);
       if (square && square !== arrowDrawStart) {
         onArrowDrawEnd(arrowDrawStart, square);
@@ -1268,7 +1323,7 @@ export default function PlayingPage() {
   }, [arrowDrawStart, getSquareFromEvent, onArrowDrawEnd]);
 
   const handleBoardContextMenu = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent browser context menu
   }, []);
 
   const prevCurrentColor = {
@@ -1299,6 +1354,9 @@ export default function PlayingPage() {
     }
 
     engine.getStockfishMove(game.fen(), AIChoosed.opponent.elo).then((pv) => {
+      // Guard the UCI parse: anything that isn't a square pair (a terminal
+      // position answers "(none)") would otherwise be sliced into nonsense
+      // like {from:"(n", to:"on"} and make chess.js throw.
       if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(pv ?? "")) return;
 
       let move;
@@ -1309,6 +1367,8 @@ export default function PlayingPage() {
           promotion: pv.substring(4, 5) || undefined,
         });
       } catch {
+        // Position moved on under us (takeback, resign, rematch) — the
+        // engine's reply no longer applies, so just skip it.
         return;
       }
 
@@ -1333,10 +1393,13 @@ export default function PlayingPage() {
       }
     })
     .catch((error) => {
+      // getStockfishMove rejects on timeout, worker error, or a finished
+      // position. None of these should surface as an unhandled rejection.
       console.warn("Skipping AI move:", error);
     });
   };
 
+  // Execute the next pre-move in queue if valid
   const executeNextPreMove = useCallback(() => {
     if (preMoveQueue.length === 0 || isProcessingPreMove) {
       return;
@@ -1350,15 +1413,18 @@ export default function PlayingPage() {
     setIsProcessingPreMove(true);
     const nextPreMove = preMoveQueue[0];
 
+    // Check if move is legal
     const moves = game.moves({ square: nextPreMove.from as Square, verbose: true });
     const isLegal = moves.some((m: any) => m.from === nextPreMove.from && m.to === nextPreMove.to);
 
     if (!isLegal) {
+      // Cascade cancellation: clear entire queue
       setPreMoveQueue([]);
       setIsProcessingPreMove(false);
       return;
     }
 
+    // Execute the pre-move
     const move = game.move({
       from: nextPreMove.from,
       to: nextPreMove.to,
@@ -1366,8 +1432,10 @@ export default function PlayingPage() {
     });
 
     if (move) {
+      // Remove executed pre-move from queue
       setPreMoveQueue(prev => prev.slice(1));
 
+      // Update game state (similar to onPieceDrop success path)
       setMoveData(move);
       playSound(game, move);
       setMoveClassification("");
@@ -1383,15 +1451,18 @@ export default function PlayingPage() {
 
       setCurrentTurn(turnColor => turnColor !== "White" ? "White" : "Black");
 
+      // Clear user arrows and highlights
       setRightClickedSquares({} as Record<string, CSSProperties>);
       setUserDrawnArrows([]);
 
+      // Trigger AI or classification
       if (!isMobile) {
         getClassificationMove(move);
       } else {
         setShouldTriggerAI(true);
       }
     } else {
+      // Move failed - cascade cancellation
       setPreMoveQueue([]);
     }
 
@@ -1407,11 +1478,13 @@ export default function PlayingPage() {
     isMobile
   ]);
 
+  // Execute pre-moves when it becomes player's turn
   useEffect(() => {
     const isYourTurnLocal = myColor === "white" ? "w" : "b";
     const isMyTurn = game.turn() === isYourTurnLocal;
 
     if (isMyTurn && preMoveQueue.length > 0 && statusGame === "Ongoing" && isAtCurrentMove) {
+      // Small delay to let board update visually
       const timer = setTimeout(() => {
         executeNextPreMove();
       }, 150);
@@ -1494,6 +1567,7 @@ export default function PlayingPage() {
       }
     });
 
+    // During tutorial mode, limit to first 3 move pairs (6 total moves) to keep button visible
     if (isTutorialPlay) {
       const limitedWhite = capturedPiecesWhite.slice(0, 3);
       const limitedBlack = capturedPiecesBlack.slice(0, 3);
@@ -1570,6 +1644,7 @@ export default function PlayingPage() {
   useEffect(() => {
     const timestamp = Date.now();
 
+    // Try to restore game from local storage
     let restored = false;
     if (typeof window !== "undefined") {
       const savedGame = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -1577,15 +1652,27 @@ export default function PlayingPage() {
         try {
           const parsed = JSON.parse(savedGame);
 
+          // Check if the saved game has ended (Win/Loss/Draw)
           const gameHasEnded = parsed.statusGame === "Win" || parsed.statusGame === "Loss" || parsed.statusGame === "Draw";
 
           if (gameHasEnded) {
             console.log("🔄 [DEBUG] Saved game has ended, clearing localStorage and showing New Game dialog");
 
+            // Clear the saved game from localStorage
             localStorage.removeItem(LOCAL_STORAGE_KEY);
 
+            // Close any open dialogs
             setOpenGameStatus(false);
 
+            // Show New Game dialog ONLY if not coming from /playground/play-vs-ai page
+            // (to avoid showing modal twice when redirected from that page)
+            // const fromPlayVsAIPage = document.referrer.includes('/playground/play-vs-ai') &&
+            //                           !document.referrer.includes('/playground/play-vs-ai/playing');
+            // if (!fromPlayVsAIPage) {
+            //   setShowPlayVSAIModal(true);
+            // }
+
+            // Don't restore the game, let it initialize as a new game below
             restored = false;
           } else if (
             parsed.aiName === AIChoosed.opponent.name &&
@@ -1596,6 +1683,7 @@ export default function PlayingPage() {
 
             game.loadPgn(parsed.pgn);
 
+            // Rebuild fen history if not saved or just to be safe
             const tempGame = new Chess();
             const fens = [tempGame.fen()];
             game.history().forEach((move) => {
@@ -1669,6 +1757,7 @@ export default function PlayingPage() {
 
     if (isPortrait) {
       const availableWidth = width - minPadding * 2;
+      // Reduce size factor during tutorial to ensure button visibility
       const sizeFactor = isTutorialPlay
         ? (width <= 430 ? 0.65 : 0.7)
         : (width <= 430 ? 0.85 : 0.9);
@@ -1677,6 +1766,7 @@ export default function PlayingPage() {
       );
     } else {
       const availableHeight = height - minPadding * 2;
+      // Reduce board size during tutorial to ensure button visibility
       const heightFactor = isTutorialPlay ? 0.5 : 0.8;
       setBoardSize(Math.min(maxSize, availableHeight * heightFactor, maxBoardWidth));
     }
@@ -1757,10 +1847,6 @@ export default function PlayingPage() {
     setLoserColor(losserColorLocal);
   };
 
-  const requestResign = () => {
-    openLeaveGuard("resign", handleResign);
-  };
-
   const handleAnalyzeGame = () => {
     if (!isMember && !isMemberMonthly && token.balance <= 0) {
       setOpenPricing(true);
@@ -1776,6 +1862,7 @@ export default function PlayingPage() {
     const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
     setCurrentGameId(gameId);
 
+    // Close game end status dialog
     setOpenGameStatus(false);
 
     usedHintRef.current = false;
@@ -1791,16 +1878,19 @@ export default function PlayingPage() {
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
     setIsSaved(false);
-    setHasAnalysis(false);
+    setHasAnalysis(false); // Reset analysis state for new game
   };
 
   const handleNewGame = () => {
+    // Clear localStorage
     if (typeof window !== "undefined") {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
 
+    // Close game end status dialog
     setOpenGameStatus(false);
 
+    // Reset game state (same as handleRematch)
     const timestamp = Date.now();
     const gameId = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-${timestamp}`;
     setCurrentGameId(gameId);
@@ -1820,6 +1910,7 @@ export default function PlayingPage() {
     setIsSaved(false);
     setHasAnalysis(false);
     
+    // Reset additional states
     setCapturedWhite([]);
     setCapturedBlack([]);
     setBestline("");
@@ -1832,14 +1923,12 @@ export default function PlayingPage() {
     setRightClickedSquares({});
     setOptionSquares({});
     
+    // Reset to 2D mode
     setIs3DMode(false);
     setStyleChoosed("2d");
     
+    // Open dialog for new game selection
     setShowPlayVSAIModal(true);
-  };
-
-  const requestNewGame = () => {
-    requestLeave("restart", handleNewGame);
   };
 
   const handleClosePlayVSAI = () => {
@@ -1855,6 +1944,9 @@ export default function PlayingPage() {
     }
   };
 
+  // Always call the latest handleRematch: after the win modal swaps the
+  // opponent in the store, the board reset must read the fresh AIChoosed
+  // (a direct call would run the stale closure from the previous render).
   const latestHandleRematch = useRef<() => void>(() => {});
   useEffect(() => {
     latestHandleRematch.current = handleRematch;
@@ -1880,6 +1972,8 @@ export default function PlayingPage() {
     setTimeout(() => latestHandleRematch.current(), 0);
   };
 
+  // Lose modal's "Start Game" is a straight rematch against the same
+  // opponent (no opponent picker), unlike the win modal's challenge-next.
   const handleLoseRematch = () => {
     setShowLoseModal(false);
     setLoseElo(null);
@@ -1889,6 +1983,11 @@ export default function PlayingPage() {
     setTimeout(() => latestHandleRematch.current(), 0);
   };
 
+  // Demo/testing hook: /playground/play-vs-ai/playing?winDemo=1 shows the
+  // win modal without having to finish a game (?loseDemo=1 for the lose
+  // modal). ?streakDemo=3 shows the day streak celebration (7, 14, ... shows
+  // the reward variant); combine with winDemo=1 to preview the
+  // win-modal-then-streak chaining.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -1902,6 +2001,8 @@ export default function PlayingPage() {
       setLoseElo({ oldElo: base, newElo: base - 15, delta: -15 });
       setShowLoseModal(true);
     }
+    // ?drawDemo=1 previews the draw modal with a -15 change; any other
+    // number is used as the signed delta (e.g. ?drawDemo=15, ?drawDemo=-8).
     const drawDemo = params.get("drawDemo");
     if (drawDemo !== null) {
       const parsed = parseInt(drawDemo, 10);
@@ -1919,11 +2020,16 @@ export default function PlayingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /** The signed ELO change the save response reported, or null when it carried
+   *  none (0 counts as "none" so the leaderboard difference below can speak). */
   const readSavedDelta = (saveRes: any): number | null => {
     const raw = Number(String(saveRes?.data?.elo_change ?? "").replace("+", ""));
     return Number.isFinite(raw) && raw !== 0 ? raw : null;
   };
 
+  /** Rating before and after the finished game, from both leaderboard endpoints
+   *  so a calibrating account (no rated my_elo yet) still reports a real number
+   *  — see readElo. Also pushes the fresh payloads into the store. */
   const refreshElo = async (saveRes: any) => {
     const before = readElo(leaderboard, leaderboardMe);
     const apiDelta = readSavedDelta(saveRes);
@@ -1937,12 +2043,15 @@ export default function PlayingPage() {
       if (me?.data) setLeaderboardMe(me.data);
       after = readElo(lb?.data ?? leaderboard, me?.data ?? leaderboardMe);
     } catch {
+      // keep `before`: the save response's delta below is then the only signal
     }
     return { before, after, apiDelta };
   };
 
   const refreshWinElo = async (saveRes: any) => {
     const { before, after, apiDelta } = await refreshElo(saveRes);
+    // A win never shows a drop: trust the reported change, else the rise the
+    // leaderboard recorded.
     const delta = apiDelta ?? Math.max(0, after - before);
     const newElo = after > before ? after : before + delta;
     setWinElo({ oldElo: newElo - delta, newElo, delta });
@@ -1955,6 +2064,8 @@ export default function PlayingPage() {
     setLoseElo({ oldElo: newElo - delta, newElo, delta });
   };
 
+  // Unlike win/lose, a draw's ELO delta can go either way, so it's taken
+  // as-is with no clamping.
   const refreshDrawElo = async (saveRes: any) => {
     const { before, after, apiDelta } = await refreshElo(saveRes);
     const delta = apiDelta ?? after - before;
@@ -1972,6 +2083,12 @@ export default function PlayingPage() {
       pgn: game.pgn(),
     };
     setIsSaving(true);
+    // handleSave();
+    // The save can fail on its own (401 "Session expired or inactive", offline,
+    // a 5xx) and it must not take the rest of the end-of-game flow with it: the
+    // result modal, the streak and the analysis all work off the local game. It
+    // used to reject straight out of this fire-and-forget call, which surfaced
+    // as an unhandled rejection instead of anything the player could act on.
     let res: any = null;
     let saveFailed = false;
     try {
@@ -1990,6 +2107,8 @@ export default function PlayingPage() {
       setAnalysisPgn(game.pgn());
     }
     handleForceRefresh();
+    // The finished game moves the player's ELO, so the training plan's cached
+    // rating and progress are now stale.
     invalidateRatingCaches();
     setIsSaved(!saveFailed);
     setIsSaving(false);
@@ -2004,6 +2123,8 @@ export default function PlayingPage() {
       refreshDrawElo(res);
     }
     if (!isTutorialPlay) {
+      // Report the finished game to the leaderboard, flagging whether the
+      // player leaned on a hint or undo at any point.
       const savedGameId =
         (res as any)?.data?.game_id ?? (res as any)?.data?.id ?? null;
       if (savedGameId) {
@@ -2014,8 +2135,16 @@ export default function PlayingPage() {
       }
     }
     if (!isTutorialPlay) {
+      // Only the first finished game of the (local) day advances the streak:
+      // it records the play with the backend and can show the celebration
+      // modal. Later games that day skip the whole flow. lastPlayDate is
+      // only stamped after record-play succeeds so a failed call retries on
+      // the next game instead of silently losing the day.
       const today = getLocalDateStamp();
       if (useStreakStore.getState().lastPlayDate !== today) {
+        // record-play returns the full updated streak status, so it is the
+        // single source for the store sync and the celebration decision —
+        // no follow-up status fetch needed.
         recordStreakPlay()
           .then((res: any) => {
             if (!res?.success) return;
@@ -2024,9 +2153,14 @@ export default function PlayingPage() {
             const newStreak = res.data?.currentStreak ?? 0;
             const prev = store.lastSeenStreak;
             store.setStatus(res.data);
+            // Advance at detection time so a lost/unclosed celebration can
+            // never re-fire on the next game (and syncs down after a reset).
             store.setLastSeenStreak(newStreak);
             usePlayPageStore.getState().setStreak(newStreak);
             if (newStreak > prev) {
+              // A reward day is one the backend marks with `isGem` on the
+              // current streak day; fall back to the fixed 7-day cycle when
+              // no streakDays entry is provided.
               const days = res.data?.streakDays;
               const gemEntry = Array.isArray(days)
                 ? days.find((d: any) => Number(d?.day) === newStreak)
@@ -2050,6 +2184,7 @@ export default function PlayingPage() {
       const currentPgn = game.pgn();
       const totalMoves = Math.ceil(game.history().length / 2);
       formData.append("pgn", currentPgn);
+      // formData.append("totalMoves", totalMoves.toString());
       const response = await gameHistoryApi.importGame(
         "vsai",
         formData,
@@ -2122,6 +2257,8 @@ export default function PlayingPage() {
       statusGame === "Loss" ||
       statusGame === "Draw"
     ) {
+      // Nothing awaits this, so a rejection anywhere inside would land as an
+      // unhandled rejection (a full-screen error in dev) rather than a message.
       handleSaveLog().catch(() => {});
     }
   }, [statusGame]);
@@ -2138,6 +2275,7 @@ export default function PlayingPage() {
     setPendingCelebrationReward(false);
     setEndModalShown(false);
     if (isReward) {
+      // The streak backend grants the analysis token; refresh the balance.
       getTokenBalance({}).then((response) => {
         if (response.data != null) {
           setToken(response.data);
@@ -2168,28 +2306,34 @@ export default function PlayingPage() {
         return false;
       }
 
+      // If it's opponent's turn, queue as pre-move
       if (!isMyTurn) {
+        // Max 5 pre-moves
         if (preMoveQueue.length >= 5) {
           return false;
         }
 
+        // Check if this exact pre-move already exists (toggle off)
         const existingIndex = preMoveQueue.findIndex(
           pm => pm.from === sourceSquare && pm.to === targetSquare
         );
 
         if (existingIndex >= 0) {
+          // Remove this pre-move and all after it (cascade)
           setPreMoveQueue(prev => prev.slice(0, existingIndex));
         } else {
+          // Add to queue
           setPreMoveQueue(prev => [...prev, {
             from: sourceSquare,
             to: targetSquare,
-            promotion: 'q'
+            promotion: 'q' // Default to queen for pre-move promotions
           }]);
         }
 
-        return true;
+        return true; // Accept visually (piece returns to original square)
       }
 
+      // Normal move - clear pre-moves and arrows
       setRightClickedSquares({} as Record<string, CSSProperties>);
       setUserDrawnArrows([]);
       setPreMoveQueue([]);
@@ -2332,6 +2476,7 @@ export default function PlayingPage() {
   };
 
   useEffect(() => {
+    // Always default to 2D mode for Play vs AI
     setIs3DMode(false);
     setStyleChoosed("2d");
   }, []);
@@ -2386,6 +2531,9 @@ export default function PlayingPage() {
     }
   };
 
+  // Start analysis for the current game. Outside the tutorial this skips the
+  // depth dialog and auto-runs the Standard analysis; the tutorial keeps
+  // showing the dialog as part of its scripted steps.
   const triggerAnalyzeGame = () => {
     if (isTutorialPlay) {
       setIsAnalyzeOpen(true);
@@ -2394,6 +2542,7 @@ export default function PlayingPage() {
     setAutoStartAnalyze(true);
   };
 
+  // Handle "Show Analysis" click
   const handleShowAnalysis = async () => {
     try {
       const job = getJobByGameId(gameFromPgn.id);
@@ -2402,6 +2551,7 @@ export default function PlayingPage() {
       console.log("🔍 [handleShowAnalysis] Starting analysis fetch for game:", gameFromPgn.id);
       console.log("🔍 [handleShowAnalysis] Job from store:", job);
 
+      // Fetch from both v2 and v3 endpoints in parallel
       const [v2Analysis, v3Analysis] = await Promise.all([
         fetchLastAnalysis(pgnHash),
         fetchLastAnalysisV3(pgnHash)
@@ -2410,6 +2560,7 @@ export default function PlayingPage() {
       console.log("📥 [handleShowAnalysis] V2 Analysis response:", v2Analysis);
       console.log("📥 [handleShowAnalysis] V3 Analysis response:", v3Analysis);
 
+      // Prioritize job result over API response for v2 analysis
       let finalV2Data = v2Analysis;
       if (job && job.result && job.status === "completed") {
         console.log("✅ [handleShowAnalysis] Using job result for v2 analysis data");
@@ -2419,6 +2570,7 @@ export default function PlayingPage() {
         };
       }
 
+      // Store both v2 and v3 results
       setV2AnalysisData(finalV2Data);
       setShortAnalysisData(v3Analysis);
 
@@ -2427,12 +2579,14 @@ export default function PlayingPage() {
 
       if (v3Analysis?.success && v3Analysis.data?.summary) {
         console.log("✅ [handleShowAnalysis] V3 analysis found, opening GameAnalysis directly");
+        // Skip ChooseAnalysisMode — show the mistakes result right away
         setV3AnalysisResult({
           ...v3Analysis.data,
           analysisId: v3Analysis.data.analysisId || v3Analysis.data.id,
         });
         setGameAnalysisOpen(true);
       } else if (v3Analysis?.success && v3Analysis.data) {
+        // v3 data without a summary — the choose dialog still handles this shape
         setIsChooseAnalysisModeOpen(true);
       } else if (finalV2Data?.success && finalV2Data.data) {
         console.log("✅ [handleShowAnalysis] Only V2 analysis found, navigating directly to /analysis");
@@ -2501,21 +2655,25 @@ export default function PlayingPage() {
           try {
             const pgnHash = createPgnHash(currentPgn);
             
+            // Fetch from both v2 and v3 endpoints in parallel
             const [v2Analysis, v3Analysis] = await Promise.all([
               fetchLastAnalysis(pgnHash),
               fetchLastAnalysisV3(pgnHash)
             ]);
 
+            // Store both v2 and v3 results
             setV2AnalysisData(v2Analysis);
             setShortAnalysisData(v3Analysis);
 
             if (v3Analysis?.success && v3Analysis.data?.summary) {
+              // Skip ChooseAnalysisMode — show the mistakes result right away
               setV3AnalysisResult({
                 ...v3Analysis.data,
                 analysisId: v3Analysis.data.analysisId || v3Analysis.data.id,
               });
               setGameAnalysisOpen(true);
             } else if (v3Analysis?.success && v3Analysis.data) {
+              // v3 data without a summary — the choose dialog still handles this shape
               setIsChooseAnalysisModeOpen(true);
             } else if (v2Analysis?.success && v2Analysis.data) {
               setPgn(currentPgn);
@@ -2660,6 +2818,11 @@ export default function PlayingPage() {
     };
   };
 
+  // Lost/drawn games can flow straight into analysis (the draw modal's
+  // "Discover Mistakes", the page's "Analyze now"): hold the streak
+  // celebration while that flow runs so it shows after the analysis is
+  // closed, not on top of it. Wins are exempt — their streak always shows
+  // right after the win modal closes (or a new game starts).
   const analysisFlowActive =
     statusGame !== "Win" &&
     (autoStartAnalyze ||
@@ -2671,13 +2834,6 @@ export default function PlayingPage() {
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white gap-4">
       {!isTutorialPlay && <GameEndStatus gameStatus={statusGame.toLowerCase()} />}
-      {leaveGuard && (
-        <PlayVsAiLeaveGuardModal
-          type={leaveGuard.type}
-          onCancel={dismissLeaveGuard}
-          onConfirm={confirmLeaveGuard}
-        />
-      )}
       {confirmAction && (
         <PlayVsAiConfirmModal
           type={confirmAction}
@@ -2708,6 +2864,8 @@ export default function PlayingPage() {
           onClose={() => setShowLoseModal(false)}
           onDiscoverMistakes={() => {
             setShowLoseModal(false);
+            // Show the loading chess animation right away; the autoStart flow
+            // starts the analysis + polling that this dialog reads for progress.
             if (!isTutorialPlay) setProcessingAnalysisModeOpen(true);
             triggerAnalyzeGame();
           }}
@@ -2750,6 +2908,8 @@ export default function PlayingPage() {
         autoStart={autoStartAnalyze}
         onAutoStartComplete={() => setAutoStartAnalyze(false)}
         onAnalysisStarted={() => {
+          // Tutorial keeps its scripted ChooseAnalysisMode step; real runs go
+          // straight to the loading dialog.
           if (isTutorialPlay) {
             setIsChooseAnalysisModeOpen(true);
           } else {
@@ -2759,6 +2919,7 @@ export default function PlayingPage() {
         onShortAnalysisReceived={(data) => {
           setShortAnalysisData(data);
 
+          // Also get v2 analysis from job store if available
           const job = getJobByGameId(gameFromPgn.id);
           if (job && job.result) {
             setV2AnalysisData({ success: true, data: job.result });
@@ -2796,6 +2957,7 @@ export default function PlayingPage() {
         playerColor={myColor as "white" | "black"}
       />
       
+      {/* New Game Dialog */}
       <StartPlayVSAI
         visible={showPlayVSAIModal}
         onClose={handleClosePlayVSAI}
@@ -2803,8 +2965,9 @@ export default function PlayingPage() {
       />
 
       <div className="flex flex-col w-full gap-y-2 ">
+        {/* <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none"> */}
         <div className="hidden flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none">
-          <button onClick={handleBackToLobby}>
+          <button onClick={() => router.push("/playground/play-vs-ai")}>
             <ArrowLeft color="black" size={24} />
           </button>
 
@@ -2900,6 +3063,65 @@ export default function PlayingPage() {
           />
 
           <div className="flex flex-col justify-center items-center gap-3">
+            {/* <motion.div
+              initial={{ rotateX: 180 }}
+              animate={
+                !is3DMode
+                  ? { opacity: 0, display: "hidden" }
+                  : { opacity: 1, rotateX: !is3DMode ? 180 : 360 }
+              }
+              transition={{
+                duration: 0.6,
+                stiffness: 500,
+                damping: 30,
+                ease: [0.4, 0.0, 0.2, 1],
+                type: "tween",
+              }}
+              style={{
+                width: boardSize,
+                display: is3DMode ? "flex" : "none",
+                backfaceVisibility: "hidden",
+                transformStyle: "preserve-3d",
+              }}
+            >
+              {is3DMode && (
+                <ThreeDBoard
+                  arePiecesDraggable={false}
+                  arePiecesClickable={
+                    statusGame === "Ongoing" && isAtCurrentMove
+                  }
+                  orientation={orientation}
+                  boardWidth={boardSize}
+                  position={gamePosition}
+                  onSquareClick={
+                    game.turn() === isYourTurn ? onSquareClick : () => null
+                  }
+                  onSquareRightClick={onSquareRightClick}
+                  onPromotionPieceSelect={onPromotionPieceSelect}
+                  customSquareStyles={{
+                    ...moveSquares,
+                    ...optionSquares,
+                    ...rightClickedSquares,
+                    ...preMoveSquareStyles,
+                    ...prevCurrentColor,
+                  }}
+                  areArrowsAllowed={true}
+                  customArrows={
+                    bestLine && bestLine.length > 0 && bestLine?.split(" ")?.[0]
+                      ? [
+                          [
+                            bestLine?.split(" ")?.[0].substring(0, 2) as Square,
+                            bestLine?.split(" ")?.[0].substring(2, 4) as Square,
+                          ],
+                        ]
+                      : null
+                  }
+                  customArrowColor={hintClicked ? "#1C16C2" : "transparent"}
+                  promotionToSquare={moveTo}
+                  showPromotionDialog={showPromotionDialog}
+                />
+              )}
+            </motion.div> */}
 
             {isTutorialPlay ? (
               <Image src={"/images/wood.png"} alt="tutorial" width={600} height={645} className="w-[80%]" />
@@ -2916,6 +3138,8 @@ export default function PlayingPage() {
                   onMouseUp={handleBoardMouseUp}
                   onContextMenu={handleBoardContextMenu}
                 >
+                  {/* {!is3DMode && (
+                      <> */}
                         <TwoDChessboard
                           game={game}
                           gameStatus={statusGame.toLowerCase()}
@@ -2951,6 +3175,8 @@ export default function PlayingPage() {
                           orientation={orientation}
                         />
                       )}
+                    {/* </>
+                  )} */}
                 </motion.div>
               </>
             )}
@@ -2978,7 +3204,7 @@ export default function PlayingPage() {
                 <ButtonFinish
                   pgn={game.pgn()}
                   handleAnalyzeGame={handleAnalyzeGame}
-                  handleNewGame={requestNewGame}
+                  handleNewGame={handleNewGame}
                   handleRematch={handleRematch}
                   handleShare={handleShare}
                   handleDownload={handleDownload}
@@ -2996,17 +3222,34 @@ export default function PlayingPage() {
               
             )}
 
+            {/* Undo/reset only while a game is actually running. isGameOver() is
+                false after a resignation (and any other non-board ending), so
+                these two stayed on the finished screen — statusGame is the same
+                flag that swaps ButtonPlaying for ButtonFinish below. */}
             {statusGame === "Ongoing" && (
+                  // <div className="flex flex-row justify-center items-center gap-2 px-4">
                   <div className="flex flex-row justify-center items-center gap-[12px] px-[16px]">
                     <button
                       disabled={game.history().length === 0}
+                      // disabled={true}
                       onClick={requestUndo}
                       className={`rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
                     >
                       <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
                       </svg>
+                      {/* <ChevronLeft size={24} color="#000" /> */}
                     </button>
+                    {/* <button
+                      disabled={true}
+                      onClick={handleRedo}
+                      className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
+                    >
+                      <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="-scale-x-[1]">
+                        <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
+                      </svg>
+                      <ChevronRight size={24} color="#000" />
+                    </button> */}
                     <button
                       onClick={handleReset}
                       className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
@@ -3022,17 +3265,41 @@ export default function PlayingPage() {
                           </clipPath>
                         </defs>
                       </svg>
+                      {/* <RotateCw size={20} color="#000" /> */}
                     </button>
                     
+                    {/* <button
+                      disabled={game.history().length === 0}
+                      onClick={requestUndo}
+                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] ${
+                        game.history().length === 0
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      <ChevronLeft size={20} color="#000" />
+                    </button>
+                    <button
+                      disabled={true}
+                      onClick={handleRedo}
+                      className={`rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9] opacity-50 cursor-not-allowed`}
+                    >
+                      <ChevronRight size={20} color="#000" />
+                    </button>
+                    <button
+                      onClick={handleReset}
+                      className="rounded-[4px] flex-1 py-2 flex justify-center items-center bg-[#221AE916] border border-[#221AE9]"
+                    >
+                      <RotateCw size={20} color="#000" />
+                    </button> */}
                   </div>
                 )}
 
             {statusGame === "Ongoing" ? (
               <ButtonPlaying
                 handleHint={requestHint}
-                handleNewGame={requestNewGame}
-                handleResign={requestResign}
-                canResign={hasMoved}
+                handleNewGame={handleNewGame}
+                handleResign={handleResign}
                 myColor={myColor}
                 currentTurn={currentTurn}
                 bestLine={bestLine}
@@ -3042,7 +3309,7 @@ export default function PlayingPage() {
               <ButtonFinish
                 pgn={game.pgn()}
                 handleAnalyzeGame={handleAnalyzeGame}
-                handleNewGame={requestNewGame}
+                handleNewGame={handleNewGame}
                 handleRematch={handleRematch}
                 handleShare={handleShare}
                 handleDownload={handleDownload}
@@ -3192,7 +3459,7 @@ export default function PlayingPage() {
 
       <div className="hidden sm:block w-full">
         <div className="flex justify-start gap-[14px] mb-[16px] min-h-54px rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
-          <button onClick={handleBackToLobby}>
+          <button onClick={() => router.push("/playground/play-vs-ai")}>
             <ArrowLeft color="black" size={24} />
           </button>
 
@@ -3268,6 +3535,7 @@ export default function PlayingPage() {
           <TabsContent value="current" className="gap-2">
             <div
               className="lg:max-h-[625px] xxl:max-h-[675px] h-auto flex flex-col items-center justify-between rounded-[16px] border border-[#DEDEDE] gap-2 mt-4"
+              // style={{ height: isTutorialPlay ? 'auto' : heightBoard }}
             >
               <div ref={movementDetailsRef} className="flex flex-col px-4 w-full overflow-y-auto ">
                 <span className="font-semibold text-center text-[16px] my-2 xl:my-4">
@@ -3280,17 +3548,30 @@ export default function PlayingPage() {
                   PieceChoosed={PieceChoosed}
                 />
 
+                {/* Same rule as the mobile row above. */}
                 {statusGame === "Ongoing" && (
                   <div className="flex flex-row justify-center items-center gap-[12px] my-[16px]">
                     <button
                       disabled={game.history().length === 0}
+                      // disabled={true}
                       onClick={requestUndo}
                       className={`rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
                     >
                       <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
                       </svg>
+                      {/* <ChevronLeft size={24} color="#000" /> */}
                     </button>
+                    {/* <button
+                      disabled={true}
+                      onClick={handleRedo}
+                      className={`rounded-[4px] w-1/3 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50`}
+                    >
+                      <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="-scale-x-[1]">
+                        <path d="M0.182858 7.31768L6.43286 13.5677C6.52027 13.6552 6.63168 13.7148 6.75298 13.7389C6.87428 13.7631 7.00003 13.7507 7.11429 13.7034C7.22855 13.656 7.3262 13.5759 7.39487 13.473C7.46354 13.3701 7.50014 13.2492 7.50005 13.1255V10.0185C11.961 10.2716 15.0196 13.1646 15.8782 14.081C16.013 14.2249 16.1898 14.3227 16.3834 14.3604C16.577 14.3981 16.7776 14.3737 16.9566 14.2908C17.1355 14.2079 17.2838 14.0707 17.3803 13.8986C17.4767 13.7266 17.5164 13.5285 17.4938 13.3325C17.204 10.8122 15.8235 8.38799 13.6063 6.50674C11.7649 4.94424 9.52661 3.95284 7.50005 3.7794V0.625492C7.50014 0.501807 7.46354 0.380875 7.39487 0.278003C7.3262 0.175132 7.22855 0.0949484 7.11429 0.0476031C7.00003 0.000257809 6.87428 -0.0121201 6.75298 0.0120364C6.63168 0.0361929 6.52027 0.0957976 6.43286 0.183305L0.182858 6.4333C0.124748 6.49135 0.0786476 6.56028 0.0471954 6.63615C0.0157433 6.71203 -0.000444412 6.79336 -0.000444412 6.87549C-0.000444412 6.95763 0.0157433 7.03896 0.0471954 7.11483C0.0786476 7.1907 0.124748 7.25963 0.182858 7.31768Z" fill="black"/>
+                      </svg>
+                      <ChevronRight size={24} color="#000" />
+                    </button> */}
                     <button
                       onClick={handleReset}
                       className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
@@ -3306,6 +3587,7 @@ export default function PlayingPage() {
                           </clipPath>
                         </defs>
                       </svg>
+                      {/* <RotateCw size={20} color="#000" /> */}
                     </button>
                   </div>
                 )}
@@ -3320,9 +3602,8 @@ export default function PlayingPage() {
                 {statusGame === "Ongoing" && !isTutorialPlay ? (
                   <ButtonPlaying
                     handleHint={requestHint}
-                    handleNewGame={requestNewGame}
-                    handleResign={requestResign}
-                    canResign={hasMoved}
+                    handleNewGame={handleNewGame}
+                    handleResign={handleResign}
                     myColor={myColor}
                     currentTurn={currentTurn}
                     bestLine={bestLine}
@@ -3332,7 +3613,7 @@ export default function PlayingPage() {
                   <ButtonFinish
                     pgn={game.pgn()}
                     handleAnalyzeGame={handleAnalyzeGame}
-                    handleNewGame={requestNewGame}
+                    handleNewGame={handleNewGame}
                     handleRematch={handleRematch}
                     handleShare={handleShare}
                     handleDownload={handleDownload}

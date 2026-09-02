@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { animate } from "framer-motion";
 
+// 0-9 plus a duplicate 0 so a wheel can roll forward past 9 (9 -> 0 wrap).
 const DIGIT_STRIP = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 
 function DigitWheel({ position }: { position: number }) {
@@ -25,11 +26,18 @@ function DigitWheel({ position }: { position: number }) {
 interface EloOdometerProps {
   from: number;
   to: number;
+  /** Seconds the roll takes. */
   duration?: number;
+  /** Seconds to wait before rolling starts. */
   delay?: number;
   className?: string;
 }
 
+/**
+ * Classic mechanical-odometer counter: each digit sits on a wheel and only
+ * rolls to the next value during the last stretch of the digit below it
+ * completing a full cycle, exactly like an old car's dial.
+ */
 export function EloOdometer({
   from,
   to,
@@ -66,6 +74,8 @@ export function EloOdometer({
     const scaled = safeValue / pow;
     const digit = Math.floor(scaled) % 10;
     const frac = scaled - Math.floor(scaled);
+    // The wheel stays put for 90% of the lower cycle, then rolls over
+    // during the final 10% — the mechanical tick.
     const roll = frac > 0.9 ? (frac - 0.9) * 10 : 0;
     wheels.push(<DigitWheel key={i} position={digit + roll} />);
   }

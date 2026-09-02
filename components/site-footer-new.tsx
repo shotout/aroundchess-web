@@ -135,7 +135,12 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
           </div>
           <div className="md:grid md:gap-[16px] md:grid-cols-3">
             <div>
-              <h3 className="mb-8 text-lg font-semibold">Features</h3>
+              {/* Spacing steps deliberately: 8px between links (space-y-2),
+                  12px heading-to-links, 20px between groups. At the old 32px
+                  the heading sat as far from its own links as the next
+                  column's heading did, so the groups read as one evenly-spaced
+                  list instead of three. Desktop keeps the roomier 16px. */}
+              <h3 className="mb-3 md:mb-4 text-lg font-semibold">Features</h3>
               <ul className="space-y-2 text-[15px]">
                 <li>
                   <Link
@@ -172,7 +177,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               </ul>
             </div>
             <div>
-              <h3 className="mb-8 mt-8 md:mt-0 text-lg font-semibold">
+              <h3 className="mb-3 md:mb-4 mt-5 md:mt-0 text-lg font-semibold">
                 Company
               </h3>
               <ul className="space-y-2 text-[15px]">
@@ -203,7 +208,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
               </ul>
             </div>
             <div>
-              <h3 className="mb-8 mt-8 md:mt-0 text-lg font-semibold">Legal</h3>
+              <h3 className="mb-3 md:mb-4 mt-5 md:mt-0 text-lg font-semibold">Legal</h3>
               <ul className="space-y-2 text-[15px]">
                 <li>
                   <Link
@@ -247,7 +252,7 @@ export function SiteFooterNew({ className }: SiteFooterProps) {
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <p className="text-[14px] --sm text-[#364152]">
-              © 2026 aroundchess. All rights reserved.
+              © 2026 Aroundchess. All rights reserved.
             </p>
             <div className="flex space-x-2">
               <div

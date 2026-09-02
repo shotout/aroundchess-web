@@ -1,5 +1,4 @@
-# aroundchess 
-# last update at 13.8.2026
+# aroundchess!
 
 A comprehensive chess training and analysis platform that acts as your personal 24/7 chess coach, combining AI technology with personalized learning to help players of all skill levels improve their game.
 
@@ -14,4 +13,4 @@ A comprehensive chess training and analysis platform that acts as your personal 
 - Comprehensive chess strategy guides
 - Real-time performance tracking
 - AI-driven chess coaching
-- 
+-

@@ -11,11 +11,18 @@ interface Props {
 
 const HEADLINE = ["Play against AI:", "Analyze the Mistakes of your", "first game for free"];
 
+/** Below this the mobile full-screen banner is used (matches the sm: classes). */
 const MOBILE_BP = 640;
 
 export default function AnalyzeGameFreePopup({ visible, onClose }: Props) {
   const mobilePanelRef = useRef<HTMLDivElement>(null);
 
+  // Mobile: this banner is positioned inside the page rather than the viewport,
+  // so scrolling the page behind it slides the whole thing away. Freeze the page
+  // while it's up — body overflow for the scrollbar/desktop-style scroll, and a
+  // non-passive touchmove block for iOS, which ignores overflow:hidden and would
+  // otherwise still rubber-band. The panel itself keeps its own scrolling, so a
+  // short screen can always reach the CTA.
   useEffect(() => {
     if (!visible) return;
     if (typeof window === "undefined" || window.innerWidth >= MOBILE_BP) return;
@@ -48,6 +55,7 @@ export default function AnalyzeGameFreePopup({ visible, onClose }: Props) {
         aria-hidden="true"
       />
 
+      {/* ---------- mobile: the banner ships as one flattened asset ---------- */}
       <div
         ref={mobilePanelRef}
         className="relative z-10 sm:hidden w-full h-full flex flex-col items-center overflow-y-auto overscroll-contain bg-gradient-to-b from-[#DCF0FB] via-white to-white"
@@ -60,6 +68,9 @@ export default function AnalyzeGameFreePopup({ visible, onClose }: Props) {
           <X className="w-7 h-7" strokeWidth={2.5} />
         </button>
 
+        {/* The asset carries 320 fully transparent rows below the artwork
+            (content ends at row 1384/1704). Cropping those plus the sparse
+            tail of the diamond fan pulls the CTA up under the image. */}
         <div className="relative w-full shrink-0 aspect-[786/1210]">
           <Image
             src="/images/v2/tutorial/Analyze 10 Games for Free - Banner.png"
@@ -81,6 +92,9 @@ export default function AnalyzeGameFreePopup({ visible, onClose }: Props) {
         </div>
       </div>
 
+      {/* ---------- desktop: composed from the split layers ---------- */}
+      {/* Card is ~1:1 (798x780 in the design), so cap the width by viewport
+          height too and every child can then be sized as a % of the width. */}
       <div className="relative z-10 hidden sm:flex flex-col w-full max-w-[min(800px,90vh)] bg-white rounded-3xl overflow-hidden shadow-2xl">
         <button
           onClick={onClose}
@@ -90,7 +104,9 @@ export default function AnalyzeGameFreePopup({ visible, onClose }: Props) {
           <X className="w-7 h-7" strokeWidth={2.5} />
         </button>
 
+        {/* Art stage: top of the card down to the bottom of the board. */}
         <div className="relative w-full aspect-[798/575]">
+          {/* Sunburst overflows the card on all sides and is clipped by it. */}
           <Image
             src="/images/v2/tutorial/star-background.png"
             alt=""

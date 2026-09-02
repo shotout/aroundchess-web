@@ -270,8 +270,15 @@ export const ChessConnectDialog = ({
   };
 
   return (
+    /* z-[70], not z-[10]: at 10 this modal tied with the "Connect Chess.com
+       Account" banner button on /profile and Game History, which carries
+       `relative z-10` to sit above its own background art. Equal z-index is
+       resolved by paint order, and the two engines disagreed — Safari drew the
+       overlay on top, Chrome drew the banner button through it, so that button
+       appeared stacked over the dialog's Save button. 70 clears the page, the
+       sidebar and the header (z-50/z-60) outright. */
     <div
-      className="fixed bg-black/50 z-[10] flex items-center justify-center p-4 top-0 left-0 right-0 bottom-0"
+      className="fixed bg-black/50 z-[70] flex items-center justify-center p-4 top-0 left-0 right-0 bottom-0"
       style={{
         top: topOffset,
         left: sidebarWidth,

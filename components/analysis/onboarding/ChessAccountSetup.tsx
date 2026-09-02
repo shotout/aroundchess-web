@@ -12,6 +12,7 @@ import DialogSpecialDiscount from "@/components/modal/DialogSpecialDiscount";
 import { useTutorial } from "@/components/TutorialProvider";
 import { usePathname, useRouter } from "next/navigation";
 import { useProfileStore } from "@/app/store/profile";
+import { refreshLeaderboard } from "@/app/store/playPage";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
@@ -26,6 +27,11 @@ interface ChessAccountSetupProps {
   setOpen?: (open: boolean) => void;
 }
 
+/** Feature flag for the "Analyze 5 games for free" promo (DialogAnalyzeFree)
+ * that chains after the Chess.com connect dialog closes or a username is
+ * submitted, and kicks off the legacy tutorial on close. Disabled for now —
+ * the connect dialog just closes without the promo, redirect, or tutorial.
+ * Flip back to true to restore the flow. */
 const ANALYZE_FREE_BANNER_ENABLED = false;
 
 const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
@@ -37,7 +43,12 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const { setCallFetch } = useProfileFetch();
   const { setToken, sessionId, profile, setProfile } = useProfileStore();
   const { isSignedIn, hasUsername, checkComplete } = useChessProfile();
-  const { getTokenBalance, profile: profileApi } = useApiClient();
+  const {
+    getTokenBalance,
+    profile: profileApi,
+    getLeaderboardData,
+    getLeaderboardMe,
+  } = useApiClient();
   const { startTutorial, isTutorialPlay } = useTutorial();
   const {
     tutorialType,
@@ -60,6 +71,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     }
   }, [open]);
 
+  // Check tutorial status on mount
   useEffect(() => {
     const checkTutorialStatus = async () => {
       console.log("🔍 [ChessAccountSetup] Checking tutorial status on mount:", {
@@ -82,6 +94,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
       try {
         console.log("📡 [ChessAccountSetup] Fetching tutorial status from API...");
+        // Only check chesscom tutorial status
         const chesscomStatus = await ChessApiService.getTutorialStatus("chesscom", sessionId).catch(
           (err) => {
             console.log("⚠️ Chesscom tutorial status error:", err);
@@ -93,6 +106,8 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
           chesscomStatus,
         });
 
+        // Check if tutorial is completed
+        // API returns: data.isChesscomTutorialComplete
         const isCompleted = chesscomStatus?.data?.isChesscomTutorialComplete === true;
 
         console.log("🎯 [ChessAccountSetup] Tutorial completion status:", {
@@ -129,6 +144,9 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
       return;
     }
 
+    // Show ChessAccountSetup for ALL users without username
+    // Tutorial completion only affects whether we show tutorial AFTER they interact with the dialog
+    // onboardElo: the profile response is camelCased (see useEffectiveElo).
     const hasOnboardElo = Boolean(profile?.onboardElo ?? profile?.onboard_elo);
     if (isSignedIn && !hasUsername && !hasOnboardElo) {
       setShowConnectDialog(true);
@@ -142,6 +160,16 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     setShowConnectDialog(false);
     setUsername(username);
 
+    // The "Connect Chess.com Account" banners on Game History and /profile read
+    // isChessComConnected (see useChessComConnected), and reaching this point
+    // means ChessApiService.setUsername already resolved — the account IS linked.
+    // So assert the flag rather than wait to be told: the banner hides the
+    // instant the connect succeeds, with no round-trip in between.
+    //
+    // Forced on the refetched payload too, not just optimistically. A /profile
+    // read issued this soon can still answer from before the link landed, and
+    // letting a stale `false` through would pop the banner back up a moment
+    // after it disappeared — the exact flicker this replaces.
     const markConnected = (base: any) => ({
       ...base,
       isChessComConnected: true,
@@ -156,6 +184,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
       })
       .catch(() => {});
 
+    // Always fetch token balance
     getTokenBalance({}).then((response) => {
       if (response.data != null) {
         const data = response.data;
@@ -163,6 +192,14 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
       }
     });
 
+    // The sync just recalculated this account's rating server-side, so the
+    // leaderboard values held in the store are stale from this point on. Pull
+    // them now instead of waiting for the next visit to /play — the ELO and
+    // rank in the top bar, and the Recommended opponents (via useEffectiveElo),
+    // would otherwise keep showing the pre-sync onboarding rating.
+    refreshLeaderboard(getLeaderboardData, getLeaderboardMe);
+
+    // Check if user already completed tutorial (chesscom only)
     if (sessionId) {
       try {
         const chesscomStatus = await ChessApiService.getTutorialStatus(
@@ -170,6 +207,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
           sessionId
         );
 
+        // If already completed, just close without showing tutorial
         if (chesscomStatus?.data?.isChesscomTutorialComplete === true) {
           setHasCompletedTutorial(true);
           return;
@@ -177,7 +215,9 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
       } catch (error) { }
     }
 
+    // Set tutorial type to chesscom since user entered username
     setTutorialType("chesscom");
+    // Show DialogAnalyzeFree to start the tutorial
     handleOpenAnalyzeFree();
   };
 
@@ -200,6 +240,16 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
       await startTutorial();
     }, 1000);
 
+    // if (!pathname.includes("/analysis")) {
+    //   router.replace("/analysis");
+    //   setShowAnalyzeFreeBanner(false);
+    //   setIsOpenTutorial(true);
+    //   startTutorial();
+    // } else {
+    //   setShowAnalyzeFreeBanner(false);
+    //   setIsOpenTutorial(true);
+    //   startTutorial();
+    // }
   };
 
   const handleSpecialDiscount = () => {
@@ -210,6 +260,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   const handleConnectClose = async () => {
     setShowConnectDialog(false);
 
+    // Check if user already completed tutorial (chesscom only)
     if (sessionId) {
       try {
         console.log("🔍 Checking tutorial status from API...");
@@ -220,6 +271,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
 
         console.log("📊 Tutorial status response:", chesscomStatus);
 
+        // If already completed, just close without showing tutorial
         if (chesscomStatus?.data?.isChesscomTutorialComplete === true) {
           console.log("✅ Tutorial already completed, skipping tutorial");
           setHasCompletedTutorial(true);
@@ -232,25 +284,30 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
         }
       } catch (error) {
         console.error("❌ Error checking tutorial status:", error);
+        // Continue to show tutorial on error to be safe
       }
     }
 
+    // Set tutorial type to no-chesscom since user closed without entering username
     setTutorialType("no-chesscom");
     console.log("📝 Set tutorial type to: no-chesscom");
     console.log("🎯 Opening DialogAnalyzeFree for no-chesscom tutorial");
 
     setCloseConnectDialog(true);
+    // Show DialogAnalyzeFree to start the tutorial
     handleOpenAnalyzeFree();
   };
 
   const handleClosePremium = () => {
     setShowPremiumDialog(false);
+    // Redirect to game history instead of showing AnalyzeGameDialog
     router.push("/my-game-history");
   };
 
   const handleGetPremium = () => {
     setShowPremiumDialog(false);
     toast.success("Thank you for subscribing to Premium!");
+    // Redirect to game history instead of showing AnalyzeGameDialog
     router.push("/my-game-history");
   };
 

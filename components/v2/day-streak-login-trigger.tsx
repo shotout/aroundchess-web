@@ -17,6 +17,11 @@ import {
 import { isPlaygroundTourPending } from "@/components/v2/playground-tour-gate";
 import { preloadLottie } from "@/components/v2/hooks/useLottieData";
 
+/** Feature flag for the automatic daily check-in modal. When false the
+ * component still fetches /streaks/status and keeps the streak store in sync
+ * (badges + post-game celebration detection depend on it), but never opens
+ * the modal on its own. Demo previews (?streakDemo=...) keep working.
+ * Flip back to true to re-enable the daily modal. */
 const DAILY_LOGIN_MODAL_ENABLED = false;
 
 export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
@@ -32,10 +37,15 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
   const fetchedRef = useRef(false);
   const isDemoRef = useRef(false);
 
+  // Warm the flame animation before the modal can open so the celebration
+  // variant plays immediately instead of waiting on a fetch.
   useEffect(() => {
     preloadLottie(CELEBRATION_LOTTIE);
   }, []);
 
+  // ?streakDemo= previews are opened by DayStreakModalHost in the root layout
+  // (so they work on every page, and &streak=0 works). All this needs to do is
+  // stand down, or the preview and the daily check-in would stack.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (new URLSearchParams(window.location.search).get("streakDemo")) {
@@ -53,6 +63,8 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
     )
       return;
     fetchedRef.current = true;
+    // Shares the sidebar/header/page refresh when they land together, so a page
+    // load issues one status request; setStatus is applied by the helper.
     refreshStreakStatus(sessionId, getStreakStatus)
       .then((res: any) => {
         if (!res?.success) return;
@@ -60,8 +72,12 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
         const currentStreak = res.data?.currentStreak ?? 0;
         store.setLastSeenStreak(currentStreak);
         if (!DAILY_LOGIN_MODAL_ENABLED) return;
+        // New users see the playground tour first; the tour's finish opens
+        // the (streak 0) modal itself, so don't also open it here.
         if (isPlaygroundTourPending()) return;
         if (store.lastLoginModalDate !== getLocalDateStamp()) {
+          // Daily check-in is always the static image (no lottie): unlit
+          // flame until today's first game is played, lit after.
           const playedToday = store.lastPlayDate === getLocalDateStamp();
           setVariant("celebration");
           setStaticFlame(playedToday ? "on" : "off");
@@ -72,6 +88,9 @@ export function DayStreakLoginTrigger({ suppressed }: { suppressed: boolean }) {
       .catch(() => {});
   }, [hydrated, profileHydrated, sessionId, getStreakStatus]);
 
+  // Stamp the once-per-day guard when the daily modal actually shows.
+  // (Hook-request shows — tutorial finish, badge clicks — are stamped by
+  // DayStreakModalHost in the root layout.)
   useEffect(() => {
     if (open && !suppressed && !isDemoRef.current) {
       useStreakStore.getState().setLastLoginModalDate(getLocalDateStamp());

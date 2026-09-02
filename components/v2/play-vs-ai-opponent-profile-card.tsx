@@ -43,6 +43,7 @@ export function PlayVsAiOpponentProfileCard({
 
   return (
     <div className="w-full rounded-2xl border border-[#221AE9] bg-white overflow-hidden">
+      {/* Mobile: compact card — name + ELO with a small avatar, inline stats, full-width CTA */}
       <div className="md:hidden p-[16px] flex flex-col gap-[14px]">
         <div className="flex items-start justify-between gap-[12px]">
           <div className="min-w-0 flex flex-col gap-[6px]">
@@ -86,6 +87,7 @@ export function PlayVsAiOpponentProfileCard({
         )}
       </div>
 
+      {/* Header */}
       <div className="hidden bg-[#221AE9] px-[16px] py-[10px] md:flex items-center justify-center gap-[8px]">
         <Image
           src="/images/v2/leaderboard/sword.png"
@@ -98,6 +100,7 @@ export function PlayVsAiOpponentProfileCard({
       </div>
 
       <div className="hidden p-[16px] md:p-[20px] md:flex flex-col items-center text-center gap-[14px]">
+        {/* Avatar */}
         <Image
           src={resolvedAvatarSrc}
           alt={displayName}
@@ -107,10 +110,12 @@ export function PlayVsAiOpponentProfileCard({
           onError={() => setAvatarFailed(true)}
         />
 
+        {/* ELO */}
         {elo !== null && (
           <div className="font-bold text-[18px] text-[#111827]">ELO {elo}</div>
         )}
 
+        {/* Game stats */}
         <div className="w-full rounded-[10px] bg-[#E6F7FE] px-[12px] py-[10px] flex flex-wrap items-center justify-center gap-x-[12px] gap-y-[4px] text-[13px] text-[#111827]">
           <span>Games: {summary?.totalGames ?? 0}</span>
           <span>Win: {summary?.wins ?? 0}</span>
@@ -118,6 +123,7 @@ export function PlayVsAiOpponentProfileCard({
           <span>Loss: {summary?.losses ?? 0}</span>
         </div>
 
+        {/* Play against this opponent */}
         {rosterEntry && (
           <button
             type="button"

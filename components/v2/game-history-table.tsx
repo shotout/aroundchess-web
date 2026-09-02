@@ -15,7 +15,13 @@ import Timeframe from "@/components/game-history/components/Timeframe";
 import { useTutorial } from "@/components/TutorialProvider";
 import { usePgnStore } from "@/app/store/zustandStore";
 
+/**
+ * Revamped "Your Games" section for the v2 Game History page.
+ * Filter/data logic is identical to the legacy components/game-histories-table.tsx;
+ * only the presentation is updated and it renders GamesList with variant="v2".
+ */
 export function GameHistoryTable() {
+  // Filter states - Default: all sources checked
   const [sources, setSources] = useState<string[]>([
     "chesscom",
     "vs_ai",
@@ -29,6 +35,7 @@ export function GameHistoryTable() {
   const [searchInput, setSearchInput] = useState<string>("");
   const [isFilterDisabled, setIsFilterDisabled] = useState<boolean>(false);
 
+  // Debounced state - ONLY for Search Opponent (500ms delay)
   const [debouncedOpponent, setDebouncedOpponent] = useState<string>("");
 
   useEffect(() => {
@@ -38,6 +45,7 @@ export function GameHistoryTable() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // Build filters object for API - NO debounce except Search Opponent
   const apiFilters = useMemo<GameFilters>(() => {
     const filters: GameFilters = {};
 
@@ -82,6 +90,7 @@ export function GameHistoryTable() {
 
   const paginationProps = usePagination(games);
 
+  // Add a short delay after loading finishes before re-enabling filters
   useEffect(() => {
     if (isLoading) {
       setIsFilterDisabled(true);
@@ -164,6 +173,7 @@ export function GameHistoryTable() {
 
         {!isTutorialPlay && (
           <div className="flex flex-wrap lg:flex-nowrap items-start justify-between gap-[8px] lg:gap-[32px] mb-[16px] md:mb-[24px]">
+            {/* Mobile timeframe */}
             <div className="w-full lg:hidden">
               <label className="block font-semibold text-[16px] leading-[150%] mb-[4px]">
                 Timeframe
@@ -171,6 +181,7 @@ export function GameHistoryTable() {
               <Timeframe onDateChange={handleDateRangeChange} disabled={isFilterDisabled} />
             </div>
 
+            {/* Games sources */}
             <div className="w-full lg:w-1/3">
               <label className="block font-semibold text-[16px] leading-[150%] lg:mb-[4px]">
                 Games
@@ -178,6 +189,7 @@ export function GameHistoryTable() {
               <div className="h-[32px] flex items-center justify-between lg:justify-start gap-[16px]">
                 {[
                   { id: "games-chessdotcom", value: "chesscom", label: "Chess.com" },
+                  // Labels only — the `value` sent to the API is unchanged.
                   { id: "games-youvsai", value: "vs_ai", label: "Against AI" },
                   { id: "games-pgnupload", value: "pgn_upload", label: "Import" },
                 ].map((opt) => (
@@ -228,6 +240,7 @@ export function GameHistoryTable() {
               </div>
             </div>
 
+            {/* Game Results */}
             <div className="w-[calc(50%-8px)] lg:w-1/5">
               <label className="block font-semibold text-[16px] leading-[150%] mb-[4px]">
                 Game Results
@@ -250,6 +263,7 @@ export function GameHistoryTable() {
               </Select>
             </div>
 
+            {/* Analyzed Games */}
             <div className="w-[calc(50%-8px)] lg:w-1/5">
               <label className="block font-semibold text-[16px] leading-[150%] mb-[4px]">
                 Analyzed Games
@@ -299,6 +313,7 @@ export function GameHistoryTable() {
               </div>
             </div>
 
+            {/* Desktop timeframe */}
             <div className="w-1/5 hidden lg:flex flex-col">
               <label className="block font-semibold text-[16px] leading-[150%] mb-[4px]">
                 Timeframe

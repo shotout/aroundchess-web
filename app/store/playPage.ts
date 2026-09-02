@@ -60,3 +60,40 @@ export const usePlayPageStore = create<PlayPageState>()(
     }
   )
 );
+
+/**
+ * Pull the account's leaderboard standing and write it straight into the store.
+ *
+ * Used after a Chess.com sync, which recalculates the rating server-side and so
+ * leaves everything reading `leaderboard` / `leaderboardMe` stale — the ELO and
+ * rank in the play top bar, and `useEffectiveElo`, which feeds the recommended
+ * opponents. Without this the old value survives until the user next opens
+ * /play, so a freshly synced account still sees its onboarding rating.
+ *
+ * The two endpoints are passed in rather than imported: they come off the
+ * useApiClient hook, which can't be called outside a component.
+ *
+ * Never rejects — a failed refresh must not take down the flow that called it;
+ * the stale value simply survives until the next fetch.
+ */
+export async function refreshLeaderboard(
+  getLeaderboardData: (params?: any) => Promise<any>,
+  getLeaderboardMe: () => Promise<any>
+): Promise<void> {
+  const { setLeaderboard, setLeaderboardMe } = usePlayPageStore.getState();
+
+  await Promise.all([
+    Promise.resolve()
+      .then(() => getLeaderboardData())
+      .then((data: any) => {
+        if (data?.success && data.data) setLeaderboard(data.data);
+      })
+      .catch(() => {}),
+    Promise.resolve()
+      .then(() => getLeaderboardMe())
+      .then((res: any) => {
+        if (res?.data) setLeaderboardMe(res.data);
+      })
+      .catch(() => {}),
+  ]);
+}

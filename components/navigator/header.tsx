@@ -36,7 +36,9 @@ function mobilePageHeader(
   if (pathname === "/training-plan")
     return { title: "Training Plan", showUsername: true };
   if (pathname === "/training") return { title: "Learn" };
-  if (pathname.startsWith("/playground/puzzle")) return { title: "Puzzles" };
+  // Not /playground/puzzle: that page renders its own "← Puzzle" bar directly
+  // below, so taking the header over as well cost the streak badge and logo
+  // and gave the screen two back arrows.
   if (pathname === "/premium") return { title: "Become a Chess Master" };
   return null;
 }

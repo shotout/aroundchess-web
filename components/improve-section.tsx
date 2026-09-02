@@ -10,7 +10,7 @@ import { useProfileStore } from "@/app/store/profile";
 const improveData = [
   {
     label:
-      "AroundChess <b class='font-semibold'>examines your weaknesses</b> by analyzing your past Chess.com Games.",
+      "AroundChess <b class='font-semibold'>examines your weaknesses</b> by analyzing your past Games.",
     image: "/images/homepage/flow-1-icon.png",
     number: "1",
   },

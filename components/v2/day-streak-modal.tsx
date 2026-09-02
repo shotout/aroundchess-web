@@ -33,6 +33,35 @@ const FLAME_IMAGES: Record<DayStreakStaticFlame, string> = {
   on: "/images/v2/days-streak/fire-on.png",
 };
 
+/** Each piece of artwork carries its own board background, none of which is the
+ *  default panel navy — so the shell and the fades over the art follow the art
+ *  instead, and no seam shows under the chips. Colours are sampled at the crop
+ *  line each piece actually renders at: break.png cropped at 28%, the flame
+ *  stills top-anchored, the celebration Lottie's board asset at its
+ *  xMidYMid-slice boundary. Class strings are literal so Tailwind emits them. */
+const ART_TONES = {
+  broken: {
+    shell: "bg-[#091931]",
+    fade: "from-[#091931]",
+    top: "from-[#091931] via-[#091931]/70",
+  },
+  celebration: {
+    shell: "bg-[#0C315F]",
+    fade: "from-[#0C315F]",
+    top: "from-[#0C315F] via-[#0C315F]/70",
+  },
+  flameOff: {
+    shell: "bg-[#05214B]",
+    fade: "from-[#05214B]",
+    top: "from-[#05214B] via-[#05214B]/70",
+  },
+  flameOn: {
+    shell: "bg-[#001943]",
+    fade: "from-[#001943]",
+    top: "from-[#001943] via-[#001943]/70",
+  },
+} as const;
+
 export const CELEBRATION_LOTTIE = "/images/v2/days-streak/Day-Streak.min.json";
 export const REWARD_LOTTIE = "/images/v2/days-streak/get-token.min.json";
 
@@ -57,6 +86,22 @@ export function DayStreakModal({
         ? "Day Streak"
         : null;
  
+  // Which ART_TONES entry matches the art this render actually shows. The
+  // reward lottie is left on the default navy — its own art fades to black.
+  const artTone: keyof typeof ART_TONES | null =
+    variant === "broken" && !staticFlame
+      ? "broken"
+      : animated && variant === "celebration"
+        ? "celebration"
+        : staticFlame === "on"
+          ? "flameOn"
+          : staticFlame === "off" || variant === "login"
+            ? "flameOff"
+            : null;
+  const tone = artTone ? ART_TONES[artTone] : null;
+  const shellBg = tone?.shell ?? "bg-[#0E1E4B]";
+  const fadeFrom = tone?.fade ?? "from-[#0E1E4B]";
+
   const daysLeft = 7 - (streak % 7);
   
   const subtitle =
@@ -69,6 +114,8 @@ export function DayStreakModal({
           <span className="font-bold">10 Free Analysis Tokens</span>.
         </>
       ) : staticFlame === "off" ? (
+        // Streak running, but today's game isn't in yet (unlit flame) — the
+        // count only holds if they play today, so the nudge says so.
         <>
           Keep it up! Play Today - only {daysLeft} more days
           <br />
@@ -88,6 +135,8 @@ export function DayStreakModal({
         for <span className="font-bold">Free Analyses</span>.
       </>
     ) : null;
+  // Static login-style shows: nudge to play while the flame is still off;
+  // once today's game is in ("on") — or right after a celebration — just close.
   const cta =
     variant === "celebration" && !staticFlame
       ? "Close"
@@ -97,7 +146,9 @@ export function DayStreakModal({
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 p-4">
-      <div className="relative w-full max-w-[420px] max-h-[94vh] rounded-[24px] bg-[#0E1E4B] overflow-hidden shadow-2xl flex flex-col">
+      <div
+        className={`relative w-full max-w-[420px] max-h-[94vh] rounded-[24px] ${shellBg} overflow-hidden shadow-2xl flex flex-col`}
+      >
         <button
           onClick={onClose}
           aria-label="Close"
@@ -106,6 +157,8 @@ export function DayStreakModal({
           <X className="w-6 h-6" />
         </button>
 
+        {/* The close button gets its own row above the chips (design) — with
+            less top padding the last chip sits under it and swallows it. */}
         <div className="px-[16px] sm:px-[20px] pt-[46px] sm:pt-[40px] relative z-10">
           <DayStreakChips
             streak={streak}
@@ -145,8 +198,24 @@ export function DayStreakModal({
               alt=""
               fill
               sizes="420px"
-              className="object-cover object-top"
+              // break.png is narrower than the flame art, so object-cover
+              // blows it up and the flame lands too low — crop from further
+              // down the source to lift it.
+              className={`object-cover ${
+                variant === "broken" && !staticFlame
+                  ? "object-[50%_28%]"
+                  : "object-top"
+              }`}
               priority
+            />
+          )}
+          {tone && (
+            // Every piece of art is vignetted, so its corners still read darker
+            // than the panel even at a matched colour — fade the panel into the
+            // art so there is no hard edge under the chips.
+            <div
+              aria-hidden
+              className={`pointer-events-none absolute inset-x-0 top-0 h-[64px] z-10 bg-gradient-to-b ${tone.top} to-transparent`}
             />
           )}
           {(variant === "celebration" || variant === "broken") && (
@@ -155,7 +224,7 @@ export function DayStreakModal({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: numberDelay, duration: 0.45 }}
               className={`absolute inset-x-0 ${
-                variant === "broken" ? "top-[200px]" : "top-[90px]"
+                variant === "broken" ? "top-[120px]" : "top-[90px]"
               } bottom-0 z-10 flex items-center justify-center pointer-events-none text-white font-extrabold text-[48px] sm:text-[86px] leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]`}
             >
               {streak}
@@ -173,7 +242,7 @@ export function DayStreakModal({
               initial={variant === "reward" ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: textDelay, duration: 0.5 }}
-              className="absolute inset-x-0 bottom-0 px-[24px] pb-[3px] pt-0 text-center bg-gradient-to-t from-[#0E1E4B] to-transparent"
+              className={`absolute inset-x-0 bottom-0 px-[24px] pb-[3px] pt-0 text-center bg-gradient-to-t ${fadeFrom} to-transparent`}
             >
               {(variant === "celebration" || variant === "broken") && (
                 <h2 className="text-white font-bold text-[22px] sm:text-[26px]">

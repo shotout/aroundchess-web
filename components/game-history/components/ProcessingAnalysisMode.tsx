@@ -17,6 +17,13 @@ interface Props {
   onOpenGameAnalysis?: (v3Result?: any) => void;
 }
 
+/** Measured average time for an analysis to come back. */
+const AVERAGE_ANALYSIS_MS = 11_000;
+/** The ramp stops here; the last percent belongs to the job actually finishing. */
+const PROGRESS_CEILING = 99;
+/** Fine enough that the ring reads as continuous motion rather than steps. */
+const TICK_MS = 100;
+
 export default function ProcessingAnalysisMode({
     open,
     onOpenChange,
@@ -27,6 +34,18 @@ export default function ProcessingAnalysisMode({
     const { startV3BackgroundPolling } = useV3PollingManager();
     const { setPgn } = usePgnStore();
     const [progress, setProgress] = useState(0);
+    // Keyed on the id, not the object: a re-created `game` prop would otherwise
+    // restart the ramp from 0 partway through an analysis.
+    const gameId = game?.id;
+    // 99 is only reachable by outrunning the average — completion jumps to 100.
+    const isTakingLonger = progress >= PROGRESS_CEILING && progress < 100;
+    // Blank once the analysis is done — nothing is being waited on any more.
+    const statusText =
+        progress >= 100
+            ? ""
+            : isTakingLonger
+              ? "Just one more moment..."
+              : "AI Analyzing Now...";
 
     const [sidebarWidth, setSidebarWidth] = useState(() => {
         if (typeof window === "undefined") return 0;
@@ -73,33 +92,35 @@ export default function ProcessingAnalysisMode({
         }
     }, [game, open, getJobByGameId, startV3BackgroundPolling]);
 
+    // Progress is driven by elapsed time, not by job.progress: the backend
+    // reports in coarse, unevenly-spaced jumps, so the ring used to sit still
+    // and then leap. It ramps linearly to 99% across the average analysis time
+    // and waits there — only the job completing takes it to 100%.
     useEffect(() => {
-        if (!game || !open) {
+        if (gameId == null || !open) {
             setProgress(0);
             return;
         }
 
-        const checkJobStatus = () => {
-            const job = getJobByGameId(game.id);
+        const startedAt = Date.now();
 
-            if (job) {
-                if (job.status === "pending" || job.status === "processing" || job.status === "waiting" || job.status === "finalizing") {
-                    setProgress(job.progress || 0);
-                } else if (job.status === "completed") {
-                    setProgress(100);
-                }
-            } else {
-                setProgress(0);
+        const tick = () => {
+            if (getJobByGameId(gameId)?.status === "completed") {
+                setProgress(100);
+                return;
             }
+            const elapsed = Date.now() - startedAt;
+            const ramped = Math.floor((elapsed / AVERAGE_ANALYSIS_MS) * PROGRESS_CEILING);
+            setProgress(Math.min(PROGRESS_CEILING, ramped));
         };
 
-        checkJobStatus();
-        const interval = setInterval(checkJobStatus, 1000);
+        tick();
+        const interval = setInterval(tick, TICK_MS);
 
         return () => {
             clearInterval(interval);
         };
-    }, [game, open, getJobByGameId]);
+    }, [gameId, open, getJobByGameId]);
 
     useEffect(() => {
         if (progress === 100 && open && game) {
@@ -146,7 +167,7 @@ export default function ProcessingAnalysisMode({
                     </svg>
                 </button>
 
-                <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px]">Choose Analysis Mode</h3>
+                <h3 className="text-[18px] text-center font-bold text-[#121212] mb-[16px]">Analyzing your Game</h3>
 
                 <div className="flex flex-col items-center justify-center mb-[8px]">
                     <div className="w-[100px] h-[100px]">
@@ -169,7 +190,13 @@ export default function ProcessingAnalysisMode({
                                 }
                             }} />
                     </div>
-                    <h4 className="text-[24px] lg:text-[30px] mb-[24px] font-semibold">AI Analyzing Now...</h4>
+                    {/* A non-breaking space holds the line box when the text is
+                        blank. An empty heading collapses to zero height, and the
+                        board would jump up for the two seconds the modal stays
+                        open after hitting 100%. */}
+                    <h4 className="text-[24px] lg:text-[30px] mb-[24px] font-semibold text-center">
+                        {statusText || " "}
+                    </h4>
                     <div className="w-full max-w-full overflow-visible flex justify-center">
                         <div className="flex justify-center w-full max-w-[calc(100vw-64px)] lg:max-w-[386px] xl:max-w-[482px]">
                             <PgnPlayer maxBoardSize={380} />

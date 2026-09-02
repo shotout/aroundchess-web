@@ -652,7 +652,7 @@ function InterludeCaptureBar({
       >
         <div className="flex items-center gap-[10px] min-w-0">
           <Image
-            src={opponent ? "/images/v2/AI avatar/Beginner/Number11.png" : "/images/homepage/v2/homepage_board_asset_4.png"}
+            src={opponent ? "/images/v2/AI avatar/Beginner/Lisa.png" : "/images/homepage/v2/homepage_board_asset_4.png"}
             alt={opponent ? "Lisa" : "You"}
             width={96}
             height={96}

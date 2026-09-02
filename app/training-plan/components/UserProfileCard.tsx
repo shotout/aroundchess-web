@@ -72,11 +72,14 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
   return (
     <div className="xl:border xl:border-blue-base lg:rounded-md bg-[#F6F9FF] shadow-sm">
-      <div className="p-4 gap-y-4 flex flex-col">
+      {/* Tighter top padding on mobile — below xl the in-page heading is hidden
+          and the app's header bar sits directly above, so the full p-4 read as
+          a gap between the bar and the pill. */}
+      <div className="p-4 pt-2 md:pt-4 gap-y-4 flex flex-col">
         <div className="flex items-center gap-4 justify-between ">
-          <div className="bg-white items-center p-1 lg:p-2 gap-x-3 lg:gap-x-2  rounded-full justify-center flex">
+          <div className="bg-white items-center p-1 lg:p-2 gap-x-3 lg:gap-x-2 border-2 border-[#221AE9] rounded-full justify-center flex">
             {avatarUrl && (
-              <div className="w-10 h-10 overflow-hidden rounded-full">
+              <div className="w-7 h-7 md:w-10 md:h-10 shrink-0 overflow-hidden rounded-full">
                 <Image
                   src={avatarUrl}
                   width={24}
@@ -86,7 +89,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                 />
               </div>
             )}
-            <div className="text-base font-semibold">
+            {/* Smaller on mobile so "name • level • ELO" stays on one line as
+                in the mockup. Left free to wrap rather than nowrap-and-overflow
+                if a username is long enough to need it. */}
+            <div className="text-[12px] md:text-base font-semibold">
               {combinedProfile.username} • {combinedProfile.level} • ELO{" "}
               {combinedProfile.currentElo}
             </div>
@@ -103,7 +109,9 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           />
         </div>
 
-        <button className="mt-8">
+        {/* mt-2, not mt-8: this stacks on top of the parent's gap-y-4, so the
+            old value put 48px between the pill row and the track. */}
+        <button className="mt-2">
           <SkillProgressTrack currentElo={combinedProfile.currentElo || 0} />
         </button>
 

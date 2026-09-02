@@ -19,6 +19,10 @@ const GameHistoryPageV2: React.FC = () => {
   const { sessionId } = useProfileStore();
   const { isTutorialPlay, dataTutorial } = useTutorial();
 
+  // Drives whether the "Connect Chess.com Account" banner shows. One shared rule
+  // with the profile page — the backend flag and nothing else. The old
+  // `|| Boolean(username)` fallback was true for every signed-in user, so the
+  // banner was hidden from people who had never linked an account.
   const isChessComConnected = useChessComConnected();
 
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -58,6 +62,9 @@ const GameHistoryPageV2: React.FC = () => {
 
   return (
     <main className="w-full bg-primary-white min-h-screen">
+      {/* Pass the setter straight through, like /profile does — the previous
+          `() => setOpen(false)` turned any open request from inside the dialog
+          into a close. */}
       <ChessAccountSetup
         isLoading={isLoading}
         open={openAccountConnected}
@@ -72,6 +79,8 @@ const GameHistoryPageV2: React.FC = () => {
             My Game History
           </h1>
 
+          {/* w-auto lets the row's justify-end place the button on the right;
+              the button's own root div is w-full and would otherwise fill the row. */}
           <div className="w-full md:w-auto">
             <ImportDialogButton />
           </div>

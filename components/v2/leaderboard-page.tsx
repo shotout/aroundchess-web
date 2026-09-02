@@ -10,17 +10,29 @@ import { LeaderboardList, type LeaderboardEntry } from "@/components/v2/leaderbo
 import { LeaderboardNextGame } from "@/components/v2/leaderboard-next-game";
 import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 import { LeaderboardJoinModal } from "@/components/v2/leaderboard-join-modal";
-import { ShareRankButton } from "@/components/v2/share-rank-button";
-import {
-  buildPlaceholderEntries,
-  extractLeaderboardList,
-  mapLeaderboardEntries,
-} from "@/components/v2/leaderboard-share";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { useApiClient } from "@/functions/api-client";
 
+const PLACEHOLDER_SCORES = [2710, 2680, 2680, 2680, 2680, 2710, 2680, 2680, 2680, 2680];
+
+// Leaderboard rows are fetched in pages of this size and appended as the
+// user scrolls (infinite scroll) instead of loading the whole list at once.
 const PAGE_SIZE = 20;
+
+function buildPlaceholderEntries(myRank: number, myElo: number, myUsername: string): LeaderboardEntry[] {
+  return PLACEHOLDER_SCORES.map((score, i) => {
+    const rank = i + 1;
+    const isMe = rank === myRank;
+    return {
+      rank,
+      username: isMe ? myUsername : "[Username]",
+      score: isMe && myElo ? myElo : score,
+      rankChange: rank === 2 ? -1 : rank === 4 ? 2 : rank === 6 ? 1 : rank === 9 ? -3 : null,
+      isMe,
+    };
+  });
+}
 
 export function LeaderboardPage() {
   const router = useRouter();
@@ -37,22 +49,62 @@ export function LeaderboardPage() {
   const [showJoinModal, setShowJoinModal] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  // A "My Rank" jump starts the list mid-table, so pages above the first
+  // loaded one still exist and are fetched as the user scrolls back up.
+  const [hasPrevious, setHasPrevious] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
+  // Ticks once the initial page-1 fetch settles. The list arms its automatic
+  // "jump to my rank" off this rather than off isLoading: persisted entries
+  // make isLoading false on the very first render, so the jump used to run
+  // against last session's rows and get overwritten by the fresh page 1.
   const [initialLoadNonce, setInitialLoadNonce] = useState(0);
+  // Highest and lowest page currently held in the list — the list is a
+  // contiguous window that can grow from either end.
   const pageRef = useRef(1);
+  const firstPageRef = useRef(1);
+  // Single-flight guards so a fast scroll can't fire overlapping page fetches.
   const fetchingMoreRef = useRef(false);
+  const fetchingPreviousRef = useRef(false);
 
   const mapEntries = useCallback(
     (list: any[], myRank: number | null, offset: number) =>
-      mapLeaderboardEntries(list, myRank, offset, {
-        id: profile?.id,
-        username: profile?.username,
-        imageUrl: profile?.imageUrl,
+      list.map((item: any, i: number) => {
+        const rank = item.rank ?? offset + i + 1;
+        // Prefer the backend's own flag; otherwise identify "me" by id or
+        // username. Rank is only a last resort — my_rank can drift from where
+        // the row actually lands and highlight the wrong player.
+        const apiIsMe = item.is_me ?? item.isMe;
+        const myId = profile?.id;
+        const myUsername = profile?.username;
+        const isMe =
+          typeof apiIsMe === "boolean"
+            ? apiIsMe
+            : (myId != null && (item.id === myId || item.user_id === myId)) ||
+              (!!myUsername && item.username === myUsername) ||
+              (myRank !== null && rank === myRank);
+        return {
+          rank,
+          username: item.username ?? item.name ?? "[Username]",
+          score: item.score ?? item.elo ?? 0,
+          rankChange: item.rank_change ?? item.rankChange ?? null,
+          isMe,
+          avatarUrl:
+            item.image_url ??
+            item.imageUrl ??
+            item.avatar_url ??
+            item.avatar ??
+            item.profile_picture ??
+            (isMe ? profile?.imageUrl ?? null : null),
+        };
       }),
     [profile?.imageUrl, profile?.id, profile?.username]
   );
 
-  const extractList = extractLeaderboardList;
+  const extractList = (data: any): any[] | null => {
+    const list =
+      data?.entries ?? data?.leaderboard ?? data?.players ?? data?.list ?? null;
+    return Array.isArray(list) ? list : null;
+  };
 
   useEffect(() => {
     if (!sessionId) return;
@@ -67,6 +119,9 @@ export function LeaderboardPage() {
         if (list && list.length > 0) {
           setLeaderboardEntries(mapEntries(list, myRank, 0));
           pageRef.current = 1;
+          firstPageRef.current = 1;
+          setHasPrevious(false);
+          // A short first page means there's nothing further to fetch.
           setHasMore(list.length >= PAGE_SIZE);
         }
       })
@@ -101,7 +156,12 @@ export function LeaderboardPage() {
         }
         const current = usePlayPageStore.getState().leaderboardEntries ?? [];
         const myRank = data.data?.my_rank ?? null;
-        const mapped = mapEntries(list, myRank, current.length);
+        // Offset derived from the page, not from how many rows are loaded —
+        // the window can start mid-table after a jump, so the row count is no
+        // longer the rank of the first row.
+        const mapped = mapEntries(list, myRank, (nextPage - 1) * PAGE_SIZE);
+        // Dedupe by rank — also stops the scroll if the backend ignores the
+        // page param and keeps returning the same rows.
         const seen = new Set(current.map((e) => e.rank));
         const fresh = mapped.filter((e) => !seen.has(e.rank));
         if (fresh.length === 0) {
@@ -120,11 +180,58 @@ export function LeaderboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, isLoading, mapEntries]);
 
+  // Upward twin of loadMore: prepends the page above the first loaded row so a
+  // list that opened on the user's own rank can be scrolled back toward #1.
+  const loadPrevious = useCallback(() => {
+    if (fetchingPreviousRef.current || !hasPrevious || isLoading) return;
+    const prevPage = firstPageRef.current - 1;
+    if (prevPage < 1) {
+      setHasPrevious(false);
+      return;
+    }
+    fetchingPreviousRef.current = true;
+
+    getLeaderboardData({ page: prevPage, limit: PAGE_SIZE })
+      .then((data: any) => {
+        if (!data?.success) {
+          setHasPrevious(false);
+          return;
+        }
+        const list = extractList(data.data);
+        if (!list || list.length === 0) {
+          setHasPrevious(false);
+          return;
+        }
+        const current = usePlayPageStore.getState().leaderboardEntries ?? [];
+        const myRank = data.data?.my_rank ?? null;
+        const mapped = mapEntries(list, myRank, (prevPage - 1) * PAGE_SIZE);
+        const seen = new Set(current.map((e) => e.rank));
+        const fresh = mapped.filter((e) => !seen.has(e.rank));
+        if (fresh.length === 0) {
+          setHasPrevious(false);
+          return;
+        }
+        setLeaderboardEntries([...fresh, ...current]);
+        firstPageRef.current = prevPage;
+        setHasPrevious(prevPage > 1);
+      })
+      .catch(() => {})
+      .finally(() => {
+        fetchingPreviousRef.current = false;
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPrevious, isLoading, mapEntries]);
+
+  // "My Rank" jump. The list is paged, so a deep rank (e.g. 9996) is never in
+  // the first pages — fetch the page that contains the user (plus the one
+  // above it for context) and replace the list with that neighborhood so the
+  // list can center the highlighted row.
   const jumpToMyRank = useCallback(async (): Promise<boolean> => {
     const state = usePlayPageStore.getState();
     const rank = state.leaderboard?.my_rank ?? 0;
     if (!rank) return false;
 
+    // Already loaded — let the list scroll straight to it, no fetch needed.
     if ((state.leaderboardEntries ?? []).some((e) => e.isMe || e.rank === rank)) {
       return true;
     }
@@ -156,11 +263,18 @@ export function LeaderboardPage() {
         }
       }
 
+      // The user's own row must be in the fetched neighborhood — otherwise the
+      // page param was ignored or my_rank is stale, so bail rather than swap in
+      // rows we can't scroll to.
       if (!merged.some((e) => e.isMe)) return false;
 
       merged.sort((a, b) => a.rank - b.rank);
       setLeaderboardEntries(merged);
       pageRef.current = targetPage;
+      firstPageRef.current = startPage;
+      // Everything above this neighborhood is still unloaded — the list pulls
+      // it in page by page as the user scrolls up.
+      setHasPrevious(startPage > 1);
       setHasMore(lastPageFull);
       return true;
     } catch {
@@ -171,6 +285,8 @@ export function LeaderboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getLeaderboardData, mapEntries]);
 
+  // Scroll-to-top from a "jumped" neighborhood: reload the first page so the
+  // list starts at rank #1 again instead of the top of the loaded slice.
   const resetToTop = useCallback(async (): Promise<boolean> => {
     try {
       const data = await getLeaderboardData({ page: 1, limit: PAGE_SIZE });
@@ -180,6 +296,8 @@ export function LeaderboardPage() {
       const rank = data.data?.my_rank ?? null;
       setLeaderboardEntries(mapEntries(list, rank, 0));
       pageRef.current = 1;
+      firstPageRef.current = 1;
+      setHasPrevious(false);
       setHasMore(list.length >= PAGE_SIZE);
       return true;
     } catch {
@@ -189,12 +307,17 @@ export function LeaderboardPage() {
   }, [getLeaderboardData, mapEntries]);
 
   const username = profile?.username || profile?.name || "You";
-  const myElo = leaderboard?.my_elo ?? 0;
+  // Same fallback chain the play page's top bar uses. /leaderboard read only
+  // `leaderboard.*`, so an account that had just synced from Chess.com — which
+  // populates /leaderboard/me before the ranked table catches up — showed "–"
+  // for ELO, rank and moved-up here while /play showed the real numbers.
+  const myElo = leaderboard?.my_elo || leaderboardMe?.elo || 0;
+  // See useEffectiveElo: new accounts have no leaderboard ELO yet.
   const effectiveElo = useEffectiveElo();
-  const myRank = leaderboard?.my_rank ?? 0;
+  const myRank = leaderboard?.my_rank || leaderboardMe?.rank || 0;
   const totalPlayers = leaderboard?.total ?? null;
 
-  const displayedEntries = useMemo<LeaderboardEntry[]>(
+  const displayedEntries = useMemo(
     () =>
       leaderboardEntries && leaderboardEntries.length > 0
         ? leaderboardEntries
@@ -247,6 +370,7 @@ export function LeaderboardPage() {
           }}
           onPlayNow={() => {
             setShowJoinModal(false);
+            // the hash makes the play page scroll straight to the Play VS AI card
             router.push("/play#play-vs-ai");
           }}
         />
@@ -256,6 +380,7 @@ export function LeaderboardPage() {
         <Navigation>
           <div className="p-[10px] sm:p-[24px] flex flex-col gap-[10px] max-w-[1200px] min-[1600px]:max-w-[1400px] mx-auto w-full">
             <div className="sm:hidden flex items-center gap-[10px]">
+              {/* Back to the previous screen — mobile has no sidebar to navigate with. */}
               <button
                 type="button"
                 onClick={() => router.back()}
@@ -272,13 +397,16 @@ export function LeaderboardPage() {
                 className="w-[36px] h-[36px] object-contain shrink-0"
               />
               <h1 className="font-extrabold text-[22px] text-[#111827]">Leaderboard</h1>
-              <ShareRankButton className="ml-auto" />
             </div>
 
             <div className="bg-white sm:bg-[#E6F7FE] sm:bg-[url('/images/v2/leaderboard/background.png')] bg-no-repeat bg-cover bg-center p-3 sm:p-7 rounded-3xl">
 
             <div className="pb-3">
-               <LeaderboardTopStats elo={myElo} rank={myRank} movedUp={leaderboard?.moved_up ?? null} />
+               <LeaderboardTopStats
+                 elo={myElo}
+                 rank={myRank}
+                 movedUp={leaderboard?.moved_up ?? leaderboardMe?.rank_change ?? null}
+               />
             </div>
               <LeaderboardList
                 entries={displayedEntries}
@@ -288,6 +416,8 @@ export function LeaderboardPage() {
                 hasMore={hasMore}
                 isLoadingMore={isLoadingMore}
                 onLoadMore={loadMore}
+                hasPrevious={hasPrevious}
+                onLoadPrevious={loadPrevious}
                 onJumpToMyRank={jumpToMyRank}
                 isJumpingToMyRank={isJumping}
                 onResetToTop={resetToTop}

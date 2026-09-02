@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import { Game } from "@/components/game-history/types/GameHistoryTypes";
+import { formatGameDateTime } from "@/components/v2/game-date-time";
 import { useGameHistoryAnalysis } from "@/components/v2/hooks/useGameHistoryAnalysis";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { PieceAvatar } from "@/components/v2/piece-avatar";
@@ -32,6 +33,8 @@ const ELO_UNRATED_INFO = (
   </>
 );
 
+/** The opponent avatar: the matching AI roster face for vs-AI games, otherwise
+ *  the seeded chess-piece placeholder (chess.com / imported games). */
 function OpponentAvatar({ opponent }: { opponent: string }) {
   const roster = findRosterOpponentByName(opponent);
   if (roster) {
@@ -59,6 +62,10 @@ interface PlayRecentGamesProps {
   isLoading: boolean;
 }
 
+/** Source column labels. The API sends a handful of spellings per source ("VS AI
+ *  Game", "vs_ai", "other game", …); this row is narrow, so vs-AI games read
+ *  just "AI" and everything hand-added or uploaded reads "Import" — same
+ *  grouping the game-history table uses, shorter wording. */
 function displaySource(src: string): string {
   if (!src) return "";
   const map: Record<string, string> = {
@@ -81,19 +88,6 @@ function displaySource(src: string): string {
   return map[src.toLowerCase().trim()] ?? src;
 }
 
-function formatDateTime(dateStr: string): { date: string; time: string } {
-  try {
-    const d = new Date(dateStr);
-    const date = d
-      .toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
-      .replace(/\//g, ".");
-    const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-    return { date, time };
-  } catch {
-    return { date: dateStr, time: "" };
-  }
-}
-
 function GameRow({ game }: { game: Game }) {
   const result = game.result?.toLowerCase() ?? "";
   const isWin = result === "win";
@@ -105,24 +99,35 @@ function GameRow({ game }: { game: Game }) {
   const eloRaw = Number(String(game.eloChange ?? "0").replace("+", ""));
   const eloDisplay = eloRaw > 0 ? `+${eloRaw}` : `${eloRaw}`;
 
+  // Button reflects analysis state: analyzed → green "See Mistakes" (shows the
+  // result); not analyzed → blue "Analyze" (starts the analysis flow). The
+  // trigger from useGameHistoryAnalysis already branches on the same flag.
   const analyzed = game.isAnalysis === true;
   const btnLabel = analyzed ? "See Mistakes" : "Analyze Mistakes";
   const btnIcon = analyzed ? "/images/v2/play/Eye.png" : "/images/v2/play/bar-chart.png";
   const btnColor = analyzed
     ? "bg-gradient-to-b from-[#0AD847] to-[#018F34]"
     : "bg-[#1B14CC]";
+  // ELO wasn't rated (Hint/Undo used) — show the info icon + tooltip instead
+  // of the up/down arrow. Undefined (older data) counts as processed.
   const eloProcessed = game.eloProcessed !== false;
 
-  const { date, time } = game.date ? formatDateTime(game.date) : { date: "", time: "" };
+  // Same source of truth as the opponent panel on /play-vs-ai-stats: the date
+  // from the API field, the time from the game's own PGN tags.
+  const { date, time } = formatGameDateTime(game);
 
+  // Same analysis flow as the history page's GameCard.
   const { trigger, busy, modals } = useGameHistoryAnalysis(game);
 
   return (
     <div className="py-[12px] border-b border-[#F3F4F6] last:border-0">
       {modals}
+      {/* Info row */}
       <div className="flex items-center gap-[10px] sm:gap-[16px]">
+        {/* Opponent avatar */}
         <OpponentAvatar opponent={game.opponent} />
 
+        {/* Meta */}
         <div className="flex-1 min-w-0">
           <div className="text-[11px] text-[#9CA3AF] leading-tight">
             {date}
@@ -156,10 +161,12 @@ function GameRow({ game }: { game: Game }) {
           </p>
         </div>
 
+        {/* Source */}
         <span className="text-[12px] text-[#6B7280] shrink-0">
           {displaySource(game.source)}
         </span>
 
+        {/* Action button — desktop only */}
         <button
           type="button"
           onClick={trigger}
@@ -171,6 +178,7 @@ function GameRow({ game }: { game: Game }) {
         </button>
       </div>
 
+      {/* Action button — mobile full width */}
       <button
         type="button"
         onClick={trigger}
@@ -198,10 +206,15 @@ function SkeletonRow() {
   );
 }
 
+/** Nothing played yet: point the user at the opponent picker above, and offer a
+ *  one-tap game against whoever is currently highlighted there. */
 function EmptyState() {
   const router = useRouter();
   const { setAIChoosed, selectedOpponent, selectedColor, AIChoosed } = usePlayVSAIStore();
 
+  // "Play Now" starts straight away against the opponent highlighted in the
+  // picker above (mirrored into the store by HeroPlayVSAIPreview) — no detour
+  // through the setup screen. Falls back to the last stored choice.
   const handlePlayNow = () => {
     const opponent = selectedOpponent ?? AIChoosed?.opponent;
     if (opponent) {
@@ -244,6 +257,8 @@ function EmptyState() {
 }
 
 export function PlayRecentGames({ games, isLoading }: PlayRecentGamesProps) {
+  // With no games there is nothing to see on the history page — the link stays
+  // visible for layout, but greyed out and inert.
   const hasGames = games.length > 0;
 
   return (

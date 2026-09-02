@@ -6,6 +6,7 @@ import QuestionPanel from "../shared/QuestionPanel";
 import GameResult from "../shared/GameResult";
 import FeedbackPanel from "../shared/FeedbackPanel";
 import LoadingState from "../shared/LoadingState";
+import BackToBoardVisionLink from "../shared/BackToBoardVisionLink";
 import Image from "next/image";
 import {
   containerVariants,
@@ -57,6 +58,9 @@ const DefaultPGN: React.FC = () => {
   return (
     <>
       <main className="w-full h-full p-4 xl:p-8">
+        {/* Only at the end: until then the question header carries its own
+            back arrow, so showing this too would put two on screen. */}
+        {isGameEnd && <BackToBoardVisionLink className="mb-3" />}
         <motion.div
           className="grid grid-cols-1 xl:grid-cols-10 min-h-full bg-white xl:gap-5"
           variants={containerVariants}

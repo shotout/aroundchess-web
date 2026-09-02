@@ -1,5 +1,9 @@
 import Image from "next/image";
 
+// Fallback avatar for users without a profile picture: the pawn silhouette
+// on a "random" background color. The color is hashed from the seed
+// (username) so it looks random across users but stays stable for a given
+// user between renders and visits.
 const PIECE_AVATAR_COLORS = [
   "bg-[#F5A623]",
   "bg-[#56CCF2]",
@@ -25,7 +29,9 @@ export function PieceAvatar({
   pieceClassName = "w-[14px] h-[18px]",
 }: {
   seed: string;
+  /** circle sizing classes */
   className?: string;
+  /** pawn sizing classes */
   pieceClassName?: string;
 }) {
   return (

@@ -6,7 +6,6 @@ import { usePlayPageStore } from "@/app/store/playPage";
 import { PlayVsAiTopStats } from "@/components/v2/play-vs-ai-top-stats";
 import { PlayVsAiOpponentsPlayedList } from "@/components/v2/play-vs-ai-opponents-played-list";
 import { PlayVsAiRecommendedOpponents } from "@/components/v2/play-vs-ai-recommended-opponents";
-import { LeaderboardStatsCardMobile } from "@/components/v2/play-top-bar";
 import { useEffectiveElo } from "@/components/v2/hooks/useEffectiveElo";
 import type { OpponentSummary, OpponentsPlayedPagination } from "@/app/store/playVsAiStats";
 
@@ -22,14 +21,12 @@ interface PlayVsAiStatsOverviewProps {
 }
 
 export function PlayVsAiStatsOverview({ opponentsPlayedState }: PlayVsAiStatsOverviewProps) {
-  const { leaderboard, leaderboardMe } = usePlayPageStore();
+  const { leaderboard } = usePlayPageStore();
   const myElo = leaderboard?.my_elo ?? 0;
+  // Falls back to the onboarding level so new accounts get tier-appropriate
+  // recommendations rather than the 1200 default.
   const effectiveElo = useEffectiveElo();
   const myRank = leaderboard?.my_rank ?? 0;
-
-  const isInactive =
-    leaderboardMe?.can_join === false && leaderboardMe?.is_inactive === true;
-  const gamesRemaining = leaderboardMe?.games_remaining;
 
   return (
     <div className="flex flex-col gap-[16px]">
@@ -42,24 +39,7 @@ export function PlayVsAiStatsOverview({ opponentsPlayedState }: PlayVsAiStatsOve
         </h1>
       </div>
 
-      <LeaderboardStatsCardMobile
-        elo={myElo}
-        rank={myRank}
-        movedUp={leaderboard?.moved_up ?? null}
-        canJoin={leaderboardMe?.can_join}
-        gamesRemaining={gamesRemaining}
-        isInactive={isInactive}
-      />
-
-      <div className="hidden sm:block">
-        <PlayVsAiTopStats
-          elo={myElo}
-          rank={myRank}
-          movedUp={leaderboard?.moved_up ?? null}
-          gamesRemaining={gamesRemaining}
-          isInactive={isInactive}
-        />
-      </div>
+      <PlayVsAiTopStats elo={myElo} rank={myRank} movedUp={leaderboard?.moved_up ?? null} />
 
       <PlayVsAiOpponentsPlayedList {...opponentsPlayedState} />
 

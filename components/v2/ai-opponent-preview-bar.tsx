@@ -4,10 +4,15 @@ import Image from "next/image";
 import { ArrowDownUp, Settings } from "lucide-react";
 import { usePlayVSAIStore, SelectedOpponent } from "@/app/store/playVSAI";
 
+// Opponent bar shown above the board preview on the home and play pages.
+// Reflects whichever opponent is highlighted in the "Choose Your Opponent"
+// panel (usePlayVSAIStore.selectedOpponent), replacing the old static image
+// that had one bot ("Lisa") baked in. Falls back to the last confirmed
+// opponent, then a sane default, so it always renders someone.
 const FALLBACK: SelectedOpponent = {
   name: "Thomas",
   elo: 250,
-  img: "/images/v2/AI avatar/Beginner/Number10.png",
+  img: "/images/v2/AI avatar/Beginner/Thomas.png",
 };
 
 export function AiOpponentPreviewBar() {

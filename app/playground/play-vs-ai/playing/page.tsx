@@ -7,7 +7,7 @@ import { usePlayPageStore } from "@/app/store/playPage";
 import { useApiClient } from "@/functions/api-client";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import Navigation from "@/components/navigator/navigation";
-import { EloScoreLink, PlayTopBar } from "@/components/v2/play-top-bar";
+import { PlayTopBar } from "@/components/v2/play-top-bar";
 
 import PlayingPage from "@/components/playground/play-vs-ai/PlayingPage";
 
@@ -24,6 +24,8 @@ export default function Playing() {
   useEffect(() => {
     if (!sessionId) return;
 
+    // Shared once-per-page-load refresh (also syncs the streak store's status,
+    // so the badge click can detect a just-broken streak).
     refreshStreakStatus(sessionId, getStreakStatus).then((data: any) => {
       if (data?.success) setStreak(data.data?.currentStreak ?? 0);
     });
@@ -40,10 +42,7 @@ export default function Playing() {
   if (loadingAnalyze) return <LoadingPage />;
   return (
     <Navigation>
-      <div className="p-0 sm:p-[24px] flex flex-col max-w-[1200px] min-[1400px]:max-w-[1340px] min-[1600px]:max-w-[1400px] mx-auto w-full">
-        <div className="hidden sm:flex justify-end mb-[10px]">
-          <EloScoreLink />
-        </div>
+      <div className="p-0 sm:p-[24px] flex flex-col max-w-[1200px] min-[1600px]:max-w-[1400px] mx-auto w-full">
         <div className="rounded-none border-0 sm:rounded-[24px] sm:border sm:border-[#7CC0F2] bg-white p-[8px] sm:p-[16px] flex flex-col gap-[8px]">
           <PlayTopBar
             streak={streak}

@@ -82,6 +82,7 @@ export function PlayVsAiOpponentsPlayedList({
                 key={opponent.opponentUsername}
                 className="rounded-2xl border border-[#F1F3F9] bg-white shadow-[0_2px_10px_rgba(17,24,39,0.06)] px-[8px] md:px-[16px] py-[10px] md:py-[12px]"
               >
+                {/* Mobile — one line: avatar, name/ELO, donut, games + win/draw/lost. Row is tappable. */}
                 <button
                   type="button"
                   onClick={goToDetail}
@@ -127,7 +128,9 @@ export function PlayVsAiOpponentsPlayedList({
                   </div>
                 </button>
 
+                {/* Desktop — 4 evenly spaced groups */}
                 <div className="hidden sm:flex flex-wrap items-center justify-between gap-x-[12px] gap-y-[8px]">
+                {/* AI opponent detail */}
                 <div className="flex items-center gap-[12px] min-w-0 w-full sm:w-[170px] md:w-[190px] sm:shrink-0">
                   <Image
                     src={avatarSrc}
@@ -148,6 +151,7 @@ export function PlayVsAiOpponentsPlayedList({
                   </div>
                 </div>
 
+                {/* Donut chart + total games */}
                 <div className="flex items-center gap-[10px] shrink-0">
                   <MiniDonutChart
                     win={opponent.wins}
@@ -160,6 +164,7 @@ export function PlayVsAiOpponentsPlayedList({
                   </span>
                 </div>
 
+                {/* Game detail */}
                 <div className="flex items-center gap-[14px] md:gap-[20px] text-md text-[#4B5563]">
                   <span className="flex items-center gap-[6px] whitespace-nowrap">
                     <span className="w-[8px] h-[8px] rounded-full bg-[#19B67A] shrink-0" />
@@ -175,6 +180,7 @@ export function PlayVsAiOpponentsPlayedList({
                   </span>
                 </div>
 
+                {/* See details */}
                 <div className="shrink-0">
                   <button
                     type="button"
