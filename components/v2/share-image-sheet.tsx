@@ -113,6 +113,12 @@ function isMobile(): boolean {
   return /Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1;
 }
 
+function isIOS(): boolean {
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) return true;
+  // iPadOS 13+ reports a desktop user agent.
+  return /Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1;
+}
+
 const INSTAGRAM_STORY_APP = "instagram://story-camera";
 
 function openApp(scheme: string, fallback: string) {
@@ -220,8 +226,8 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
         if (story) {
           toast(
             (await copying)
-              ? "Pick Instagram › Stories — your caption is copied, ready to paste."
-              : "Pick Instagram › Stories, then add your caption."
+              ? "In Instagram, tap Story — then press and hold the canvas to paste your caption."
+              : "In Instagram, tap Story, then add your caption."
           );
         }
         return;
@@ -231,13 +237,28 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     }
 
     if (story) {
-      // No share sheet: get the card onto disk, keep the caption ready, and
-      // open Instagram — it only ever accepts an uploaded file, never a paste.
-      const fresh = saveOnce();
-      const state = fresh ? "Image saved" : "Image already in your downloads";
+      // No share sheet, so the card has to reach Instagram through the camera
+      // roll: the Stories editor only accepts a file handed over by Meta's
+      // native sharing API (pasteboard stickers on iOS, a content:// intent on
+      // Android), and neither is reachable from a web page.
       const copied = await copyText(caption);
       const hint = copied ? " Caption copied." : "";
+
+      if (isIOS()) {
+        // A blob download lands in Files, not Photos, so the story camera's
+        // picker would never see it — pressing the preview is the only route
+        // into the camera roll from here.
+        toast(
+          `Press and hold the image above → Save to Photos, then open Instagram › Story.${hint}`
+        );
+        return;
+      }
+
+      const fresh = saveOnce();
+      const state = fresh ? "Image saved" : "Image already in your downloads";
       if (isMobile()) {
+        // Android indexes downloads into MediaStore, so the card turns up in
+        // the story camera's gallery picker.
         openApp(INSTAGRAM_STORY_APP, target);
         toast(`${state} — pick it in the story camera.${hint}`);
       } else {
