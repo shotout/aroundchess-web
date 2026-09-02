@@ -55,6 +55,8 @@ import { ButtonBoard } from "./ButtonBoard";
 import { ButtonFinish } from "./ButtonFinish";
 import { ButtonPlaying } from "./ButtonPlaying";
 import { PlayVsAiConfirmModal } from "@/components/v2/play-vs-ai-confirm-modal";
+import { PlayVsAiLeaveGuardModal } from "@/components/v2/play-vs-ai-leave-guard-modal";
+import { useGameLeaveGuard } from "@/app/store/gameLeaveGuard";
 import { PlayVsAiWinModal, WIN_LOTTIE } from "@/components/v2/play-vs-ai-win-modal";
 import { PlayVsAiLoseModal, LOSE_LOTTIE } from "@/components/v2/play-vs-ai-lose-modal";
 import { PlayVsAiDrawModal, DRAW_LOTTIE } from "@/components/v2/play-vs-ai-draw-modal";
@@ -359,13 +361,26 @@ export default function PlayingPage() {
    *  VS AI lobby — e.g. "Play against this Opponent" on the opponent stats page
    *  — so return to wherever the user actually came from, and only fall back to
    *  the lobby when there is no history (deep link, fresh tab). */
+  const {
+    pending: leaveGuard,
+    request: requestLeave,
+    open: openLeaveGuard,
+    setArmed: setLeaveGuardArmed,
+    confirm: confirmLeaveGuard,
+    dismiss: dismissLeaveGuard,
+  } = useGameLeaveGuard();
   const handleMobileBack = useCallback(() => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
-    router.push("/playground/play-vs-ai");
-  }, [router]);
+    requestLeave("leave", () => {
+      if (typeof window !== "undefined" && window.history.length > 1) {
+        router.back();
+        return;
+      }
+      router.push("/playground/play-vs-ai");
+    });
+  }, [router, requestLeave]);
+  const handleBackToLobby = useCallback(() => {
+    requestLeave("leave", () => router.push("/playground/play-vs-ai"));
+  }, [router, requestLeave]);
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
   const { isMember, isMemberMonthly, token } = useProfileStore();
@@ -546,6 +561,7 @@ export default function PlayingPage() {
 
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
+  const hasMoved = game.history().length > 0;
   const containerRef = useRef<HTMLDivElement>(null);
   const movementDetailsRef = useRef<HTMLDivElement>(null);
   const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
@@ -772,6 +788,14 @@ export default function PlayingPage() {
     clearOldJobs();
     restorePollingJobs();
   }, [clearOldJobs, restorePollingJobs]);
+
+  useEffect(() => {
+    setLeaveGuardArmed(statusGame === "Ongoing" && !isTutorialPlay && hasMoved);
+    return () => {
+      setLeaveGuardArmed(false);
+      dismissLeaveGuard();
+    };
+  }, [statusGame, isTutorialPlay, hasMoved, setLeaveGuardArmed, dismissLeaveGuard]);
 
   // Check if analysis exists for this game
   useEffect(() => {
@@ -1847,6 +1871,10 @@ export default function PlayingPage() {
     setLoserColor(losserColorLocal);
   };
 
+  const requestResign = () => {
+    openLeaveGuard("resign", handleResign);
+  };
+
   const handleAnalyzeGame = () => {
     if (!isMember && !isMemberMonthly && token.balance <= 0) {
       setOpenPricing(true);
@@ -2834,6 +2862,13 @@ export default function PlayingPage() {
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white gap-4">
       {!isTutorialPlay && <GameEndStatus gameStatus={statusGame.toLowerCase()} />}
+      {leaveGuard && (
+        <PlayVsAiLeaveGuardModal
+          type={leaveGuard.type}
+          onCancel={dismissLeaveGuard}
+          onConfirm={confirmLeaveGuard}
+        />
+      )}
       {confirmAction && (
         <PlayVsAiConfirmModal
           type={confirmAction}
@@ -2967,7 +3002,7 @@ export default function PlayingPage() {
       <div className="flex flex-col w-full gap-y-2 ">
         {/* <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none"> */}
         <div className="hidden flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none">
-          <button onClick={() => router.push("/playground/play-vs-ai")}>
+          <button onClick={handleBackToLobby}>
             <ArrowLeft color="black" size={24} />
           </button>
 
@@ -3299,7 +3334,8 @@ export default function PlayingPage() {
               <ButtonPlaying
                 handleHint={requestHint}
                 handleNewGame={handleNewGame}
-                handleResign={handleResign}
+                handleResign={requestResign}
+                canResign={hasMoved}
                 myColor={myColor}
                 currentTurn={currentTurn}
                 bestLine={bestLine}
@@ -3459,7 +3495,7 @@ export default function PlayingPage() {
 
       <div className="hidden sm:block w-full">
         <div className="flex justify-start gap-[14px] mb-[16px] min-h-54px rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
-          <button onClick={() => router.push("/playground/play-vs-ai")}>
+          <button onClick={handleBackToLobby}>
             <ArrowLeft color="black" size={24} />
           </button>
 
@@ -3603,7 +3639,8 @@ export default function PlayingPage() {
                   <ButtonPlaying
                     handleHint={requestHint}
                     handleNewGame={handleNewGame}
-                    handleResign={handleResign}
+                    handleResign={requestResign}
+                    canResign={hasMoved}
                     myColor={myColor}
                     currentTurn={currentTurn}
                     bestLine={bestLine}
