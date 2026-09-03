@@ -29,7 +29,11 @@ export function useBrokenStreakModal() {
     useStreakStore.getState().setLastBrokenModalDate(today);
     openDayStreakModal({
       variant: "broken",
-      streak: status.currentStreak ?? 0,
+      // Always 0, not status.currentStreak: the status payload still carries
+      // the pre-break count (a 2-day streak that lapsed reports 2), and
+      // showing it made the modal say "Play 5 more days" instead of the
+      // "Start playing today - only 7 more days" copy a broken streak needs.
+      streak: 0,
     });
   }, [status, lastBrokenModalDate]);
 }

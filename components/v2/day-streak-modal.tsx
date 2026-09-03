@@ -102,11 +102,19 @@ export function DayStreakModal({
   const shellBg = tone?.shell ?? "bg-[#0E1E4B]";
   const fadeFrom = tone?.fade ?? "from-[#0E1E4B]";
 
-  const daysLeft = 7 - (streak % 7);
+  // A broken streak IS zero, whatever the caller passed. /v4/streaks/status
+  // keeps reporting the pre-break count (currentStreak: 2) while
+  // isStreakBroken(status) is already true, which is how this modal ended up
+  // reading "Your Streak Broke!" over a "2" with "Play 5 more days" — it took
+  // the streak-running copy branch below. Normalising here rather than only at
+  // the call site keeps every entry point (including ?streakDemo=broken&streak=N)
+  // correct by construction.
+  const shownStreak = variant === "broken" ? 0 : streak;
+  const daysLeft = 7 - (shownStreak % 7);
   
   const subtitle =
     variant === "celebration" || variant === "broken" ? (
-      streak <= 0 ? (
+      shownStreak <= 0 ? (
         <>
           Start playing today – only {daysLeft} more days
           <br />
@@ -161,7 +169,7 @@ export function DayStreakModal({
             less top padding the last chip sits under it and swallows it. */}
         <div className="px-[16px] sm:px-[20px] pt-[46px] sm:pt-[40px] relative z-10">
           <DayStreakChips
-            streak={streak}
+            streak={shownStreak}
             highlightNext={staticFlame === "off" || variant === "broken"}
           />
         </div>
@@ -227,7 +235,7 @@ export function DayStreakModal({
                 variant === "broken" ? "top-[120px]" : "top-[90px]"
               } bottom-0 z-10 flex items-center justify-center pointer-events-none text-white font-extrabold text-[48px] sm:text-[86px] leading-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]`}
             >
-              {streak}
+              {shownStreak}
             </motion.span>
           )}
           {variant === "reward" && title && (

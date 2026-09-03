@@ -25,6 +25,12 @@ interface ChessAccountSetupProps {
 
   open?: boolean;
   setOpen?: (open: boolean) => void;
+  /** Let this instance decide on its own to pop the connect dialog for a user
+   *  with no username. Pass false to make it purely controlled by `open`:
+   *  ChesscomPromoModalHost mounts it that way, because its own rule for the
+   *  auto-open case (`!hasUsername && !hasOnboardElo`) would otherwise force
+   *  the dialog *shut* for a promo user who already has an onboarding ELO. */
+  autoOpen?: boolean;
 }
 
 /** Feature flag for the "Analyze 5 games for free" promo (DialogAnalyzeFree)
@@ -38,6 +44,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
   isLoading = false,
   open = false,
   setOpen = () => {},
+  autoOpen = true,
 }) => {
   const { setUsername, setIsOpenTutorial } = usePgnStore();
   const { setCallFetch } = useProfileFetch();
@@ -140,7 +147,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
       shouldShow: isSignedIn && !hasUsername,
     });
 
-    if (!checkComplete || isLoading) {
+    if (!checkComplete || isLoading || !autoOpen) {
       return;
     }
 
@@ -154,7 +161,7 @@ const ChessAccountSetup: React.FC<ChessAccountSetupProps> = ({
     } else {
       setShowConnectDialog(false);
     }
-  }, [isSignedIn, hasUsername, checkComplete, isLoading, profile]);
+  }, [isSignedIn, hasUsername, checkComplete, isLoading, profile, autoOpen]);
 
   const handleConnectSuccess = async (username: string) => {
     setShowConnectDialog(false);

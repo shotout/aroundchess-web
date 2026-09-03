@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { formatNumber } from "@/components/v2/format-number";
+import { ShareRankButton } from "@/components/v2/share-rank-button";
 
 interface PlayVsAiTopStatsProps {
   elo: number;
@@ -99,6 +100,10 @@ export function PlayVsAiTopStats({ elo, rank, movedUp }: PlayVsAiTopStatsProps) 
           <span className="text-[14px] sm:text-[20px] font-bold text-[#9CA3AF]">—</span>
         )}
       </StatItem>
+
+      <div className="hidden sm:block">
+        <ShareRankButton />
+      </div>
     </div>
   );
 }

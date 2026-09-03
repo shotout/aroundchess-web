@@ -2,14 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
+import { useGameLeaveGuard } from "@/app/store/gameLeaveGuard";
 import { useProfileStore } from "@/app/store/profile";
 import { useHasPlayedToday } from "@/app/store/streak";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { ELO_INFO, RANK_INFO, MOVED_INFO } from "@/components/v2/stat-info-text";
 import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
 import { formatNumber } from "@/components/v2/format-number";
+import { ShareRankButton } from "@/components/v2/share-rank-button";
 
 interface PlayTopBarProps {
   streak: number;
@@ -232,8 +235,22 @@ export function PlayGreeting() {
   );
 }
 
+// Leaving a live game via the Leaderboard link has to go through the leave
+// guard, otherwise the player abandons the game without the warning.
+function useLeaderboardNav() {
+  const router = useRouter();
+  const leaveGuardArmed = useGameLeaveGuard((s) => s.armed);
+  const requestLeave = useGameLeaveGuard((s) => s.request);
+  return (e: React.MouseEvent) => {
+    if (!leaveGuardArmed) return;
+    e.preventDefault();
+    requestLeave("leaderboard", () => router.push("/leaderboard"));
+  };
+}
+
 export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining, isInactive }: PlayTopBarProps) {
   const [showEloModal, setShowEloModal] = useState(false);
+  const handleLeaderboardNav = useLeaderboardNav();
   // Flame lights up only when today's game is played — same rule as the
   // streak status modal's on/off flame.
   const hasPlayedToday = useHasPlayedToday();
@@ -273,6 +290,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
           />
           <Link
             href="/leaderboard"
+            onClick={handleLeaderboardNav}
             className="flex items-center gap-[4px] font-bold text-[16px] text-[#221AE9]"
           >
             <span>Leaderboard</span>
@@ -327,6 +345,11 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
               )}
             </MobileStatItem>
           </div>
+
+          <div className="mt-[10px] flex justify-center">
+            <ShareRankButton />
+          </div>
+
           {showJoinCover && leaderboardNote && (
             <p className="mt-[8px] text-center text-[11px] font-medium text-[#6B7280]">
               {leaderboardNote}
@@ -415,6 +438,8 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                   <span className="text-[18px] font-bold text-[#9CA3AF]">—</span>
                 )}
               </StatItem>
+
+              <ShareRankButton />
             </div>
             {showJoinCover && leaderboardNote && (
               <p className="text-center text-[12px] font-medium text-[#6B7280]">
@@ -426,6 +451,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
           {/* Leaderboard */}
           <Link
             href="/leaderboard"
+            onClick={handleLeaderboardNav}
             className="flex items-center gap-[8px] font-bold text-xl text-[#111827] hover:text-[#221AE9] transition-colors shrink-0"
           >
             <Image

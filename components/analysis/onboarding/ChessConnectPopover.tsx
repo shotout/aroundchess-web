@@ -48,11 +48,6 @@ export const ChessConnectDialog = ({
   const [username, setUsername] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [windowDimensions, setWindowDimensions] = useState({
-    width: typeof window !== "undefined" ? window.innerWidth : 1280,
-    height: typeof window !== "undefined" ? window.innerHeight : 800,
-  });
-
   const { sessionId } = useProfileStore();
   const { setUsername: setStoreUsername } = usePgnStore();
 
@@ -119,29 +114,6 @@ export const ChessConnectDialog = ({
       clearPlayerStats();
     }
   }, [open, clearPlayerStats]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const updateDimensions = () => {
-      setWindowDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateDimensions();
-    });
-
-    resizeObserver.observe(document.documentElement);
-    window.addEventListener("resize", updateDimensions);
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", updateDimensions);
-    };
-  }, []);
 
   const handleSave = async () => {
     setErrorMessage("");
@@ -232,15 +204,6 @@ export const ChessConnectDialog = ({
 
   if (!open) return null;
 
-  const isDesktop = windowDimensions.width >= 1280;
-  const sidebarWidth = isDesktop ? windowDimensions.width / 6 : 0;
-  const headerHeight = 72;
-  const headerHeightLg = 96;
-
-  const topOffset =
-    windowDimensions.width >= 1024 ? headerHeightLg : headerHeight;
-  const availableHeight = windowDimensions.height - topOffset - 32;
-
   const getInputRightIcon = () => {
     if (!username.trim() || username.trim().length < 3) return null;
 
@@ -270,7 +233,13 @@ export const ChessConnectDialog = ({
   };
 
   return (
-    /* z-[70], not z-[10]: at 10 this modal tied with the "Connect Chess.com
+    /* inset-0, not pinned to the content area: the dialog is centred on the
+       whole viewport and its black layer covers the sidebar and header too,
+       matching ChesscomPromoModal, which is what opens it in the promo flow.
+       It used to sit at top: header height / left: viewport/6, which left the
+       chrome un-dimmed and the card visibly off-centre.
+
+       z-[70], not z-[10]: at 10 this modal tied with the "Connect Chess.com
        Account" banner button on /profile and Game History, which carries
        `relative z-10` to sit above its own background art. Equal z-index is
        resolved by paint order, and the two engines disagreed — Safari drew the
@@ -278,21 +247,13 @@ export const ChessConnectDialog = ({
        appeared stacked over the dialog's Save button. 70 clears the page, the
        sidebar and the header (z-50/z-60) outright. */
     <div
-      className="fixed bg-black/50 z-[70] flex items-center justify-center p-4 top-0 left-0 right-0 bottom-0"
-      style={{
-        top: topOffset,
-        left: sidebarWidth,
-        right: 0,
-        bottom: 0,
-      }}
+      className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4"
       onClick={() => onOpenChange(false)}
     >
       <div
-        className="w-full mx-auto rounded-md bg-white overflow-hidden md:w-[640px] xl:w-[600px] flex flex-col relative"
-        style={{
-          maxHeight: Math.min(availableHeight, windowDimensions.height * 0.9),
-          height: "auto",
-        }}
+        /* sm:w-[550px]: step 2 of the flow keeps the same footprint as the
+           ChesscomPromoModal that opens it (both 550 wide in the mockup). */
+        className="w-full mx-auto rounded-md bg-white overflow-hidden sm:w-[550px] max-h-[90vh] flex flex-col relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -303,8 +264,10 @@ export const ChessConnectDialog = ({
           <X className="w-5 h-5" />
         </button>
         <div className="flex-1 overflow-y-auto">
-          <div className="w-full flex items-center justify-center p-2 2xl:p-4">
-            <div className="w-full relative h-24 sm:h-32 md:h-40">
+          {/* Uniform padding: the old 2xl:p-4 made the card 16px taller on
+              >=1536px screens than the mockup's 452. */}
+          <div className="w-full flex items-center justify-center p-2">
+            <div className="w-full relative h-[86px] sm:h-[100px]">
               <Image
                 src="/icons/onboarding-popup.png"
                 alt="Chess.com Connection"
@@ -316,7 +279,7 @@ export const ChessConnectDialog = ({
 
           <div className="w-full p-4 md:p-6">
             <div className="flex flex-col gap-y-1">
-              <h2 className="text-[18px] md:text-2xl font-bold text-center">
+              <h2 className="text-[18px] sm:text-[20px] font-bold text-center">
                 Connect your Chess.com Account
               </h2>
               <p className="text-center text-[14px] --xs md:text-base text-black">
@@ -332,24 +295,21 @@ export const ChessConnectDialog = ({
             </div>
 
             <div className="mt-4 space-y-4">
-              {/* Field labels are dropped on mobile (mockup) — the placeholders
-                  already say what each field is. */}
-              <div className="hidden sm:flex items-center gap-x-2">
+              {/* No field labels at any width — the mockup drops both, and the
+                  placeholders already say what each field is. The knight that
+                  used to sit beside the "Chess.com Username" label now rides
+                  inside the input itself. */}
+              <div className="relative">
                 <Image
                   src={"/my-game-history/knight.png"}
                   width={18}
                   height={18}
-                  alt="knight icon"
+                  alt=""
+                  className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
                 />
-                <p className="text-[14px] text-left text-gray-700">
-                  Chess.com Username
-                </p>
-              </div>
-
-              <div className="relative">
                 <Input
                   placeholder="Enter your Chess.com Username"
-                  className="w-full h-12 px-4 pr-10 rounded-lg border-light-60 bg-[#F2FBFE]"
+                  className="w-full h-12 sm:h-10 pl-10 pr-10 rounded-lg border-light-60 bg-[#F2FBFE]"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -360,10 +320,6 @@ export const ChessConnectDialog = ({
                 </div>
               </div>
 
-              <div className="hidden sm:flex items-center gap-x-2">
-                <p className="text-[14px] text-left text-gray-700">Game Type</p>
-              </div>
-
               <Select
                 value={selectedGameType || ""}
                 onValueChange={handleGameTypeChange}
@@ -371,7 +327,7 @@ export const ChessConnectDialog = ({
                   isSubmitting || !storeUsername || gameTypesData.length === 0
                 }
               >
-                <SelectTrigger className="w-full h-12 px-4 rounded-lg border-light-60 bg-[#F2FBFE]">
+                <SelectTrigger className="w-full h-12 sm:h-10 px-4 rounded-lg border-light-60 bg-[#F2FBFE]">
                   <SelectValue
                     placeholder={
                       storeUsername
@@ -380,7 +336,14 @@ export const ChessConnectDialog = ({
                     }
                   />
                 </SelectTrigger>
-                <SelectContent>
+                {/* z-[80]: the SelectContent portals to <body>, so it stacks
+                    against this dialog's own z-[70] overlay rather than inside
+                    it. At shadcn's default z-50 the list rendered *behind* the
+                    white modal panel — only the last one or two options peeked
+                    out below the card, so the dropdown read as "not showing".
+                    Radix Popper copies the content's computed z-index onto its
+                    positioning wrapper, so setting it here is enough. */}
+                <SelectContent className="z-[80]">
                   {gameTypesData.map((gameData) => (
                     <SelectItem
                       key={gameData.game_type}
@@ -397,7 +360,7 @@ export const ChessConnectDialog = ({
               )}
 
               <button
-                className="w-full h-12 btn-primary text-white font-medium rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-12 sm:h-10 btn-primary text-white font-medium rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleSave}
                 disabled={
                   isSubmitting ||

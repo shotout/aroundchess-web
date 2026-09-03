@@ -13,6 +13,7 @@ import { LeaderboardJoinModal } from "@/components/v2/leaderboard-join-modal";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
 import { useApiClient } from "@/functions/api-client";
+import { ShareRankButton } from "@/components/v2/share-rank-button";
 
 const PLACEHOLDER_SCORES = [2710, 2680, 2680, 2680, 2680, 2710, 2680, 2680, 2680, 2680];
 
@@ -397,6 +398,7 @@ export function LeaderboardPage() {
                 className="w-[36px] h-[36px] object-contain shrink-0"
               />
               <h1 className="font-extrabold text-[22px] text-[#111827]">Leaderboard</h1>
+              <ShareRankButton className="ml-auto" />
             </div>
 
             <div className="bg-white sm:bg-[#E6F7FE] sm:bg-[url('/images/v2/leaderboard/background.png')] bg-no-repeat bg-cover bg-center p-3 sm:p-7 rounded-3xl">
