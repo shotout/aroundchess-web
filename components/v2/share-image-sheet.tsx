@@ -9,7 +9,6 @@ import {
   shareCardImageUrl,
   shareCardMeta,
   shareCardUrl,
-  shareMessage,
   type ShareCardSpec,
 } from "@/components/v2/share-link";
 
@@ -26,8 +25,19 @@ interface Network {
    * Targets the app deliberately shares without a caption: Instagram (Stories
    * has nowhere to put one) and Facebook (`shareToFacebookApp()` attaches
    * none — Meta's policy forbids pre-filled text and the SDK drops it).
+   *
+   * DESKTOP ONLY. The mobile native-share path passes the caption to every
+   * target — see the navigator.share call.
    */
   noCaption?: boolean;
+  /**
+   * Targets that get the caption WITHOUT the /s link appended. WhatsApp shows a
+   * bare URL as a link-preview card next to the image that is already being
+   * sent, so the link is noise there — the caption alone reads better. Applies
+   * to both paths: the text handed to navigator.share on mobile, and the
+   * prefilled `?text=` on desktop.
+   */
+  noLink?: boolean;
   web: (caption: string, url: string) => string;
 }
 
@@ -39,7 +49,7 @@ const SHARE_FILE_NAME = "aroundchess.png";
 // The mobile app sends the bare message with no link — it has no shareable web
 // URL to attach. The web build appends the /s link because that is the only way
 // a recipient can open the card; set this to false for captions byte-identical
-// to the app's.
+// to the app's. Individual targets opt out with `noLink` (see WhatsApp).
 const INCLUDE_SHARE_LINK = true;
 
 const NETWORKS: Network[] = [
@@ -55,6 +65,7 @@ const NETWORKS: Network[] = [
     id: "whatsapp",
     label: "WhatsApp",
     icon: "/images/v2/play-vs-ai/Icon-whatsapp.png",
+    noLink: true,
     web: (caption) => `https://wa.me/?text=${encodeURIComponent(caption)}`,
   },
   {
@@ -94,16 +105,6 @@ function download(blob: Blob, fileName: string) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
-}
-
-async function copyText(value: string): Promise<boolean> {
-  try {
-    if (!navigator.clipboard?.writeText) return false;
-    await navigator.clipboard.writeText(value);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 async function copyImage(blob: Blob, caption?: string): Promise<boolean> {
@@ -244,25 +245,30 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
 
   const shareTo = async (network: Network) => {
     if (!blob) return;
-    const { title } = meta.current;
+    // Both halves come from the same shareCardMeta() call as the card itself:
+    // `text` describes what actually happened ("I just won against Lisa … my
+    // ELO is now 412 (+12)."), where the old shareMessage() was a fixed
+    // "My game on AroundChess" for every result. Deliberately no longer
+    // byte-identical to the RN app's single `message` arg.
+    const { title, text: message } = meta.current;
     const url = shareCardUrl(specRef.current, window.location.origin);
     const story = !!network.story;
-    // One caption for every target, matching the app's single `message` arg.
-    const message = shareMessage(specRef.current);
-    const caption = INCLUDE_SHARE_LINK ? `${message} ${url}` : message;
+    const caption =
+      INCLUDE_SHARE_LINK && !network.noLink ? `${message} ${url}` : message;
     const target = network.web(caption, url);
 
     const file = shareableFile(blob, SHARE_FILE_NAME);
     if (file) {
-      // Closest thing the web has to `shareSingle({url, type, message})`: the
-      // image always rides along, and the two targets the app shares
-      // caption-free stay caption-free here.
+      // Closest thing the web has to `shareSingle({url, type, message})`.
+      // The caption rides along for EVERY target here, `noCaption` included:
+      // that flag mirrors the RN app, where Stories has nowhere to put text and
+      // Meta's SDK drops a prefilled Facebook caption. Through the OS share
+      // sheet the text is just part of the payload the user is sending — apps
+      // that can't use it ignore it (Instagram Stories), and the ones that can
+      // (Feed, Direct, WhatsApp) prefill it. `noCaption` still governs the
+      // desktop clipboard below, where nothing is going to ignore it for us.
       try {
-        await (navigator as any).share(
-          network.noCaption
-            ? { files: [file] }
-            : { files: [file], title, text: caption }
-        );
+        await (navigator as any).share({ files: [file], title, text: caption });
         if (story) toast("In Instagram, tap Story — your card is the background.");
         return;
       } catch (err) {
@@ -271,34 +277,50 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     }
 
     if (story) {
-      // No share sheet, so the card has to reach Instagram through the camera
-      // roll: the Stories editor only accepts a file handed over by Meta's
-      // native sharing API (pasteboard stickers on iOS, a content:// intent on
-      // Android), and neither is reachable from a web page.
+      // No share sheet, so the card can't be handed to the Stories editor
+      // directly — that needs Meta's native sharing API (pasteboard stickers on
+      // iOS, a content:// intent on Android), neither of which a web page can
+      // reach. So the card goes on the CLIPBOARD to be pasted, and only falls
+      // back to a download if the clipboard is unavailable. Nothing lands in
+      // the downloads folder while the copy succeeds.
       //
-      // The app's fallback is a FEED share, which does carry `message` — so
-      // unlike the Stories path above, this one keeps the caption, on the
-      // clipboard where the feed composer can take it.
-      const copiedCaption = await copyText(caption);
-      const hint = copiedCaption ? " Caption copied." : "";
+      // copyImage writes image/png AND text/plain as one item, so a single
+      // paste yields the card wherever images are accepted and the caption
+      // wherever text is. (The app's own fallback here is a FEED share, which
+      // does carry the message — hence the caption.)
+      const copied = await copyImage(blob, caption);
 
       if (isIOS()) {
-        // A blob download lands in Files, not Photos, so the story camera's
-        // picker would never see it — pressing the preview is the only route
-        // into the camera roll from here.
         toast(
-          `Press and hold the image above → Save to Photos, then open Instagram › Story.${hint}`
+          copied
+            ? "Image copied — open Instagram and paste it in."
+            : // A blob download lands in Files, not Photos, so the story
+              // camera's picker would never see it — pressing the preview is
+              // the only route into the camera roll from here.
+              "Press and hold the image above → Save to Photos, then open Instagram › Story."
         );
         return;
       }
 
-      const fresh = saveOnce();
-      const state = fresh ? "Image saved" : "Image already in your downloads";
+      // saveOnce() only runs when the clipboard refused (no ClipboardItem, an
+      // insecure context, or a denied permission) — otherwise the user asked
+      // for a paste, not a file.
+      const fresh = copied ? false : saveOnce();
+      const state = copied
+        ? "Image copied"
+        : fresh
+          ? "Image saved"
+          : "Image already in your downloads";
+
       if (isMobile()) {
-        // Android indexes downloads into MediaStore, so the card turns up in
-        // the story camera's gallery picker.
         openApp(INSTAGRAM_STORY_APP, target);
-        toast(`${state} — pick it in the story camera.${hint}`);
+        toast(
+          copied
+            ? `${state} — paste it in the story camera.`
+            : // Android indexes downloads into MediaStore, so the card turns up
+              // in the story camera's gallery picker.
+              `${state} — pick it in the story camera.`
+        );
       } else {
         // The composer has no linkable route — /create/* is read as a username
         // on a cold load — so the home feed is the closest safe landing spot.
@@ -306,7 +328,11 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
           toast(`Could not open ${network.label}.`);
           return;
         }
-        toast(`${state} — upload it via Create › Post.${hint}`);
+        toast(
+          copied
+            ? `${state} — paste it into Instagram, or use Save if it won't take a paste.`
+            : `${state} — upload it via Create › Post.`
+        );
       }
       return;
     }

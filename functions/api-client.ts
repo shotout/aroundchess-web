@@ -309,6 +309,20 @@ export function useApiClient() {
     [apiRequest]
   );
 
+  /** Partial profile update. Routed through the local app/api/profile proxy
+   *  for the same reason updateProfileUsername is: the backend's CORS config
+   *  rejects a PATCH sent straight from the browser. */
+  const updateProfile = useCallback(
+    (body: Record<string, unknown>) => {
+      return apiRequest({
+        method: "PATCH",
+        path: `/api/profile`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+
   const checkUsernameAvailability = useCallback(
     (username: string) => {
       return apiRequest({
@@ -871,6 +885,7 @@ export function useApiClient() {
     setUsername,
     profile,
     updateProfileUsername,
+    updateProfile,
     checkUsernameAvailability,
     uploadProfilePicture,
     analyze,
