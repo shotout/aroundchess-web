@@ -749,8 +749,23 @@ export default function PlayingPage() {
 
   const LOCAL_STORAGE_KEY = "vs-ai-current-game";
 
+  /** `vs-ai-<name>-<elo>-` — the prefix every gameId for this matchup carries.
+   *  currentGameId is only ever set when a board is actually built, so it says
+   *  which opponent the position in `game` belongs to. */
+  const matchupPrefix = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-`;
+
   const saveGameState = useCallback(() => {
     if (!isGameInitialized.current) return;
+    // Never relabel a game that belongs to a different matchup.
+    //
+    // Picking a new opponent updates AIChoosed immediately, but the board is
+    // rebuilt by the [AIChoosed] effect further down the file — which React
+    // runs AFTER this one in the same commit, because effects fire in
+    // declaration order. So without this guard the previous opponent's PGN and
+    // gameId got written out stamped with the NEW opponent's name and elo, and
+    // the restore check below then accepted that snapshot as "the same
+    // matchup" and reloaded the old game — headers and all.
+    if (currentGameId && !currentGameId.startsWith(matchupPrefix)) return;
     if (typeof window !== "undefined") {
       const state = {
         pgn: game.pgn(),
@@ -762,7 +777,7 @@ export default function PlayingPage() {
       };
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
     }
-  }, [game, AIChoosed, statusGame, currentGameId]);
+  }, [game, AIChoosed, statusGame, currentGameId, matchupPrefix]);
 
   // Create game object from PGN with stable ID using useMemo
   const gameFromPgn = useMemo(() => {
@@ -1709,7 +1724,13 @@ export default function PlayingPage() {
           } else if (
             parsed.aiName === AIChoosed.opponent.name &&
             parsed.elo === AIChoosed.opponent.elo &&
-            parsed.myColor === AIChoosed.color
+            parsed.myColor === AIChoosed.color &&
+            // aiName/elo describe whoever last wrote the snapshot, so they
+            // cannot on their own prove the PGN is this matchup's. The gameId
+            // was minted when the board was built, so it can. Snapshots from
+            // before gameId was stored are accepted on the old test alone.
+            (typeof parsed.gameId !== "string" ||
+              parsed.gameId.startsWith(matchupPrefix))
           ) {
             console.log("🔄 [DEBUG] Restoring ongoing game from localStorage");
 

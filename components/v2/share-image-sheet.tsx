@@ -253,8 +253,14 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     // the URL is the trigger, not the caption. The caption is not really lost
     // though: /s sets og:description to the same sentence, so it reappears
     // inside the link's preview card along with the image.
+    // "\u{1F449} <url>" on its own line: the arrow is part of the copy the
+    // captions were written around. Facebook is excluded via `noLink` because
+    // it carries the link in its own `u` parameter — appending a bare arrow
+    // with nothing after it would be worse than no line at all.
     const caption =
-      INCLUDE_SHARE_LINK && !network.noLink ? `${message}\n\n${url}` : message;
+      INCLUDE_SHARE_LINK && !network.noLink
+        ? `${message}\n\n\u{1F449} ${url}`
+        : message;
     const target = network.web(caption, url);
 
     const file = shareableFile(blob, SHARE_FILE_NAME);

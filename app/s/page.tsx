@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import Link from "next/link";
+import { RedirectHome } from "./redirect-home";
 import {
   parseShareCardSpec,
   shareCardMeta,
@@ -87,40 +87,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function SharePage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const spec = parseShareCardSpec(await searchParams);
-  const origin = await siteOrigin();
-  const meta = spec ? shareCardMeta(spec) : null;
-
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-[28px] bg-white px-[20px] py-[48px]">
-      {spec && (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={cardImage(spec, origin)}
-          alt={meta?.title ?? FALLBACK.title}
-          /* Real dimensions, not a hard-coded 1200x630: the cards are portrait
-             now, and declaring the old landscape aspect squashed them. */
-          width={shareCardSize(spec).w}
-          height={shareCardSize(spec).h}
-          className="h-auto w-full max-w-[420px] rounded-3xl border border-[#E5E7EB]"
-        />
-      )}
-
-      <p className="max-w-[620px] text-center text-[18px] text-[#374151]">
-        {meta?.text ?? FALLBACK.text}
-      </p>
-
-      <Link
-        href="/play"
-        className="rounded-full bg-[#221AE9] px-[36px] py-[14px] text-[16px] font-semibold text-white"
-      >
-        Play on AroundChess
-      </Link>
-    </main>
-  );
+export default async function SharePage() {
+  /* Nothing is rendered for people. The card and the caption live in the
+     metadata above, which is what the messaging apps unfurl; a visitor who
+     taps the link wants the site, not a picture of the card they were just
+     shown. See RedirectHome for why this is not a server redirect(). */
+  return <RedirectHome />;
 }

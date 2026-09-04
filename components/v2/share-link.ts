@@ -1,4 +1,4 @@
-import { formatEloDelta, formatNumber } from "@/components/v2/format-number";
+import { formatNumber } from "@/components/v2/format-number";
 
 export type GameResult = "win" | "lose" | "draw";
 
@@ -168,6 +168,29 @@ export function shareCardSize(spec: ShareCardSpec): { w: number; h: number } {
   return { w: 1080, h: spec.opponentName ? 1349 : 1281 };
 }
 
+/**
+ * Message body for each game result. The share URL is NOT part of these — the
+ * share sheet appends it, because Facebook takes the link in its own `u`
+ * parameter and must not also get one in the text (see `noLink`).
+ *
+ * Blank lines are intentional; see the note in shareCardMeta about how they
+ * read as og:description versus in a composer.
+ */
+const RESULT_CAPTION: Record<"win" | "lose" | "draw", string> = {
+  win: [
+    "\u{1F525} I beat the AI on AroundChess!",
+    "Your turn. Can you do better? \u265F\uFE0F\nPlay against 70+ AI opponents and prove it!",
+  ].join("\n\n"),
+  lose: [
+    "\u265F\uFE0F I just played against an AI on AroundChess\u2026 and lost! \u{1F605}",
+    "Think you can do better? Challenge the AI, get your Elo and see how high you can climb! \u{1F3C6}",
+  ].join("\n\n"),
+  draw: [
+    "\u{1F91D} It\u2019s a draw! The AI couldn\u2019t beat me - but I couldn\u2019t beat it either. \u{1F605}",
+    "Can you do better? Challenge the AI and see what Elo you can reach! \u265F\uFE0F",
+  ].join("\n\n"),
+};
+
 export function shareCardMeta(spec: ShareCardSpec): {
   fileName: string;
   title: string;
@@ -176,13 +199,13 @@ export function shareCardMeta(spec: ShareCardSpec): {
   if (spec.kind === "result") {
     const outcome =
       spec.result === "win" ? "won" : spec.result === "lose" ? "lost" : "drew";
-    const against = spec.opponentName ? ` against ${spec.opponentName}` : "";
     return {
       fileName: `aroundchess-${spec.result}.png`,
       title: `I ${outcome} on AroundChess`,
-      text: `I just ${outcome}${against} on AroundChess — my ELO is now ${Math.round(
-        spec.elo
-      )} (${formatEloDelta(spec.delta)}).`,
+      // Deliberately generic: the opponent, the ELO and the delta are all on
+      // the card image itself, so the words invite a challenge instead of
+      // repeating the numbers.
+      text: RESULT_CAPTION[spec.result],
     };
   }
   return {
@@ -192,8 +215,14 @@ export function shareCardMeta(spec: ShareCardSpec): {
     // (verified) but arrives at WhatsApp stripped down to just the URL, and a
     // bare ' two characters in is the classic thing a naive quote-parser
     // truncates on. Typographically correct anyway.
-    text: `I\u2019m ${formatNumber(spec.rank)}${ordinalSuffix(
-      spec.rank
-    )} on the AroundChess leaderboard with an ELO of ${spec.elo}.`,
+    //
+    // Blank lines are deliberate: this doubles as og:description, where
+    // crawlers collapse the whitespace, and as the message body in the share
+    // sheet, where the three beats read as separate lines.
+    text: [
+      `\u{1F3C6} I\u2019m #${formatNumber(spec.rank)} on the AroundChess leaderboard with an Elo of ${spec.elo}.`,
+      `Think you can beat me? \u{1F440}`,
+      `Challenge the AI, get your Elo and see where you rank!`,
+    ].join("\n\n"),
   };
 }
