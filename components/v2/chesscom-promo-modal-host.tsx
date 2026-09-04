@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { ChesscomPromoModal } from "@/components/v2/chesscom-promo-modal";
 import { useChesscomConnect } from "@/components/v2/hooks/useChesscomConnect";
@@ -18,13 +19,144 @@ const MAX_SHOWS = 5;
 const SHOW_DELAY_MS = 1200;
 
 /** The cookie bar is `fixed bottom-0 z-[2000]`, so while it is up it covers the
- *  promo's CTA outright on a narrow screen. It has no store to subscribe to —
- *  CookieConsent keeps its own local state off this key — so read the key and
- *  hold the promo back until it is answered. Accepting reloads the page
- *  (see acceptCookies), which re-runs this gate. */
+ *  promo's CTA outright on a narrow screen — hold the promo back until it is
+ *  answered. Accepting reloads the page (see acceptCookies), re-running this.
+ *
+ *  Detected by its element, NOT by the `cookiesConsent` key. CookieConsent is
+ *  rendered by the site footer, and the dashboard has no footer: on the one page
+ *  the promo is allowed to open, that key is never set and never can be, so
+ *  reading it held the promo back permanently. */
 const isCookieBarUp = () => {
   try {
-    return !localStorage.getItem("cookiesConsent");
+    return Boolean(document.querySelector("[data-cookie-consent-bar]"));
+  } catch {
+    return false;
+  }
+};
+
+/** Modal-tier z-index. Page chrome sits at z-50/60 and the promo's own connect
+ *  dialog at z-70, so this clears them while catching the real overlays:
+ *  AnalyzeGameFreePopup z-460, DayStreakModal z-500, the playground tour z-700. */
+const OVERLAY_MIN_Z = 100;
+
+/**
+ * Is another modal already holding the screen?
+ *
+ * The promo lives in the root layout, so it cannot see page-local state — the
+ * play page keeps AnalyzeGameFreePopup's visibility in its own useState and
+ * passes it down as `suppressed` to the tour and the streak trigger. The promo
+ * had no such wire, which is how it ended up stacked on top of that popup.
+ *
+ * The promo's own overlay carries `data-chesscom-promo` and is skipped, so this
+ * can also be used to spot a rival arriving while the promo is already up —
+ * without the promo detecting itself.
+ *
+ * Rather than enumerate every overlay and miss the next one, look for the shape
+ * they all share: a visible, near-full-viewport element at modal z. Both
+ * `fixed` AND `absolute` count — AnalyzeGameFreePopup is `absolute inset-0
+ * z-[460]` inside the play page's relative wrapper, and checking only `fixed`
+ * is precisely why it slipped through the first version of this guard. The
+ * size test is the real discriminator: the cookie bar is fixed and z-2000 but
+ * only a strip, so it is skipped here and has its own gate below.
+ */
+export const anotherModalIsOpen = (): boolean => {
+  try {
+    // Array.from, not for..of over the NodeList: this tsconfig targets below
+    // es2015 and NodeList iteration needs downlevelIteration.
+    const els = Array.from(
+      document.querySelectorAll<HTMLElement>("div,section,aside")
+    );
+    for (const el of els) {
+      // Not the promo's own overlay, or it would see itself as the intruder.
+      if (el.closest?.("[data-chesscom-promo]")) continue;
+      const style = getComputedStyle(el);
+      if (style.position !== "fixed" && style.position !== "absolute") continue;
+      if (style.visibility === "hidden" || style.display === "none") continue;
+      const z = Number.parseInt(style.zIndex, 10);
+      if (!Number.isFinite(z) || z < OVERLAY_MIN_Z) continue;
+      const rect = el.getBoundingClientRect();
+      if (
+        rect.width >= window.innerWidth * 0.9 &&
+        rect.height >= window.innerHeight * 0.9
+      ) {
+        return true;
+      }
+    }
+    return false;
+  } catch {
+    return false;
+  }
+};
+
+/** The promo opens on the dashboard only — the screen a returning player lands
+ *  on, and where connecting an account actually leads somewhere. `/play` is a
+ *  re-export of the playground page, so both paths are the same screen. The
+ *  marketing homepage at `/` is deliberately not on this list. */
+const DASHBOARD_PATHS = ["/play", "/playground/play-vs-ai"];
+
+const isDashboard = (pathname: string | null): boolean => {
+  if (!pathname) return false;
+  const clean = pathname.replace(/\/+$/, "") || "/";
+  return DASHBOARD_PATHS.includes(clean);
+};
+
+const FIRST_VISIT_KEY = "ac_chesscom_promo_first_visit";
+const VISIT_KEY = "ac_visit_id";
+
+/** This visit's id, minted on first call and stable for the rest of it.
+ *  sessionStorage is the right granularity: it survives client-side navigation
+ *  and a reload, but not closing the site and coming back. */
+const currentVisitId = (): string | null => {
+  try {
+    let visit = sessionStorage.getItem(VISIT_KEY);
+    if (!visit) {
+      visit = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      sessionStorage.setItem(VISIT_KEY, visit);
+    }
+    return visit;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Records that a signed-in visit has happened, so a later one can tell it isn't
+ * the first.
+ *
+ * Called as soon as the user is known to be signed in — deliberately NOT from
+ * inside the gate. Claiming it there was a bug: a first visit spent on the
+ * tour, the cookie bar or the free-analysis popup returned early before ever
+ * claiming, so the SECOND visit became "the first" and the promo slipped one
+ * visit further back every time something else owned the screen.
+ */
+const claimFirstVisit = (): void => {
+  try {
+    const visit = currentVisitId();
+    if (visit && !localStorage.getItem(FIRST_VISIT_KEY)) {
+      localStorage.setItem(FIRST_VISIT_KEY, visit);
+    }
+  } catch {
+    // Storage blocked — isFirstVisit() then reads "not the first visit", which
+    // is the right way to fail: show the promo rather than hide it forever.
+  }
+};
+
+/**
+ * True while this is the browser's first signed-in visit.
+ *
+ * A freshly registered player already has the onboarding, the tour and the
+ * free-analysis popup to take in, so the promo waits until they come back
+ * rather than piling on.
+ *
+ * A pure read — claimFirstVisit() does the writing.
+ */
+const isFirstVisit = (): boolean => {
+  try {
+    const first = localStorage.getItem(FIRST_VISIT_KEY);
+    // Nothing claimed yet means claimFirstVisit() hasn't run (not signed in, or
+    // storage blocked) — don't hold the promo back on a guess.
+    if (!first) return false;
+    return first === currentVisitId();
   } catch {
     return false;
   }
@@ -105,6 +237,9 @@ const readDebugMode = (): PromoDebugMode => {
  * while a cached "due" is just a maybe, and has to be confirmed against the
  * server before one of the five showings is spent.
  *
+ * It opens on the dashboard only (see DASHBOARD_PATHS), and never on a new
+ * player's first visit — they come back to it.
+ *
  * The promo also waits for whatever else may own the screen (the playground
  * tour, the day-streak modal, the cookie-consent bar).
  *
@@ -117,15 +252,17 @@ const readDebugMode = (): PromoDebugMode => {
  *
  *   ?chesscomPromo=1      Design preview. Opens regardless of every gate and
  *                         never PATCHes, so it cannot burn one of the five.
- *   ?chesscomPromo=live   End-to-end run. Every real gate applies EXCEPT the
- *                         once-per-day check, and dismissing DOES PATCH — so
- *                         reload repeatedly to walk the count 1 → 5 and watch
- *                         the cap engage on the 6th.
+ *                         Works on any page.
+ *   ?chesscomPromo=live   End-to-end run on the dashboard. Every real gate
+ *                         applies EXCEPT the once-per-day check, and dismissing
+ *                         DOES PATCH — so reload repeatedly to walk the count
+ *                         1 → 5 and watch the cap engage on the 6th.
  *   ?chesscomPromo=why    Explains itself and shows nothing. Logs the cached
  *                         gate values, the fresh /profile values and which gate
  *                         blocked, under "[chesscomPromo]".
  */
 export function ChesscomPromoModalHost() {
+  const pathname = usePathname();
   const { profile, setProfile, sessionId, hydrated } = useProfileStore();
   const { updateProfile, profile: fetchProfile } = useApiClient();
   const tourActive = usePlaygroundTourActive();
@@ -153,13 +290,17 @@ export function ChesscomPromoModalHost() {
 
   /** Cheap negative filter, as a reason rather than a boolean so the `why`
    *  hook can report it — see the note on the component. */
-  const cachedBlocker: string | null = !hydrated
-    ? "store not hydrated yet"
-    : !sessionId
-      ? "not signed in"
-      : !isProfileLoaded(profile)
-        ? "profile not loaded yet"
-        : promoBlockedBy(profile);
+  const onDashboard = isDashboard(pathname);
+
+  const cachedBlocker: string | null = !onDashboard
+    ? `not on the dashboard (${pathname})`
+    : !hydrated
+      ? "store not hydrated yet"
+      : !sessionId
+        ? "not signed in"
+        : !isProfileLoaded(profile)
+          ? "profile not loaded yet"
+          : promoBlockedBy(profile);
 
   /** Something else is claiming the screen and the promo should wait. Read
    *  imperatively so it can be re-checked after the delay, not just at the
@@ -168,9 +309,16 @@ export function ChesscomPromoModalHost() {
     () =>
       tourActive ||
       Boolean(useDayStreakModal.getState().request) ||
-      isCookieBarUp(),
+      isCookieBarUp() ||
+      anotherModalIsOpen(),
     [tourActive]
   );
+
+  /** Mark this visit as soon as the user is known to be signed in, whatever
+   *  else is on screen and whatever page they are on — see claimFirstVisit(). */
+  useEffect(() => {
+    if (hydrated && sessionId && isProfileLoaded(profile)) claimFirstVisit();
+  }, [hydrated, sessionId, profile]);
 
   useEffect(() => {
     if (typeof window === "undefined" || shownRef.current) return;
@@ -181,13 +329,15 @@ export function ChesscomPromoModalHost() {
     // ?chesscomPromo=live re-runs the cached filter with the date gate dropped,
     // so a profile blocked only by "already shown today" still gets through.
     const blocker =
-      ignoreDate && hydrated && sessionId && isProfileLoaded(profile)
+      ignoreDate && onDashboard && hydrated && sessionId && isProfileLoaded(profile)
         ? promoBlockedBy(profile, { ignoreDate })
         : cachedBlocker;
 
     if (mode !== "preview" && mode !== "why" && (blocker || screenIsBusy())) {
       return;
     }
+    // Not on a new player's first visit — but the QA hooks still force it.
+    if (!mode && !blocker && isFirstVisit()) return;
 
     let cancelled = false;
 
@@ -222,7 +372,12 @@ export function ChesscomPromoModalHost() {
           blockedBy:
             freshBlocker ?? (busy ? "another modal owns the screen" : null),
           cachedBlocker: blocker,
+          onDashboard,
+          pathname,
           screenBusy: busy,
+          cookieBarUp: isCookieBarUp(),
+          anotherModalOpen: anotherModalIsOpen(),
+          firstVisit: isFirstVisit(),
           cached: {
             count: profile?.chesscomBannerShownCount,
             lastShownAt: profile?.chesscomBannerLastShownAt,
@@ -243,6 +398,13 @@ export function ChesscomPromoModalHost() {
 
       if (freshBlocker) return;
 
+      // Last-moment re-check. The /profile round trip above takes as long as
+      // the network takes, and the analyze popup and the streak modal both open
+      // from mount effects — so the reading taken before the await can be stale
+      // by the time we get here, which is how the promo ended up drawn on top
+      // of AnalyzeGameFreePopup.
+      if (screenIsBusy()) return;
+
       confirmedCountRef.current = Number(fresh.chesscomBannerShownCount ?? 0);
       shownRef.current = true;
       setVisible(true);
@@ -254,6 +416,8 @@ export function ChesscomPromoModalHost() {
     };
   }, [
     cachedBlocker,
+    onDashboard,
+    pathname,
     hydrated,
     profile,
     sessionId,
@@ -262,6 +426,37 @@ export function ChesscomPromoModalHost() {
     fetchProfile,
     screenIsBusy,
   ]);
+
+  /**
+   * While the promo is up, step aside for anything that claims the screen after
+   * it opened.
+   *
+   * Every pre-show check happens before a /profile round trip, and the
+   * day-streak modal opens off its own /streaks/status fetch — so a rival can
+   * arrive after the promo is already committed. They share z-[500], so nothing
+   * in the stacking order would separate them; the result is the two drawn on
+   * top of each other.
+   *
+   * Yielding deliberately does NOT record the showing, so the promo is still
+   * due next time rather than silently spending one of its five.
+   */
+  useEffect(() => {
+    if (!visible) return;
+
+    const yieldIfCrowded = () => {
+      if (anotherModalIsOpen()) setVisible(false);
+    };
+
+    yieldIfCrowded();
+    const observer = new MutationObserver(yieldIfCrowded);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "style", "hidden"],
+    });
+    return () => observer.disconnect();
+  }, [visible]);
 
   /** Records the showing. Optimistic locally so a slow PATCH or a stale
    *  /profile read can't pop the promo again in the same session. */

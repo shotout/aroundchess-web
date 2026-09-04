@@ -30,6 +30,21 @@ interface RequestOptions {
 // navigation reloading the app.
 let isSigningOut = false;
 
+/** True when a 401 is the backend saying the *session* is finished, rather than
+ *  this endpoint refusing this user.
+ *
+ *  The distinction matters because the two need opposite handling: a rotated
+ *  access token fixes an expiry, but nothing the client can do fixes a session
+ *  the backend has retired — so retrying it forever would leave the user
+ *  staring at an error with no route back to /login.
+ *
+ *  Matched loosely, and anything unrecognised keeps the safer report-only
+ *  behaviour: the exact wording ("Session expired or inactive, please login
+ *  again") belongs to the backend and may change. */
+const indicatesDeadSession = (message: unknown): boolean =>
+  typeof message === "string" &&
+  /session (?:has )?(?:expired|is inactive)|please log ?in again/i.test(message);
+
 export function useApiClient() {
   const router = useRouter()
   const { setIsLoading, isLoading } = useLoadingAPI();
@@ -139,9 +154,8 @@ export function useApiClient() {
           // Read the token at send time, not from the closure: a concurrent
           // request may have already refreshed it, and replaying with the stale
           // one would burn a second (rotated) refresh token needlessly.
-          let response = await sendWith(
-            useProfileStore.getState().sessionId || sessionId
-          );
+          const sentToken = useProfileStore.getState().sessionId || sessionId;
+          let response = await sendWith(sentToken);
 
           if (!response.ok) {
             const errorData = (await response.json().catch(() => ({}))) as any;
@@ -156,7 +170,11 @@ export function useApiClient() {
                 throw new Error("Session expired");
               }
 
-              const refreshed = await refreshSession();
+              // staleToken: the backend just refused this exact token, so the
+              // exchange must not hand it back on the strength of its own
+              // (still future) expiry claim — replaying it would 401 again and
+              // turn a renewable session into a dead end.
+              const refreshed = await refreshSession({ staleToken: sentToken });
 
               // Only an outright rejection ends the session. A transport
               // failure (offline, 5xx, a socket dropped on wake-from-sleep)
@@ -178,10 +196,19 @@ export function useApiClient() {
                   .json()
                   .catch(() => ({}))) as any;
 
-                // A 401 on a token we just minted isn't an expiry — it's this
-                // endpoint refusing the request (permissions, membership, …),
-                // so report it rather than destroying a valid session.
+                // A 401 on a token we just minted usually isn't an expiry —
+                // it's this endpoint refusing the request (permissions,
+                // membership, …) — so the default is to report it rather than
+                // destroying a session that still works.
                 if (retryError.statusCode === 401 || response.status === 401) {
+                  // Unless the backend is telling us the session itself is
+                  // over. A fresh access token cannot revive it, so end it
+                  // here instead of leaving the user in a 401 loop.
+                  if (indicatesDeadSession(retryError.message)) {
+                    handleSignOut();
+                    throw new Error("Session expired");
+                  }
+
                   throw new Error(
                     safeMessageFor(retryError.message, "Request not allowed")
                   );

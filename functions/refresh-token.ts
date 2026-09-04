@@ -15,7 +15,13 @@ import { setPersistedCookie } from "@/utils/persisted-cookie";
  *     rejection from the backend ("rejected") may end the session; a network
  *     error, a 5xx or a rate limit is "unavailable" — the session stays and the
  *     next request tries again.
- *  2. Refresh tokens are rotated by the backend — each one is good for a single
+ *  2. A token the backend has just refused is dead regardless of what its own
+ *     `exp` claim says — a session can be ended early (signed out elsewhere,
+ *     marked inactive, backend restarted). Callers reacting to a 401 pass that
+ *     token as `staleToken` so the "already usable" short-circuit can't hand it
+ *     straight back to them, which would replay the same refused token and
+ *     surface the expiry as a hard error with no way back.
+ *  3. Refresh tokens are rotated by the backend — each one is good for a single
  *     exchange — so concurrent refreshes must not each spend the token.
  *     `inFlight` shares one exchange within a tab, a Web Lock serialises tabs,
  *     and whatever another tab already stored is adopted before spending ours.
@@ -172,11 +178,18 @@ export function adoptStoredSession(): boolean {
   return true;
 }
 
-/** True when the store holds an access token with life left in it. */
-function hasUsableAccessToken(): boolean {
+/** True when the store holds an access token with life left in it.
+ *
+ *  `staleToken` is a token the caller has just had refused. The expiry claim is
+ *  only a hint about when the backend *will* stop accepting a token; a 401 is
+ *  proof that it already has, and it wins. Without this, a session ended early
+ *  by the backend can never be renewed: the short-circuit keeps returning the
+ *  refused token as "refreshed" until its clock-side expiry finally passes. */
+function hasUsableAccessToken(staleToken?: string): boolean {
   const { sessionId } = useProfileStore.getState();
   const expiry = currentTokenExpiry();
   if (!sessionId || !expiry) return false;
+  if (staleToken && sessionId === staleToken) return false;
   return Date.now() / 1000 < expiry - EXPIRY_SKEW_SECONDS;
 }
 
@@ -227,10 +240,10 @@ async function exchangeRefreshToken(
   return { status: "refreshed", token: payload.access_token };
 }
 
-async function runRefresh(): Promise<RefreshOutcome> {
+async function runRefresh(staleToken?: string): Promise<RefreshOutcome> {
   // Another tab may have rotated the token while we waited for the lock.
   adoptStoredSession();
-  if (hasUsableAccessToken()) {
+  if (hasUsableAccessToken(staleToken)) {
     return { status: "refreshed", token: useProfileStore.getState().sessionId };
   }
 
@@ -261,7 +274,7 @@ async function runRefresh(): Promise<RefreshOutcome> {
     // write a moment to land, then retry with whatever is stored now.
     await delay(ROTATION_RACE_GRACE_MS);
     adoptStoredSession();
-    if (hasUsableAccessToken()) {
+    if (hasUsableAccessToken(staleToken)) {
       return {
         status: "refreshed",
         token: useProfileStore.getState().sessionId,
@@ -297,15 +310,15 @@ function withCrossTabLock(
   });
 }
 
-/** Renew the access token, sharing one exchange between concurrent callers.
- *  Inspect `status` before ending a session — only "rejected" means the
- *  backend refused the refresh token. */
-export function refreshSession(): Promise<RefreshOutcome> {
+/** Start one exchange, or join the one already running. */
+function startRefresh(staleToken?: string): Promise<RefreshOutcome> {
+  // A peer that got in first is running an exchange that began *after* our
+  // rejection, so its result is good for us too.
   if (inFlight) return inFlight;
 
   // Never rejects: callers decide what to do about the session, and an
   // unexpected throw must not read as "the refresh token is dead".
-  const pending = withCrossTabLock(runRefresh).catch(
+  const pending = withCrossTabLock(() => runRefresh(staleToken)).catch(
     (error): RefreshOutcome => {
       console.error("Token refresh failed unexpectedly:", error);
       return { status: "unavailable" };
@@ -319,6 +332,33 @@ export function refreshSession(): Promise<RefreshOutcome> {
   });
 
   return pending;
+}
+
+/** Renew the access token, sharing one exchange between concurrent callers.
+ *  Inspect `status` before ending a session — only "rejected" means the
+ *  backend refused the refresh token.
+ *
+ *  Pass `staleToken` when reacting to a 401: it is the token that was refused,
+ *  and it stops the exchange handing that same token back as "refreshed". */
+export function refreshSession(
+  options: { staleToken?: string } = {}
+): Promise<RefreshOutcome> {
+  const { staleToken } = options;
+
+  // An exchange already in flight may have started *before* our token was
+  // refused, in which case it can settle by returning that very token. Wait
+  // for it — it might genuinely mint a new one — and only then insist on a
+  // real exchange.
+  if (inFlight && staleToken) {
+    const preceding = inFlight;
+    return preceding.then((outcome) =>
+      outcome.status === "refreshed" && outcome.token === staleToken
+        ? startRefresh(staleToken)
+        : outcome
+    );
+  }
+
+  return startRefresh(staleToken);
 }
 
 /** Back-compat wrapper: the new access token, or null when it could not be

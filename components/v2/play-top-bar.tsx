@@ -367,17 +367,17 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
       </div>
 
       {/* ── DESKTOP card ── */}
-      <div className="hidden sm:block bg-[linear-gradient(to_bottom,white,#E6F7FE)] rounded-xl border px-[35px] py-[14px] shadow-xl pb-5">
-        <div className="flex flex-wrap items-center gap-x-[24px] gap-y-[12px]">
+      <div className="hidden sm:block bg-[linear-gradient(to_bottom,white,#E6F7FE)] rounded-xl border px-[16px] min-[1600px]:px-[22px] py-[14px] shadow-xl pb-5">
+        <div className="flex flex-wrap items-center gap-x-[12px] min-[1600px]:gap-x-[14px] gap-y-[12px]">
           {/* Title + Streak */}
-          <div className="flex items-center gap-[16px] xl:gap-[30px] shrink-0 pt-2">
-            <span className="font-bold text-[clamp(24px,2vw,30px)] text-[#221AE9] whitespace-nowrap">
+          <div className="flex items-center gap-[10px] xl:gap-[14px] shrink-0 pt-2">
+            <span className="font-bold text-[clamp(18px,1.35vw,24px)] text-[#221AE9] whitespace-nowrap">
               Play VS AI
             </span>
             <button
               type="button"
               onClick={() => openDayStreakStatusModal(streak)}
-              className="flex items-center gap-[5px] pl-3 cursor-pointer"
+              className="flex items-center gap-[5px] cursor-pointer"
               aria-label="Show day streak"
             >
               <Image
@@ -396,12 +396,12 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
 
           {/* Stats — centered */}
           <div
-            className={`relative flex-1 min-w-[300px] flex flex-col items-center gap-[6px] rounded-md p-2 ${
+            className={`relative flex-1 min-w-[260px] flex flex-col items-center gap-[6px] rounded-md px-0 min-[1100px]:px-[6px] py-2 ${
               showJoinCover ? "bg-[#E5E7EB]" : "bg-white"
             } ${showFreezeCover ? "pb-[24px]" : ""}`}
           >
             {showFreezeCover && <StatsCover gamesRemaining={gamesRemaining} />}
-            <div className="flex flex-wrap items-center justify-center gap-x-[16px] xl:gap-x-[30px] gap-y-[6px]">
+            <div className="flex w-full flex-wrap items-center justify-between gap-x-[10px] min-[1600px]:gap-x-[14px] gap-y-[6px] px-0 min-[1100px]:px-[6px] min-[1600px]:px-[14px]">
               <StatItem icon="/images/v2/play/elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left" muted={showJoinCover}>
                 {showJoinCover ? (
                   <span className="text-[13px] font-semibold text-[#6B7280] whitespace-nowrap">Calibrating…</span>
@@ -452,14 +452,14 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
           <Link
             href="/leaderboard"
             onClick={handleLeaderboardNav}
-            className="flex items-center gap-[8px] font-bold text-xl text-[#111827] hover:text-[#221AE9] transition-colors shrink-0"
+            className="flex items-center gap-[6px] font-bold text-[17px] xl:text-lg text-[#111827] hover:text-[#221AE9] transition-colors shrink-0 whitespace-nowrap"
           >
             <Image
               src="/images/v2/play/leaderboard.png"
               alt="Leaderboard"
               width={48}
               height={44}
-              className="h-[44px] w-auto object-contain"
+              className="h-[34px] xl:h-[40px] w-auto object-contain"
             />
             Leaderboard
             <span className="text-[#221AE9] text-2xl leading-none">›</span>

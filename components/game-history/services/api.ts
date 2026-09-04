@@ -54,7 +54,14 @@ apiClient.interceptors.response.use(undefined, async (error) => {
     throw error;
   }
 
-  const refreshed = await refreshSession();
+  // The refused token is whatever the request interceptor actually attached,
+  // not the caller's captured copy.
+  const sentAuth = String(
+    (config.headers as Record<string, unknown> | undefined)?.Authorization ?? ""
+  );
+  const refreshed = await refreshSession({
+    staleToken: sentAuth.replace(/^Bearer\s+/i, "") || undefined,
+  });
 
   if (refreshed.status === "refreshed") {
     config._retriedAfterRefresh = true;
