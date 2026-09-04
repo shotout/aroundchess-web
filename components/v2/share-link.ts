@@ -50,7 +50,7 @@ export function shareCardParams(spec: ShareCardSpec): URLSearchParams {
   params.set("e", String(int(spec.elo)));
   params.set("p", String(int(spec.rank)));
   if (spec.totalPlayers != null) params.set("t", String(int(spec.totalPlayers)));
-  if (spec.avatarUrl) params.set("a", spec.avatarUrl);
+  if (spec.avatarUrl) params.set("a", packAvatar(spec.avatarUrl));
   return params;
 }
 
@@ -78,10 +78,25 @@ function name(value: string | undefined): string | undefined {
 const BLOCKED_AVATAR_HOST =
   /^(localhost$|127\.|10\.|192\.168\.|169\.254\.|\[?::1)/i;
 
+/** Every profile picture lives under this one prefix, and spelling it out in
+ *  the share URL cost ~130 characters — url-encoded into the link, then
+ *  encodeURIComponent'd again into `wa.me/?text=`, it ballooned a 60-character
+ *  share link past 270. Store just the object key and rebuild the URL on the
+ *  way out. Anything hosted elsewhere still round-trips in full. */
+const AVATAR_PREFIX = "https://aroundchess-news.s3.amazonaws.com/";
+
+function packAvatar(value: string): string {
+  return value.startsWith(AVATAR_PREFIX) ? value.slice(AVATAR_PREFIX.length) : value;
+}
+
+function unpackAvatar(value: string): string {
+  return /^https?:\/\//i.test(value) ? value : `${AVATAR_PREFIX}${value}`;
+}
+
 function avatar(value: string | undefined): string | null {
   if (!value) return null;
   try {
-    const url = new URL(value);
+    const url = new URL(unpackAvatar(value));
     if (url.protocol !== "https:") return null;
     if (BLOCKED_AVATAR_HOST.test(url.hostname)) return null;
     return url.toString();
@@ -149,7 +164,11 @@ export function shareCardMeta(spec: ShareCardSpec): {
   return {
     fileName: "aroundchess-leaderboard.png",
     title: "My AroundChess leaderboard standing",
-    text: `I'm ${formatNumber(spec.rank)}${ordinalSuffix(
+    // U+2019, not an ASCII apostrophe. The caption survives our code intact
+    // (verified) but arrives at WhatsApp stripped down to just the URL, and a
+    // bare ' two characters in is the classic thing a naive quote-parser
+    // truncates on. Typographically correct anyway.
+    text: `I\u2019m ${formatNumber(spec.rank)}${ordinalSuffix(
       spec.rank
     )} on the AroundChess leaderboard with an ELO of ${spec.elo}.`,
   };

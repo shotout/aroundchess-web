@@ -31,11 +31,26 @@ interface Network {
    */
   noCaption?: boolean;
   /**
-   * Targets that get the caption WITHOUT the /s link appended. WhatsApp shows a
-   * bare URL as a link-preview card next to the image that is already being
-   * sent, so the link is noise there — the caption alone reads better. Applies
-   * to both paths: the text handed to navigator.share on mobile, and the
-   * prefilled `?text=` on desktop.
+   * Targets that get the caption WITHOUT the /s link appended. Applies to both
+   * paths: the text handed to navigator.share on mobile, and the prefilled
+   * `?text=` on desktop.
+   *
+   * Nothing sets this today, and WhatsApp is the reason it exists — worth
+   * recording so it isn't switched back on by mistake.
+   *
+   * WhatsApp's prefilled share carries EITHER the caption OR a link in the
+   * MESSAGE TEXT, never both: append a URL and the composer arrives holding
+   * only that URL. Traced with curl — the text is intact through wa.me's 302,
+   * through api.whatsapp.com, and into the `web.whatsapp.com/send/?text=` it
+   * builds, so it is WhatsApp Web's own composer that drops it. Ruled out:
+   * link length, space vs `\n\n` separator, ASCII vs typographic apostrophe,
+   * wa.me vs api.whatsapp.com.
+   *
+   * The caption is NOT lost, though — it comes back inside the unfurl, because
+   * /s sets og:description to the same sentence. So the link wins: the
+   * recipient gets a preview card carrying the card image, the title AND the
+   * caption, with no paste required. Dropping the link would trade all of that
+   * for one line of plain text.
    */
   noLink?: boolean;
   web: (caption: string, url: string) => string;
@@ -65,8 +80,13 @@ const NETWORKS: Network[] = [
     id: "whatsapp",
     label: "WhatsApp",
     icon: "/images/v2/play-vs-ai/Icon-whatsapp.png",
-    noLink: true,
-    web: (caption) => `https://wa.me/?text=${encodeURIComponent(caption)}`,
+    // api.whatsapp.com directly, not wa.me. Observed: wa.me is only a 302 to
+    // `api.whatsapp.com/send/?text=…&type=custom_url&app_absent=0`, and it
+    // re-encodes the payload on the way through (every %20 becomes a `+`).
+    // The caption is still whole at that hop, so wa.me is not what drops it —
+    // but the extra redirect and re-encode buy us nothing, so skip them.
+    web: (caption) =>
+      `https://api.whatsapp.com/send?text=${encodeURIComponent(caption)}`,
   },
   {
     id: "x",
@@ -177,6 +197,15 @@ function openTarget(tab: Window | null, target: string): boolean {
   }
 }
 
+/**
+ * Mobile only, deliberately. Routing desktop WhatsApp through the OS share
+ * sheet was tried and reverted: on macOS the sheet opens with the PNG but does
+ * not list WhatsApp at all (it registers no share extension), so the user got a
+ * useless picker, and `await navigator.share()` had already consumed the tap's
+ * user activation, so the wa.me fallback's window.open was then blocked —
+ * "Could not open WhatsApp." Desktop keeps the clipboard + wa.me flow, which
+ * works.
+ */
 function shareableFile(blob: Blob, fileName: string): File | null {
   if (!isMobile()) return null;
   try {
@@ -253,8 +282,20 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     const { title, text: message } = meta.current;
     const url = shareCardUrl(specRef.current, window.location.origin);
     const story = !!network.story;
+    // Caption, blank line, link — the order that reads best everywhere it
+    // survives (X, Discord, the mobile share sheet).
+    //
+    // It makes no difference to WhatsApp, which is worth recording so nobody
+    // re-runs the experiment: WhatsApp Web's composer keeps ONLY the URL out of
+    // any text containing one, and drops every other word. Tested caption-first
+    // and url-first, space and blank-line separators, 270- and 220-character
+    // links, ASCII and typographic apostrophes, wa.me and api.whatsapp.com —
+    // same result every time. With no URL at all the caption arrives intact, so
+    // the URL is the trigger, not the caption. The caption is not really lost
+    // though: /s sets og:description to the same sentence, so it reappears
+    // inside the link's preview card along with the image.
     const caption =
-      INCLUDE_SHARE_LINK && !network.noLink ? `${message} ${url}` : message;
+      INCLUDE_SHARE_LINK && !network.noLink ? `${message}\n\n${url}` : message;
     const target = network.web(caption, url);
 
     const file = shareableFile(blob, SHARE_FILE_NAME);
