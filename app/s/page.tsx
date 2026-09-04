@@ -40,6 +40,14 @@ export async function generateMetadata({
   const title = meta?.title ?? FALLBACK.title;
   const description = meta?.text ?? FALLBACK.text;
   const image = spec ? cardImage(spec, origin) : `${origin}/chess.png`;
+  /* Must match what /api/share-image actually renders — the leaderboard card is
+     portrait (it mirrors the clipboard image) while the result card is still
+     landscape. Declaring the wrong ratio makes crawlers crop or skip the
+     preview. */
+  const size =
+    spec?.kind === "leaderboard"
+      ? { w: 1080, h: 1399 }
+      : { w: 1200, h: 630 };
 
   return {
     title,
@@ -50,7 +58,7 @@ export async function generateMetadata({
       title,
       description,
       url: spec ? shareCardUrl(spec, origin) : origin,
-      images: [{ url: image, width: 1200, height: 630, alt: title }],
+      images: [{ url: image, width: size.w, height: size.h, alt: title }],
     },
     twitter: {
       card: "summary_large_image",

@@ -7,6 +7,7 @@ import {
   type LeaderboardShareSpec,
   type ResultShareSpec,
   type ShareCardSpec,
+  avatarForCanvas,
 } from "@/components/v2/share-link";
 
 export type {
@@ -483,7 +484,10 @@ function drawScene(
   drawSceneEdge(ctx, img, width, height, "right");
 }
 
-async function drawLeaderboardBackground(
+/** Exported so scripts/ can bake this exact backdrop into a static PNG for the
+ *  OG route: satori has no blur and no feathered masks, so it cannot reproduce
+ *  the cover + feathered-edge composite this performs. */
+export async function drawLeaderboardBackground(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number
@@ -529,8 +533,13 @@ async function drawRoundAvatar(
   cy: number,
   size: number
 ) {
+  // Through the same-origin proxy: the bucket sends no CORS header, so loading
+  // it directly with crossOrigin="anonymous" is blocked and this silently fell
+  // back to the trophy — the reason this card and the server-rendered preview
+  // card disagreed about the avatar.
+  const proxied = avatarForCanvas(avatarUrl);
   const photo =
-    (avatarUrl ? await loadImage(avatarUrl, true) : null) ??
+    (proxied ? await loadImage(proxied, true) : null) ??
     (await loadImage(MY_FALLBACK_AVATAR));
   if (!photo) return;
 
