@@ -145,7 +145,7 @@ function drawOrdinal(
   return valueWidth + suffixWidth;
 }
 
-function fit(w: number, h: number, boxW: number, boxH: number) {
+export function fit(w: number, h: number, boxW: number, boxH: number) {
   const scale = Math.min(boxW / w, boxH / h);
   return { w: w * scale, h: h * scale };
 }
@@ -176,7 +176,7 @@ function drawEloArrow(
   ctx.restore();
 }
 
-const RESULT_ART: Record<GameResult, string> = {
+export const RESULT_ART: Record<GameResult, string> = {
   win: "/images/v2/share/result-win.png",
   lose: "/images/v2/share/result-lose.png",
   draw: "/images/v2/share/result-draw.png",
@@ -208,7 +208,9 @@ const RIBBON_BAND_TOP = 34 / 124;
 const RIBBON_BAND_BOTTOM = 1;
 const RIBBON_LINE_GAP = 48;
 
-function drawFeathered(
+/** Exported alongside drawLeaderboardBackground so the OG route's static art can
+ *  be baked from the real thing: satori cannot fade an image's edges to alpha. */
+export function drawFeathered(
   ctx: CanvasRenderingContext2D,
   img: HTMLImageElement,
   x: number,

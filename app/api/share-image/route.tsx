@@ -4,6 +4,7 @@ import { formatEloDelta, formatNumber } from "@/components/v2/format-number";
 import {
   ordinalSuffix,
   parseShareCardSpec,
+  shareCardSize,
   type GameResult,
   type LeaderboardShareSpec,
   type ResultShareSpec,
@@ -11,8 +12,8 @@ import {
 
 export const runtime = "nodejs";
 
+/** Only the fallback OG image (no valid spec) is still landscape. */
 const WIDTH = 1200;
-const HEIGHT = 630;
 
 /* The leaderboard card is rendered PORTRAIT so the link preview shows the same
    artwork the share sheet puts on the clipboard (share-image-canvas.ts, which
@@ -22,6 +23,10 @@ const HEIGHT = 630;
 const LB_W = 1080;
 const LB_H = 1399;
 const RIBBON_ART = "/images/v2/play-vs-ai/flag-exported.png";
+/* The flag art is 124px tall but its printable band starts 34px down (the
+   notched top edge is decoration). drawRibbon() centres the two lines between
+   34/124 and the bottom, so centring on the full height sits them too high. */
+const RIBBON_BAND_TOP = 34 / 124;
 /* The backdrop is BAKED, not composed here. drawLeaderboardBackground() in
    share-image-canvas.ts layers a cover-crop with feathered left/right slices of
    the wide source, then blurs and veils it — satori has neither filters nor
@@ -37,6 +42,19 @@ const RIBBON_ART = "/images/v2/play-vs-ai/flag-exported.png";
    it on every cold render, and a crawler that times out shows no preview. */
 const LB_BACKDROP = "/images/v2/share/leaderboard-backdrop.jpg";
 
+/* Result card, portrait, mirroring drawResultCard(). Its backdrop is just the
+   scene stretched at 0.34 alpha — no blur, no feathered edges — so satori draws
+   it directly and nothing needs baking. The ART does need baking: drawFeathered
+   fades a 6% border of each illustration to alpha, and every one of them has
+   opaque pixels in that band, so a plain <img> would show hard edges. */
+const RS_W = 1080;
+const RESULT_ART_FEATHERED: Record<GameResult, { src: string; w: number; h: number }> = {
+  win: { src: "/images/v2/share/result-win-feathered.png", w: 667, h: 560 },
+  lose: { src: "/images/v2/share/result-lose-feathered.png", w: 673, h: 560 },
+  draw: { src: "/images/v2/share/result-draw-feathered.png", w: 507, h: 560 },
+};
+
+
 const COLOR = {
   ink: "#111827",
   body: "#374151",
@@ -47,20 +65,6 @@ const COLOR = {
   white: "#FFFFFF",
   yellow: "#FFD400",
 };
-
-const RESULT_ART: Record<GameResult, string> = {
-  win: "/images/v2/share/result-win.png",
-  lose: "/images/v2/share/result-lose.png",
-  draw: "/images/v2/share/result-draw.png",
-};
-
-const RESULT_ART_SIZE: Record<GameResult, { w: number; h: number }> = {
-  win: { w: 448, h: 376 },
-  lose: { w: 370, h: 308 },
-  draw: { w: 413, h: 456 },
-};
-
-const ART_BOX = 380;
 
 const RESULT_TITLE: Record<GameResult, string> = {
   win: "You Won",
@@ -76,7 +80,6 @@ const RESULT_COLOR: Record<GameResult, string> = {
 
 const BRAND_LOGO = "/icons/logo.png";
 const RESULT_BACKGROUND = "/images/v2/play-vs-ai/background-exported.png";
-const CONFETTI = "/images/v2/play-vs-ai/confetti-stars-exported.png";
 const FALLBACK_AVATAR = "/images/homepage/v2/homepage_board_asset_4.png";
 const BACKGROUND_ALPHA = 0.34;
 
@@ -117,93 +120,15 @@ async function inlineAvatar(url: string | null | undefined, origin: string) {
   }
 }
 
-function Ribbon({ lead }: { lead: string }) {
+function EloArrow({ up, size = 44 }: { up: boolean; size?: number }) {
   return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        width: WIDTH,
-        height: 84,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: COLOR.blue,
-        fontSize: 30,
-        fontWeight: 600,
-        color: COLOR.white,
-      }}
-    >
-      <span>{lead}</span>
-      <span style={{ fontWeight: 700, color: COLOR.yellow, marginLeft: 10 }}>
-        AroundChess.com
-      </span>
-    </div>
-  );
-}
-
-function EloArrow({ up }: { up: boolean }) {
-  return (
-    <svg width={34} height={34} viewBox="0 0 20 20">
+    <svg width={size} height={size} viewBox="0 0 20 20">
       {up ? (
         <path d="M10 2L17 10H13V15H7V10H3L10 2Z M7 16.5H13V18.3H7Z" fill={COLOR.white} />
       ) : (
         <path d="M10 18L3 10H7V5H13V10H17L10 18Z M7 1.7H13V3.5H7Z" fill={COLOR.white} />
       )}
     </svg>
-  );
-}
-
-function EloPill({
-  elo,
-  delta,
-  accent,
-}: {
-  elo: number;
-  delta: number;
-  accent: string;
-}) {
-  const gained = delta >= 0;
-  return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          backgroundColor: accent,
-          borderRadius: 24,
-          padding: "14px 30px",
-        }}
-      >
-        <span style={{ fontSize: 28, fontWeight: 600, color: COLOR.white }}>
-          Your Current ELO
-        </span>
-        <div style={{ display: "flex", marginLeft: 18 }}>
-          <EloArrow up={gained} />
-        </div>
-        <span
-          style={{
-            fontSize: 46,
-            fontWeight: 700,
-            color: COLOR.white,
-            marginLeft: 10,
-          }}
-        >
-          {Math.round(elo)}
-        </span>
-      </div>
-      <span
-        style={{
-          fontSize: 38,
-          fontWeight: 700,
-          marginLeft: 18,
-          color: delta === 0 ? COLOR.muted : gained ? COLOR.green : COLOR.red,
-        }}
-      >
-        {formatEloDelta(delta)}
-      </span>
-    </div>
   );
 }
 
@@ -214,29 +139,37 @@ function ResultCard({
   spec: ResultShareSpec;
   asset: (path: string) => string;
 }) {
+  // Offsets mirror drawResultCard() one for one.
+  const H = shareCardSize(spec).h;
+  const LOGO_W = 268;
+  const LOGO_H = Math.round((LOGO_W * 513) / 1592); // 86
+  const art = RESULT_ART_FEATHERED[spec.result];
+  const yLogo = 46;
+  const yArt = yLogo + LOGO_H + 22; // 154
+  const yTitle = yArt + art.h + 30; // 744
+  const yOpponent = yTitle + 82 + 18; // 844
+  const yPill = spec.opponentName ? yOpponent + 42 + 26 : yOpponent; // 912 / 844
+  const yRibbon = yPill + 108 + 92;
+  const RIBBON_W = 946;
+  const RIBBON_H = Math.round((RIBBON_W * 124) / 680); // 172
+
+  const gained = spec.delta >= 0;
   const accent =
     spec.result === "win"
       ? COLOR.green
       : spec.result === "lose"
         ? COLOR.red
-        : spec.delta >= 0
+        : gained
           ? COLOR.green
           : COLOR.red;
-
-  const intrinsic = RESULT_ART_SIZE[spec.result];
-  const scale = Math.min(ART_BOX / intrinsic.w, ART_BOX / intrinsic.h);
-  const art = {
-    w: Math.round(intrinsic.w * scale),
-    h: Math.round(intrinsic.h * scale),
-  };
 
   return (
     <div
       style={{
         position: "relative",
         display: "flex",
-        width: WIDTH,
-        height: HEIGHT,
+        width: RS_W,
+        height: H,
         backgroundColor: COLOR.white,
         fontFamily: "Aloevera",
       }}
@@ -245,81 +178,155 @@ function ResultCard({
       <img
         src={asset(RESULT_BACKGROUND)}
         alt=""
-        width={WIDTH}
-        height={HEIGHT}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: WIDTH,
-          height: HEIGHT,
-          objectFit: "cover",
-          opacity: BACKGROUND_ALPHA,
-        }}
+        width={RS_W}
+        height={H}
+        style={{ position: "absolute", top: 0, left: 0, opacity: BACKGROUND_ALPHA }}
+      />
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={asset(BRAND_LOGO)}
+        alt=""
+        width={LOGO_W}
+        height={LOGO_H}
+        style={{ position: "absolute", top: yLogo, left: (RS_W - LOGO_W) / 2 }}
+      />
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={asset(art.src)}
+        alt=""
+        width={art.w}
+        height={art.h}
+        style={{ position: "absolute", top: yArt, left: (RS_W - art.w) / 2 }}
       />
 
       <div
         style={{
-          position: "relative",
+          position: "absolute",
+          top: yTitle,
+          left: 0,
+          width: RS_W,
+          height: 82,
           display: "flex",
           alignItems: "center",
-          width: WIDTH,
-          height: HEIGHT,
-          padding: "0 64px 84px",
+          justifyContent: "center",
+          fontSize: 82,
+          fontWeight: 700,
+          color: RESULT_COLOR[spec.result],
+          lineHeight: 1,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={asset(RESULT_ART[spec.result])}
-          alt=""
-          width={art.w}
-          height={art.h}
-          style={{ width: art.w, height: art.h, borderRadius: 28 }}
-        />
+        {RESULT_TITLE[spec.result]}
+      </div>
 
+      {spec.opponentName ? (
+        <div
+          style={{
+            position: "absolute",
+            top: yOpponent,
+            left: 0,
+            width: RS_W,
+            height: 42,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 40,
+            color: COLOR.body,
+            lineHeight: 1,
+          }}
+        >
+          {spec.opponentElo != null
+            ? `Against ${spec.opponentName} (ELO ${spec.opponentElo})`
+            : `Against ${spec.opponentName}`}
+        </div>
+      ) : null}
+
+      <div
+        style={{
+          position: "absolute",
+          top: yPill,
+          left: 0,
+          width: RS_W,
+          height: 108,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            marginLeft: 48,
+            alignItems: "center",
+            height: 108,
+            padding: "0 38px",
+            borderRadius: 24,
+            backgroundColor: accent,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={asset(BRAND_LOGO)}
-            alt=""
-            width={214}
-            height={69}
-            style={{ width: 214, height: 69, objectFit: "contain" }}
-          />
-
+          <span style={{ fontSize: 42, fontWeight: 600, color: COLOR.white }}>
+            Your Current ELO
+          </span>
+          <div style={{ display: "flex", marginLeft: 22 }}>
+            <EloArrow up={gained} />
+          </div>
           <span
             style={{
-              fontSize: 78,
+              fontSize: 68,
               fontWeight: 700,
-              color: RESULT_COLOR[spec.result],
-              marginTop: 16,
+              color: COLOR.white,
+              marginLeft: 14,
             }}
           >
-            {RESULT_TITLE[spec.result]}
+            {Math.round(spec.elo)}
           </span>
-
-          {spec.opponentName ? (
-            <span style={{ fontSize: 30, color: COLOR.body, marginTop: 8 }}>
-              {spec.opponentElo != null
-                ? `Against ${spec.opponentName} (ELO ${spec.opponentElo})`
-                : `Against ${spec.opponentName}`}
-            </span>
-          ) : null}
-
-          <div style={{ display: "flex", marginTop: 30 }}>
-            <EloPill elo={spec.elo} delta={spec.delta} accent={accent} />
-          </div>
         </div>
+        <span
+          style={{
+            fontSize: 54,
+            fontWeight: 700,
+            marginLeft: 22,
+            color:
+              spec.delta === 0 ? COLOR.muted : gained ? COLOR.green : COLOR.red,
+          }}
+        >
+          {formatEloDelta(spec.delta)}
+        </span>
       </div>
 
-      <Ribbon lead="Challenge more than 70 AI Opponents now on" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={asset(RIBBON_ART)}
+        alt=""
+        width={RIBBON_W}
+        height={RIBBON_H}
+        style={{ position: "absolute", top: yRibbon, left: (RS_W - RIBBON_W) / 2 }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: yRibbon + RIBBON_H * RIBBON_BAND_TOP,
+          left: 0,
+          width: RS_W,
+          height: RIBBON_H * (1 - RIBBON_BAND_TOP),
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 36,
+          fontWeight: 600,
+          color: COLOR.white,
+          lineHeight: 1.35,
+        }}
+      >
+        <span>Challenge more than 70 AI Opponents</span>
+        <div style={{ display: "flex" }}>
+          <span>now on&nbsp;</span>
+          <span style={{ fontWeight: 700, color: COLOR.yellow }}>
+            AroundChess.com
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -504,10 +511,10 @@ function LeaderboardCard({
       <div
         style={{
           position: "absolute",
-          top: yRibbon,
+          top: yRibbon + RIBBON_H * RIBBON_BAND_TOP,
           left: 0,
           width: LB_W,
-          height: RIBBON_H,
+          height: RIBBON_H * (1 - RIBBON_BAND_TOP),
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -554,9 +561,9 @@ export async function GET(request: NextRequest) {
         <LeaderboardCard spec={spec} asset={asset} avatar={avatar} />
       ),
       {
-        // Portrait for the leaderboard card so it matches the clipboard image.
-        width: spec.kind === "leaderboard" ? LB_W : WIDTH,
-        height: spec.kind === "leaderboard" ? LB_H : HEIGHT,
+        // Both cards are portrait now, matching the clipboard images exactly.
+        width: shareCardSize(spec).w,
+        height: shareCardSize(spec).h,
         fonts,
         headers: {
           "Cache-Control": "public, max-age=3600, s-maxage=86400, immutable",

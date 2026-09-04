@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   parseShareCardSpec,
   shareCardMeta,
+  shareCardSize,
   shareCardParams,
   shareCardUrl,
   SHARE_IMAGE_PATH,
@@ -40,14 +41,10 @@ export async function generateMetadata({
   const title = meta?.title ?? FALLBACK.title;
   const description = meta?.text ?? FALLBACK.text;
   const image = spec ? cardImage(spec, origin) : `${origin}/chess.png`;
-  /* Must match what /api/share-image actually renders — the leaderboard card is
-     portrait (it mirrors the clipboard image) while the result card is still
-     landscape. Declaring the wrong ratio makes crawlers crop or skip the
-     preview. */
-  const size =
-    spec?.kind === "leaderboard"
-      ? { w: 1080, h: 1399 }
-      : { w: 1200, h: 630 };
+  /* Must match what /api/share-image actually renders; a wrong ratio makes
+     crawlers crop or skip the preview. The 1200x630 fallback is for the
+     no-spec case, which still serves the landscape /chess.png. */
+  const size = spec ? shareCardSize(spec) : { w: 1200, h: 630 };
 
   return {
     title,
@@ -85,9 +82,11 @@ export default async function SharePage({
         <img
           src={cardImage(spec, origin)}
           alt={meta?.title ?? FALLBACK.title}
-          width={1200}
-          height={630}
-          className="w-full max-w-[720px] rounded-3xl border border-[#E5E7EB]"
+          /* Real dimensions, not a hard-coded 1200x630: the cards are portrait
+             now, and declaring the old landscape aspect squashed them. */
+          width={shareCardSize(spec).w}
+          height={shareCardSize(spec).h}
+          className="h-auto w-full max-w-[420px] rounded-3xl border border-[#E5E7EB]"
         />
       )}
 
