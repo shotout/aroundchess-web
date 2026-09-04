@@ -331,6 +331,55 @@ function ResultCard({
   );
 }
 
+/* Wide variant, served as twitter:image. X centre-crops summary_large_image to
+   2:1 and Facebook prefers ~1.91:1, so a portrait card loses its logo, half the
+   avatar and the whole ribbon. This letterboxes the SAME card into 1200x630 so
+   nothing is cropped anywhere. og:image stays portrait for WhatsApp, which
+   renders tall images at full width. */
+const WIDE_W = 1200;
+const WIDE_H = 630;
+
+function Wide({
+  cardW,
+  cardH,
+  background,
+  children,
+}: {
+  cardW: number;
+  cardH: number;
+  background: string;
+  children: React.ReactNode;
+}) {
+  const scale = WIDE_H / cardH;
+  return (
+    <div
+      style={{
+        width: WIDE_W,
+        height: WIDE_H,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        backgroundColor: background,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          width: cardW * scale,
+          height: WIDE_H,
+          // Satori keeps the untransformed box for layout, so the wrapper is
+          // pre-sized to the scaled result and the origin pinned to top-left.
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 /** Absolutely-positioned text row. Canvas draws text centred on `top + size/2`,
  *  so a box of exactly `size` tall with the glyphs centred reproduces it. */
 function Row({
@@ -554,16 +603,31 @@ export async function GET(request: NextRequest) {
         : Promise.resolve(""),
     ]);
 
-    return new ImageResponse(
+    const card =
       spec.kind === "result" ? (
         <ResultCard spec={spec} asset={asset} />
       ) : (
         <LeaderboardCard spec={spec} asset={asset} avatar={avatar} />
+      );
+    const { w: cardW, h: cardH } = shareCardSize(spec);
+    const wide = searchParams.get("w") === "1";
+
+    return new ImageResponse(
+      wide ? (
+        <Wide
+          cardW={cardW}
+          cardH={cardH}
+          background={spec.kind === "result" ? "#F2F5FC" : "#C9DCF7"}
+        >
+          {card}
+        </Wide>
+      ) : (
+        card
       ),
       {
-        // Both cards are portrait now, matching the clipboard images exactly.
-        width: shareCardSize(spec).w,
-        height: shareCardSize(spec).h,
+        // Portrait matches the clipboard image; ?w=1 letterboxes it for X.
+        width: wide ? WIDE_W : cardW,
+        height: wide ? WIDE_H : cardH,
         fonts,
         headers: {
           "Cache-Control": "public, max-age=3600, s-maxage=86400, immutable",

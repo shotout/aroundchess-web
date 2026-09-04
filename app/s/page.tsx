@@ -26,9 +26,22 @@ async function siteOrigin(): Promise<string> {
   return `${proto}://${host}`;
 }
 
-function cardImage(spec: ShareCardSpec, origin: string): string {
-  return `${origin}${SHARE_IMAGE_PATH}?${shareCardParams(spec)}`;
+function cardImage(spec: ShareCardSpec, origin: string, wide = false): string {
+  const params = shareCardParams(spec);
+  if (wide) params.set("w", "1");
+  return `${origin}${SHARE_IMAGE_PATH}?${params}`;
 }
+
+/**
+ * Which crawlers render a tall image well.
+ *
+ * The card is portrait, which is what WhatsApp and Discord want — they show it
+ * at full width. X centre-crops summary_large_image to 2:1 and Facebook prefers
+ * ~1.91:1, so both would slice off the logo, half the avatar and the ribbon.
+ * Everyone else gets the letterboxed wide variant, which is never cropped, so an
+ * unrecognised crawler degrades safely rather than badly.
+ */
+const TALL_OK = /WhatsApp|Discordbot/i;
 
 export async function generateMetadata({
   searchParams,
@@ -40,11 +53,19 @@ export async function generateMetadata({
   const meta = spec ? shareCardMeta(spec) : null;
   const title = meta?.title ?? FALLBACK.title;
   const description = meta?.text ?? FALLBACK.text;
-  const image = spec ? cardImage(spec, origin) : `${origin}/chess.png`;
+
+  const agent = (await headers()).get("user-agent") ?? "";
+  const tall = TALL_OK.test(agent);
+  const image = spec
+    ? cardImage(spec, origin, !tall)
+    : `${origin}/chess.png`;
+  // X reads twitter:image in preference to og:image, so it always gets the
+  // wide one regardless of how the og tag came out.
+  const twitterImage = spec ? cardImage(spec, origin, true) : image;
   /* Must match what /api/share-image actually renders; a wrong ratio makes
      crawlers crop or skip the preview. The 1200x630 fallback is for the
      no-spec case, which still serves the landscape /chess.png. */
-  const size = spec ? shareCardSize(spec) : { w: 1200, h: 630 };
+  const size = spec && tall ? shareCardSize(spec) : { w: 1200, h: 630 };
 
   return {
     title,
@@ -61,7 +82,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [image],
+      images: [twitterImage],
     },
   };
 }
