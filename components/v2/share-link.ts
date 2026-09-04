@@ -155,6 +155,19 @@ export function ordinalSuffix(n: number): string {
  * ShareImageSheet.shareTo) — so the wording a recipient reads on a social post
  * and the wording a link preview shows are the same sentence.
  */
+/**
+ * Pixel size of the card /api/share-image renders for this spec — and therefore
+ * the og:image:width/height /s must declare. Wrong values make crawlers crop or
+ * skip the preview, so both read it from here rather than hard-coding.
+ *
+ * These mirror share-image-canvas.ts, whose output height depends on the
+ * content: the result card drops 68px (42 + 26) when there is no opponent line.
+ */
+export function shareCardSize(spec: ShareCardSpec): { w: number; h: number } {
+  if (spec.kind === "leaderboard") return { w: 1080, h: 1399 };
+  return { w: 1080, h: spec.opponentName ? 1349 : 1281 };
+}
+
 export function shareCardMeta(spec: ShareCardSpec): {
   fileName: string;
   title: string;
