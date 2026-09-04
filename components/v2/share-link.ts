@@ -83,7 +83,18 @@ const BLOCKED_AVATAR_HOST =
  *  encodeURIComponent'd again into `wa.me/?text=`, it ballooned a 60-character
  *  share link past 270. Store just the object key and rebuild the URL on the
  *  way out. Anything hosted elsewhere still round-trips in full. */
-const AVATAR_PREFIX = "https://aroundchess-news.s3.amazonaws.com/";
+export const AVATAR_PREFIX = "https://aroundchess-news.s3.amazonaws.com/";
+
+/** Same-origin URL for an avatar the browser needs to read pixels from (canvas).
+ *  The bucket sends no CORS header, so a direct crossOrigin load is blocked —
+ *  see app/api/avatar/route.ts. Anything hosted elsewhere is returned unchanged
+ *  and keeps whatever CORS behaviour it already had. */
+export function avatarForCanvas(url: string | null | undefined): string | null {
+  if (!url) return null;
+  return url.startsWith(AVATAR_PREFIX)
+    ? `/api/avatar?k=${encodeURIComponent(url.slice(AVATAR_PREFIX.length))}`
+    : url;
+}
 
 function packAvatar(value: string): string {
   return value.startsWith(AVATAR_PREFIX) ? value.slice(AVATAR_PREFIX.length) : value;
