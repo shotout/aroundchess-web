@@ -107,12 +107,22 @@ const NETWORKS: Network[] = [
     id: "facebook",
     label: "Facebook",
     icon: "/images/v2/play-vs-ai/Icon-facebook.png",
-    noCaption: true,
-    // No `quote`: the app attaches no caption here, and Facebook drops the
-    // parameter for unapproved apps anyway. `u` is the sharer's required
-    // subject, not a caption, so it stays.
-    web: (_caption, url) =>
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    // No link in the caption: `u` already carries it, and Facebook is the one
+    // target where the URL would appear twice in the same post.
+    noLink: true,
+    // `quote` is Facebook's only prefill parameter and it is honoured
+    // inconsistently — Meta discourages prefilled captions, so it may be
+    // ignored entirely. Sending it costs nothing when it is ignored and fills
+    // the composer when it is not. `u` stays: it is the required subject, and
+    // what Facebook unfurls into the card.
+    //
+    // noCaption removed with it, so the desktop clipboard now carries the
+    // caption too — if Facebook drops `quote`, one Ctrl+V still puts the words
+    // in the composer.
+    web: (caption, url) =>
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        url
+      )}&quote=${encodeURIComponent(caption)}`,
   },
 ];
 
