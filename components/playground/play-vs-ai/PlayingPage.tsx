@@ -2067,16 +2067,25 @@ export default function PlayingPage() {
   /** The signed ELO change the save response reported, or null when it carried
    *  none (0 counts as "none" so the leaderboard difference below can speak). */
   const readSavedDelta = (saveRes: any): number | null => {
-    const raw = Number(String(saveRes?.data?.elo_change ?? "").replace("+", ""));
-    return Number.isFinite(raw) && raw !== 0 ? raw : null;
+    // Both spellings: the game-history payload uses elo_change, and other
+    // endpoints in this API answer camelCase (see useEffectiveElo).
+    // Absent and zero are different answers — `raw !== 0` used to throw away a
+    // genuine "no rating movement" and fall through to the leaderboard diff.
+    const src = (saveRes as any)?.data ?? {};
+    const value = src.elo_change ?? src.eloChange;
+    if (value === undefined || value === null || value === "") return null;
+    const raw = Number(String(value).replace("+", ""));
+    return Number.isFinite(raw) ? raw : null;
   };
 
   /** Rating before and after the finished game, from both leaderboard endpoints
    *  so a calibrating account (no rated my_elo yet) still reports a real number
    *  — see readElo. Also pushes the fresh payloads into the store. */
-  const refreshElo = async (saveRes: any) => {
+  const refreshElo = async (saveRes: any, resultRes?: any) => {
     const before = readElo(leaderboard, leaderboardMe);
-    const apiDelta = readSavedDelta(saveRes);
+    // The leaderboard's own game-result response is the authority on the
+    // change it just applied; the save log is the second choice.
+    const apiDelta = readSavedDelta(resultRes) ?? readSavedDelta(saveRes);
     let after = before;
     try {
       const [lb, me]: any[] = await Promise.all([
@@ -2092,8 +2101,8 @@ export default function PlayingPage() {
     return { before, after, apiDelta };
   };
 
-  const refreshWinElo = async (saveRes: any) => {
-    const { before, after, apiDelta } = await refreshElo(saveRes);
+  const refreshWinElo = async (saveRes: any, resultRes?: any) => {
+    const { before, after, apiDelta } = await refreshElo(saveRes, resultRes);
     // A win never shows a drop: trust the reported change, else the rise the
     // leaderboard recorded.
     const delta = apiDelta ?? Math.max(0, after - before);
@@ -2101,8 +2110,8 @@ export default function PlayingPage() {
     setWinElo({ oldElo: newElo - delta, newElo, delta });
   };
 
-  const refreshLoseElo = async (saveRes: any) => {
-    const { before, after, apiDelta } = await refreshElo(saveRes);
+  const refreshLoseElo = async (saveRes: any, resultRes?: any) => {
+    const { before, after, apiDelta } = await refreshElo(saveRes, resultRes);
     const delta = apiDelta ?? Math.min(0, after - before);
     const newElo = after < before ? after : before + delta;
     setLoseElo({ oldElo: newElo - delta, newElo, delta });
@@ -2110,8 +2119,8 @@ export default function PlayingPage() {
 
   // Unlike win/lose, a draw's ELO delta can go either way, so it's taken
   // as-is with no clamping.
-  const refreshDrawElo = async (saveRes: any) => {
-    const { before, after, apiDelta } = await refreshElo(saveRes);
+  const refreshDrawElo = async (saveRes: any, resultRes?: any) => {
+    const { before, after, apiDelta } = await refreshElo(saveRes, resultRes);
     const delta = apiDelta ?? after - before;
     const newElo = apiDelta !== null ? before + apiDelta : after;
     setDrawElo({ oldElo: newElo - delta, newElo, delta });
@@ -2157,26 +2166,34 @@ export default function PlayingPage() {
     setIsSaved(!saveFailed);
     setIsSaving(false);
     loadLogs();
-    if (statusGame === "Win") {
-      refreshWinElo(res);
-    }
-    if (statusGame === "Loss") {
-      refreshLoseElo(res);
-    }
-    if (statusGame === "Draw") {
-      refreshDrawElo(res);
-    }
+    // Report the finished game to the leaderboard, flagging whether the player
+    // leaned on a hint or undo at any point.
+    //
+    // AWAITED, and ahead of the refresh*Elo calls below, because THIS is the
+    // call that moves the rating. It used to run after them, so refreshElo
+    // refetched the leaderboard before the new rating existed, measured
+    // `after - before` as 0, and the win modal reported "0" for a game that
+    // game history then showed as +7. Its own response is the first choice for
+    // the delta; the leaderboard diff is only the fallback.
+    let resultRes: any = null;
     if (!isTutorialPlay) {
-      // Report the finished game to the leaderboard, flagging whether the
-      // player leaned on a hint or undo at any point.
       const savedGameId =
         (res as any)?.data?.game_id ?? (res as any)?.data?.id ?? null;
       if (savedGameId) {
-        postLeaderboardGameResult({
+        resultRes = await postLeaderboardGameResult({
           game_id: String(savedGameId),
           used_hint: usedHintRef.current,
-        }).catch(() => {});
+        }).catch(() => null);
       }
+    }
+    if (statusGame === "Win") {
+      refreshWinElo(res, resultRes);
+    }
+    if (statusGame === "Loss") {
+      refreshLoseElo(res, resultRes);
+    }
+    if (statusGame === "Draw") {
+      refreshDrawElo(res, resultRes);
     }
     if (!isTutorialPlay) {
       // Only the first finished game of the (local) day advances the streak:

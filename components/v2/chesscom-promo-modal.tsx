@@ -54,6 +54,7 @@ export function ChesscomPromoModal({
     /* z-[500] matches DayStreakModal — clears the z-50 header/sidebar and the
        z-[70] connect dialog, and stays under the playground tour's z-[700]. */
     <div
+      data-chesscom-promo
       className="fixed inset-0 z-[500] flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
       role="dialog"
