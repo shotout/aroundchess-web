@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { formatNumber } from "@/components/v2/format-number";
 import { ShareRankButton } from "@/components/v2/share-rank-button";
+import { EloScoreModal } from "@/components/v2/elo-score-modal";
 
 interface PlayVsAiTopStatsProps {
   elo: number;
@@ -12,12 +14,15 @@ interface PlayVsAiTopStatsProps {
   movedUp: number | null;
 }
 
+// Product rule: only the top three ranks get st/nd/rd — every other rank is
+// plain "th" (4th, 21th, 10002th), per design.
+function ordinalSuffix(n: number): string {
+  return n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
+}
+
 function toOrdinal(n: number): string {
   if (n <= 0) return "—";
-  // Product rule: only the top three ranks get st/nd/rd — every other rank
-  // is plain "th" (4th, 21th, 10002th), per design.
-  const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th";
-  return formatNumber(n) + suffix;
+  return formatNumber(n) + ordinalSuffix(n);
 }
 
 function StatItem({
@@ -54,40 +59,124 @@ function StatItem({
   );
 }
 
+/** Mobile card cell: label + info icon on top, value underneath, no leading
+ *  icon — the mockup keeps the row icon-free so three cells fit a 360px screen. */
+function MobileStatCell({
+  label,
+  infoText,
+  infoAlign = "center",
+  children,
+}: {
+  label: string;
+  infoText: string;
+  infoAlign?: "left" | "right" | "center";
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-[2px]">
+      <span className="flex items-center gap-[4px]">
+        <span className="text-[12px] min-[390px]:text-[13px] text-[#4B5563] whitespace-nowrap">{label}</span>
+        <InfoTooltip text={infoText} size={14} align={infoAlign} />
+      </span>
+      {children}
+    </div>
+  );
+}
+
 export function PlayVsAiTopStats({ elo, rank, movedUp }: PlayVsAiTopStatsProps) {
   const isUp = movedUp !== null && movedUp > 0;
   const isDown = movedUp !== null && movedUp < 0;
   const movedUpAbs = movedUp !== null ? Math.abs(movedUp) : 0;
   const movedLabel = isDown ? "Moved Down" : "Moved Up";
+  const [showEloModal, setShowEloModal] = useState(false);
+  // Mockup renders the rank zero-padded with a smaller ordinal suffix ("08th").
+  const rankPadded = rank > 0 && rank < 10 ? `0${formatNumber(rank)}` : formatNumber(rank);
+  const rankSuffix = ordinalSuffix(rank);
 
   return (
     /* `sm:contents` makes this wrapper disappear from layout from 640px up, so
-       the card below goes back to being the direct flex child of the page
-       column exactly as it was — desktop is untouched. Below 640px the wrapper
-       is a column that puts Share on its own line under the stats, which is
-       where the leaderboard card on /play already puts it. It cannot go INSIDE
-       the stats row: that row is `justify-between` with a 6px gap, and a fourth
-       item would squeeze ELO / Rank / Moved on a 360px screen. */
-    <div className="flex flex-col gap-[10px] sm:contents">
-      <div className="flex items-center justify-between gap-[8px] sm:hidden">
-        <div className="flex min-w-0 items-center gap-[6px]">
-          <Image
-            src="/images/v2/play/leaderboard.png"
-            alt="Leaderboard"
-            width={33}
-            height={33}
-            className="w-[28px] h-[28px] object-contain shrink-0"
-          />
-          <Link
-            href="/leaderboard"
-            className="flex items-center gap-[4px] font-bold text-[16px] text-[#221AE9]"
-          >
-            <span>Leaderboard</span>
-            <span className="text-[#221AE9] text-xl leading-none">›</span>
+       the desktop card goes back to being the direct flex child of the page
+       column exactly as it was — desktop is untouched. Mobile and desktop are
+       two separate cards because the mockup restructures the mobile one: the
+       Leaderboard link and Share move inside it, above a white stats panel. */
+    <div className="sm:contents">
+      {showEloModal && <EloScoreModal onClose={() => setShowEloModal(false)} />}
+
+      {/* ── MOBILE card, per the mockup: header + Share, a white stats panel,
+             and the ELO explainer link, all inside one gradient card. The
+             desktop card below is a separate tree and stays untouched. ── */}
+      <div className="sm:hidden rounded-[16px] border border-[#E5E7EB] bg-[linear-gradient(to_bottom,#FFFFFF,#ABE3FF)] shadow-md px-[14px] py-[14px]">
+        <div className="flex items-center justify-between gap-[8px]">
+          <Link href="/leaderboard" className="flex min-w-0 items-center gap-[8px]">
+            <Image
+              src="/images/v2/play/leaderboard.png"
+              alt=""
+              width={44}
+              height={44}
+              className="w-[38px] h-[38px] object-contain shrink-0"
+            />
+            <span className="font-bold text-[21px] text-[#111827] truncate">Leaderboard</span>
+            <span className="text-[#221AE9] text-[24px] font-light leading-none shrink-0">›</span>
           </Link>
+          {/* Renders nothing while the account is still calibrating. */}
+          <ShareRankButton className="rounded-[10px] px-[14px] py-[9px] text-[14px] [&>img]:w-[18px] [&>img]:h-[18px]" />
         </div>
-        {/* Renders nothing while the account is still calibrating. */}
-        <ShareRankButton />
+
+        <div className="mt-[12px] flex items-start justify-between gap-[8px] rounded-[12px] bg-white px-[13px] py-[12px]">
+          <MobileStatCell
+            label="Your ELO"
+            infoText="Your current chess skill rating."
+            infoAlign="left"
+          >
+            <span className="text-[21px] font-bold text-[#111827] leading-tight">{elo || "—"}</span>
+          </MobileStatCell>
+
+          <MobileStatCell
+            label="Your Rank"
+            infoText="Your current position on the leaderboard."
+          >
+            {rank > 0 ? (
+              <span className="text-[21px] font-bold text-[#111827] leading-tight">
+                {rankPadded}
+                <span className="text-[14px]">{rankSuffix}</span>
+              </span>
+            ) : (
+              <span className="text-[21px] font-bold text-[#9CA3AF] leading-tight">—</span>
+            )}
+          </MobileStatCell>
+
+          <MobileStatCell
+            label={movedLabel}
+            infoText="The number of positions you gained or lost on the leaderboard since yesterday."
+            infoAlign="right"
+          >
+            {isUp || isDown ? (
+              <span className="flex items-center gap-[4px]">
+                <Image
+                  src={isUp ? "/images/v2/leaderboard/ArrowUp.png" : "/images/v2/leaderboard/ArrowDown.png"}
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="w-[17px] h-[17px] object-contain shrink-0"
+                />
+                {/* Direction lives in the arrow, so the number stays dark (mockup). */}
+                <span className="text-[21px] font-bold text-[#111827] leading-tight">
+                  {formatNumber(movedUpAbs)}
+                </span>
+              </span>
+            ) : (
+              <span className="text-[21px] font-bold text-[#9CA3AF] leading-tight">—</span>
+            )}
+          </MobileStatCell>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowEloModal(true)}
+          className="mt-[12px] text-[#221AE9] font-medium text-[14px] underline"
+        >
+          What is an ELO Score?
+        </button>
       </div>
 
       {/* Two things this row has to survive, both seen in the wild:
@@ -103,7 +192,7 @@ export function PlayVsAiTopStats({ elo, rank, movedUp }: PlayVsAiTopStatsProps) 
             margin either side, and the gaps stay in a sane range.
           Mobile is unaffected — it was already justify-between at gap-[6px],
           and max-w-[1240px] is a no-op below that width. */}
-      <div className="bg-white/70 rounded-xl border border-[#E5E7EB] shadow-sm px-[10px] sm:px-[28px] min-[1500px]:px-[36px] py-[10px] sm:py-[14px] min-[1500px]:py-[18px] flex justify-center">
+      <div className="hidden bg-white/70 rounded-xl border border-[#E5E7EB] shadow-sm px-[10px] sm:px-[28px] min-[1500px]:px-[36px] py-[10px] sm:py-[14px] min-[1500px]:py-[18px] sm:flex justify-center">
         <div className="flex w-full max-w-[1240px] flex-wrap items-center justify-between gap-x-[6px] sm:gap-x-[16px] gap-y-[10px]">
         <StatItem
         icon="/images/v2/leaderboard/your_elo.png"
