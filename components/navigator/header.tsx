@@ -34,9 +34,15 @@ interface HeaderProps {
  */
 function mobilePageHeader(
   pathname: string | null
-): { title: string; showUsername?: boolean } | null {
+): { title: string; showUsername?: boolean; backHref?: string } | null {
   if (!pathname) return null;
-  if (pathname === "/my-game-history" || pathname === "/saved-mistakes")
+  // backHref pins where the arrow goes instead of unwinding history: Game
+  // History is reachable from anywhere (sidebar, deep links, a finished game),
+  // so router.back() landed people in unrelated places — Play VS AI is the
+  // page it belongs under.
+  if (pathname === "/my-game-history")
+    return { title: "Analyze Games", showUsername: true, backHref: "/play" };
+  if (pathname === "/saved-mistakes")
     return { title: "Analyze Games", showUsername: true };
   if (pathname === "/training-plan")
     return { title: "Training Plan", showUsername: true };
@@ -325,7 +331,9 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           {pageHeader ? (
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={() =>
+                pageHeader.backHref ? router.push(pageHeader.backHref) : router.back()
+              }
               className="text-[#111827] p-[2px]"
               aria-label="Go back"
             >
