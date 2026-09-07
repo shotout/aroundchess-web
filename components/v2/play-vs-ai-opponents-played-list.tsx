@@ -30,7 +30,7 @@ export function PlayVsAiOpponentsPlayedList({
   const canLoadMore = !!pagination && pagination.page < pagination.totalPages;
 
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white px-[8px] py-[16px] md:p-[20px]">
+    <div className="rounded-2xl border border-[#221AE9] sm:border-[#E5E7EB] bg-white px-[8px] py-[16px] md:p-[20px]">
       <h3 className="flex items-center gap-[8px] text-[16px] md:text-[18px] font-bold text-[#111827] mb-[12px]">
         <Image
           src="/images/v2/leaderboard/sword.png"
