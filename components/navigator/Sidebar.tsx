@@ -187,6 +187,19 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
     refreshTokenBalance(sessionId, () => getTokenBalance({}));
   }, [sessionId]);
 
+  /* Nav rhythm. The mobile drawer follows the native app's spacing, which packs
+     the rows at a uniform ~32px pitch with no extra separation between a
+     section and its children — the web build was running 52px-tall child rows
+     (min-h-[52px]) inside 20px section gaps, roughly half again as tall, which
+     is the gappy column the ticket compares against the app. Desktop keeps its
+     own looser spacing: the docked sidebar has the height to spend and was not
+     part of the report. */
+  const navSectionGap = isMobile ? "space-y-1 py-2" : "space-y-5 py-3";
+  const navGroupGap = isMobile ? "space-y-1" : "space-y-2";
+  const navRowPadding = isMobile ? "py-1" : "py-2";
+  /** Child rows only: the 52px floor is what spread them apart on mobile. */
+  const navChildMinHeight = isMobile ? "" : "min-h-[52px]";
+
   const handleToProfile = () => {
     router.push("/profile");
     if (isMobile && onClose) onClose();
@@ -400,7 +413,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
           )}
         </motion.div>
         <motion.nav
-          className="space-y-5 px-2 py-3"
+          className={cn("px-2", navSectionGap)}
           variants={isMobile ? containerVariants : {}}
           initial={isMobile ? "hidden" : "visible"}
           animate="visible"
@@ -417,7 +430,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                 key={section.name}
                 variants={isMobile ? itemVariants : {}}
               >
-                <div className="space-y-2">
+                <div className={navGroupGap}>
                   {section.href ? (
                     <Link
                       href={
@@ -427,7 +440,8 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                         handleNavigation(section.href!, section.permission)
                       }
                       className={cn(
-                        "group gap-x-2 flex items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200 hover:bg-transparent",
+                        "group gap-x-2 flex items-center rounded-lg px-3 text-[14px] --sm font-medium transition-all duration-200 hover:bg-transparent",
+                        navRowPadding,
                         isActive
                           ? "text-[#221AE9]"
                           : "hover:bg-[#221AE950] hover:text-[#221AE9]"
@@ -471,7 +485,8 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                   ) : (
                     <div
                       className={cn(
-                        "group flex gap-x-2 items-center rounded-lg px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
+                        "group flex gap-x-2 items-center rounded-lg px-3 text-[14px] --sm font-medium transition-all duration-200",
+                        navRowPadding,
                         isActive
                           ? "text-[#221AE9]"
                           : section.disabled
@@ -508,7 +523,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
 
                   {hasChildren && (
                     <motion.div
-                      className="ml-6 space-y-2"
+                      className={cn("ml-6", navGroupGap)}
                       variants={isMobile ? containerVariants : {}}
                     >
                       {section.children!.map((child) => {
@@ -535,7 +550,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                                 handleNavigation(child.href, child.permission)
                               }
                               className={cn(
-                                "min-h-[52px] group flex items-center justify-between rounded-sm px-3 py-2 text-[14px] --sm font-medium transition-all duration-200",
+                                "group flex items-center justify-between rounded-sm px-3 text-[14px] --sm font-medium transition-all duration-200",
+                                navChildMinHeight,
+                                navRowPadding,
                                 isChildActive
                                   ? "bg-[#221AE910] text-[#221AE9] border-r-4 border-[#221AE9]"
                                   : child.disabled
