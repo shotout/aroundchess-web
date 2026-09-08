@@ -9,6 +9,12 @@ import {
   type ShareCardSpec,
   avatarForCanvas,
 } from "@/components/v2/share-link";
+import {
+  pieceAvatarHex,
+  PIECE_AVATAR_PIECE_ASPECT,
+  PIECE_AVATAR_PIECE_HEIGHT_RATIO,
+  PIECE_AVATAR_PIECE_SRC,
+} from "@/components/v2/piece-avatar-color";
 
 export type {
   GameResult,
@@ -407,7 +413,7 @@ async function drawResultCard(
   return y + PAD;
 }
 
-const MY_FALLBACK_AVATAR = "/images/homepage/v2/homepage_board_asset_4.png";
+
 
 const LEADERBOARD_BACKGROUND = "/images/v2/leaderboard/background.png";
 const LEADERBOARD_CONFETTI = "/images/v2/play-vs-ai/confetti-stars-exported.png";
@@ -528,22 +534,52 @@ export async function drawLeaderboardBackground(
   }
 }
 
+/** The app's default avatar, drawn rather than fetched: the palette circle for
+ *  this username with the pawn silhouette on top. Same thing <PieceAvatar>
+ *  renders on the profile and in the sidebar, so a user who never uploaded a
+ *  picture shares a card carrying the avatar they actually see. It used to fall
+ *  back to a homepage decoration (a dark chess piece) that appears nowhere in
+ *  the account UI, which is what made the shared card and the profile disagree
+ *  for every default-picture account. */
+async function drawPieceAvatar(
+  ctx: CanvasRenderingContext2D,
+  seed: string,
+  cx: number,
+  cy: number,
+  size: number
+) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
+  ctx.fillStyle = pieceAvatarHex(seed);
+  ctx.fill();
+  ctx.restore();
+
+  const pawn = await loadImage(PIECE_AVATAR_PIECE_SRC);
+  if (!pawn) return;
+  const h = size * PIECE_AVATAR_PIECE_HEIGHT_RATIO;
+  const w = h * PIECE_AVATAR_PIECE_ASPECT;
+  ctx.drawImage(pawn, cx - w / 2, cy - h / 2, w, h);
+}
+
 async function drawRoundAvatar(
   ctx: CanvasRenderingContext2D,
   avatarUrl: string | null | undefined,
+  seed: string,
   cx: number,
   cy: number,
   size: number
 ) {
   // Through the same-origin proxy: the bucket sends no CORS header, so loading
   // it directly with crossOrigin="anonymous" is blocked and this silently fell
-  // back to the trophy — the reason this card and the server-rendered preview
-  // card disagreed about the avatar.
+  // back to the placeholder — the reason this card and the server-rendered
+  // preview card disagreed about the avatar.
   const proxied = avatarForCanvas(avatarUrl);
-  const photo =
-    (proxied ? await loadImage(proxied, true) : null) ??
-    (await loadImage(MY_FALLBACK_AVATAR));
-  if (!photo) return;
+  const photo = proxied ? await loadImage(proxied, true) : null;
+  if (!photo) {
+    await drawPieceAvatar(ctx, seed, cx, cy, size);
+    return;
+  }
 
   ctx.save();
   ctx.beginPath();
@@ -591,6 +627,7 @@ async function drawLeaderboardCard(
   await drawRoundAvatar(
     ctx,
     spec.avatarUrl,
+    spec.username,
     WIDTH / 2,
     y + avatarSize / 2,
     avatarSize
