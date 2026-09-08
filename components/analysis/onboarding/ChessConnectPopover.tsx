@@ -17,6 +17,7 @@ import { ChessApiService } from "./store/APIService";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayerStatsStore } from "./store/usePlayerStatsStore";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { cn } from "@/lib/utils";
 
 export interface ChessConnectDialogProps {
   open: boolean;
@@ -232,6 +233,10 @@ export const ChessConnectDialog = ({
     return null;
   };
 
+  /* Computed once: it decides both what to render on the right and whether the
+     input has to reserve room for it. */
+  const inputRightIcon = getInputRightIcon();
+
   return (
     /* inset-0, not pinned to the content area: the dialog is centred on the
        whole viewport and its black layer covers the sidebar and header too,
@@ -309,14 +314,29 @@ export const ChessConnectDialog = ({
                 />
                 <Input
                   placeholder="Enter your Chess.com Username"
-                  className="w-full h-12 sm:h-10 pl-10 pr-10 rounded-lg border-light-60 bg-[#F2FBFE]"
+                  /* placeholder:text-[13px] rather than text-[13px]: the
+                     placeholder is 29 characters and at 16px it overran the
+                     text box on a 360px-wide phone ("...Usern|ame" clipped).
+                     Shrinking only the placeholder leaves the *input's* own
+                     font at 16px, which is what iOS Safari checks before
+                     auto-zooming the page on focus — dropping the field itself
+                     below 16px would fix the clip and add a zoom jump.
+                     pr-3 until a status icon exists: the 40px right gutter was
+                     reserved unconditionally, but getInputRightIcon() returns
+                     null below 3 typed characters, so the empty state — the
+                     only state that shows the placeholder — was paying for a
+                     gutter nothing occupied. */
+                  className={cn(
+                    "w-full h-12 sm:h-10 pl-10 rounded-lg border-light-60 bg-[#F2FBFE] placeholder:text-[13px] sm:placeholder:text-[16px]",
+                    inputRightIcon ? "pr-10" : "pr-3"
+                  )}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={isSubmitting}
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  {getInputRightIcon()}
+                  {inputRightIcon}
                 </div>
               </div>
 

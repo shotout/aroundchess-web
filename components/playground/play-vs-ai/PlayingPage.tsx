@@ -13,7 +13,7 @@ import {
   DayStreakModal,
 } from "@/components/v2/day-streak-modal";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useProfileStore } from "@/app/store/profile";
+import { refreshTokenBalance, useProfileStore } from "@/app/store/profile";
 import { useShareGame } from "@/app/store/shareGame";
 import { usePgnStore } from "@/app/store/zustandStore";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
@@ -564,7 +564,10 @@ export default function PlayingPage() {
   const hasMoved = game.history().length > 0;
   const containerRef = useRef<HTMLDivElement>(null);
   const movementDetailsRef = useRef<HTMLDivElement>(null);
-  const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
+  // By gameId, not by count — see the matching note in GameList: clearOldJobs()
+  // prunes finished jobs, and a count-based high-water mark then stayed above
+  // the shrunken list, so later completions never triggered the token refresh.
+  const seenCompletedJobIdsRef = useRef<Set<string>>(new Set());
 
   const [redoStack, setRedoStack] = useState<string[]>([]);
 
@@ -2714,16 +2717,17 @@ export default function PlayingPage() {
       (gameData) => gameData.status == "completed"
     );
 
-    if (totalCompletedJobs < isCompleted.length) {
-      setTotalCompletedJobs(isCompleted.length);
-      getTokenBalance({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setToken(data);
-        }
-      });
+    const freshlyCompleted = isCompleted.filter(
+      (job) => !seenCompletedJobIdsRef.current.has(String(job.gameId))
+    );
+
+    if (freshlyCompleted.length > 0) {
+      freshlyCompleted.forEach((job) =>
+        seenCompletedJobIdsRef.current.add(String(job.gameId))
+      );
+      refreshTokenBalance(sessionId, () => getTokenBalance({}));
     }
-  }, [analysisJobs]);
+  }, [analysisJobs, sessionId, getTokenBalance]);
   const getAnalysisButtonContent = () => {
     const job = getJobByGameId(currentGameId);
     const currentPgn = analysisPgn ?? game.pgn();

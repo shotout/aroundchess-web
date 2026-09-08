@@ -12,7 +12,7 @@ import { PieceAvatar } from "@/components/v2/piece-avatar";
 import ProfileAvatarUpload from "@/components/v2/profile-avatar-upload";
 import { fadeInUp } from "@/utils/motion";
 
-import { useProfileStore } from "@/app/store/profile";
+import { refreshTokenBalance, useProfileStore } from "@/app/store/profile";
 import { refreshStreakStatus, useHasPlayedToday, useStreakStore } from "@/app/store/streak";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
@@ -156,7 +156,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const { setOpen: setOpenConfirmLogin } = useConfirmLogin();
   const { setOpen: setOpenSubscribe, setTabType } = usePricingOffer();
   const { startTutorial } = useTutorial();
-  const { getStreakStatus } = useApiClient();
+  const { getStreakStatus, getTokenBalance } = useApiClient();
   const [isSignedIn, setIsSignedIn] = useState(false);
   // Streak comes from the persisted store so the badge keeps its value
   // across navigations instead of flashing 0 while refetching; the login
@@ -177,6 +177,14 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
     // Refresh on every page load (deduped in the store) so the badge's streak
     // and flame follow the backend instead of the persisted value going stale.
     refreshStreakStatus(sessionId, getStreakStatus);
+    // Same for the token count. On mobile this component is mounted fresh each
+    // time the drawer opens (navigation.tsx renders it behind
+    // `!isDesktop && isSidebarOpen`), so this re-reads the balance on every
+    // open. Without it the drawer showed whatever was in the persisted store
+    // from the last full page load — after analyzing a game it still read
+    // "Remaining Tokens: 1" until a navigation happened to reset alreadyFetch
+    // and re-run useProfileFetch.
+    refreshTokenBalance(sessionId, () => getTokenBalance({}));
   }, [sessionId]);
 
   const handleToProfile = () => {

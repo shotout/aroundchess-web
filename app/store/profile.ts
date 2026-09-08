@@ -51,6 +51,39 @@ export const useHasMembership = () => useProfileStore(readHasMembership);
 /** Non-reactive form for timers and event handlers. */
 export const hasMembership = () => readHasMembership(useProfileStore.getState());
 
+// Only an in-flight request is shared, mirroring refreshStreakStatus: the
+// header and the mobile drawer's sidebar can ask at the same moment and
+// coalesce into one GET, while a later ask (drawer reopened, analysis just
+// started) still hits the backend instead of reusing a snapshot.
+let balanceRefreshKey: string | null = null;
+let balanceRefresh: Promise<any> | null = null;
+
+/** Re-read the analysis-token balance from the backend and push it into the
+ *  store, so every "Remaining Tokens" readout (header, mobile drawer, profile)
+ *  follows one authoritative number. Pass the session id so switching accounts
+ *  never reuses the previous account's in-flight request, and the fetcher (the
+ *  useApiClient getTokenBalance) since the store can't hold a hook. Resolves
+ *  with the raw response, or null when the request failed. */
+export function refreshTokenBalance(
+  sessionKey: string,
+  fetchBalance: () => Promise<any>
+): Promise<any> {
+  if (!sessionKey) return Promise.resolve(null);
+  if (balanceRefresh && balanceRefreshKey === sessionKey) return balanceRefresh;
+  balanceRefreshKey = sessionKey;
+  const pending: Promise<any> = fetchBalance()
+    .then((res: any) => {
+      if (res?.data != null) useProfileStore.getState().setToken(res.data);
+      return res;
+    })
+    .catch(() => null)
+    .finally(() => {
+      if (balanceRefresh === pending) balanceRefresh = null;
+    });
+  balanceRefresh = pending;
+  return pending;
+}
+
 export const useProfileStore = create<ProfileState>()(
   persist(
     (set) => ({
