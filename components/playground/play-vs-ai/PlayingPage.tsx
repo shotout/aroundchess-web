@@ -1,6 +1,10 @@
 "use client";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
-import { usePlayVSAIStore } from "@/app/store/playVSAI";
+import {
+  clearSavedVsAiGame,
+  usePlayVSAIStore,
+  VS_AI_CURRENT_GAME_KEY,
+} from "@/app/store/playVSAI";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import GameCard from "@/components/playground/play-vs-ai/GameCard";
 import { Engine } from "@/components/playground/src/lib/stockfish";
@@ -369,18 +373,31 @@ export default function PlayingPage() {
     confirm: confirmLeaveGuard,
     dismiss: dismissLeaveGuard,
   } = useGameLeaveGuard();
+  /** Both leave paths run this first: the guard modal promises the current game
+   *  ends and the progress is not saved, so the resume snapshot goes with it.
+   *  Clearing isGameInitialized too because saveGameState is keyed off it — it
+   *  stops a re-render between here and the route change from writing the
+   *  position straight back out. */
+  const discardCurrentGame = useCallback(() => {
+    isGameInitialized.current = false;
+    clearSavedVsAiGame();
+  }, []);
   const handleMobileBack = useCallback(() => {
     requestLeave("leave", () => {
+      discardCurrentGame();
       if (typeof window !== "undefined" && window.history.length > 1) {
         router.back();
         return;
       }
       router.push("/playground/play-vs-ai");
     });
-  }, [router, requestLeave]);
+  }, [router, requestLeave, discardCurrentGame]);
   const handleBackToLobby = useCallback(() => {
-    requestLeave("leave", () => router.push("/playground/play-vs-ai"));
-  }, [router, requestLeave]);
+    requestLeave("leave", () => {
+      discardCurrentGame();
+      router.push("/playground/play-vs-ai");
+    });
+  }, [router, requestLeave, discardCurrentGame]);
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
   const { isMember, isMemberMonthly, token } = useProfileStore();
@@ -750,7 +767,7 @@ export default function PlayingPage() {
     requestLeave("restart", handleReset);
   };
 
-  const LOCAL_STORAGE_KEY = "vs-ai-current-game";
+  const LOCAL_STORAGE_KEY = VS_AI_CURRENT_GAME_KEY;
 
   /** `vs-ai-<name>-<elo>-` — the prefix every gameId for this matchup carries.
    *  currentGameId is only ever set when a board is actually built, so it says
