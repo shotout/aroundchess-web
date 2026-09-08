@@ -16,6 +16,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { useApiClient } from "@/functions/api-client";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import CacheUtil from "@/app/training-plan/api/cacheUtils";
+import { clearAccountLocalState } from "@/functions/clear-account-storage";
 
 /** Where subscribers manage an auto-renewing plan. */
 const APPLE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions/";
@@ -68,8 +69,10 @@ const DeleteAccount = () => {
 
       localStorage.removeItem("sessionId");
       localStorage.removeItem("token");
-      localStorage.removeItem("background-analysis-storage");
-      localStorage.removeItem("pgn-local-storage");
+      // Everything else this account left in localStorage — leaderboard
+      // standing, streak, vs-AI caches. Left behind, the next account to sign
+      // in on this browser rehydrates them as its own.
+      clearAccountLocalState();
       setPersistedCookie("token", "", 365);
     }
   };
