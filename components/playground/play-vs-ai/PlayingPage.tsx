@@ -575,6 +575,8 @@ export default function PlayingPage() {
   const [isMobile, setIsMobile] = useState(false);
 
   const [shouldTriggerAI, setShouldTriggerAI] = useState(false);
+  /** Set while an engine request is out — see findEnemyMove. */
+  const aiMoveInFlightRef = useRef(false);
 
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
@@ -1403,6 +1405,13 @@ export default function PlayingPage() {
   };
 
   const findEnemyMove = (moveIndex?: number) => {
+    // One engine request at a time. The guards below are evaluated when the
+    // call is made, but the move is applied a round trip later, so two calls
+    // landing inside that window both pass and both play a move — the second
+    // one for the player's own side. Reachable now that a rematch and the
+    // opponent picker can each arm the AI's opening move within a second of
+    // each other.
+    if (aiMoveInFlightRef.current) return false;
     const isYourTurnLocal = myColor === "white" ? "w" : "b";
     const currentTurn = game.turn();
     const checkIndex = moveIndex !== undefined ? moveIndex : currentMoveIndex;
@@ -1420,7 +1429,9 @@ export default function PlayingPage() {
       return false;
     }
 
+    aiMoveInFlightRef.current = true;
     engine.getStockfishMove(game.fen(), AIChoosed.opponent.elo).then((pv) => {
+      aiMoveInFlightRef.current = false;
       // Guard the UCI parse: anything that isn't a square pair (a terminal
       // position answers "(none)") would otherwise be sliced into nonsense
       // like {from:"(n", to:"on"} and make chess.js throw.
@@ -1462,6 +1473,7 @@ export default function PlayingPage() {
     .catch((error) => {
       // getStockfishMove rejects on timeout, worker error, or a finished
       // position. None of these should surface as an unhandled rejection.
+      aiMoveInFlightRef.current = false;
       console.warn("Skipping AI move:", error);
     });
   };
@@ -1777,6 +1789,12 @@ export default function PlayingPage() {
               setCurrentGameId(gameId);
             }
 
+            // Same arming as a fresh game: reloading the page mid-game while
+            // the AI is on the clock (refresh straight after your own move)
+            // restored the position with nothing due to move it. The trigger
+            // no-ops when it is the player's turn.
+            setShouldTriggerAI(true);
+
             restored = true;
           }
         } catch (e) {
@@ -1798,11 +1816,14 @@ export default function PlayingPage() {
       setFenHistory([game.fen()]);
       setCurrentMoveIndex(0);
       
-      if (AIChoosed.color === "black") {
-        setTimeout(() => {
-          findEnemyMove();
-        }, 1000);
-      }
+      // Arm the shared trigger rather than calling findEnemyMove on a timer.
+      // The timer captured THIS render's closure, where statusGame is still the
+      // finished game's ("Loss"/"Win") on a challenge-next — findEnemyMove's own
+      // `statusGame !== "Ongoing"` guard then threw the opening move away and a
+      // black player was left with white to move and nothing moving it. The
+      // effect below re-reads the fresh state and owns the turn check, so it
+      // does not need the colour condition that used to be here.
+      setShouldTriggerAI(true);
     }
     
     isGameInitialized.current = true;
@@ -1956,6 +1977,13 @@ export default function PlayingPage() {
     setCurrentSquare(undefined);
     setIsSaved(false);
     setHasAnalysis(false); // Reset analysis state for new game
+    // A rematch rebuilds the board without touching AIChoosed, so the effect
+    // that normally opens for a black player never ran: the lose modal's
+    // "Start Game", the draw modal's rematch and the win modal's
+    // challenge-next all left white to move with nothing to move it. This is
+    // the whole fix for "the AI does not make its move" — the trigger checks
+    // the turn itself, so it is a no-op when the player is white.
+    setShouldTriggerAI(true);
   };
 
   const handleNewGame = () => {
@@ -2003,7 +2031,14 @@ export default function PlayingPage() {
     // Reset to 2D mode
     setIs3DMode(false);
     setStyleChoosed("2d");
-    
+
+    // The board is already reset here, before the picker opens. Choosing an
+    // opponent re-arms this through the [AIChoosed] effect, but DISMISSING the
+    // picker does not — and that left a black player on a fresh board with
+    // white to move. Double-arming is safe: the trigger is one-shot and
+    // findEnemyMove holds a single engine request at a time.
+    setShouldTriggerAI(true);
+
     // Open dialog for new game selection
     setShowPlayVSAIModal(true);
   };
