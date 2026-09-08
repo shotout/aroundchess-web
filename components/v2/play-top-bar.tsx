@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { useGameLeaveGuard } from "@/app/store/gameLeaveGuard";
+import { clearSavedVsAiGame } from "@/app/store/playVSAI";
 import { useProfileStore } from "@/app/store/profile";
 import { useHasPlayedToday } from "@/app/store/streak";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
@@ -198,7 +199,13 @@ function useLeaderboardNav() {
   return (e: React.MouseEvent) => {
     if (!leaveGuardArmed) return;
     e.preventDefault();
-    requestLeave("leaderboard", () => router.push("/leaderboard"));
+    requestLeave("leaderboard", () => {
+      // "You will lose all progress in your current game" — so drop the resume
+      // snapshot as well, or the abandoned game comes back the next time the
+      // same opponent and colour are picked.
+      clearSavedVsAiGame();
+      router.push("/leaderboard");
+    });
   };
 }
 

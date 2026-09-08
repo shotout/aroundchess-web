@@ -136,10 +136,10 @@ export function ChesscomPromoModal({
             priority
           />
 
-          <p className="mt-[26px] text-center text-[14px] font-semibold leading-[130%] text-[#0F1533] sm:mt-[30px] sm:text-[20px]">
+          <p className="mt-[26px] text-center text-[16px] font-semibold leading-[130%] text-[#0F1533] sm:mt-[30px] sm:text-[20px]">
             Enable even more features:
           </p>
-          <h2 className="mt-[6px] text-center text-[20px] font-bold leading-[130%] text-[#221AE9] sm:mt-[4px]">
+          <h2 className="mt-[6px] text-center text-[23px] font-bold leading-[130%] text-[#221AE9] sm:mt-[4px] sm:text-[20px]">
             Connect your <span className="font-extrabold">Chess.com</span>{" "}
             Account now.
           </h2>
@@ -157,7 +157,7 @@ export function ChesscomPromoModal({
                   height={154}
                   className="absolute left-[-8px] top-1/2 w-[62px] -translate-y-1/2 object-contain drop-shadow-[0_4px_8px_rgba(16,34,153,.35)] sm:left-[-10px] sm:w-[66px]"
                 />
-                <p className="text-[15px] font-bold leading-[130%] text-white sm:text-[20px]">
+                <p className="text-[21px] font-bold leading-[130%] text-white sm:text-[20px]">
                   {feature.lines[0]}{" "}
                   {/* font-bold again on the span: bold in this app is a
                       font-FAMILY swap, and globals.css has a bare
@@ -175,7 +175,7 @@ export function ChesscomPromoModal({
           <button
             type="button"
             onClick={onConnect}
-            className="mx-[20px] mt-[30px] flex h-[48px] w-[calc(100%-40px)] items-center justify-center rounded-full bg-[#221AE9] text-[15px] font-semibold text-white transition-colors hover:bg-[#2d25ea] sm:mx-auto sm:mt-[35px] sm:h-[46px] sm:w-auto sm:px-[24px]"
+            className="mx-[20px] mt-[30px] flex h-[48px] w-[calc(100%-40px)] items-center justify-center rounded-full bg-[#221AE9] text-[16px] font-semibold text-white transition-colors hover:bg-[#2d25ea] sm:mx-auto sm:mt-[35px] sm:h-[46px] sm:w-auto sm:px-[24px] sm:text-[15px]"
           >
             Connect Chess.com Account
           </button>

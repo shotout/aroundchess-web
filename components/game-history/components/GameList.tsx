@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChartNoAxesColumn,
@@ -19,7 +19,7 @@ import { usePgnStore } from "@/app/store/zustandStore";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import GamesListSkeleton from "./GameListSkeleton";
 import { createPgnHash } from "@/utils/crypto-utils";
-import { useProfileStore } from "@/app/store/profile";
+import { refreshTokenBalance, useProfileStore } from "@/app/store/profile";
 import { usePollingManager } from "../hooks/usePollingManager";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
@@ -277,10 +277,16 @@ const GamesList: React.FC<GamesListProps> = ({
     }
   };
   const { getTokenBalance, viewAnalysisResult, getProfile } = useApiClient();
-  const { sessionId, setToken, setProfile } = useProfileStore();
+  const { sessionId, setProfile } = useProfileStore();
   const { setCallFetch } = useProfileFetch();
   const { restorePollingJobs } = usePollingManager();
-  const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
+  // Completions are tracked by gameId rather than by count: clearOldJobs()
+  // prunes finished jobs out of the store, and the old count-based high-water
+  // mark then sat permanently above the shrunken list — `3 < 1` is false, so
+  // the next completion never tripped the check and the token refresh (plus
+  // the AnalysisCompleted event) silently stopped firing for the rest of the
+  // session. A ref, not state, so adding an id doesn't re-run this effect.
+  const seenCompletedJobIdsRef = useRef<Set<string>>(new Set());
   const [disabled, setDisabled] = useState(false);
   const [gameId, setGameId] = useState<string | number | null>(null);
   const isNewlyImported = (id: string | number) =>
@@ -439,19 +445,26 @@ const GamesList: React.FC<GamesListProps> = ({
     const isCompleted = Object.values(analysisJobs).filter(
       (gameData) => gameData.status == "completed"
     );
+    const freshlyCompleted = isCompleted.filter(
+      (job) => !seenCompletedJobIdsRef.current.has(String(job.gameId))
+    );
 
-    if (totalCompletedJobs < isCompleted.length) {
-      setTotalCompletedJobs(isCompleted.length);
-      const lastCompleted = isCompleted[isCompleted.length - 1];
+    if (freshlyCompleted.length > 0) {
+      freshlyCompleted.forEach((job) =>
+        seenCompletedJobIdsRef.current.add(String(job.gameId))
+      );
+      const lastCompleted = freshlyCompleted[freshlyCompleted.length - 1];
       if (lastCompleted) {
         trackCustomEvent("AnalysisCompleted", lastCompleted.gameId);
         markIsAnalysisInStore(lastCompleted.gameId);
       }
-      getTokenBalance({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setToken(data);
-          if (data.balance == 0) {
+      // Shared refresher so this and the header/drawer readouts can't disagree;
+      // it also writes the balance into the store, which is why setToken is
+      // gone from here.
+      refreshTokenBalance(sessionId, () => getTokenBalance({})).then(
+        (response) => {
+          const data = response?.data;
+          if (data != null && data.balance == 0) {
             getProfile({}).then((response) => {
               if (response.data != null) {
                 const profileData = response.data;
@@ -460,7 +473,6 @@ const GamesList: React.FC<GamesListProps> = ({
                 // the special-offer (discounted monthly price) UI in the pricing modal.
                 setProfile(profileData);
                 if (
-                  data.balance == 0 &&
                   profileData.username.length > 0 &&
                   profileData.discountInfo.hasActiveDiscount &&
                   profileData?.discountInfo?.startDate &&
@@ -474,13 +486,12 @@ const GamesList: React.FC<GamesListProps> = ({
             });
           }
         }
-      });
+      );
     }
   }, [
     analysisJobs,
-    totalCompletedJobs,
+    sessionId,
     getTokenBalance,
-    setToken,
     getProfile,
     everShowOffer,
     isFromGameHistory,
