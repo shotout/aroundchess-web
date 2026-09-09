@@ -119,12 +119,14 @@ export default function GameAnalysis({
         return "white";
     }, [playerColor, v3Result]);
 
+    // Left edge of the overlay: the desktop sidebar is `fixed left-0` with this
+    // width (navigation.tsx, same >=1280 breakpoint), and the overlay starts
+    // where it ends so the sidebar stays clear. 0 below 1280, where there is no
+    // docked sidebar.
     const [sidebarWidth, setSidebarWidth] = useState(() => {
         if (typeof window === "undefined") return 0;
         return window.innerWidth >= 1280 ? window.innerWidth / 6 : 0;
     });
-    const headerHeight = 72;
-    const headerHeightLg = 96;
 
     useEffect(() => {
         const handleResize = () => {
@@ -269,20 +271,22 @@ export default function GameAnalysis({
     if (!open) return null;
 
     return (
+        /* Full height (top-0 bottom-0), inset only on the left — same as
+           ProcessingAnalysisMode, which this modal follows on from. The top
+           used to be a hardcoded 72/96px meant to clear the header, which knows
+           nothing about the promo banner pushing that header down, so with the
+           banner up an unblurred band was left across the top of the screen.
+
+           The left inset stays: the sidebar is deliberately left uncovered.
+
+           z-[70], not z-50: at 50 the overlay tied with the header (z-50) it
+           now runs up behind. */
         <div
-            className="fixed bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-50 flex justify-center items-center lg:py-[16px]"
-            style={{
-                top:
-                typeof window !== "undefined" && window.innerWidth >= 1024
-                    ? headerHeightLg
-                    : headerHeight,
-                left: sidebarWidth,
-                right: 0,
-                bottom: 0,
-            }}
+            className="fixed top-0 right-0 bottom-0 bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-[70] flex justify-center items-center lg:py-[16px]"
+            style={{ left: sidebarWidth }}
             onClick={() => onOpenChange(false)}
         >
-            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="z-10 relative flex md:block flex-col justify-between w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] h-[100dvh] top-[-36px] md:top-0 md:h-[580px] xxl:h-[678px] 2xl:h-[724px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
+            <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="z-10 relative flex md:block flex-col justify-between w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] h-[100dvh] top-0 md:h-[580px] xxl:h-[678px] 2xl:h-[724px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">
                 <button type="button" onClick={() => { onOpenChange(false) }} className="absolute top-[16px] xxl:top-[32px] right-[16px] xxl:right-[32px]">
                     <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M30 10L10 30" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>

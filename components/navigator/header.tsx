@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ import {
 import { Button } from "../ui/button";
 import { motion, fadeInUp } from "@/utils/motion";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useProfileStore } from "@/app/store/profile";
+import { refreshTokenBalance, useProfileStore } from "@/app/store/profile";
 import { useUserStore } from "@/app/training-plan/store";
 import { useApiClient } from "@/functions/api-client";
 import { usePlayPageStore } from "@/app/store/playPage";
@@ -34,9 +34,15 @@ interface HeaderProps {
  */
 function mobilePageHeader(
   pathname: string | null
-): { title: string; showUsername?: boolean } | null {
+): { title: string; showUsername?: boolean; backHref?: string } | null {
   if (!pathname) return null;
-  if (pathname === "/my-game-history" || pathname === "/saved-mistakes")
+  // backHref pins where the arrow goes instead of unwinding history: Game
+  // History is reachable from anywhere (sidebar, deep links, a finished game),
+  // so router.back() landed people in unrelated places — Play VS AI is the
+  // page it belongs under.
+  if (pathname === "/my-game-history")
+    return { title: "Analyze Games", showUsername: true, backHref: "/play" };
+  if (pathname === "/saved-mistakes")
     return { title: "Analyze Games", showUsername: true };
   if (pathname === "/training-plan")
     return { title: "Training Plan", showUsername: true };
@@ -47,6 +53,9 @@ function mobilePageHeader(
   if (pathname === "/premium") return { title: "Become a Chess Master" };
   return null;
 }
+
+/** Floor between focus-triggered token refreshes. */
+const FOCUS_REFRESH_INTERVAL_MS = 10_000;
 
 const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   const pathname = usePathname();
@@ -60,7 +69,9 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
   // streak status modal's on/off flame.
   const hasPlayedToday = useHasPlayedToday();
   // const { profile } = useUserStore();
-  const { isLoading, getStreakStatus } = useApiClient();
+  const { isLoading, getStreakStatus, getTokenBalance } = useApiClient();
+
+  const lastFocusRefreshRef = useRef(0);
 
   const isSignedIn = sessionId.length > 0;
   const isGuestMode = !isSignedIn;
@@ -76,6 +87,38 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     refreshStreakStatus(sessionId, getStreakStatus).then((data: any) => {
       if (data?.success) setStreak(data.data?.currentStreak ?? 0);
     });
+    // Token count too, for the desktop "Remaining Tokens" readout below. The
+    // mobile drawer gets this from Sidebar, which remounts on every open; the
+    // desktop header is mounted for the whole session, so it needs the mount
+    // refresh here plus the visibility one in the next effect.
+    refreshTokenBalance(sessionId, () => getTokenBalance({}));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSignedIn, sessionId]);
+
+  // Desktop has no drawer-open event to hang a re-read on, so the equivalent
+  // "the user is looking at it again" moment is the tab regaining focus — which
+  // is exactly when a desktop session comes back from a long idle, or from the
+  // Chess.com tab, with a stale count on screen. The store dedupes in-flight
+  // requests, so this can't double-fetch against the mount refresh above.
+  useEffect(() => {
+    if (!isSignedIn) return;
+    const refreshIfVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      // Returning to a tab fires visibilitychange and focus together, and a
+      // burst of alt-tabbing fires them repeatedly; the store only dedupes
+      // what is still in flight, so this floor keeps a quiet session from
+      // turning tab-switching into a stream of requests.
+      const now = Date.now();
+      if (now - lastFocusRefreshRef.current < FOCUS_REFRESH_INTERVAL_MS) return;
+      lastFocusRefreshRef.current = now;
+      refreshTokenBalance(sessionId, () => getTokenBalance({}));
+    };
+    document.addEventListener("visibilitychange", refreshIfVisible);
+    window.addEventListener("focus", refreshIfVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", refreshIfVisible);
+      window.removeEventListener("focus", refreshIfVisible);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSignedIn, sessionId]);
 
@@ -325,7 +368,9 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           {pageHeader ? (
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={() =>
+                pageHeader.backHref ? router.push(pageHeader.backHref) : router.back()
+              }
               className="text-[#111827] p-[2px]"
               aria-label="Go back"
             >

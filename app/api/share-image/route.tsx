@@ -9,6 +9,12 @@ import {
   type LeaderboardShareSpec,
   type ResultShareSpec,
 } from "@/components/v2/share-link";
+import {
+  pieceAvatarHex,
+  PIECE_AVATAR_PIECE_ASPECT,
+  PIECE_AVATAR_PIECE_HEIGHT_RATIO,
+  PIECE_AVATAR_PIECE_SRC,
+} from "@/components/v2/piece-avatar-color";
 
 export const runtime = "nodejs";
 
@@ -80,7 +86,7 @@ const RESULT_COLOR: Record<GameResult, string> = {
 
 const BRAND_LOGO = "/icons/logo.png";
 const RESULT_BACKGROUND = "/images/v2/play-vs-ai/background-exported.png";
-const FALLBACK_AVATAR = "/images/homepage/v2/homepage_board_asset_4.png";
+
 const BACKGROUND_ALPHA = 0.34;
 
 const FONTS = [
@@ -105,19 +111,55 @@ async function loadFonts(origin: string) {
   return loaded;
 }
 
-async function inlineAvatar(url: string | null | undefined, origin: string) {
-  const fallback = new URL(FALLBACK_AVATAR, origin).toString();
-  if (!url) return fallback;
+/** Inlined as a data URI because satori fetches nothing itself. Returns "" when
+ *  there is no usable picture, and the caller then draws the same default
+ *  avatar the app shows (see PieceAvatarCircle) rather than substituting an
+ *  unrelated image. */
+async function inlineAvatar(url: string | null | undefined) {
+  if (!url) return "";
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
-    if (!res.ok) return fallback;
+    if (!res.ok) return "";
     const type = res.headers.get("content-type") ?? "image/png";
-    if (!type.startsWith("image/")) return fallback;
+    if (!type.startsWith("image/")) return "";
     const base64 = Buffer.from(await res.arrayBuffer()).toString("base64");
     return `data:${type};base64,${base64}`;
   } catch {
-    return fallback;
+    return "";
   }
+}
+
+/** satori build of <PieceAvatar>: the username's palette circle with the pawn
+ *  silhouette centred on it. Keeps the link preview identical to both the
+ *  clipboard card (drawPieceAvatar in share-image-canvas.ts) and the avatar in
+ *  the account UI. */
+function PieceAvatarCircle({
+  seed,
+  size,
+  src,
+}: {
+  seed: string;
+  size: number;
+  src: string;
+}) {
+  const pawnH = Math.round(size * PIECE_AVATAR_PIECE_HEIGHT_RATIO);
+  const pawnW = Math.round(pawnH * PIECE_AVATAR_PIECE_ASPECT);
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: pieceAvatarHex(seed),
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt="" width={pawnW} height={pawnH} />
+    </div>
+  );
 }
 
 function EloArrow({ up, size = 44 }: { up: boolean; size?: number }) {
@@ -473,22 +515,36 @@ function LeaderboardCard({
         style={{ position: "absolute", top: yLogo, left: (LB_W - LOGO_W) / 2 }}
       />
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={avatar || asset(FALLBACK_AVATAR)}
-        alt=""
-        width={AVATAR}
-        height={AVATAR}
+      <div
         style={{
+          display: "flex",
           position: "absolute",
           top: yAvatar,
           left: (LB_W - AVATAR) / 2,
-          width: AVATAR,
-          height: AVATAR,
-          borderRadius: AVATAR / 2,
-          objectFit: "cover",
         }}
-      />
+      >
+        {avatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={avatar}
+            alt=""
+            width={AVATAR}
+            height={AVATAR}
+            style={{
+              width: AVATAR,
+              height: AVATAR,
+              borderRadius: AVATAR / 2,
+              objectFit: "cover",
+            }}
+          />
+        ) : (
+          <PieceAvatarCircle
+            seed={spec.username}
+            size={AVATAR}
+            src={asset(PIECE_AVATAR_PIECE_SRC)}
+          />
+        )}
+      </div>
 
       <Row top={yName} size={68} weight={700} color={COLOR.ink}>
         {spec.username}
@@ -599,7 +655,7 @@ export async function GET(request: NextRequest) {
     const [fonts, avatar] = await Promise.all([
       loadFonts(origin),
       spec.kind === "leaderboard"
-        ? inlineAvatar(spec.avatarUrl, origin)
+        ? inlineAvatar(spec.avatarUrl)
         : Promise.resolve(""),
     ]);
 

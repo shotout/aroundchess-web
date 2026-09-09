@@ -23,6 +23,7 @@ import { ChessApiService } from "../analysis/onboarding/store/APIService";
 import { usePlayerStatsStore } from "../analysis/onboarding/store/usePlayerStatsStore";
 import { useProfileFetch } from "../navigator/hook/useProfileFetch";
 import { formatTimePgn } from "@/functions/format-date";
+import { clearAccountLocalState } from "@/functions/clear-account-storage";
 
 interface MyAccountProps {
   handleUsernameClicked: () => void;
@@ -167,8 +168,10 @@ const MyAccount = ({ onLogoutStart, handleUsernameClicked }: MyAccountProps) => 
         CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
-        localStorage.removeItem("background-analysis-storage");
-        localStorage.removeItem("pgn-local-storage");
+        // Everything else this account left in localStorage — leaderboard
+        // standing, streak, vs-AI caches. Left behind, the next account to sign
+        // in on this browser rehydrates them as its own.
+        clearAccountLocalState();
         setPersistedCookie("token", "", 365);
         window.location.href = "/login";
       });

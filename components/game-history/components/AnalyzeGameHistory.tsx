@@ -6,13 +6,14 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { usePgnStore } from "@/app/store/zustandStore";
-import { useProfileStore } from "@/app/store/profile";
+import { refreshTokenBalance, useProfileStore } from "@/app/store/profile";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { usePollingManager } from "../hooks/usePollingManager";
 import { useV3PollingManager } from "../hooks/useV3PollingManager";
 import { checkAnalysisCapacity } from "@/lib/services/capacity";
 import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { createPgnHash } from "@/utils/crypto-utils";
+import { useApiClient } from "@/functions/api-client";
 
 interface AnalyzeGameHistoryProps {
   open: boolean;
@@ -46,6 +47,7 @@ export function AnalyzeGameHistory({
     setDepth,
   } = usePgnStore();
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
+  const { getTokenBalance } = useApiClient();
   const { startBackgroundPolling } = usePollingManager();
   const { startV3BackgroundPolling } = useV3PollingManager();
   const { addJob: addV3Job, removeJob: removeV3Job } = useV3BackgroundAnalysisStore();
@@ -284,6 +286,12 @@ export function AnalyzeGameHistory({
           setPgn(gameToAnalyze);
           setDataGamesImport(game);
           setDataAnalysis(data.result || data);
+          // This branch returns out of handleAnalyzeGame, skipping the
+          // short-analyze call and the refresh at the end of it — so read the
+          // balance here instead. The analysis data is already in hand (the
+          // backend answered "completed"), which is the same point in the flow
+          // the tail-end refresh covers.
+          refreshTokenBalance(sessionId, () => getTokenBalance({}));
           return;
         }
 
@@ -367,6 +375,18 @@ export function AnalyzeGameHistory({
     } catch (shortAnalyzeError: any) {
       // Silent error handling
     }
+
+    // Balance re-read once both analysis calls have answered — by this point
+    // the backend has done whatever charging it does for this run, so the
+    // number we read back is final. Outside the try/catch on purpose: it must
+    // also run when short-analyze fails, and it is safe after a failed v2
+    // analyze too (the balance is then simply unchanged, or already refunded).
+    //
+    // GameList and PlayingPage also refresh when a job completes, but those
+    // only fire while their own page is mounted, so on their own the
+    // "Remaining Tokens" readouts (header, mobile drawer) could sit on the
+    // pre-analysis count indefinitely.
+    refreshTokenBalance(sessionId, () => getTokenBalance({}));
   };
 
   // When opened with autoStart flag, or when autoStart is true even if dialog is hidden,
