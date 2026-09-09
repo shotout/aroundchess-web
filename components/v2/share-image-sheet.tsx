@@ -158,20 +158,24 @@ function openTarget(tab: Window | null, target: string): boolean {
 }
 
 /**
- * Every platform now takes the same path: copy the card + caption, then open
- * the tapped network. Mobile used to hand the PNG to `navigator.share()`
- * instead, which ignored WHICH network was tapped — WhatsApp, X and Facebook
- * all opened the same OS picker — so the three-icon row was decorative on
- * phones. Deep links (api.whatsapp.com, the X intent, the FB sharer) open the
- * installed app on mobile anyway, so the network the user chose is honoured.
- *
- * Recorded so the OS-sheet path is not reinstated for desktop either: routing
- * desktop WhatsApp through `navigator.share()` was tried and reverted. On macOS
- * the sheet opens with the PNG but does not list WhatsApp at all (it registers
- * no share extension), so the user got a useless picker — and `await
- * navigator.share()` had already consumed the tap's user activation, so the
- * fallback's window.open was then blocked: "Could not open WhatsApp."
+ * Mobile only, deliberately. Routing desktop WhatsApp through the OS share
+ * sheet was tried and reverted: on macOS the sheet opens with the PNG but does
+ * not list WhatsApp at all (it registers no share extension), so the user got a
+ * useless picker, and `await navigator.share()` had already consumed the tap's
+ * user activation, so the wa.me fallback's window.open was then blocked —
+ * "Could not open WhatsApp." Desktop keeps the clipboard + wa.me flow, which
+ * works.
  */
+function shareableFile(blob: Blob, fileName: string): File | null {
+  if (!isMobile()) return null;
+  try {
+    const file = new File([blob], fileName, { type: "image/png" });
+    const nav = navigator as any;
+    return nav.share && nav.canShare?.({ files: [file] }) ? file : null;
+  } catch {
+    return null;
+  }
+}
 
 interface ShareImageSheetProps {
   spec: ShareCardSpec;
@@ -235,10 +239,10 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     // ELO is now 412 (+12)."), where the old shareMessage() was a fixed
     // "My game on AroundChess" for every result. Deliberately no longer
     // byte-identical to the RN app's single `message` arg.
-    const { text: message } = meta.current;
+    const { title, text: message } = meta.current;
     const url = shareCardUrl(specRef.current, window.location.origin);
     // Caption, blank line, link — the order that reads best everywhere it
-    // survives (X, and any composer the clipboard paste lands in).
+    // survives (X and the mobile share sheet).
     //
     // It makes no difference to WhatsApp, which is worth recording so nobody
     // re-runs the experiment: WhatsApp Web's composer keeps ONLY the URL out of
@@ -259,7 +263,21 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
         : message;
     const target = network.web(caption, url);
 
-    // Every target takes the same shape of payload the app sends it:
+    const file = shareableFile(blob, SHARE_FILE_NAME);
+    if (file) {
+      // Closest thing the web has to `shareSingle({url, type, message})`. The
+      // caption rides along for every target: through the OS share sheet the
+      // text is just part of the payload the user is sending, and an app that
+      // can't use it ignores it.
+      try {
+        await (navigator as any).share({ files: [file], title, text: caption });
+        return;
+      } catch (err) {
+        if ((err as any)?.name === "AbortError") return;
+      }
+    }
+
+    // Every remaining target takes the same shape of payload the app sends it:
     // the image, plus the caption for everything except Facebook. Previously X
     // and Facebook opened a text-only intent and the card never left this page
     // — the row says "Share image via", so the image now always goes too.
