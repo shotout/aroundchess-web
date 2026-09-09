@@ -44,7 +44,35 @@ const nextConfig = {
     ]
   },                                                                                                                                                                                                         
                                                                                                                                                                                                              
-  async headers() {                                                                                                                                                                                          
+  // Long-lived caching for the assets the board fetches on demand.
+  //
+  // Next.js serves everything in /public as `max-age=0, must-revalidate`, so
+  // every one of these needs the network the moment it is first requested:
+  // Stockfish is started with `new Worker("/stockfish/...")` (a second one for
+  // move classification) and each move sound is a fresh `new Audio(...)`. A
+  // connection that drops mid-game then took the AI opponent down with it,
+  // even though the engine runs entirely on the device. Cached properly, a
+  // game already in progress plays on with no connection at all.
+  //
+  // None of these filenames are content-hashed, so a replaced engine build or
+  // sound effect needs a new name (or a ?v= query) to reach clients that
+  // already cached the old one.
+  async headers() {
+    const ENGINE_CACHE = "public, max-age=31536000, immutable";
+    // Shorter than the engine, and not immutable: sound effects are small and
+    // far likelier to actually be swapped out.
+    const AUDIO_CACHE = "public, max-age=2592000";
+
+    // Vendored engine builds. The root-level three are the ones layout.tsx
+    // loads via <script src="/stockfish.js">; /stockfish/* holds the NNUE
+    // builds the play-vs-AI board and the move classifier run as workers.
+    const engineAssets = [
+      "/stockfish/:path*",
+      "/stockfish.js",
+      "/stockfish.wasm.js",
+      "/Stockfish.wasm",
+    ];
+                                                                                                                                                                                          
     return [                                                                                                                                                                                                 
       {                                                                                                                                                                                                      
         // matching all API routes                                                                                                                                                                           
@@ -55,7 +83,15 @@ const nextConfig = {
           { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,PATCH,DELETE,POST,PUT" },                                                                                                               
           { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" },                          
         ]                                                                                                                                                                                                    
-      }                                                                                                                                                                                                      
+      },                                                                                                                                                                                                      
+      ...engineAssets.map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: ENGINE_CACHE }],
+      })),
+      {
+        source: "/audio/:path*",
+        headers: [{ key: "Cache-Control", value: AUDIO_CACHE }],
+      },
     ]                                                                                                                                                                                                        
   },                                                                                                                                                                                                         
                                                                                                                                                                                                              

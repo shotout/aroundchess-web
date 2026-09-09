@@ -73,7 +73,10 @@ import { CommentaryMove } from "./CommentaryMove";
 import { TableMovement } from "./TableMovement";
 import { WhitePlayer } from "./WhitePlayer";
 import { playSound } from "@/utils/play-audio";
-import { classifyMove } from "../src/lib/classifyMove";
+import {
+  classifyMove,
+  preloadClassificationEngine,
+} from "../src/lib/classifyMove";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { usePollingManager } from "@/components/game-history/hooks/usePollingManager";
 import { createPgnHash } from "@/utils/crypto-utils";
@@ -474,6 +477,14 @@ export default function PlayingPage() {
     preloadLottie(DRAW_LOTTIE);
     preloadLottie(CELEBRATION_LOTTIE);
     preloadLottie(REWARD_LOTTIE);
+    // Same idea for the move classifier's engine: it is a second Stockfish
+    // worker, and building it lazily meant fetching its script on the first
+    // move — long after a connection may have dropped. Read the viewport
+    // directly rather than the isMobile state, which a later effect only
+    // fills in after this one has already run.
+    if (window.innerWidth >= 640) {
+      preloadClassificationEngine();
+    }
   }, []);
 
   const isGameInitialized = useRef(false);
