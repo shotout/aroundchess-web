@@ -402,7 +402,12 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                 )}
               </StatItem>
 
-              <ShareRankButton className="px-[6px] gap-[6px] min-[1600px]:px-[8px] min-[1600px]:gap-[8px]" />
+              {/* Above StatsCover (z-10), so a frozen player still sees a
+                  crisp, clickable Share instead of one tinted out and sealed
+                  under the freeze overlay. */}
+              <div className="relative z-20">
+                <ShareRankButton className="px-[6px] gap-[6px] min-[1600px]:px-[8px] min-[1600px]:gap-[8px]" />
+              </div>
             </div>
             {showJoinCover && leaderboardNote && (
               <p className="text-center text-[12px] font-medium text-[#6B7280]">

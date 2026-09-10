@@ -5,21 +5,21 @@ import { usePlayPageStore } from "@/app/store/playPage";
 /**
  * Whether the account currently has a rank worth sharing.
  *
- * Two states have none:
- *  • still calibrating — can_join false with games left to play, so no rank yet.
- *  • frozen after inactivity — dropped off the leaderboard, so the card would
- *    advertise a rank the player no longer holds.
+ * Only one state has none: still calibrating — can_join false with games left
+ * to play, so there is no rank to put on the card yet.
  *
- * Desktop only kept the frozen case inert by accident: StatsCover is absolutely
- * positioned over the stats block the button sits inside, so taps never reached
- * it. The mobile card puts the button in its header, outside the cover, where it
- * stayed live — hence the check here rather than per layout.
+ * A frozen (inactive) player does still share, even though the API sends them
+ * with can_join false and games_remaining set: they hold a real rank from
+ * before the freeze, and product wants the button up in that state rather than
+ * vanishing. Desktop has to place it above StatsCover for that to be true —
+ * the cover is absolutely positioned over the stats block the button sits in,
+ * so without a higher z-index the clicks never reach it.
  */
 export function useCanShareRank(): boolean {
   const { leaderboardMe } = usePlayPageStore();
   if (!leaderboardMe) return false;
 
-  if (leaderboardMe.is_inactive === true) return false;
+  if (leaderboardMe.is_inactive === true) return true;
 
   const stillCalibrating =
     leaderboardMe.can_join === false &&
