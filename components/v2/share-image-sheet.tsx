@@ -39,6 +39,16 @@ interface Network {
    * for one line of plain text.
    */
   noLink?: boolean;
+  /**
+   * Targets that throw the caption away, so it has to reach the post through
+   * the clipboard instead. Facebook is the only one: Meta's platform policy
+   * forbids prefilling the user's message and they enforce it at their end, so
+   * `sharer.php?quote=` is ignored on mobile, `fb://` accepts no payload at
+   * all, and the Facebook app's share extension drops the `text` handed to
+   * navigator.share(). WhatsApp and X differ only in that they choose to
+   * honour `?text=`.
+   */
+  captionBlocked?: boolean;
   web: (caption: string, url: string) => string;
 }
 
@@ -82,6 +92,7 @@ const NETWORKS: Network[] = [
     // No link in the caption: `u` already carries it, and Facebook is the one
     // target where the URL would appear twice in the same post.
     noLink: true,
+    captionBlocked: true,
     // `quote` is Facebook's only prefill parameter and it is honoured
     // inconsistently — Meta discourages prefilled captions, so it may be
     // ignored entirely. Sending it costs nothing when it is ignored and fills
@@ -132,6 +143,24 @@ async function copyImage(blob: Blob, caption?: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/**
+ * Text-only clipboard write, started but NOT awaited — the caller is inside a
+ * tap that is about to call navigator.share(), and awaiting anything first
+ * risks spending the transient user activation that share needs (the same
+ * hazard the desktop path works around by opening its tab before the await).
+ *
+ * Returns whether a write was even attempted, so the caller only promises the
+ * user a paste when there is a clipboard to paste from; a write that starts
+ * and then fails reports itself.
+ */
+function copyTextInBackground(text: string): boolean {
+  if (!navigator.clipboard?.writeText) return false;
+  navigator.clipboard.writeText(text).catch(() => {
+    toast("Could not copy the caption.");
+  });
+  return true;
 }
 
 function isMobile(): boolean {
@@ -257,14 +286,31 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     // captions were written around. Facebook is excluded via `noLink` because
     // it carries the link in its own `u` parameter — appending a bare arrow
     // with nothing after it would be worse than no line at all.
-    const caption =
-      INCLUDE_SHARE_LINK && !network.noLink
-        ? `${message}\n\n\u{1F449} ${url}`
-        : message;
+    const withLink = (text: string) =>
+      INCLUDE_SHARE_LINK ? `${text}\n\n\u{1F449} ${url}` : text;
+    const caption = network.noLink ? message : withLink(message);
     const target = network.web(caption, url);
 
     const file = shareableFile(blob, SHARE_FILE_NAME);
     if (file) {
+      // Facebook will discard the `text` below, so the words go to the
+      // clipboard as well and one paste puts them in the composer. The link
+      // rides along in this copy even though `noLink` strips it from the
+      // caption: noLink exists because sharer.php's `u` already carries the
+      // URL, and there is no `u` on this path — without it the post has no way
+      // back to the site. Started before share() and deliberately not awaited.
+      const pastable = network.captionBlocked
+        ? copyTextInBackground(withLink(message))
+        : false;
+      if (pastable) {
+        // Top-center and long: the OS sheet is about to cover the page from
+        // the bottom, and the user may only read this once they are back.
+        toast(`Caption copied — paste it into your ${network.label} post.`, {
+          position: "top-center",
+          duration: 10_000,
+        });
+      }
+
       // Closest thing the web has to `shareSingle({url, type, message})`. The
       // caption rides along for every target: through the OS share sheet the
       // text is just part of the payload the user is sending, and an app that
