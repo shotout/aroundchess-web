@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ShareButton } from "@/components/v2/share-button";
 import { ShareImageSheet } from "@/components/v2/share-image-sheet";
 import { useLeaderboardShareSpec } from "@/components/v2/leaderboard-share";
-import { useHasFinishedCalibration } from "@/components/v2/hooks/useHasFinishedCalibration";
+import { useCanShareRank } from "@/components/v2/hooks/useCanShareRank";
 
 interface ShareRankButtonProps {
   label?: string;
@@ -17,9 +17,9 @@ export function ShareRankButton({
 }: ShareRankButtonProps) {
   const [sharing, setSharing] = useState(false);
   const spec = useLeaderboardShareSpec();
-  const hasFinishedCalibration = useHasFinishedCalibration();
+  const canShare = useCanShareRank();
 
-  if (!hasFinishedCalibration) return null;
+  if (!canShare) return null;
 
   return (
     <>

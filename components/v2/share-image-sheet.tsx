@@ -302,7 +302,9 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
 
     toast(
       copied
-        ? `Image and caption copied — press Ctrl+V in ${network.label} to send it.`
+        ? isMobile()
+          ? `Image and caption copied — paste them in ${network.label} to send.`
+          : `Image and caption copied — press Ctrl+V in ${network.label} to send it.`
         : `Image saved — attach it to your ${network.label} post.`
     );
   };
@@ -322,7 +324,19 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex w-full max-w-[560px] flex-col overflow-y-auto bg-white p-[20px] sm:max-h-[95vh] sm:rounded-3xl sm:p-[28px]"
+        /* The two margins centre the sheet over the CONTENT rather than the
+           window — the shell pins a header across the top and, from 1280px up,
+           a sidebar of window.innerWidth/6 down the left, so a window-centred
+           panel reads high and to the left of the area it belongs to.
+           Under justify-center/items-center a leading margin M moves the
+           panel's centre to (size + M)/2, so M = exactly the strip being
+           displaced by. vw counts the scrollbar just as innerWidth does, and xl
+           is the 1280px the shell itself switches the sidebar on at.
+           max-h drops by the same header strip so a tall sheet still ends
+           inside the viewport instead of running off the bottom.
+           The backdrop stays full-bleed, so the dim and the click-to-close
+           still cover both the header and the sidebar. */
+        className="relative flex w-full max-w-[560px] flex-col overflow-y-auto bg-white p-[20px] sm:mt-[calc(var(--banner-height,0px)_+_var(--current-header-height))] sm:max-h-[calc(95vh_-_var(--banner-height,0px)_-_var(--current-header-height))] sm:rounded-3xl sm:p-[28px] xl:ml-[16.6667vw]"
       >
         <button
           type="button"
@@ -333,7 +347,10 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
           <ArrowLeft size={30} strokeWidth={2.5} />
         </button>
 
-        <div className="flex min-h-[240px] items-center justify-center rounded-3xl bg-[#C7C7C7] p-[14px] sm:min-h-[320px] sm:p-[18px]">
+        {/* shrink-0: the sheet is a fixed-height flex column on mobile, so without
+            it this box collapses to its min-height while the image keeps its own
+            max-height and spills out over the grey. */}
+        <div className="flex min-h-[240px] shrink-0 items-center justify-center rounded-3xl bg-[#C7C7C7] p-[14px] sm:min-h-[320px] sm:p-[18px]">
           {previewUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
