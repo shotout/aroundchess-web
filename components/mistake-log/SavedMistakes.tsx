@@ -18,6 +18,8 @@ import ProcessingAnalysisMode from "../game-history/components/ProcessingAnalysi
 import GameAnalysis from "../game-history/components/GameAnalysis";
 import { createPgnHash } from "@/utils/crypto-utils";
 import { useProfileStore } from "@/app/store/profile";
+import { OfflineState } from "@/components/v2/offline-state";
+import { useRefetchOnReconnect } from "@/components/v2/hooks/useRefetchOnReconnect";
 
 interface savedProps {
   onClickSeePrevious?: () => void;
@@ -96,7 +98,26 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
     setPreviousAnalysesDetail,
   } = usePgnStore();
   
-  const { unsaveMistakeLog, getAnalysisByPgnHash } = useApiClient();
+  const { unsaveMistakeLog, getAnalysisByPgnHash, getMistakeSaved } =
+    useApiClient();
+  const isOnline = useRefetchOnReconnect(() => retryLoadSaved());
+  const [isRetryingLoad, setIsRetryingLoad] = useState<boolean>(false);
+
+  /** Reload the saved list for the offline panel's retry. The same page-1
+   *  request useDataCache makes on mount (app/hooks/useDataCache.tsx), issued
+   *  straight from here rather than through that hook so mounting this
+   *  component does not also start a second copy of its hourly refetch
+   *  interval. Cached rows are left alone on failure, as they are there. */
+  const retryLoadSaved = () => {
+    if (isRetryingLoad) return;
+    setIsRetryingLoad(true);
+    getMistakeSaved({ page: 1, limit: 10 })
+      .then((res: any) => {
+        if (res?.data && Array.isArray(res.data)) setSavedMistakes(res.data);
+      })
+      .catch(() => {})
+      .finally(() => setIsRetryingLoad(false));
+  };
   // One state for the list and the controls — see <Pagination> below.
   const pagination = usePagination(savedMistakes);
   const { currentData } = pagination;
@@ -341,11 +362,18 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   return (
     <>
       <div className="flex flex-col w-full justify-center gap-4 rounded-[8px] lg:justify-start xl:min-h-[100px] xl:max-h-[1000px] lg:overflow-auto">
-        {currentData.length == 0 && (
+        {/* Offline replaces the list outright, cached rows included: they are
+            last session's, and every action on them needs the network. */}
+        {!isOnline && (
+          <OfflineState onRetry={retryLoadSaved} isRetrying={isRetryingLoad} />
+        )}
+
+        {isOnline && currentData.length == 0 && (
           <EmptyLog onClickSeePrevious={onClickSeePrevious} />
         )}
 
-        {currentData.length > 0 &&
+        {isOnline &&
+          currentData.length > 0 &&
           currentData.map((item: any, index: number) => {
             const display = buildDisplayMistakeLog(item);
             
@@ -487,7 +515,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
             );
           })}
       </div>
-      {currentData.length > 0 && <Pagination {...pagination} />}
+      {isOnline && currentData.length > 0 && <Pagination {...pagination} />}
 
       {/* Dialog components for View Analysis flow */}
       <ChooseAnalysisMode

@@ -60,6 +60,10 @@ import { ButtonFinish } from "./ButtonFinish";
 import { ButtonPlaying } from "./ButtonPlaying";
 import { PlayVsAiConfirmModal } from "@/components/v2/play-vs-ai-confirm-modal";
 import { PlayVsAiLeaveGuardModal } from "@/components/v2/play-vs-ai-leave-guard-modal";
+import { OfflineModal } from "@/components/v2/offline-modal";
+import { isOfflineError } from "@/components/v2/offline-status";
+import { useOnlineStatus } from "@/components/v2/hooks/useOnlineStatus";
+import { useOfflineGate } from "@/app/store/offlineGate";
 import { useGameLeaveGuard } from "@/app/store/gameLeaveGuard";
 import { PlayVsAiWinModal, WIN_LOTTIE } from "@/components/v2/play-vs-ai-win-modal";
 import { PlayVsAiLoseModal, LOSE_LOTTIE } from "@/components/v2/play-vs-ai-lose-modal";
@@ -431,6 +435,44 @@ export default function PlayingPage() {
   const hasRun = useRef(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(false);
+  const isOnline = useOnlineStatus();
+  const requestOnline = useOfflineGate((state) => state.request);
+  /** Set when the end-of-game save could not reach the server because the
+   *  connection is gone. It holds back the rest of the end-of-game flow so
+   *  that flow can run *once*, intact, after the save lands — see
+   *  handleSaveLog and retryOfflineSave. */
+  const [offlineSaveBlocked, setOfflineSaveBlocked] = useState<boolean>(false);
+  /** The player closed the offline modal. Retries carry on in the background;
+   *  this only stops the modal from standing in front of the result. */
+  const [offlineModalDismissed, setOfflineModalDismissed] =
+    useState<boolean>(false);
+  const [isRetryingOfflineSave, setIsRetryingOfflineSave] =
+    useState<boolean>(false);
+  const offlineSaveBlockedRef = useRef(false);
+  offlineSaveBlockedRef.current = offlineSaveBlocked;
+  const isRetryingOfflineSaveRef = useRef(false);
+  const retryQueuedRef = useRef(false);
+
+  /** A new game must not inherit the previous one's unsaved-offline state, or
+   *  the modal sits over a board that has nothing left to sync.
+   *
+   *  The three result flags go with it, and must. showWinModal and friends are
+   *  set when the game ends but only *rendered* when endModalHeldOffline is
+   *  false, so a held modal leaves its flag stuck true — nothing ever calls
+   *  the onClose that would clear it. Clearing the hold here without clearing
+   *  the flag would fire the previous game's result modal over the new board.
+   *  handleChallengeNext and handleLoseRematch already do this for the paths
+   *  that start from inside a modal; rematch and New Game never had to before,
+   *  because until now a result modal was always dismissed by hand. */
+  const resetOfflineSaveState = () => {
+    setOfflineSaveBlocked(false);
+    setOfflineModalDismissed(false);
+    setIsRetryingOfflineSave(false);
+    isRetryingOfflineSaveRef.current = false;
+    setShowWinModal(false);
+    setShowLoseModal(false);
+    setShowDrawModal(false);
+  };
   const [analysisPgn, setAnalysisPgn] = useState<string | null>(null);
   const [depthLevel] = useState(14);
   const { AIChoosed, setAIChoosed } = usePlayVSAIStore();
@@ -1987,6 +2029,7 @@ export default function PlayingPage() {
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
     setIsSaved(false);
+    resetOfflineSaveState();
     setHasAnalysis(false); // Reset analysis state for new game
     // A rematch rebuilds the board without touching AIChoosed, so the effect
     // that normally opens for a black player never ran: the lose modal's
@@ -2024,6 +2067,7 @@ export default function PlayingPage() {
     setPreviousSquare(undefined);
     setCurrentSquare(undefined);
     setIsSaved(false);
+    resetOfflineSaveState();
     setHasAnalysis(false);
     
     // Reset additional states
@@ -2229,11 +2273,32 @@ export default function PlayingPage() {
     // result modal, the streak and the analysis all work off the local game. It
     // used to reject straight out of this fire-and-forget call, which surfaced
     // as an unhandled rejection instead of anything the player could act on.
+    //
+    // A lost connection is the exception, and it is handled rather than
+    // reported: nothing below this line can succeed without the network, and
+    // running it anyway would spend the one end-of-game flow the player gets
+    // on a save that never happened — a result modal reporting no rating
+    // change for a game the backend has not seen. So bail out here, put the
+    // offline modal up, and let retryOfflineSave call this function again from
+    // the top once the connection is back. That replay IS the online flow;
+    // there is no separate offline path to keep in step with it.
     let res: any = null;
     let saveFailed = false;
     try {
       res = await postVSAILogs(body);
-    } catch {
+      setOfflineSaveBlocked(false);
+    } catch (error) {
+      if (isOfflineError(error)) {
+        setOfflineSaveBlocked(true);
+        setIsSaved(false);
+        setIsSaving(false);
+        // Reported, not just recorded in state: retryOfflineSave decides
+        // whether to queue a follow-up attempt on this return value rather
+        // than on offlineSaveBlockedRef, which is only refreshed on render and
+        // so can still read "blocked" for a save that has just succeeded —
+        // which would send a second POST and log the game twice.
+        return false;
+      }
       saveFailed = true;
       toast.error("Couldn't save this game — please check your connection or sign in again.");
     }
@@ -2325,6 +2390,66 @@ export default function PlayingPage() {
       }
     }
   };
+
+  // handleSaveLog is redefined on every render, so the retry paths below reach
+  // it through a ref instead of capturing whichever copy existed at the moment
+  // the game ended (and with it that render's stale game/ELO state).
+  const latestHandleSaveLog = useRef(handleSaveLog);
+  latestHandleSaveLog.current = handleSaveLog;
+
+  /** One more attempt at the end-of-game save, replaying the whole flow.
+   *
+   *  Guarded against overlap because three things can ask for a retry at once
+   *  — the modal's countdown, its button, and the `online` event — and each
+   *  attempt is a POST that creates a game log on the way through.
+   *
+   *  A request that arrives mid-attempt is remembered rather than dropped.
+   *  Without that, reconnecting during the second or two an attempt is in
+   *  flight (that attempt having been made while still offline, so doomed)
+   *  swallowed the one signal that the network was back, and the player waited
+   *  out a full two-minute countdown next to a working connection. Only the
+   *  three explicit triggers can queue, never a failure, so this cannot become
+   *  a retry loop. */
+  const retryOfflineSave = useCallback(() => {
+    if (!offlineSaveBlockedRef.current) return;
+    if (isRetryingOfflineSaveRef.current) {
+      retryQueuedRef.current = true;
+      return;
+    }
+    isRetryingOfflineSaveRef.current = true;
+    retryQueuedRef.current = false;
+    setIsRetryingOfflineSave(true);
+    const finish = (succeeded: boolean) => {
+      isRetryingOfflineSaveRef.current = false;
+      setIsRetryingOfflineSave(false);
+      const queued = retryQueuedRef.current;
+      retryQueuedRef.current = false;
+      if (!succeeded && queued) retryOfflineSaveRef.current();
+    };
+    latestHandleSaveLog.current().then(
+      (result) => finish(result !== false),
+      () => finish(false)
+    );
+  }, []);
+
+  // Self-reference for the queued follow-up above, which cannot name the
+  // callback it lives inside.
+  const retryOfflineSaveRef = useRef(retryOfflineSave);
+  retryOfflineSaveRef.current = retryOfflineSave;
+
+  // A restored connection retries straight away rather than waiting out the
+  // modal's countdown.
+  //
+  // Watches the offline -> online *edge*, not the plain condition: behind a
+  // captive portal navigator.onLine reads true while every request still
+  // fails, so an effect on `isOnline && offlineSaveBlocked` would re-satisfy
+  // itself after each failed attempt and spin.
+  const wasOnlineRef = useRef(true);
+  useEffect(() => {
+    const cameBackOnline = isOnline && !wasOnlineRef.current;
+    wasOnlineRef.current = isOnline;
+    if (cameBackOnline) retryOfflineSave();
+  }, [isOnline, retryOfflineSave]);
 
   const handleSave = async () => {
     try {
@@ -2682,16 +2807,28 @@ export default function PlayingPage() {
   // Start analysis for the current game. Outside the tutorial this skips the
   // depth dialog and auto-runs the Standard analysis; the tutorial keeps
   // showing the dialog as part of its scripted steps.
-  const triggerAnalyzeGame = () => {
+  /** @param onProceed anything the caller wants done only if the analysis
+   *  actually starts — a progress dialog, typically. Callers must not do that
+   *  work themselves before calling: offline the gate defers the run, and a
+   *  dialog opened up front would be left spinning behind the offline modal
+   *  with nothing ever coming to close it. */
+  const triggerAnalyzeGame = (onProceed?: () => void) => {
     if (isTutorialPlay) {
       setIsAnalyzeOpen(true);
       return;
     }
-    setAutoStartAnalyze(true);
+    // Analysis is a backend job, so offline this raises the offline modal and
+    // holds the request rather than opening a progress dialog that can only
+    // sit there and fail. The tutorial's scripted dialog above is deliberately
+    // left alone — it is not a real analysis run.
+    requestOnline(() => {
+      onProceed?.();
+      setAutoStartAnalyze(true);
+    });
   };
 
   // Handle "Show Analysis" click
-  const handleShowAnalysis = async () => {
+  const runShowAnalysis = async () => {
     try {
       const job = getJobByGameId(gameFromPgn.id);
       const pgnHash = createPgnHash(gameFromPgn.pgn);
@@ -2773,6 +2910,15 @@ export default function PlayingPage() {
         console.error("❌ [handleShowAnalysis] No fallback data available");
       }
     }
+  };
+
+  /** Reads a stored analysis off the backend, so it is gated the same way as
+   *  starting one. Its own fallbacks reach for a cached job result, but every
+   *  path that leads anywhere begins with a request. */
+  const handleShowAnalysis = () => {
+    requestOnline(() => {
+      void runShowAnalysis();
+    });
   };
 
   useEffect(() => {
@@ -2980,6 +3126,26 @@ export default function PlayingPage() {
       processingAnalysisModeOpen ||
       gameAnalysisOpen);
 
+  /** The finished game has not reached the backend yet, so the result modal
+   *  waits. Holding it keeps the end-of-game flow to a single run: once the
+   *  save lands it opens with the real rating change, exactly as it does
+   *  online, instead of having already claimed "no change" for a game the
+   *  backend never recorded.
+   *
+   *  Dismissing the offline modal does NOT release it, and keeps it held for
+   *  the rest of this game even after the save eventually lands. The player
+   *  closed a dialog to get back to their board; answering that with a second
+   *  dialog — immediately, carrying a rating change that is not real, or
+   *  minutes later when the connection returns and they have long moved on —
+   *  is the same intrusion they just dismissed. The result is on the page
+   *  either way: the win/loss banner, the move list, Analyze Mistakes. The
+   *  rating still syncs in the background and shows up in the top bar and in
+   *  game history; only the modal is suppressed.
+   *
+   *  Both flags are cleared by resetOfflineSaveState, so the next game starts
+   *  with the normal end-of-game flow. */
+  const endModalHeldOffline = offlineSaveBlocked || offlineModalDismissed;
+
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white gap-4">
       {!isTutorialPlay && <GameEndStatus gameStatus={statusGame.toLowerCase()} />}
@@ -2999,7 +3165,7 @@ export default function PlayingPage() {
           onConfirm={handleConfirmAction}
         />
       )}
-      {showWinModal && !isTutorialPlay && (
+      {showWinModal && !isTutorialPlay && !endModalHeldOffline && (
         <PlayVsAiWinModal
           oldElo={winElo?.oldElo ?? readElo(leaderboard, leaderboardMe)}
           newElo={winElo?.newElo ?? readElo(leaderboard, leaderboardMe)}
@@ -3010,7 +3176,7 @@ export default function PlayingPage() {
           onStartGame={handleChallengeNext}
         />
       )}
-      {showLoseModal && !isTutorialPlay && (
+      {showLoseModal && !isTutorialPlay && !endModalHeldOffline && (
         <PlayVsAiLoseModal
           oldElo={loseElo?.oldElo ?? readElo(leaderboard, leaderboardMe)}
           newElo={loseElo?.newElo ?? readElo(leaderboard, leaderboardMe)}
@@ -3021,13 +3187,17 @@ export default function PlayingPage() {
           onDiscoverMistakes={() => {
             setShowLoseModal(false);
             // Show the loading chess animation right away; the autoStart flow
-            // starts the analysis + polling that this dialog reads for progress.
-            if (!isTutorialPlay) setProcessingAnalysisModeOpen(true);
-            triggerAnalyzeGame();
+            // starts the analysis + polling that this dialog reads for
+            // progress. Passed to triggerAnalyzeGame rather than opened here
+            // so that offline — where the run is deferred until there is a
+            // connection — it does not appear at all.
+            triggerAnalyzeGame(() => {
+              if (!isTutorialPlay) setProcessingAnalysisModeOpen(true);
+            });
           }}
         />
       )}
-      {showDrawModal && !isTutorialPlay && (
+      {showDrawModal && !isTutorialPlay && !endModalHeldOffline && (
         <PlayVsAiDrawModal
           oldElo={drawElo?.oldElo ?? readElo(leaderboard, leaderboardMe)}
           newElo={drawElo?.newElo ?? readElo(leaderboard, leaderboardMe)}
@@ -3039,6 +3209,14 @@ export default function PlayingPage() {
             setShowDrawModal(false);
             triggerAnalyzeGame();
           }}
+        />
+      )}
+      {offlineSaveBlocked && !offlineModalDismissed && !isTutorialPlay && (
+        <OfflineModal
+          variant="sync"
+          isRetrying={isRetryingOfflineSave}
+          onRetry={retryOfflineSave}
+          onClose={() => setOfflineModalDismissed(true)}
         />
       )}
       {pendingCelebration !== null &&

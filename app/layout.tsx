@@ -7,6 +7,9 @@ import { AppSettingProvider } from "../components/v2/app-setting-provider";
 import { TutorialProvider } from "../components/TutorialProvider";
 import { DayStreakModalHost } from "../components/v2/day-streak-modal-host";
 import { ChesscomPromoModalHost } from "../components/v2/chesscom-promo-modal-host";
+import { OfflineBannerHost } from "../components/v2/offline-banner-host";
+import { OfflineGateHost } from "../components/v2/offline-gate-host";
+import { OfflineSimulationHost } from "../components/v2/offline-simulation-host";
 import { SessionKeepAlive } from "../components/v2/session-keepalive";
 // Imported for its side effect, and imported here so the fetch wrapper is in
 // place before any page code can fire a request.
@@ -98,6 +101,9 @@ export default function RootLayout({
               {children}
               <DayStreakModalHost />
               <ChesscomPromoModalHost />
+              <OfflineBannerHost />
+              <OfflineGateHost />
+              <OfflineSimulationHost />
               <Toaster />
             </TutorialProvider>
           </AuthProvider>

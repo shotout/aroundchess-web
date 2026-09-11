@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { OfflineState } from "@/components/v2/offline-state";
+import { useRefetchOnReconnect } from "@/components/v2/hooks/useRefetchOnReconnect";
 import { PieceAvatar } from "@/components/v2/piece-avatar";
 import { formatNumber } from "@/components/v2/format-number";
 
@@ -25,6 +27,8 @@ interface LeaderboardListProps {
   hasMore?: boolean;
   /** Infinite scroll: a next page is currently being fetched. */
   isLoadingMore?: boolean;
+  /** Refetch page 1 — wired to the offline panel's retry. */
+  onRetry?: () => void;
   /** Infinite scroll: called when the user scrolls near the bottom. */
   onLoadMore?: () => void;
   /**
@@ -199,7 +203,9 @@ export function LeaderboardList({
   isJumpingToMyRank,
   onResetToTop,
   autoJumpNonce = 0,
+  onRetry,
 }: LeaderboardListProps) {
+  const isOnline = useRefetchOnReconnect(() => onRetry?.());
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const topSentinelRef = useRef<HTMLDivElement | null>(null);
@@ -447,7 +453,16 @@ export function LeaderboardList({
           ref={scrollRef}
           className="leaderboard-scrollbar flex flex-col gap-0 sm:gap-[8px] mt-[10px] max-h-[420px] overflow-y-auto pl-[2px] pr-[2px] sm:pr-[10px] py-[2px]"
         >
-          {isLoading ? (
+          {/* Offline with nothing loaded outranks even the skeleton: a retry
+              sets isLoading, and letting that win would swap the panel out for
+              loading rows and straight back again on each failed attempt. The
+              panel reports the attempt itself instead. An empty table here
+              means the fetch never got out — not that the leaderboard is
+              empty. The header row above stays put either way, so the panel
+              reads as this table's own content, per the design. */}
+          {!isOnline ? (
+            <OfflineState onRetry={() => onRetry?.()} isRetrying={isLoading} />
+          ) : isLoading ? (
             <>
               <SkeletonRow />
               <SkeletonRow />

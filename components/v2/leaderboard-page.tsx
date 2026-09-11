@@ -107,8 +107,12 @@ export function LeaderboardPage() {
     return Array.isArray(list) ? list : null;
   };
 
-  useEffect(() => {
+  /** The initial page-1 load, lifted out of the mount effect so the list's
+   *  offline panel can run it again. Resets the window to page 1, which is
+   *  what a retry from an empty list should do. */
+  const loadFirstPage = useCallback(() => {
     if (!sessionId) return;
+    setIsLoading(true);
 
     getLeaderboardData({ page: 1, limit: PAGE_SIZE })
       .then((data: any) => {
@@ -137,6 +141,10 @@ export function LeaderboardPage() {
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
+
+  useEffect(() => {
+    loadFirstPage();
+  }, [loadFirstPage]);
 
   const loadMore = useCallback(() => {
     if (fetchingMoreRef.current || !hasMore || isLoading) return;
@@ -424,6 +432,7 @@ export function LeaderboardPage() {
                 isJumpingToMyRank={isJumping}
                 onResetToTop={resetToTop}
                 autoJumpNonce={initialLoadNonce}
+                onRetry={loadFirstPage}
               />
 
               <div className="pt-4"><LeaderboardNextGame userElo={effectiveElo} /></div>

@@ -9,6 +9,7 @@ import GameAnalysis from "@/components/game-history/components/GameAnalysis";
 import { useBackgroundAnalysisStore } from "@/app/store/backgroundAnaysis";
 import { useProfileStore } from "@/app/store/profile";
 import { createPgnHash } from "@/utils/crypto-utils";
+import { useOfflineGate } from "@/app/store/offlineGate";
 
 // Mirrors GameCard's analysis flow so the play page's Recent Games buttons run
 // exactly what the history page does — without changing the row layout.
@@ -51,8 +52,9 @@ export function useGameHistoryAnalysis(game: Game) {
 
   const { getJobByGameId } = useBackgroundAnalysisStore();
   const { sessionId } = useProfileStore();
+  const requestOnline = useOfflineGate((state) => state.request);
 
-  const trigger = async () => {
+  const runAnalysis = async () => {
     const job = getJobByGameId(game.id);
 
     if (game.isAnalysis || (job && job.status === "completed")) {
@@ -101,6 +103,17 @@ export function useGameHistoryAnalysis(game: Game) {
       // Not analysed yet — start the analysis flow.
       setAutoStartAnalyze(true);
     }
+  };
+
+  /** Every branch of runAnalysis needs the network — it either fetches a
+   *  stored analysis or asks the backend to produce one — so offline it raises
+   *  the offline modal instead of opening a dialog that can only fail. The
+   *  gate keeps the call and runs it once the connection is back, so the
+   *  player's click is not thrown away. */
+  const trigger = () => {
+    requestOnline(() => {
+      void runAnalysis();
+    });
   };
 
   const modals = (

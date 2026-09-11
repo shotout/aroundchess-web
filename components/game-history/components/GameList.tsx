@@ -26,6 +26,8 @@ import { formatTimePgn } from "@/functions/format-date";
 import { useApiClient } from "@/functions/api-client";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { useTutorial } from "@/components/TutorialProvider";
+import { OfflineState } from "@/components/v2/offline-state";
+import { useRefetchOnReconnect } from "@/components/v2/hooks/useRefetchOnReconnect";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import Image from "next/image";
 import ChooseAnalysisMode from "./ChooseAnalysisMode";
@@ -150,6 +152,7 @@ const GamesList: React.FC<GamesListProps> = ({
   const { setIsFromAnalyzeDifferentGame } = usePgnStore();
   const pathname = usePathname();
   const { isTutorialPlay, dataTutorial, stepFocused } = useTutorial();
+  const isOnline = useRefetchOnReconnect(handleRetryFetch);
   const { setOpenOffer } = usePricingOffer();
 
   // Use tutorial dummy data when tutorial is active and no real games
@@ -756,6 +759,25 @@ const GamesList: React.FC<GamesListProps> = ({
       style: v2GlowStyle(34, 26, 233),
     };
   };
+
+  // Offline with nothing loaded outranks the skeleton below: handleRetryFetch
+  // sets isLoading, so letting the skeleton win would replace the panel with
+  // ten loading rows and snap back on every failed attempt. The panel reports
+  // the attempt itself instead.
+  //
+  // Offline wins even when rows are already in hand. They come from a
+  // persisted store, so they are last session's games, silently stale and with
+  // every button on them — Analyze Mistakes above all — leading nowhere. A
+  // list that cannot be acted on or trusted is worse than none.
+  if (!isOnline && !isTutorialPlay) {
+    return (
+      <OfflineState
+        onRetry={handleRetryFetch}
+        isRetrying={isLoading}
+        className="w-[calc(100%+32px)] bg-[#FAFDFF] lg:bg-white lg:w-full border-t lg:border border-[#C0CED4] lg:rounded-[8px] mb-[16px] mx-[-16px] lg:mx-0"
+      />
+    );
+  }
 
   if (isLoading && !isTutorialPlay) {
     return <GamesListSkeleton desktopRows={10} mobileCards={8} />;
