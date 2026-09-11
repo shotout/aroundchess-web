@@ -11,6 +11,7 @@ import { OfflineBannerHost } from "../components/v2/offline-banner-host";
 import { OfflineGateHost } from "../components/v2/offline-gate-host";
 import { PendingGameSavesHost } from "../components/v2/pending-game-saves-host";
 import { OfflineSimulationHost } from "../components/v2/offline-simulation-host";
+import { ServiceWorkerHost } from "../components/v2/service-worker-host";
 import { SessionKeepAlive } from "../components/v2/session-keepalive";
 // Imported for its side effect, and imported here so the fetch wrapper is in
 // place before any page code can fire a request.
@@ -105,6 +106,7 @@ export default function RootLayout({
               <OfflineBannerHost />
               <OfflineGateHost />
               <PendingGameSavesHost />
+              <ServiceWorkerHost />
               <OfflineSimulationHost />
               <Toaster />
             </TutorialProvider>

@@ -63,6 +63,57 @@ const nextConfig = {
     // far likelier to actually be swapped out.
     const AUDIO_CACHE = "public, max-age=2592000";
 
+    // Product imagery and fonts, and the same story again: an icon the page
+    // only asks for once something has happened — the resign warning, the
+    // end-of-game banner, the offline card's own wifi glyph — is fetched at
+    // that moment, which offline means a broken image. That is exactly what a
+    // real device showed. 30 days, and revalidatable rather than immutable,
+    // because these do get redrawn occasionally; it is long enough that
+    // anything seen on a previous visit is still valid when the connection
+    // goes.
+    const STATIC_ASSET_CACHE = "public, max-age=2592000";
+
+    // Every /public directory that holds something the UI renders. Listed one
+    // by one rather than matched by extension: an extension pattern here is
+    // easy to get subtly wrong in path-to-regexp and silently match nothing.
+    const assetDirs = [
+      "/images",
+      "/icons",
+      "/avatars",
+      "/fonts",
+      "/pieces",
+      "/classic",
+      "/default",
+      "/crownforge",
+      "/boards",
+      "/3d-pieces",
+      "/3d-wood-pieces",
+      "/play-vs-ai",
+      "/tutorial",
+      "/onboarding",
+      "/my-game-history",
+      "/training-plan",
+      "/puzzle",
+      "/board-vision",
+      "/endgame-training",
+      "/offers",
+      "/special-offer",
+      "/auth",
+      "/handbooks",
+    ];
+
+    // The board's piece sprites and page backgrounds sit at the root rather
+    // than in a directory, so they need naming. A fixed set, so spelling them
+    // out beats a regex over the whole root.
+    const rootImages = [
+      ...["b", "w"].flatMap((colour) =>
+        ["B", "K", "N", "P", "Q", "R"].map((piece) => `/${colour}${piece}.png`)
+      ),
+      "/chess.png",
+      "/chess-pattern.png",
+      "/wood-pattern.png",
+    ];
+
     // Vendored engine builds. The root-level three are the ones layout.tsx
     // loads via <script src="/stockfish.js">; /stockfish/* holds the NNUE
     // builds the play-vs-AI board and the move classifier run as workers.
@@ -92,11 +143,38 @@ const nextConfig = {
         source: "/audio/:path*",
         headers: [{ key: "Cache-Control", value: AUDIO_CACHE }],
       },
+      ...assetDirs.map((dir) => ({
+        source: `${dir}/:path*`,
+        headers: [{ key: "Cache-Control", value: STATIC_ASSET_CACHE }],
+      })),
+      ...rootImages.map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: STATIC_ASSET_CACHE }],
+      })),
+      // The one pair that must NOT be cached. The worker script and its
+      // precache list are how a deploy reaches a browser that already has an
+      // older worker installed; served stale, the old one would keep serving
+      // the old assets and there would be no way to correct it.
+      ...["/sw.js", "/sw-manifest.json"].map((source) => ({
+        source,
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      })),
     ]                                                                                                                                                                                                        
   },                                                                                                                                                                                                         
                                                                                                                                                                                                              
-  images: {                                                                                                                                                                                                  
-    dangerouslyAllowSVG: true,                                                                                                                                                                               
+  images: {
+    dangerouslyAllowSVG: true,
+    // Next's default is 60 SECONDS, which is the main reason icons broke
+    // offline on a real device: almost everything on the page goes through
+    // next/image, so it is served from /_next/image and expires a minute
+    // after it is fetched. Once expired the browser tries to revalidate, and
+    // offline that fails and renders a broken image. Matched to
+    // STATIC_ASSET_CACHE in headers() above so the optimised variant and its
+    // source file agree on how long they are good for.
+    minimumCacheTTL: 2592000,
+
     remotePatterns: [                                                                                                                                                                                        
       {                                                                                                                                                                                                      
         protocol: 'https',                                                                                                                                                                                   
