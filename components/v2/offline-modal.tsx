@@ -8,10 +8,15 @@ const ICON = "/images/v2/play-vs-ai/WifinoInternet.png";
 
 /** Which problem the card is describing.
  *
- *  `sync` is the finished game whose result has not reached the backend yet —
- *  it promises the game is safe and asks the player to stay put, because that
- *  promise only holds while the tab is open (there is no service worker, and
- *  the restore path drops ended-game snapshots).
+ *  `sync` is the finished game whose result has not reached the backend yet.
+ *
+ *  Its copy is the approved wording and is not to be edited here. Note that it
+ *  now under-promises: "please keep this tab open" was literally required when
+ *  the retry lived on the board and died with it, but the game is since held
+ *  in a persisted queue (app/store/pendingGameSaves.ts) that
+ *  PendingGameSavesHost drains from anywhere in the app, so it survives
+ *  leaving the page and closing the tab. Conservative, not wrong — if the
+ *  copy is ever revisited, that sentence is the one that can go.
  *
  *  `blocked` is something the user just asked for that cannot happen offline
  *  — opening an analysis, most of all. Nothing is pending, so there is nothing

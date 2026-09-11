@@ -774,7 +774,7 @@ const GamesList: React.FC<GamesListProps> = ({
       <OfflineState
         onRetry={handleRetryFetch}
         isRetrying={isLoading}
-        className="w-[calc(100%+32px)] bg-[#FAFDFF] lg:bg-white lg:w-full border-t lg:border border-[#C0CED4] lg:rounded-[8px] mb-[16px] mx-[-16px] lg:mx-0"
+        className="bg-[#FAFDFF] lg:bg-white border-t lg:border border-[#C0CED4] lg:rounded-[8px] mb-[16px]"
       />
     );
   }

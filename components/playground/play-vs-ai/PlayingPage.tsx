@@ -10,7 +10,11 @@ import GameCard from "@/components/playground/play-vs-ai/GameCard";
 import { Engine } from "@/components/playground/src/lib/stockfish";
 import { motion } from "@/utils/motion";
 import { useGameEndStatus } from "@/app/store/gameEndStatus";
-import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
+import {
+  getLocalDateStamp,
+  recordStreakPlayOnce,
+  useStreakStore,
+} from "@/app/store/streak";
 import {
   CELEBRATION_LOTTIE,
   REWARD_LOTTIE,
@@ -64,6 +68,11 @@ import { OfflineModal } from "@/components/v2/offline-modal";
 import { isOfflineError } from "@/components/v2/offline-status";
 import { useOnlineStatus } from "@/components/v2/hooks/useOnlineStatus";
 import { useOfflineGate } from "@/app/store/offlineGate";
+import {
+  claimPendingSave,
+  releasePendingSave,
+  usePendingGameSaves,
+} from "@/app/store/pendingGameSaves";
 import { useGameLeaveGuard } from "@/app/store/gameLeaveGuard";
 import { PlayVsAiWinModal, WIN_LOTTIE } from "@/components/v2/play-vs-ai-win-modal";
 import { PlayVsAiLoseModal, LOSE_LOTTIE } from "@/components/v2/play-vs-ai-lose-modal";
@@ -452,6 +461,22 @@ export default function PlayingPage() {
   offlineSaveBlockedRef.current = offlineSaveBlocked;
   const isRetryingOfflineSaveRef = useRef(false);
   const retryQueuedRef = useRef(false);
+  const enqueuePendingSave = usePendingGameSaves((state) => state.enqueue);
+  const removePendingSave = usePendingGameSaves((state) => state.remove);
+  /** The queued entry for the game on this board, while it is this board's to
+   *  retry. Claimed so PendingGameSavesHost leaves it alone until we are done
+   *  with it — two senders would log the game twice. */
+  const pendingSaveIdRef = useRef<string | null>(null);
+
+  const releasePendingSaveClaim = () => {
+    if (!pendingSaveIdRef.current) return;
+    releasePendingSave(pendingSaveIdRef.current);
+    pendingSaveIdRef.current = null;
+  };
+
+  // Leaving the board hands the game to the background flush rather than
+  // taking it down with the page — the failure this whole queue exists for.
+  useEffect(() => releasePendingSaveClaim, []);
 
   /** A new game must not inherit the previous one's unsaved-offline state, or
    *  the modal sits over a board that has nothing left to sync.
@@ -472,6 +497,11 @@ export default function PlayingPage() {
     setShowWinModal(false);
     setShowLoseModal(false);
     setShowDrawModal(false);
+    // Starting another game hands the last one's unsent save over to the
+    // background flush. It stays in the queue — this only stops the board from
+    // claiming a game it is no longer showing, which is what lets a player
+    // finish several games offline and have all of them land later.
+    releasePendingSaveClaim();
   };
   const [analysisPgn, setAnalysisPgn] = useState<string | null>(null);
   const [depthLevel] = useState(14);
@@ -2287,8 +2317,24 @@ export default function PlayingPage() {
     try {
       res = await postVSAILogs(body);
       setOfflineSaveBlocked(false);
+      // Sent from here, so the queued copy must go before the background host
+      // can send it a second time.
+      if (pendingSaveIdRef.current) {
+        removePendingSave(pendingSaveIdRef.current);
+        releasePendingSaveClaim();
+      }
     } catch (error) {
       if (isOfflineError(error)) {
+        // Queue it before anything else. From here the game is safe even if
+        // this component is gone a second later: the queue is persisted and
+        // PendingGameSavesHost sends it from wherever the player ends up.
+        const pendingId = enqueuePendingSave({
+          body,
+          usedHint: usedHintRef.current,
+          isTutorial: isTutorialPlay,
+        });
+        pendingSaveIdRef.current = pendingId;
+        claimPendingSave(pendingId);
         setOfflineSaveBlocked(true);
         setIsSaved(false);
         setIsSaving(false);
@@ -2358,7 +2404,7 @@ export default function PlayingPage() {
         // record-play returns the full updated streak status, so it is the
         // single source for the store sync and the celebration decision —
         // no follow-up status fetch needed.
-        recordStreakPlay()
+        recordStreakPlayOnce(() => recordStreakPlay())
           .then((res: any) => {
             if (!res?.success) return;
             const store = useStreakStore.getState();
@@ -3221,6 +3267,7 @@ export default function PlayingPage() {
       )}
       {pendingCelebration !== null &&
         endModalShown &&
+        !endModalHeldOffline &&
         !showWinModal &&
         !showLoseModal &&
         !showDrawModal &&

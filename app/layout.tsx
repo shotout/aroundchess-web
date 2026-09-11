@@ -9,6 +9,7 @@ import { DayStreakModalHost } from "../components/v2/day-streak-modal-host";
 import { ChesscomPromoModalHost } from "../components/v2/chesscom-promo-modal-host";
 import { OfflineBannerHost } from "../components/v2/offline-banner-host";
 import { OfflineGateHost } from "../components/v2/offline-gate-host";
+import { PendingGameSavesHost } from "../components/v2/pending-game-saves-host";
 import { OfflineSimulationHost } from "../components/v2/offline-simulation-host";
 import { SessionKeepAlive } from "../components/v2/session-keepalive";
 // Imported for its side effect, and imported here so the fetch wrapper is in
@@ -103,6 +104,7 @@ export default function RootLayout({
               <ChesscomPromoModalHost />
               <OfflineBannerHost />
               <OfflineGateHost />
+              <PendingGameSavesHost />
               <OfflineSimulationHost />
               <Toaster />
             </TutorialProvider>

@@ -11,8 +11,15 @@ interface OfflineStateProps {
   onRetry: () => void;
   /** The refetch is in flight. */
   isRetrying?: boolean;
-  /** Chrome for the surrounding surface — a border and radius where this
-   *  stands alone as a card, nothing where it sits inside one already. */
+  /** Chrome for the surrounding surface — background, border, radius, outer
+   *  spacing — where this stands alone as a card; nothing where it already
+   *  sits inside one.
+   *
+   *  Surface only. Width and horizontal margin belong to the layout below and
+   *  must not be passed: they collide with the `w-full` there, Tailwind
+   *  resolves the winner by stylesheet order rather than by what is written
+   *  here, and the loser's negative margins survive anyway — which is exactly
+   *  how this panel ended up sitting 16px left of its container on mobile. */
   className?: string;
 }
 
