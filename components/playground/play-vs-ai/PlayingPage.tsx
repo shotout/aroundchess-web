@@ -1,6 +1,10 @@
 "use client";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
-import { usePlayVSAIStore } from "@/app/store/playVSAI";
+import {
+  clearSavedVsAiGame,
+  usePlayVSAIStore,
+  VS_AI_CURRENT_GAME_KEY,
+} from "@/app/store/playVSAI";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import GameCard from "@/components/playground/play-vs-ai/GameCard";
 import { Engine } from "@/components/playground/src/lib/stockfish";
@@ -13,7 +17,7 @@ import {
   DayStreakModal,
 } from "@/components/v2/day-streak-modal";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useProfileStore } from "@/app/store/profile";
+import { refreshTokenBalance, useProfileStore } from "@/app/store/profile";
 import { useShareGame } from "@/app/store/shareGame";
 import { usePgnStore } from "@/app/store/zustandStore";
 import ThreeDBoard from "@/components/chessboard/3d/ThreeDChessboard";
@@ -55,6 +59,8 @@ import { ButtonBoard } from "./ButtonBoard";
 import { ButtonFinish } from "./ButtonFinish";
 import { ButtonPlaying } from "./ButtonPlaying";
 import { PlayVsAiConfirmModal } from "@/components/v2/play-vs-ai-confirm-modal";
+import { PlayVsAiLeaveGuardModal } from "@/components/v2/play-vs-ai-leave-guard-modal";
+import { useGameLeaveGuard } from "@/app/store/gameLeaveGuard";
 import { PlayVsAiWinModal, WIN_LOTTIE } from "@/components/v2/play-vs-ai-win-modal";
 import { PlayVsAiLoseModal, LOSE_LOTTIE } from "@/components/v2/play-vs-ai-lose-modal";
 import { PlayVsAiDrawModal, DRAW_LOTTIE } from "@/components/v2/play-vs-ai-draw-modal";
@@ -359,13 +365,39 @@ export default function PlayingPage() {
    *  VS AI lobby — e.g. "Play against this Opponent" on the opponent stats page
    *  — so return to wherever the user actually came from, and only fall back to
    *  the lobby when there is no history (deep link, fresh tab). */
+  const {
+    pending: leaveGuard,
+    request: requestLeave,
+    open: openLeaveGuard,
+    setArmed: setLeaveGuardArmed,
+    confirm: confirmLeaveGuard,
+    dismiss: dismissLeaveGuard,
+  } = useGameLeaveGuard();
+  /** Both leave paths run this first: the guard modal promises the current game
+   *  ends and the progress is not saved, so the resume snapshot goes with it.
+   *  Clearing isGameInitialized too because saveGameState is keyed off it — it
+   *  stops a re-render between here and the route change from writing the
+   *  position straight back out. */
+  const discardCurrentGame = useCallback(() => {
+    isGameInitialized.current = false;
+    clearSavedVsAiGame();
+  }, []);
   const handleMobileBack = useCallback(() => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
-    router.push("/playground/play-vs-ai");
-  }, [router]);
+    requestLeave("leave", () => {
+      discardCurrentGame();
+      if (typeof window !== "undefined" && window.history.length > 1) {
+        router.back();
+        return;
+      }
+      router.push("/playground/play-vs-ai");
+    });
+  }, [router, requestLeave, discardCurrentGame]);
+  const handleBackToLobby = useCallback(() => {
+    requestLeave("leave", () => {
+      discardCurrentGame();
+      router.push("/playground/play-vs-ai");
+    });
+  }, [router, requestLeave, discardCurrentGame]);
   const { setFen, setPGN, setOpen } = useShareGame();
   const { proceedAnalysis } = useStockfishAnalysis();
   const { isMember, isMemberMonthly, token } = useProfileStore();
@@ -543,12 +575,18 @@ export default function PlayingPage() {
   const [isMobile, setIsMobile] = useState(false);
 
   const [shouldTriggerAI, setShouldTriggerAI] = useState(false);
+  /** Set while an engine request is out — see findEnemyMove. */
+  const aiMoveInFlightRef = useRef(false);
 
   const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [fenHistory, setFenHistory] = useState<string[]>([game.fen()]);
+  const hasMoved = game.history().length > 0;
   const containerRef = useRef<HTMLDivElement>(null);
   const movementDetailsRef = useRef<HTMLDivElement>(null);
-  const [totalCompletedJobs, setTotalCompletedJobs] = useState(0);
+  // By gameId, not by count — see the matching note in GameList: clearOldJobs()
+  // prunes finished jobs, and a count-based high-water mark then stayed above
+  // the shrunken list, so later completions never triggered the token refresh.
+  const seenCompletedJobIdsRef = useRef<Set<string>>(new Set());
 
   const [redoStack, setRedoStack] = useState<string[]>([]);
 
@@ -723,10 +761,33 @@ export default function PlayingPage() {
     handleRematch();
   };
 
-  const LOCAL_STORAGE_KEY = "vs-ai-current-game";
+  // The board's reset (round arrow) throws the current position away just like
+  // "New Game" does, so it takes the same "restart" warning. request() runs the
+  // rematch straight away when the guard is not armed — no moves played yet, or
+  // the game is already over, so there is no progress to lose.
+  const requestReset = () => {
+    requestLeave("restart", handleReset);
+  };
+
+  const LOCAL_STORAGE_KEY = VS_AI_CURRENT_GAME_KEY;
+
+  /** `vs-ai-<name>-<elo>-` — the prefix every gameId for this matchup carries.
+   *  currentGameId is only ever set when a board is actually built, so it says
+   *  which opponent the position in `game` belongs to. */
+  const matchupPrefix = `vs-ai-${AIChoosed.opponent.name}-${AIChoosed.opponent.elo}-`;
 
   const saveGameState = useCallback(() => {
     if (!isGameInitialized.current) return;
+    // Never relabel a game that belongs to a different matchup.
+    //
+    // Picking a new opponent updates AIChoosed immediately, but the board is
+    // rebuilt by the [AIChoosed] effect further down the file — which React
+    // runs AFTER this one in the same commit, because effects fire in
+    // declaration order. So without this guard the previous opponent's PGN and
+    // gameId got written out stamped with the NEW opponent's name and elo, and
+    // the restore check below then accepted that snapshot as "the same
+    // matchup" and reloaded the old game — headers and all.
+    if (currentGameId && !currentGameId.startsWith(matchupPrefix)) return;
     if (typeof window !== "undefined") {
       const state = {
         pgn: game.pgn(),
@@ -738,7 +799,7 @@ export default function PlayingPage() {
       };
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
     }
-  }, [game, AIChoosed, statusGame, currentGameId]);
+  }, [game, AIChoosed, statusGame, currentGameId, matchupPrefix]);
 
   // Create game object from PGN with stable ID using useMemo
   const gameFromPgn = useMemo(() => {
@@ -772,6 +833,14 @@ export default function PlayingPage() {
     clearOldJobs();
     restorePollingJobs();
   }, [clearOldJobs, restorePollingJobs]);
+
+  useEffect(() => {
+    setLeaveGuardArmed(statusGame === "Ongoing" && !isTutorialPlay && hasMoved);
+    return () => {
+      setLeaveGuardArmed(false);
+      dismissLeaveGuard();
+    };
+  }, [statusGame, isTutorialPlay, hasMoved, setLeaveGuardArmed, dismissLeaveGuard]);
 
   // Check if analysis exists for this game
   useEffect(() => {
@@ -1336,6 +1405,13 @@ export default function PlayingPage() {
   };
 
   const findEnemyMove = (moveIndex?: number) => {
+    // One engine request at a time. The guards below are evaluated when the
+    // call is made, but the move is applied a round trip later, so two calls
+    // landing inside that window both pass and both play a move — the second
+    // one for the player's own side. Reachable now that a rematch and the
+    // opponent picker can each arm the AI's opening move within a second of
+    // each other.
+    if (aiMoveInFlightRef.current) return false;
     const isYourTurnLocal = myColor === "white" ? "w" : "b";
     const currentTurn = game.turn();
     const checkIndex = moveIndex !== undefined ? moveIndex : currentMoveIndex;
@@ -1353,7 +1429,9 @@ export default function PlayingPage() {
       return false;
     }
 
+    aiMoveInFlightRef.current = true;
     engine.getStockfishMove(game.fen(), AIChoosed.opponent.elo).then((pv) => {
+      aiMoveInFlightRef.current = false;
       // Guard the UCI parse: anything that isn't a square pair (a terminal
       // position answers "(none)") would otherwise be sliced into nonsense
       // like {from:"(n", to:"on"} and make chess.js throw.
@@ -1395,6 +1473,7 @@ export default function PlayingPage() {
     .catch((error) => {
       // getStockfishMove rejects on timeout, worker error, or a finished
       // position. None of these should surface as an unhandled rejection.
+      aiMoveInFlightRef.current = false;
       console.warn("Skipping AI move:", error);
     });
   };
@@ -1677,7 +1756,13 @@ export default function PlayingPage() {
           } else if (
             parsed.aiName === AIChoosed.opponent.name &&
             parsed.elo === AIChoosed.opponent.elo &&
-            parsed.myColor === AIChoosed.color
+            parsed.myColor === AIChoosed.color &&
+            // aiName/elo describe whoever last wrote the snapshot, so they
+            // cannot on their own prove the PGN is this matchup's. The gameId
+            // was minted when the board was built, so it can. Snapshots from
+            // before gameId was stored are accepted on the old test alone.
+            (typeof parsed.gameId !== "string" ||
+              parsed.gameId.startsWith(matchupPrefix))
           ) {
             console.log("🔄 [DEBUG] Restoring ongoing game from localStorage");
 
@@ -1704,6 +1789,12 @@ export default function PlayingPage() {
               setCurrentGameId(gameId);
             }
 
+            // Same arming as a fresh game: reloading the page mid-game while
+            // the AI is on the clock (refresh straight after your own move)
+            // restored the position with nothing due to move it. The trigger
+            // no-ops when it is the player's turn.
+            setShouldTriggerAI(true);
+
             restored = true;
           }
         } catch (e) {
@@ -1725,11 +1816,14 @@ export default function PlayingPage() {
       setFenHistory([game.fen()]);
       setCurrentMoveIndex(0);
       
-      if (AIChoosed.color === "black") {
-        setTimeout(() => {
-          findEnemyMove();
-        }, 1000);
-      }
+      // Arm the shared trigger rather than calling findEnemyMove on a timer.
+      // The timer captured THIS render's closure, where statusGame is still the
+      // finished game's ("Loss"/"Win") on a challenge-next — findEnemyMove's own
+      // `statusGame !== "Ongoing"` guard then threw the opening move away and a
+      // black player was left with white to move and nothing moving it. The
+      // effect below re-reads the fresh state and owns the turn check, so it
+      // does not need the colour condition that used to be here.
+      setShouldTriggerAI(true);
     }
     
     isGameInitialized.current = true;
@@ -1847,6 +1941,10 @@ export default function PlayingPage() {
     setLoserColor(losserColorLocal);
   };
 
+  const requestResign = () => {
+    openLeaveGuard("resign", handleResign);
+  };
+
   const handleAnalyzeGame = () => {
     if (!isMember && !isMemberMonthly && token.balance <= 0) {
       setOpenPricing(true);
@@ -1879,6 +1977,13 @@ export default function PlayingPage() {
     setCurrentSquare(undefined);
     setIsSaved(false);
     setHasAnalysis(false); // Reset analysis state for new game
+    // A rematch rebuilds the board without touching AIChoosed, so the effect
+    // that normally opens for a black player never ran: the lose modal's
+    // "Start Game", the draw modal's rematch and the win modal's
+    // challenge-next all left white to move with nothing to move it. This is
+    // the whole fix for "the AI does not make its move" — the trigger checks
+    // the turn itself, so it is a no-op when the player is white.
+    setShouldTriggerAI(true);
   };
 
   const handleNewGame = () => {
@@ -1926,9 +2031,24 @@ export default function PlayingPage() {
     // Reset to 2D mode
     setIs3DMode(false);
     setStyleChoosed("2d");
-    
+
+    // The board is already reset here, before the picker opens. Choosing an
+    // opponent re-arms this through the [AIChoosed] effect, but DISMISSING the
+    // picker does not — and that left a black player on a fresh board with
+    // white to move. Double-arming is safe: the trigger is one-shot and
+    // findEnemyMove holds a single engine request at a time.
+    setShouldTriggerAI(true);
+
     // Open dialog for new game selection
     setShowPlayVSAIModal(true);
+  };
+
+  // "New Game" mid-game throws away the current position, so it has to go
+  // through the leave guard's "restart" warning. request() runs the reset
+  // straight away when the guard is not armed (no moves played yet, or the
+  // game is already over) — there is no progress to lose then.
+  const requestNewGame = () => {
+    requestLeave("restart", handleNewGame);
   };
 
   const handleClosePlayVSAI = () => {
@@ -2023,16 +2143,25 @@ export default function PlayingPage() {
   /** The signed ELO change the save response reported, or null when it carried
    *  none (0 counts as "none" so the leaderboard difference below can speak). */
   const readSavedDelta = (saveRes: any): number | null => {
-    const raw = Number(String(saveRes?.data?.elo_change ?? "").replace("+", ""));
-    return Number.isFinite(raw) && raw !== 0 ? raw : null;
+    // Both spellings: the game-history payload uses elo_change, and other
+    // endpoints in this API answer camelCase (see useEffectiveElo).
+    // Absent and zero are different answers — `raw !== 0` used to throw away a
+    // genuine "no rating movement" and fall through to the leaderboard diff.
+    const src = (saveRes as any)?.data ?? {};
+    const value = src.elo_change ?? src.eloChange;
+    if (value === undefined || value === null || value === "") return null;
+    const raw = Number(String(value).replace("+", ""));
+    return Number.isFinite(raw) ? raw : null;
   };
 
   /** Rating before and after the finished game, from both leaderboard endpoints
    *  so a calibrating account (no rated my_elo yet) still reports a real number
    *  — see readElo. Also pushes the fresh payloads into the store. */
-  const refreshElo = async (saveRes: any) => {
+  const refreshElo = async (saveRes: any, resultRes?: any) => {
     const before = readElo(leaderboard, leaderboardMe);
-    const apiDelta = readSavedDelta(saveRes);
+    // The leaderboard's own game-result response is the authority on the
+    // change it just applied; the save log is the second choice.
+    const apiDelta = readSavedDelta(resultRes) ?? readSavedDelta(saveRes);
     let after = before;
     try {
       const [lb, me]: any[] = await Promise.all([
@@ -2048,8 +2177,8 @@ export default function PlayingPage() {
     return { before, after, apiDelta };
   };
 
-  const refreshWinElo = async (saveRes: any) => {
-    const { before, after, apiDelta } = await refreshElo(saveRes);
+  const refreshWinElo = async (saveRes: any, resultRes?: any) => {
+    const { before, after, apiDelta } = await refreshElo(saveRes, resultRes);
     // A win never shows a drop: trust the reported change, else the rise the
     // leaderboard recorded.
     const delta = apiDelta ?? Math.max(0, after - before);
@@ -2057,8 +2186,8 @@ export default function PlayingPage() {
     setWinElo({ oldElo: newElo - delta, newElo, delta });
   };
 
-  const refreshLoseElo = async (saveRes: any) => {
-    const { before, after, apiDelta } = await refreshElo(saveRes);
+  const refreshLoseElo = async (saveRes: any, resultRes?: any) => {
+    const { before, after, apiDelta } = await refreshElo(saveRes, resultRes);
     const delta = apiDelta ?? Math.min(0, after - before);
     const newElo = after < before ? after : before + delta;
     setLoseElo({ oldElo: newElo - delta, newElo, delta });
@@ -2066,8 +2195,8 @@ export default function PlayingPage() {
 
   // Unlike win/lose, a draw's ELO delta can go either way, so it's taken
   // as-is with no clamping.
-  const refreshDrawElo = async (saveRes: any) => {
-    const { before, after, apiDelta } = await refreshElo(saveRes);
+  const refreshDrawElo = async (saveRes: any, resultRes?: any) => {
+    const { before, after, apiDelta } = await refreshElo(saveRes, resultRes);
     const delta = apiDelta ?? after - before;
     const newElo = apiDelta !== null ? before + apiDelta : after;
     setDrawElo({ oldElo: newElo - delta, newElo, delta });
@@ -2113,26 +2242,34 @@ export default function PlayingPage() {
     setIsSaved(!saveFailed);
     setIsSaving(false);
     loadLogs();
-    if (statusGame === "Win") {
-      refreshWinElo(res);
-    }
-    if (statusGame === "Loss") {
-      refreshLoseElo(res);
-    }
-    if (statusGame === "Draw") {
-      refreshDrawElo(res);
-    }
+    // Report the finished game to the leaderboard, flagging whether the player
+    // leaned on a hint or undo at any point.
+    //
+    // AWAITED, and ahead of the refresh*Elo calls below, because THIS is the
+    // call that moves the rating. It used to run after them, so refreshElo
+    // refetched the leaderboard before the new rating existed, measured
+    // `after - before` as 0, and the win modal reported "0" for a game that
+    // game history then showed as +7. Its own response is the first choice for
+    // the delta; the leaderboard diff is only the fallback.
+    let resultRes: any = null;
     if (!isTutorialPlay) {
-      // Report the finished game to the leaderboard, flagging whether the
-      // player leaned on a hint or undo at any point.
       const savedGameId =
         (res as any)?.data?.game_id ?? (res as any)?.data?.id ?? null;
       if (savedGameId) {
-        postLeaderboardGameResult({
+        resultRes = await postLeaderboardGameResult({
           game_id: String(savedGameId),
           used_hint: usedHintRef.current,
-        }).catch(() => {});
+        }).catch(() => null);
       }
+    }
+    if (statusGame === "Win") {
+      refreshWinElo(res, resultRes);
+    }
+    if (statusGame === "Loss") {
+      refreshLoseElo(res, resultRes);
+    }
+    if (statusGame === "Draw") {
+      refreshDrawElo(res, resultRes);
     }
     if (!isTutorialPlay) {
       // Only the first finished game of the (local) day advances the streak:
@@ -2632,16 +2769,17 @@ export default function PlayingPage() {
       (gameData) => gameData.status == "completed"
     );
 
-    if (totalCompletedJobs < isCompleted.length) {
-      setTotalCompletedJobs(isCompleted.length);
-      getTokenBalance({}).then((response) => {
-        if (response.data != null) {
-          const data = response.data;
-          setToken(data);
-        }
-      });
+    const freshlyCompleted = isCompleted.filter(
+      (job) => !seenCompletedJobIdsRef.current.has(String(job.gameId))
+    );
+
+    if (freshlyCompleted.length > 0) {
+      freshlyCompleted.forEach((job) =>
+        seenCompletedJobIdsRef.current.add(String(job.gameId))
+      );
+      refreshTokenBalance(sessionId, () => getTokenBalance({}));
     }
-  }, [analysisJobs]);
+  }, [analysisJobs, sessionId, getTokenBalance]);
   const getAnalysisButtonContent = () => {
     const job = getJobByGameId(currentGameId);
     const currentPgn = analysisPgn ?? game.pgn();
@@ -2834,6 +2972,13 @@ export default function PlayingPage() {
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white gap-4">
       {!isTutorialPlay && <GameEndStatus gameStatus={statusGame.toLowerCase()} />}
+      {leaveGuard && (
+        <PlayVsAiLeaveGuardModal
+          type={leaveGuard.type}
+          onCancel={dismissLeaveGuard}
+          onConfirm={confirmLeaveGuard}
+        />
+      )}
       {confirmAction && (
         <PlayVsAiConfirmModal
           type={confirmAction}
@@ -2967,7 +3112,7 @@ export default function PlayingPage() {
       <div className="flex flex-col w-full gap-y-2 ">
         {/* <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none"> */}
         <div className="hidden flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none">
-          <button onClick={() => router.push("/playground/play-vs-ai")}>
+          <button onClick={handleBackToLobby}>
             <ArrowLeft color="black" size={24} />
           </button>
 
@@ -3251,7 +3396,7 @@ export default function PlayingPage() {
                       <ChevronRight size={24} color="#000" />
                     </button> */}
                     <button
-                      onClick={handleReset}
+                      onClick={requestReset}
                       className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3298,8 +3443,9 @@ export default function PlayingPage() {
             {statusGame === "Ongoing" ? (
               <ButtonPlaying
                 handleHint={requestHint}
-                handleNewGame={handleNewGame}
-                handleResign={handleResign}
+                handleNewGame={requestNewGame}
+                handleResign={requestResign}
+                canResign={hasMoved}
                 myColor={myColor}
                 currentTurn={currentTurn}
                 bestLine={bestLine}
@@ -3459,7 +3605,7 @@ export default function PlayingPage() {
 
       <div className="hidden sm:block w-full">
         <div className="flex justify-start gap-[14px] mb-[16px] min-h-54px rounded-[8px] min-h-[54px] bg-[#FAFDFF] border border-[#DEDEDE] p-4">
-          <button onClick={() => router.push("/playground/play-vs-ai")}>
+          <button onClick={handleBackToLobby}>
             <ArrowLeft color="black" size={24} />
           </button>
 
@@ -3573,7 +3719,7 @@ export default function PlayingPage() {
                       <ChevronRight size={24} color="#000" />
                     </button> */}
                     <button
-                      onClick={handleReset}
+                      onClick={requestReset}
                       className="rounded-[4px] w-1/2 h-[32px] flex justify-center items-center bg-[rgb(34,26,233,.2)] border border-[#221AE9] disabled:bg-[#c0ced4] disabled:border-[#737c7f] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3602,8 +3748,9 @@ export default function PlayingPage() {
                 {statusGame === "Ongoing" && !isTutorialPlay ? (
                   <ButtonPlaying
                     handleHint={requestHint}
-                    handleNewGame={handleNewGame}
-                    handleResign={handleResign}
+                    handleNewGame={requestNewGame}
+                    handleResign={requestResign}
+                    canResign={hasMoved}
                     myColor={myColor}
                     currentTurn={currentTurn}
                     bestLine={bestLine}

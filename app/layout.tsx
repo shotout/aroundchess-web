@@ -6,6 +6,7 @@ import { MarchOfferBanner } from "../components/MarchOfferBanner";
 import { AppSettingProvider } from "../components/v2/app-setting-provider";
 import { TutorialProvider } from "../components/TutorialProvider";
 import { DayStreakModalHost } from "../components/v2/day-streak-modal-host";
+import { ChesscomPromoModalHost } from "../components/v2/chesscom-promo-modal-host";
 import { SessionKeepAlive } from "../components/v2/session-keepalive";
 // Imported for its side effect, and imported here so the fetch wrapper is in
 // place before any page code can fire a request.
@@ -96,6 +97,7 @@ export default function RootLayout({
             <TutorialProvider>
               {children}
               <DayStreakModalHost />
+              <ChesscomPromoModalHost />
               <Toaster />
             </TutorialProvider>
           </AuthProvider>

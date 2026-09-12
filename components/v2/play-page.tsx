@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { PlayHeroGamePreview } from "@/components/v2/play-hero-game-preview";
 import { PlayGreeting, PlayTopBar } from "@/components/v2/play-top-bar";
 import { PlayRecentGames } from "@/components/v2/play-recent-games";
+import { PlayChesscomBanner } from "@/components/v2/play-chesscom-banner";
 import { useProfileStore } from "@/app/store/profile";
 import { refreshStreakStatus } from "@/app/store/streak";
 import { usePlayPageStore } from "@/app/store/playPage";
@@ -85,6 +86,8 @@ export function PlayPage() {
             />
 
             <div className="sm:bg-[#E6F7FE] p-0 sm:p-7 rounded-3xl"><PlayHeroGamePreview recommendedListHeightClass="sm:flex-1 sm:min-h-0" />
+
+            <PlayChesscomBanner />
 
             <div className="pt-8"><PlayRecentGames games={recentGames} isLoading={false} /></div>
             </div>

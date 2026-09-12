@@ -2,14 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
+import { useGameLeaveGuard } from "@/app/store/gameLeaveGuard";
+import { clearSavedVsAiGame } from "@/app/store/playVSAI";
 import { useProfileStore } from "@/app/store/profile";
 import { useHasPlayedToday } from "@/app/store/streak";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
 import { ELO_INFO, RANK_INFO, MOVED_INFO } from "@/components/v2/stat-info-text";
 import { openDayStreakStatusModal } from "@/components/v2/hooks/useDayStreakModal";
 import { formatNumber } from "@/components/v2/format-number";
+import { ShareRankButton } from "@/components/v2/share-rank-button";
+import { EloScoreModal } from "@/components/v2/elo-score-modal";
 
 interface PlayTopBarProps {
   streak: number;
@@ -45,15 +50,15 @@ function StatItem({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-[6px]">
+    <div className="flex items-center gap-[4px] min-[1600px]:gap-[6px]">
       <Image
         src={icon}
         alt=""
         width={22}
         height={22}
-        className={`w-[22px] h-[22px] object-contain shrink-0 ${muted ? "grayscale opacity-70" : ""}`}
+        className={`w-[18px] h-[18px] min-[1600px]:w-[22px] min-[1600px]:h-[22px] object-contain shrink-0 ${muted ? "grayscale opacity-70" : ""}`}
       />
-      <span className="text-[11px] sm:text-[12px] text-[#6B7280] whitespace-nowrap">{label}</span>
+      <span className="text-[11px] min-[1600px]:text-[12px] text-[#6B7280] whitespace-nowrap">{label}</span>
       {infoText ? (
         <InfoTooltip text={infoText} size={14} align={infoAlign} />
       ) : (
@@ -126,53 +131,6 @@ function StatsCover({ gamesRemaining }: { gamesRemaining?: number }) {
   );
 }
 
-function EloModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-2xl px-[32px] py-[28px] max-w-[460px] w-full mx-4 relative shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-[14px] right-[18px] text-[#9CA3AF] hover:text-[#374151] text-[20px] leading-none"
-          aria-label="Close"
-        >
-          ✕
-        </button>
-
-        <h2 className="font-bold text-[18px] text-[#111827] mb-[16px]">
-          What is an ELO Score?
-        </h2>
-
-        <p className="text-[14px] text-[#374151] mb-[12px]">
-          Your ELO score is a number that represents your current chess skill level.
-          Every time you play a rated game, your ELO changes based on the result
-          and the strength of your opponent.
-        </p>
-        <p className="text-[14px] text-[#374151] mb-[12px]">
-          Winning against stronger opponents will increase your rating more, while
-          losing to lower-rated opponents may cause a larger decrease.
-        </p>
-        <p className="text-[14px] text-[#374151] mb-[24px]">
-          Your ELO helps match you with players of similar strength and determines
-          your position on the leaderboard.*
-        </p>
-
-        <button
-          onClick={onClose}
-          className="w-full bg-[#221AE9] text-white py-[13px] rounded-full font-semibold text-[15px] hover:opacity-90 transition-opacity"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  );
-}
-
 /** Greeting row ("Hello, username" + "What is an ELO Score?") — rendered by the
  *  page above/outside the bordered content container. */
 export function PlayGreeting() {
@@ -182,7 +140,7 @@ export function PlayGreeting() {
 
   return (
     <div className="flex flex-col">
-      {showEloModal && <EloModal onClose={() => setShowEloModal(false)} />}
+      {showEloModal && <EloScoreModal onClose={() => setShowEloModal(false)} />}
 
       {/* Greeting row — mobile only */}
       <div className="sm:hidden flex items-center gap-[12px]">
@@ -232,8 +190,28 @@ export function PlayGreeting() {
   );
 }
 
+// Leaving a live game via the Leaderboard link has to go through the leave
+// guard, otherwise the player abandons the game without the warning.
+function useLeaderboardNav() {
+  const router = useRouter();
+  const leaveGuardArmed = useGameLeaveGuard((s) => s.armed);
+  const requestLeave = useGameLeaveGuard((s) => s.request);
+  return (e: React.MouseEvent) => {
+    if (!leaveGuardArmed) return;
+    e.preventDefault();
+    requestLeave("leaderboard", () => {
+      // "You will lose all progress in your current game" — so drop the resume
+      // snapshot as well, or the abandoned game comes back the next time the
+      // same opponent and colour are picked.
+      clearSavedVsAiGame();
+      router.push("/leaderboard");
+    });
+  };
+}
+
 export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining, isInactive }: PlayTopBarProps) {
   const [showEloModal, setShowEloModal] = useState(false);
+  const handleLeaderboardNav = useLeaderboardNav();
   // Flame lights up only when today's game is played — same rule as the
   // streak status modal's on/off flame.
   const hasPlayedToday = useHasPlayedToday();
@@ -259,25 +237,32 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
 
   return (
     <div data-tour-anchor="play-top-bar" className="flex flex-col">
-      {showEloModal && <EloModal onClose={() => setShowEloModal(false)} />}
+      {showEloModal && <EloScoreModal onClose={() => setShowEloModal(false)} />}
 
       {/* ── MOBILE card ── */}
       <div className="sm:hidden bg-[linear-gradient(to_bottom,#EFFAFF,#C9E9FC)] rounded-xl border border-[#E5E7EB] px-[16px] py-[14px] shadow-xl">
-        <div className="flex items-center justify-between mb-[12px]">
-          <Image
-            src="/images/v2/play/leaderboard.png"
-            alt="Leaderboard"
-            width={33}
-            height={33}
-            className="w-[33px] h-[33px] object-contain shrink-0"
-          />
-          <Link
-            href="/leaderboard"
-            className="flex items-center gap-[4px] font-bold text-[16px] text-[#221AE9]"
-          >
-            <span>Leaderboard</span>
-            <span className="text-[#221AE9] text-xl leading-none">›</span>
-          </Link>
+        <div className="flex items-center justify-between gap-[8px] mb-[12px]">
+          <div className="flex min-w-0 items-center gap-[6px]">
+            <Image
+              src="/images/v2/play/leaderboard.png"
+              alt="Leaderboard"
+              width={33}
+              height={33}
+              className="w-[33px] h-[33px] object-contain shrink-0"
+            />
+            <Link
+              href="/leaderboard"
+              onClick={handleLeaderboardNav}
+              className="flex items-center gap-[4px] font-bold text-[16px] text-[#221AE9]"
+            >
+              <span>Leaderboard</span>
+              <span className="text-[#221AE9] text-xl leading-none">›</span>
+            </Link>
+          </div>
+          {/* Right of the header, per the mockup. Renders nothing while the
+              account is still calibrating, which just leaves the row as the
+              grouped trophy + link. */}
+          <ShareRankButton />
         </div>
 
         {/* Stats row */}
@@ -327,6 +312,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
               )}
             </MobileStatItem>
           </div>
+
           {showJoinCover && leaderboardNote && (
             <p className="mt-[8px] text-center text-[11px] font-medium text-[#6B7280]">
               {leaderboardNote}
@@ -344,17 +330,17 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
       </div>
 
       {/* ── DESKTOP card ── */}
-      <div className="hidden sm:block bg-[linear-gradient(to_bottom,white,#E6F7FE)] rounded-xl border px-[35px] py-[14px] shadow-xl pb-5">
-        <div className="flex flex-wrap items-center gap-x-[24px] gap-y-[12px]">
+      <div className="hidden sm:block bg-[linear-gradient(to_bottom,white,#E6F7FE)] rounded-xl border px-[16px] min-[1600px]:px-[22px] py-[14px] shadow-xl pb-5">
+        <div className="flex flex-wrap items-center gap-x-[12px] min-[1600px]:gap-x-[14px] gap-y-[12px]">
           {/* Title + Streak */}
-          <div className="flex items-center gap-[16px] xl:gap-[30px] shrink-0 pt-2">
-            <span className="font-bold text-[clamp(24px,2vw,30px)] text-[#221AE9] whitespace-nowrap">
+          <div className="flex items-center gap-[8px] xl:gap-[10px] min-[1600px]:gap-[14px] shrink-0 pt-2">
+            <span className="font-bold text-[clamp(16px,1.1vw,20px)] min-[1600px]:text-[clamp(18px,1.35vw,24px)] text-[#221AE9] whitespace-nowrap">
               Play VS AI
             </span>
             <button
               type="button"
               onClick={() => openDayStreakStatusModal(streak)}
-              className="flex items-center gap-[5px] pl-3 cursor-pointer"
+              className="flex items-center gap-[5px] cursor-pointer"
               aria-label="Show day streak"
             >
               <Image
@@ -362,33 +348,33 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                 alt="streak"
                 width={32}
                 height={38}
-                className="w-[32px] h-[38px] object-contain"
+                className="w-[26px] h-[31px] min-[1600px]:w-[32px] min-[1600px]:h-[38px] object-contain"
               />
               <div className="flex flex-col leading-tight text-left">
-                <span className="text-[15px] font-bold text-[#2e3133]">{formatNumber(streak)} Day</span>
-                <span className="text-[15px] font-base text-[#2e3133]">Streak</span>
+                <span className="text-[13px] min-[1600px]:text-[15px] font-bold text-[#2e3133]">{formatNumber(streak)} Day</span>
+                <span className="text-[13px] min-[1600px]:text-[15px] font-base text-[#2e3133]">Streak</span>
               </div>
             </button>
           </div>
 
           {/* Stats — centered */}
           <div
-            className={`relative flex-1 min-w-[300px] flex flex-col items-center gap-[6px] rounded-md p-2 ${
+            className={`relative flex-1 min-w-[260px] flex flex-col items-center gap-[6px] rounded-md px-0 min-[1100px]:px-[6px] py-2 ${
               showJoinCover ? "bg-[#E5E7EB]" : "bg-white"
             } ${showFreezeCover ? "pb-[24px]" : ""}`}
           >
             {showFreezeCover && <StatsCover gamesRemaining={gamesRemaining} />}
-            <div className="flex flex-wrap items-center justify-center gap-x-[16px] xl:gap-x-[30px] gap-y-[6px]">
+            <div className="flex w-full flex-wrap items-center justify-between gap-x-[6px] min-[1600px]:gap-x-[14px] gap-y-[6px] px-0 min-[1100px]:px-[6px] min-[1600px]:px-[14px]">
               <StatItem icon="/images/v2/play/elo.png" label="Your ELO" infoText={ELO_INFO} infoAlign="left" muted={showJoinCover}>
                 {showJoinCover ? (
                   <span className="text-[13px] font-semibold text-[#6B7280] whitespace-nowrap">Calibrating…</span>
                 ) : (
-                  <span className="text-xl font-bold text-[#111827]">{elo || "—"}</span>
+                  <span className="text-[18px] min-[1600px]:text-xl font-bold text-[#111827]">{elo || "—"}</span>
                 )}
               </StatItem>
 
               <StatItem icon="/images/v2/play/rank.png" label="Your Rank" infoText={RANK_INFO} infoAlign="left" muted={showJoinCover}>
-                <span className={`text-xl font-bold ${showJoinCover ? "text-[#6B7280]" : "text-[#111827]"}`}>{toOrdinal(rank)}</span>
+                <span className={`text-[18px] min-[1600px]:text-xl font-bold ${showJoinCover ? "text-[#6B7280]" : "text-[#111827]"}`}>{toOrdinal(rank)}</span>
               </StatItem>
 
               <StatItem
@@ -407,7 +393,7 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                       height={16}
                       className="w-[16px] h-[16px] object-contain"
                     />
-                    <span className={`text-xl font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
+                    <span className={`text-[18px] min-[1600px]:text-xl font-bold ${isUp ? "text-green-600" : "text-red-500"}`}>
                       {formatNumber(movedUpAbs)}
                     </span>
                   </div>
@@ -415,6 +401,13 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
                   <span className="text-[18px] font-bold text-[#9CA3AF]">—</span>
                 )}
               </StatItem>
+
+              {/* Above StatsCover (z-10), so a frozen player still sees a
+                  crisp, clickable Share instead of one tinted out and sealed
+                  under the freeze overlay. */}
+              <div className="relative z-20">
+                <ShareRankButton className="px-[6px] gap-[6px] min-[1600px]:px-[8px] min-[1600px]:gap-[8px]" />
+              </div>
             </div>
             {showJoinCover && leaderboardNote && (
               <p className="text-center text-[12px] font-medium text-[#6B7280]">
@@ -426,14 +419,15 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
           {/* Leaderboard */}
           <Link
             href="/leaderboard"
-            className="flex items-center gap-[8px] font-bold text-xl text-[#111827] hover:text-[#221AE9] transition-colors shrink-0"
+            onClick={handleLeaderboardNav}
+            className="flex items-center gap-[6px] font-bold text-[17px] xl:text-lg text-[#111827] hover:text-[#221AE9] transition-colors shrink-0 whitespace-nowrap"
           >
             <Image
               src="/images/v2/play/leaderboard.png"
               alt="Leaderboard"
               width={48}
               height={44}
-              className="h-[44px] w-auto object-contain"
+              className="h-[34px] xl:h-[40px] w-auto object-contain"
             />
             Leaderboard
             <span className="text-[#221AE9] text-2xl leading-none">›</span>

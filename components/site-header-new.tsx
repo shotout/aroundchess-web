@@ -29,6 +29,7 @@ import CacheUtil from "@/app/training-plan/api/cacheUtils";
 import { useLoadingAPI } from "@/app/store/loadingApi";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import InitialAvatar from "./avatar/InitialAvatar";
+import { clearAccountLocalState } from "@/functions/clear-account-storage";
 
 interface SiteHeaderProps {
   children?: React.ReactNode;
@@ -114,8 +115,10 @@ export function SiteHeaderNew({ children }: SiteHeaderProps) {
         CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
-        localStorage.removeItem("background-analysis-storage");
-        localStorage.removeItem("pgn-local-storage");
+        // Everything else this account left in localStorage — leaderboard
+        // standing, streak, vs-AI caches. Left behind, the next account to sign
+        // in on this browser rehydrates them as its own.
+        clearAccountLocalState();
         setPersistedCookie("token", "", 365);
         window.location.href = "/login";
       });

@@ -36,12 +36,14 @@ const withFreshToken = async <T>(
     await refreshSession();
   }
 
+  const sentToken = useProfileStore.getState().sessionId || token;
+
   try {
-    return await send(useProfileStore.getState().sessionId || token);
+    return await send(sentToken);
   } catch (error: any) {
     if (error?.response?.status !== 401) throw error;
 
-    const refreshed = await refreshSession();
+    const refreshed = await refreshSession({ staleToken: sentToken });
     if (refreshed.status !== "refreshed") throw error;
 
     return send(refreshed.token);

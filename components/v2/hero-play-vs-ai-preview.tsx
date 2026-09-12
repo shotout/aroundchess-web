@@ -198,6 +198,19 @@ export function HeroPlayVSAIPreview({
   const [selectedColor, setSelectedColor] = useState<"white" | "black">("white");
   const [selectedTab, setSelectedTab] = useState("recommended");
   const [selectedOpponent, setSelectedOpponent] = useState(() => buildRecommended(AI_OPPONENT_ROSTER, DEFAULT_USER_ELO)[0]);
+  /** Set once the player actually taps a face. Until then the highlight is only
+   *  a suggestion and may follow the recommendation as it firms up; afterwards
+   *  nothing may silently replace their choice. */
+  const hasPickedOpponentRef = useRef(false);
+
+  /** Every opponent tap goes through here, so an explicit choice is recorded as
+   *  such. Start Game commits whatever this holds into AIChoosed, which is what
+   *  the finished game is filed under — so a selection this component discards
+   *  is a game recorded against a bot the player never picked. */
+  const pickOpponent = (opponent: Opponent) => {
+    hasPickedOpponentRef.current = true;
+    setSelectedOpponent(opponent);
+  };
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0 });
 
@@ -236,11 +249,24 @@ export function HeroPlayVSAIPreview({
     setStoreColor(selectedColor);
   }, [selectedColor, setStoreColor]);
 
-  // Keep the selection valid when the recommended list changes (shuffle or ELO load).
+  // Follow the recommendation while it is still firming up: the roster is
+  // shuffled on mount and the real ELO lands from /leaderboard a moment later,
+  // so `recommendedOpponents` changes identity at least twice after first paint
+  // (and again whenever the leaderboard refreshes).
+  //
+  // It must never touch an explicit pick. The Recommended view also lists every
+  // tier section, so a player rated 250 can tap Igor (800) while `selectedTab`
+  // is still "recommended" — and the old `stillThere ?? recommendedOpponents[0]`
+  // fallback then silently swapped that for the lowest rung (Thomas or Sofia,
+  // both 250). Start Game committed THAT bot to AIChoosed, and the finished
+  // game was filed against an opponent the player never chose.
   useEffect(() => {
+    if (hasPickedOpponentRef.current) return;
+    if (selectedTab !== "recommended") return;
     setSelectedOpponent((prev) => {
-      if (selectedTab !== "recommended") return prev;
-      const stillThere = recommendedOpponents.find((o) => o.name === prev.name && o.elo === prev.elo);
+      const stillThere = recommendedOpponents.find(
+        (o) => o.name === prev.name && o.elo === prev.elo
+      );
       return stillThere ?? recommendedOpponents[0];
     });
   }, [recommendedOpponents, selectedTab]);
@@ -419,7 +445,7 @@ export function HeroPlayVSAIPreview({
                 opponent={opponent}
                 tour={tour}
                 selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
-                onClick={() => setSelectedOpponent(opponent)}
+                onClick={() => pickOpponent(opponent)}
               />
             ))}
           </div>
@@ -446,7 +472,7 @@ export function HeroPlayVSAIPreview({
                     opponent={opponent}
                     tour={tour}
                     selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
-                    onClick={() => setSelectedOpponent(opponent)}
+                    onClick={() => pickOpponent(opponent)}
                   />
                 ))}
               </div>
@@ -473,7 +499,7 @@ export function HeroPlayVSAIPreview({
                 opponent={opponent}
                 tour={tour}
                 selected={selectedOpponent.name === opponent.name && selectedOpponent.elo === opponent.elo}
-                onClick={() => setSelectedOpponent(opponent)}
+                onClick={() => pickOpponent(opponent)}
               />
             ))}
           </div>

@@ -34,6 +34,26 @@ export default function ProcessingAnalysisMode({
     const { startV3BackgroundPolling } = useV3PollingManager();
     const { setPgn } = usePgnStore();
     const [progress, setProgress] = useState(0);
+    // Left edge of the overlay: the desktop sidebar is `fixed left-0` with this
+    // width (navigation.tsx, same >=1280 breakpoint), and the overlay starts
+    // where it ends so the sidebar stays clear. 0 below 1280, where there is no
+    // docked sidebar.
+    const [sidebarWidth, setSidebarWidth] = useState(() => {
+        if (typeof window === "undefined") return 0;
+        return window.innerWidth >= 1280 ? window.innerWidth / 6 : 0;
+    });
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (typeof window === "undefined") return;
+            setSidebarWidth(window.innerWidth >= 1280 ? window.innerWidth / 6 : 0);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
     // Keyed on the id, not the object: a re-created `game` prop would otherwise
     // restart the ramp from 0 partway through an analysis.
     const gameId = game?.id;
@@ -46,26 +66,6 @@ export default function ProcessingAnalysisMode({
             : isTakingLonger
               ? "Just one more moment..."
               : "AI Analyzing Now...";
-
-    const [sidebarWidth, setSidebarWidth] = useState(() => {
-        if (typeof window === "undefined") return 0;
-        return window.innerWidth >= 1280 ? window.innerWidth / 6 : 0;
-    });
-    const headerHeight = 72;
-    const headerHeightLg = 96;
-
-    useEffect(() => {
-        const handleResize = () => {
-            if (typeof window === "undefined") return;
-            const isDesktop = window.innerWidth >= 1280;
-            setSidebarWidth(isDesktop ? window.innerWidth / 6 : 0);
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, []);
 
     useEffect(() => {
         if (open && game?.pgn) {
@@ -144,17 +144,19 @@ export default function ProcessingAnalysisMode({
     if (!open) return null;
 
     return (
+        /* Full height (top-0 bottom-0), inset only on the left. The top used to
+           be a hardcoded 72/96px meant to clear the header, which knows nothing
+           about the promo banner pushing that header down — with the banner up
+           it left an unblurred band across the top of the screen. Nothing needs
+           measuring vertically, so nothing is measured.
+
+           The left inset stays: the sidebar is deliberately left uncovered.
+
+           z-[70], not z-50: at 50 the overlay tied with the header (z-50) it
+           now runs up behind. */
         <div
-            className="fixed bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-0"
-            style={{
-                top:
-                typeof window !== "undefined" && window.innerWidth >= 1024
-                    ? headerHeightLg
-                    : headerHeight,
-                left: sidebarWidth,
-                right: 0,
-                bottom: 0,
-            }}
+            className="fixed top-0 right-0 bottom-0 bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-[70] flex items-center justify-center p-4 md:p-0"
+            style={{ left: sidebarWidth }}
             onClick={() => onOpenChange(false)}
         >
             <div

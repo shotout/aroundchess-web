@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { X } from "lucide-react";
+import { ShareButton } from "@/components/v2/share-button";
+import { ShareImageSheet } from "@/components/v2/share-image-sheet";
 import { useEffect, useMemo, useState } from "react";
 import Lottie from "lottie-react";
 import { motion } from "framer-motion";
@@ -101,6 +103,14 @@ export function WinModalCard({
           : "relative w-full max-w-[545px] max-h-[96vh] overflow-hidden bg-white rounded-2xl shadow-2xl"
       }
     >
+      {tour && (
+        <ShareButton
+          variant="pill"
+          onClick={() => {}}
+          className="absolute top-[12px] left-[14px] sm:top-[16px] sm:left-[18px] z-10 bg-white"
+        />
+      )}
+
       {/* Celebration animation — the square Lottie is top-anchored so only
           the canvas' empty bottom strip gets cropped. It's the card's elastic
           part: narrowed on mobile and shrunk on short desktop viewports so the
@@ -349,9 +359,29 @@ export function PlayVsAiWinModal({
   onClose,
   onStartGame,
 }: PlayVsAiWinModalProps) {
+  const [sharing, setSharing] = useState(false);
+
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/50 p-4">
+      {sharing && (
+        <ShareImageSheet
+          spec={{
+            kind: "result",
+            result: "win",
+            elo: newElo,
+            delta,
+            opponentName,
+            opponentElo,
+          }}
+          onClose={() => setSharing(false)}
+        />
+      )}
       <div className="relative w-full max-w-[545px]">
+        <ShareButton
+          variant="pill"
+          onClick={() => setSharing(true)}
+          className="absolute top-[12px] left-[14px] sm:top-[16px] sm:left-[18px] z-10 bg-white"
+        />
         <button
           onClick={onClose}
           className="absolute top-[12px] right-[14px] sm:top-[16px] sm:right-[18px] z-10 text-[#111827] hover:text-[#374151]"

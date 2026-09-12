@@ -29,6 +29,7 @@ import { useChessComConnected } from "@/components/v2/hooks/useChessComConnected
 import { formatTimePgn } from "@/functions/format-date";
 import { usechangePassword } from "@/app/store/changePassword";
 import { refreshLeaderboard } from "@/app/store/playPage";
+import { clearAccountLocalState } from "@/functions/clear-account-storage";
 
 interface ProfileAccountCardProps {
   handleUsernameClicked: () => void;
@@ -285,8 +286,10 @@ const ProfileAccountCard = ({
         CacheUtil.clearAll();
         localStorage.removeItem("sessionId");
         localStorage.removeItem("token");
-        localStorage.removeItem("background-analysis-storage");
-        localStorage.removeItem("pgn-local-storage");
+        // Everything else this account left in localStorage — leaderboard
+        // standing, streak, vs-AI caches. Left behind, the next account to sign
+        // in on this browser rehydrates them as its own.
+        clearAccountLocalState();
         setPersistedCookie("token", "", 365);
         window.location.href = "/login";
       });

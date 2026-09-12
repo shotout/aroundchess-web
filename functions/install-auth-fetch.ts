@@ -88,10 +88,11 @@ export function installAuthFetchInterceptor() {
 
     // The store's token beats the captured one — it may have been rotated since
     // the caller read it.
-    const response = await send(useProfileStore.getState().sessionId || sentToken);
+    const usedToken = useProfileStore.getState().sessionId || sentToken;
+    const response = await send(usedToken);
     if (response.status !== 401) return response;
 
-    const refreshed = await refreshSession();
+    const refreshed = await refreshSession({ staleToken: usedToken });
     if (refreshed.status !== "refreshed") return response;
 
     return send(refreshed.token);

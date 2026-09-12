@@ -35,7 +35,13 @@ export default function CookieConsent() {
   if (!showBanner || (showBanner && open)) return null;
 
   return (
-    <div className="fixed flex flex-col gap-2 md:flex md:flex-row w-full bottom-0 left-0 right-0 bg-gray-900 text-white p-4 flex justify-between items-center shadow-lg z-[2000]">
+    /* data-cookie-consent-bar: overlays that need to wait for this bar look for
+       it in the DOM. The `cookiesConsent` key can't tell them anything useful —
+       it stays unset on every page that doesn't render the footer. */
+    <div
+      data-cookie-consent-bar
+      className="fixed flex flex-col gap-2 md:flex md:flex-row w-full bottom-0 left-0 right-0 bg-gray-900 text-white p-4 flex justify-between items-center shadow-lg z-[2000]"
+    >
       <div className="w-full md:max-w-[70%]">
         <p className="text-[14px] --sm">
           We use cookies and similar technologies to enable services and

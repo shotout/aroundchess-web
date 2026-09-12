@@ -57,7 +57,7 @@ const authedFetch = async (
   const response = await send(token);
   if (response.status !== 401 || !token) return response;
 
-  const refreshed = await refreshSession();
+  const refreshed = await refreshSession({ staleToken: token });
   if (refreshed.status === "refreshed") return send(refreshed.token);
   if (refreshed.status === "rejected") handleSessionExpiration();
   return response;

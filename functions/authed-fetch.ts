@@ -30,10 +30,11 @@ export async function authedFetch(
     return fetch(url, { ...init, headers });
   };
 
-  const response = await send(useProfileStore.getState().sessionId);
+  const sentToken = useProfileStore.getState().sessionId;
+  const response = await send(sentToken);
   if (response.status !== 401) return response;
 
-  const refreshed = await refreshSession();
+  const refreshed = await refreshSession({ staleToken: sentToken });
   if (refreshed.status !== "refreshed") return response;
 
   return send(refreshed.token);

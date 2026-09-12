@@ -55,10 +55,6 @@ interface LeaderboardListProps {
   autoJumpNonce?: number;
 }
 
-// The signed-in user's own row when they have no picture — same trophy
-// avatar the play page uses for "You".
-const MY_FALLBACK_AVATAR = "/images/homepage/v2/homepage_board_asset_4.png";
-
 const RANK_BADGE_ICON: Record<number, string> = {
   1: "/images/v2/leaderboard/1.png",
   2: "/images/v2/leaderboard/2.png",
@@ -75,7 +71,13 @@ function ordinalParts(n: number): { value: string; suffix: string } {
 
 function UserAvatar({ entry, index }: { entry: LeaderboardEntry; index: number }) {
   const [failed, setFailed] = useState(false);
-  const src = entry.avatarUrl && !failed ? entry.avatarUrl : entry.isMe ? MY_FALLBACK_AVATAR : null;
+  // One fallback for everyone: a real picture if there is one, otherwise the
+  // PieceAvatar placeholder. The signed-in user's own row used to substitute a
+  // homepage decoration (a dark chess piece) instead, so a player with no
+  // uploaded picture saw an avatar on their own row that matched nothing else
+  // in the app — not their profile, not the sidebar, not the rows either side
+  // of them. Seeded by username, so it is the same circle the account UI draws.
+  const src = entry.avatarUrl && !failed ? entry.avatarUrl : null;
   if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
