@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "prebuild": "node scripts/generate-sw-manifest.mjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

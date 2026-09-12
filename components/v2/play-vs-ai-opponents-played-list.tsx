@@ -6,6 +6,8 @@ import { ChevronRight } from "lucide-react";
 import type { OpponentSummary, OpponentsPlayedPagination } from "@/app/store/playVsAiStats";
 import { MiniDonutChart } from "@/components/v2/mini-donut-chart";
 import { findRosterOpponentByName, stripAiSuffix } from "@/components/v2/play-vs-ai-roster-data";
+import { OfflineState } from "@/components/v2/offline-state";
+import { useRefetchOnReconnect } from "@/components/v2/hooks/useRefetchOnReconnect";
 
 interface PlayVsAiOpponentsPlayedListProps {
   opponents: OpponentSummary[];
@@ -24,6 +26,7 @@ export function PlayVsAiOpponentsPlayedList({
   loadMore,
   pagination,
 }: PlayVsAiOpponentsPlayedListProps) {
+  const isOnline = useRefetchOnReconnect(handleRetryFetch);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -42,11 +45,19 @@ export function PlayVsAiOpponentsPlayedList({
         Opponents you have played against
       </h3>
 
-      {isLoading && opponents.length === 0 && (
+      {/* Offline replaces every state below, cached rows included. Neither
+          "couldn't load" nor "you haven't played any games" tells the user the
+          one thing actually wrong, and a stale row leads nowhere: opening an
+          opponent needs the network. */}
+      {!isOnline && (
+        <OfflineState onRetry={handleRetryFetch} isRetrying={isLoading} />
+      )}
+
+      {isOnline && isLoading && opponents.length === 0 && (
         <div className="py-[24px] text-center text-[14px] text-[#6B7280]">Loading…</div>
       )}
 
-      {error && opponents.length === 0 && (
+      {isOnline && error && opponents.length === 0 && (
         <div className="py-[24px] text-center flex flex-col items-center gap-[8px]">
           <span className="text-[14px] text-[#6B7280]">Couldn&apos;t load your opponents.</span>
           <button
@@ -59,13 +70,13 @@ export function PlayVsAiOpponentsPlayedList({
         </div>
       )}
 
-      {!isLoading && !error && opponents.length === 0 && (
+      {isOnline && !isLoading && !error && opponents.length === 0 && (
         <div className="py-[24px] text-center text-[14px] text-[#6B7280]">
           You haven&apos;t played any games against the AI yet.
         </div>
       )}
 
-      {opponents.length > 0 && (
+      {isOnline && opponents.length > 0 && (
         <div className="leaderboard-scrollbar max-h-[400px] overflow-y-auto flex flex-col gap-[10px] pl-[2px] pr-[4px] md:pr-[10px] py-[2px]">
           {opponents.map((opponent) => {
             const rosterEntry = findRosterOpponentByName(opponent.opponentUsername);
@@ -197,7 +208,7 @@ export function PlayVsAiOpponentsPlayedList({
         </div>
       )}
 
-      {canLoadMore && (
+      {isOnline && canLoadMore && (
         <div className="pt-[12px] text-center">
           <button
             type="button"
