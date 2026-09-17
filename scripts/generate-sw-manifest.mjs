@@ -50,17 +50,35 @@ const ASSET_DIRS = [
   "audio",
 ];
 
-/** Anything larger is left to on-demand caching. */
-const MAX_ASSET_BYTES = 200 * 1024;
+/** Anything larger is left to on-demand caching. Raised from 200KB because
+ *  several of the files that showed as broken squares offline are icons in
+ *  name only — /endgame-training/move-icon.png is half a megabyte — and the
+ *  old cap excluded exactly the ones people noticed. */
+const MAX_ASSET_BYTES = 600 * 1024;
 /** A ceiling on the whole precache, so one careless commit cannot turn the
- *  first visit into a multi-megabyte download without anyone noticing. */
-const MAX_TOTAL_BYTES = 12 * 1024 * 1024;
+ *  first visit into a multi-megabyte download without anyone noticing.
+ *  Selection runs smallest-first, so what this trims is always the largest
+ *  decoration, never an icon. */
+const MAX_TOTAL_BYTES = 18 * 1024 * 1024;
 
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".css"]);
 const SKIP_DIRS = new Set(["node_modules", ".next", ".git", "public", ".vercel"]);
 
+/**
+ * Spaces are allowed inside the path on purpose.
+ *
+ * This used to stop at `\s`, and a good part of /public is named the way it
+ * came out of the design tool — `/images/v2/AI avatar/Beginner/Thomas.png`,
+ * `/images/v2/profile/icon-_Board Vision 1.png`. Those 95 files were never in
+ * the precache at all, which is why every AI opponent's face was a broken
+ * square offline while the files right beside them were fine.
+ *
+ * A newline still ends a match, so a stray quote cannot run away with the rest
+ * of the file, and anything this over-matches is dropped by the existence
+ * check below rather than shipped as a hole in the cache.
+ */
 const ASSET_REFERENCE = new RegExp(
-  `["'\`](/(?:${ASSET_DIRS.map((d) => d.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")).join("|")})/[^"'\`\\s]+?` +
+  `["'\`](/(?:${ASSET_DIRS.map((d) => d.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")).join("|")})/[^"'\`\\n]+?` +
     `\\.(?:png|jpe?g|svg|webp|gif|avif|mp3|wav|woff2?|ttf|otf|json))["'\`]`,
   "g"
 );
@@ -119,16 +137,18 @@ async function main() {
   for (const file of sources) {
     const text = await readFile(file, "utf8").catch(() => "");
     for (const match of text.matchAll(ASSET_REFERENCE)) {
+      // A template literal's path is not known until it runs — `/pieces/
+      // ${colour}/${piece}.png` is a pattern, not a file — so it is left to
+      // on-demand caching rather than precached as a 404.
+      if (match[1].includes("${")) continue;
       referenced.add(match[1]);
     }
   }
 
-  // Sorted so the version hash depends on the content, not on the order the
+  // Sorted so what follows depends on the content, not on the order the
   // filesystem happened to hand back.
   const candidates = [...referenced].sort();
-  const assets = [];
-  const hash = createHash("sha256");
-  let total = 0;
+  const found = [];
   let skippedMissing = 0;
   let skippedLarge = 0;
 
@@ -153,18 +173,48 @@ async function main() {
       skippedLarge += 1;
       continue;
     }
-    if (total + info.size > MAX_TOTAL_BYTES) {
+    found.push({ assetPath, filePath, size: info.size });
+  }
+
+  /**
+   * Smallest first, and that order is shipped as well as used here.
+   *
+   * It decides two things. The budget below now trims the heaviest
+   * decorations instead of whatever happened to sort last — `/images/...`
+   * alphabetically, which is where nearly every icon lives. And the worker
+   * warms the cache in this order, so a warm that is cut short (the tab
+   * closed, the connection dropped) has already covered the small files the
+   * UI is built out of, rather than having spent the whole time on three
+   * background images.
+   */
+  found.sort((a, b) =>
+    a.size - b.size || a.assetPath.localeCompare(b.assetPath)
+  );
+
+  const selected = [];
+  let total = 0;
+  for (const entry of found) {
+    if (total + entry.size > MAX_TOTAL_BYTES) {
       skippedLarge += 1;
       continue;
     }
+    selected.push(entry);
+    total += entry.size;
+  }
 
-    assets.push(assetPath);
-    total += info.size;
+  const hash = createHash("sha256");
+  // Hashed in path order, so the version tracks the content and not the size
+  // ordering — a file that grows must not invalidate the whole cache.
+  for (const entry of [...selected].sort((a, b) =>
+    a.assetPath.localeCompare(b.assetPath)
+  )) {
     // Content, not mtime: a CI checkout rewrites mtimes, and a version that
     // changed on every deploy would re-download the whole precache each time.
-    hash.update(assetPath);
-    hash.update(await readFile(filePath));
+    hash.update(entry.assetPath);
+    hash.update(await readFile(entry.filePath));
   }
+
+  const assets = selected.map((entry) => entry.assetPath);
 
   const manifest = {
     version: hash.digest("hex").slice(0, 16),

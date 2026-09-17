@@ -260,7 +260,10 @@ export function NpsFeedbackModal({
               type="button"
               onClick={() => score !== null && onSubmit(score, comment)}
               disabled={score === null || submitting}
-              className="mt-[16px] w-full rounded-full bg-[#221AE9] py-[13px] text-[16px] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:mt-[20px] sm:py-[15px] sm:text-[18px]"
+              // Disabled is a paler *solid* fill, not a faded one: at 60% opacity the
+              // board and the modal art showed straight through the button, which read
+              // as a rendering fault rather than as "pick a score first".
+              className="mt-[16px] w-full rounded-full bg-[#221AE9] py-[13px] text-[16px] text-white transition-colors hover:bg-[#1A14C4] disabled:cursor-not-allowed disabled:bg-[#8B87F1] disabled:hover:bg-[#8B87F1] sm:mt-[20px] sm:py-[15px] sm:text-[18px]"
               style={ALOEVERA_BOLD}
             >
               {submitting ? (

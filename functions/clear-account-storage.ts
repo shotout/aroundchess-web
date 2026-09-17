@@ -95,6 +95,11 @@ const ACCOUNT_CACHE_KEYS = [
   "day-streak-storage",
   "play-vs-ai-stats-storage",
   VS_AI_CURRENT_GAME_KEY,
+  /** Games this browser has watched the account finish, which is half of what
+   *  decides whether the NPS layover may appear. Inheriting it would ask a
+   *  brand-new account on its first game. Spelled out rather than imported so
+   *  this module keeps its no-imports rule (see the header). */
+  "ac_nps_finished_games",
 ];
 
 type Reset = () => void;

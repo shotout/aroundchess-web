@@ -59,20 +59,61 @@ const WARM_CONCURRENCY = 4;
 
 let manifestPromise = null;
 
+/**
+ * The manifest, from the network, then from the cache.
+ *
+ * A failure is deliberately NOT memoised. It used to be, and that was the
+ * whole offline bug: a service worker is stopped whenever it goes idle and
+ * restarted on the next request, so a worker that woke up while the connection
+ * was down cached `null` here for the rest of its life — and every asset
+ * lookup after that opened the cache named below.
+ */
 function loadManifest() {
   if (!manifestPromise) {
     manifestPromise = fetch(MANIFEST_URL, { cache: "no-cache" })
       .then((res) => (res.ok ? res.json() : null))
-      .catch(() => null);
+      .catch(() => null)
+      .then(async (manifest) => {
+        if (manifest) return manifest;
+        // Offline: the copy stored by the last warm. caches.match() with no
+        // cache named searches all of them, so this works without already
+        // knowing the version — which is precisely what we are missing.
+        const cached = await caches.match(MANIFEST_URL).catch(() => null);
+        const fromCache = cached ? await cached.json().catch(() => null) : null;
+        // Retry on the next call either way: a manifest recovered from the
+        // cache is the right answer offline, and the wrong one the moment the
+        // connection is back and a new version has been deployed.
+        manifestPromise = null;
+        return fromCache;
+      });
   }
   return manifestPromise;
 }
 
+/** Only ever set from a manifest that was actually read, so a guess made while
+ *  offline can never be remembered as the answer. */
+let resolvedCacheName = null;
+
 async function cacheName() {
+  if (resolvedCacheName) return resolvedCacheName;
+
   const manifest = await loadManifest();
-  // Version comes from the manifest's content hash, so a deploy that changed
-  // no assets keeps the same cache and re-downloads nothing.
-  return CACHE_PREFIX + (manifest?.version ?? "unversioned");
+  if (manifest?.version) {
+    // Version comes from the manifest's content hash, so a deploy that changed
+    // no assets keeps the same cache and re-downloads nothing.
+    resolvedCacheName = CACHE_PREFIX + manifest.version;
+    return resolvedCacheName;
+  }
+
+  // No manifest at all — offline on a worker that has never read one. Ask the
+  // browser what it already has rather than opening an empty cache under a
+  // made-up name and reporting every precached asset as missing. `activate`
+  // prunes to a single cache, so there is normally exactly one.
+  const names = await caches.keys().catch(() => []);
+  const existing = names.filter((name) => name.startsWith(CACHE_PREFIX));
+  if (existing.length > 0) return existing[existing.length - 1];
+
+  return CACHE_PREFIX + "unversioned";
 }
 
 function isAssetPath(pathname) {
@@ -86,25 +127,42 @@ self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    (async () => {
-      const keep = await cacheName();
-      const names = await caches.keys();
-      await Promise.all(
-        names
-          .filter((name) => name.startsWith(CACHE_PREFIX) && name !== keep)
-          .map((name) => caches.delete(name))
-      );
-      await self.clients.claim();
-    })()
+/**
+ * Drop the caches from older versions — but only once the new one is filled.
+ *
+ * This used to run on activate, which meant every deploy that touched an asset
+ * emptied the offline cache the moment the worker took over and left it empty
+ * until a full warm finished. Anyone who went offline in that window saw
+ * exactly what an unwarmed cache looks like: the page renders, and every
+ * image, icon and sound it had not already fetched is missing. The previous
+ * version's copies are a little stale at worst, and staleWhileRevalidate
+ * replaces them as they are used, so keeping them until the replacement is
+ * ready costs nothing and covers the gap.
+ */
+async function prunePreviousCaches() {
+  const keep = await cacheName();
+  const names = await caches.keys();
+  await Promise.all(
+    names
+      .filter((name) => name.startsWith(CACHE_PREFIX) && name !== keep)
+      .map((name) => caches.delete(name))
   );
+}
+
+self.addEventListener("activate", (event) => {
+  // Claim only. The pruning waits for the warm — see prunePreviousCaches.
+  event.waitUntil(self.clients.claim());
 });
 
 let warming = false;
 
 /** Fill the precache, gently. Skips anything already stored, so a repeat visit
- *  costs nothing and an interrupted warm resumes where it stopped. */
+ *  costs nothing and an interrupted warm resumes where it stopped.
+ *
+ *  Manifest order is kept deliberately: it is smallest-first, so the icons and
+ *  glyphs the UI is built out of are all in place long before the background
+ *  images, and a warm that never finishes still leaves a usable offline app.
+ *  See scripts/generate-sw-manifest.mjs. */
 async function warmPrecache() {
   if (warming) return;
   warming = true;
@@ -113,11 +171,32 @@ async function warmPrecache() {
     if (!manifest?.assets?.length) return;
 
     const cache = await caches.open(await cacheName());
+
+    // Keep a copy of the manifest beside the assets it describes. A worker
+    // that restarts while offline has no other way to learn which cache the
+    // precache is in; the fetch handler never serves this entry, it only
+    // exists for loadManifest's fallback.
+    try {
+      await cache.put(
+        MANIFEST_URL,
+        new Response(JSON.stringify(manifest), {
+          headers: { "Content-Type": "application/json" },
+        })
+      );
+    } catch {
+      // Storage full or blocked: the caches.keys() fallback still covers it.
+    }
+
     const missing = [];
     for (const asset of manifest.assets) {
       if (!(await cache.match(asset))) missing.push(asset);
     }
-    if (missing.length === 0) return;
+    if (missing.length === 0) {
+      // Already complete: nothing to fetch, and the older versions are now
+      // safe to let go of.
+      await prunePreviousCaches();
+      return;
+    }
 
     let cursor = 0;
     const workers = Array.from({ length: WARM_CONCURRENCY }, async () => {
@@ -138,6 +217,9 @@ async function warmPrecache() {
       }
     });
     await Promise.all(workers);
+    // Whatever could be fetched has been. An interrupted warm simply leaves
+    // the older caches in place for the next attempt to finish behind.
+    await prunePreviousCaches();
   } finally {
     warming = false;
   }
@@ -154,6 +236,25 @@ self.addEventListener("message", (event) => {
 /** Serve from cache, and refresh in the background when online. Used for asset
  *  files that are not in the manifest, where the cache is the only copy but
  *  may be older than what is deployed. */
+/**
+ * Last resort: search every cache this origin owns, rather than only the one
+ * we believe is current.
+ *
+ * The cache is named after the manifest's version, and every way of learning
+ * that version can fail — offline, mid-deploy, on a worker that restarted at
+ * the wrong moment. When it does, the asset is sitting in a cache under a name
+ * we did not guess, and the page shows a broken square for a file the browser
+ * already has. CacheStorage.match() searches all of them, so this answers
+ * correctly no matter which name the file was stored under.
+ */
+async function matchAnyCache(request) {
+  try {
+    return (await caches.match(request)) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(await cacheName());
   const cached = await cache.match(request);
@@ -168,6 +269,10 @@ async function staleWhileRevalidate(request) {
   if (cached) return cached;
   const fresh = await network;
   if (fresh) return fresh;
+
+  const anywhere = await matchAnyCache(request);
+  if (anywhere) return anywhere;
+
   return new Response("", { status: 504, statusText: "Offline" });
 }
 
@@ -189,12 +294,14 @@ async function optimizedImage(request, url) {
   }
 
   const cache = await caches.open(await cacheName());
-  const cachedVariant = await cache.match(request);
+  const cachedVariant =
+    (await cache.match(request)) ?? (await matchAnyCache(request));
   if (cachedVariant) return cachedVariant;
 
   const source = url.searchParams.get("url");
   if (source && source.startsWith("/")) {
-    const original = await cache.match(source);
+    const original =
+      (await cache.match(source)) ?? (await matchAnyCache(source));
     if (original) return original;
   }
 

@@ -24,7 +24,25 @@ export function ServiceWorkerHost() {
 
     let cancelled = false;
 
+    /**
+     * The precache is a few hundred small files; worth having, but never at
+     * the user's expense. Data Saver is an explicit "don't", and on a 2G-class
+     * connection the warm would be competing with the page itself for a link
+     * that has nothing to spare. Both cases simply fall back to caching assets
+     * as they are seen, which is where the app was before any of this.
+     */
+    const warmWouldCostTooMuch = (): boolean => {
+      const connection = (navigator as any).connection;
+      if (!connection) return false;
+      if (connection.saveData === true) return true;
+      return (
+        connection.effectiveType === "2g" ||
+        connection.effectiveType === "slow-2g"
+      );
+    };
+
     const warm = (registration: ServiceWorkerRegistration) => {
+      if (warmWouldCostTooMuch()) return;
       const worker = registration.active ?? navigator.serviceWorker.controller;
       if (!worker) return;
       worker.postMessage({ type: "warm-precache" });

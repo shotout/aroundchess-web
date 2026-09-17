@@ -63,6 +63,7 @@ import { ButtonBoard } from "./ButtonBoard";
 import { ButtonFinish } from "./ButtonFinish";
 import { ButtonPlaying } from "./ButtonPlaying";
 import { PlayVsAiConfirmModal } from "@/components/v2/play-vs-ai-confirm-modal";
+import { markVsAiGameFinished } from "@/components/v2/nps-eligibility";
 import { PlayVsAiLeaveGuardModal } from "@/components/v2/play-vs-ai-leave-guard-modal";
 import { OfflineModal } from "@/components/v2/offline-modal";
 import { isOfflineError } from "@/components/v2/offline-status";
@@ -2358,6 +2359,10 @@ export default function PlayingPage() {
       setAnalysisPgn(game.pgn());
     }
     handleForceRefresh();
+    // A real game just ended on this screen. The NPS layover asks the backend
+    // whether the player is due, but only from here on: without this it could
+    // fire on a cold load, before the player had played anything at all.
+    if (!isTutorialPlay) markVsAiGameFinished();
     // The finished game moves the player's ELO, so the training plan's cached
     // rating and progress are now stale.
     invalidateRatingCaches();
