@@ -59,20 +59,61 @@ const WARM_CONCURRENCY = 4;
 
 let manifestPromise = null;
 
+/**
+ * The manifest, from the network, then from the cache.
+ *
+ * A failure is deliberately NOT memoised. It used to be, and that was the
+ * whole offline bug: a service worker is stopped whenever it goes idle and
+ * restarted on the next request, so a worker that woke up while the connection
+ * was down cached `null` here for the rest of its life — and every asset
+ * lookup after that opened the cache named below.
+ */
 function loadManifest() {
   if (!manifestPromise) {
     manifestPromise = fetch(MANIFEST_URL, { cache: "no-cache" })
       .then((res) => (res.ok ? res.json() : null))
-      .catch(() => null);
+      .catch(() => null)
+      .then(async (manifest) => {
+        if (manifest) return manifest;
+        // Offline: the copy stored by the last warm. caches.match() with no
+        // cache named searches all of them, so this works without already
+        // knowing the version — which is precisely what we are missing.
+        const cached = await caches.match(MANIFEST_URL).catch(() => null);
+        const fromCache = cached ? await cached.json().catch(() => null) : null;
+        // Retry on the next call either way: a manifest recovered from the
+        // cache is the right answer offline, and the wrong one the moment the
+        // connection is back and a new version has been deployed.
+        manifestPromise = null;
+        return fromCache;
+      });
   }
   return manifestPromise;
 }
 
+/** Only ever set from a manifest that was actually read, so a guess made while
+ *  offline can never be remembered as the answer. */
+let resolvedCacheName = null;
+
 async function cacheName() {
+  if (resolvedCacheName) return resolvedCacheName;
+
   const manifest = await loadManifest();
-  // Version comes from the manifest's content hash, so a deploy that changed
-  // no assets keeps the same cache and re-downloads nothing.
-  return CACHE_PREFIX + (manifest?.version ?? "unversioned");
+  if (manifest?.version) {
+    // Version comes from the manifest's content hash, so a deploy that changed
+    // no assets keeps the same cache and re-downloads nothing.
+    resolvedCacheName = CACHE_PREFIX + manifest.version;
+    return resolvedCacheName;
+  }
+
+  // No manifest at all — offline on a worker that has never read one. Ask the
+  // browser what it already has rather than opening an empty cache under a
+  // made-up name and reporting every precached asset as missing. `activate`
+  // prunes to a single cache, so there is normally exactly one.
+  const names = await caches.keys().catch(() => []);
+  const existing = names.filter((name) => name.startsWith(CACHE_PREFIX));
+  if (existing.length > 0) return existing[existing.length - 1];
+
+  return CACHE_PREFIX + "unversioned";
 }
 
 function isAssetPath(pathname) {
@@ -118,6 +159,22 @@ async function warmPrecache() {
     if (!manifest?.assets?.length) return;
 
     const cache = await caches.open(await cacheName());
+
+    // Keep a copy of the manifest beside the assets it describes. A worker
+    // that restarts while offline has no other way to learn which cache the
+    // precache is in; the fetch handler never serves this entry, it only
+    // exists for loadManifest's fallback.
+    try {
+      await cache.put(
+        MANIFEST_URL,
+        new Response(JSON.stringify(manifest), {
+          headers: { "Content-Type": "application/json" },
+        })
+      );
+    } catch {
+      // Storage full or blocked: the caches.keys() fallback still covers it.
+    }
+
     const missing = [];
     for (const asset of manifest.assets) {
       if (!(await cache.match(asset))) missing.push(asset);
