@@ -104,7 +104,12 @@ self.addEventListener("activate", (event) => {
 let warming = false;
 
 /** Fill the precache, gently. Skips anything already stored, so a repeat visit
- *  costs nothing and an interrupted warm resumes where it stopped. */
+ *  costs nothing and an interrupted warm resumes where it stopped.
+ *
+ *  Manifest order is kept deliberately: it is smallest-first, so the icons and
+ *  glyphs the UI is built out of are all in place long before the background
+ *  images, and a warm that never finishes still leaves a usable offline app.
+ *  See scripts/generate-sw-manifest.mjs. */
 async function warmPrecache() {
   if (warming) return;
   warming = true;

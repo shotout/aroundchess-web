@@ -13,6 +13,13 @@ import {
   useNpsFeedbackModal,
 } from "@/components/v2/hooks/useNpsFeedbackModal";
 import { areDebugHooksAvailable } from "@/components/v2/debug-hooks";
+import {
+  clearVsAiGameFinished,
+  getFinishedVsAiGameCount,
+  hasFinishedVsAiGameThisSession,
+  markVsAiGameFinished,
+  NPS_MIN_FINISHED_GAMES,
+} from "@/components/v2/nps-eligibility";
 
 /** Shows the NPS layover once the backend says eligible and the screen is clear. */
 
@@ -81,6 +88,7 @@ export function NpsFeedbackHost() {
   const shownRef = useRef(false);
   const askedRef = useRef(false);
   const prevPathRef = useRef<string | null>(null);
+  const wasSignedInRef = useRef(false);
   const waitRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // In a ref: useApiClient returns new identities per render, restarting the effect.
@@ -108,6 +116,20 @@ export function NpsFeedbackHost() {
       /** Real: POSTs /shown, so it spends the 90-day cooldown. */
       showLive: () => openNpsFeedbackModal(),
       close: () => useNpsFeedbackModal.getState().close(),
+      /** Pretends finished VS-AI games, so the automatic path can be tested
+       *  without playing three. The backend still decides eligibility. */
+      markPlayed: (times = NPS_MIN_FINISHED_GAMES) => {
+        for (let i = 0; i < Math.max(1, times); i += 1) markVsAiGameFinished();
+        console.info(
+          `__nps: ${getFinishedVsAiGameCount()} finished game(s) recorded ` +
+            `(needs ${NPS_MIN_FINISHED_GAMES}).`
+        );
+      },
+      /** Back to zero, as a fresh account would be. */
+      resetPlayed: () => {
+        clearVsAiGameFinished();
+        console.info("__nps: finished-game count cleared.");
+      },
       /** Read-only; changes nothing. */
       status: async () => {
         try {
@@ -125,10 +147,14 @@ export function NpsFeedbackHost() {
             "__nps.show()      open the layover as a preview (sends nothing)",
             "__nps.showLive()  open it for real (starts the 3-month cooldown)",
             "__nps.close()     close it",
+            "__nps.markPlayed(n) pretend n VS-AI games just ended (default 3)",
+            "__nps.resetPlayed() clear that count",
             "__nps.status()    log GET /v4/nps/status (read-only)",
             "",
             "Also: ?npsDemo=1 in the URL, same as show().",
-            "Real rules: 3 finished VS-AI games, then once per 90 days.",
+            "Real rules: 3 finished VS-AI games, then once per 90 days. The",
+            "layover needs all three: the backend eligible, 3 games counted on",
+            "this browser, and a game finished in this session.",
           ].join("\n")
         ),
     };
@@ -145,16 +171,30 @@ export function NpsFeedbackHost() {
     const previous = prevPathRef.current;
     prevPathRef.current = pathname;
 
-    // Signed out: forget everything, so the next sign-in decides afresh.
+    // Signed out: forget everything, so the next sign-in decides afresh. The
+    // played flag only goes with a real sign-out, not with the empty sessionId
+    // the profile store reports for a moment while it rehydrates - clearing it
+    // there would lose a game the player had just finished before a reload.
     if (!sessionId) {
       shownRef.current = false;
       askedRef.current = false;
+      if (wasSignedInRef.current) {
+        wasSignedInRef.current = false;
+        clearVsAiGameFinished();
+      }
       clearWait();
       setOpen(false);
       return;
     }
+    wasSignedInRef.current = true;
 
     if (shownRef.current || isBlockedRoute(pathname)) return;
+
+    // The moment, which the backend cannot see: a game has to have ended in
+    // this session. Asking on a cold load is what put the layover in front of
+    // someone who had not played yet. Checked before askedRef is set, so the
+    // game that finishes later in this session still gets its turn.
+    if (!hasFinishedVsAiGameThisSession()) return;
 
     // Re-ask after leaving the board: that is where the 3rd game just finished.
     const leftTheBoard = isBlockedRoute(previous);
@@ -174,7 +214,12 @@ export function NpsFeedbackHost() {
       }
       if (cancelled || !shouldShow) return;
 
-      // Eligible; now wait for the screen, the rule the backend cannot enforce.
+      // Eligible by the backend's count; this browser has to have watched the
+      // three games too. Second, because the status call is read-only and the
+      // backend stays the authority on whether the player is due at all.
+      if (getFinishedVsAiGameCount() < NPS_MIN_FINISHED_GAMES) return;
+
+      // Now wait for the screen, the rule the backend cannot enforce.
       const startedAt = Date.now();
       clearWait();
       const tryOpen = () => {
