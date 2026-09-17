@@ -127,19 +127,31 @@ self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    (async () => {
-      const keep = await cacheName();
-      const names = await caches.keys();
-      await Promise.all(
-        names
-          .filter((name) => name.startsWith(CACHE_PREFIX) && name !== keep)
-          .map((name) => caches.delete(name))
-      );
-      await self.clients.claim();
-    })()
+/**
+ * Drop the caches from older versions — but only once the new one is filled.
+ *
+ * This used to run on activate, which meant every deploy that touched an asset
+ * emptied the offline cache the moment the worker took over and left it empty
+ * until a full warm finished. Anyone who went offline in that window saw
+ * exactly what an unwarmed cache looks like: the page renders, and every
+ * image, icon and sound it had not already fetched is missing. The previous
+ * version's copies are a little stale at worst, and staleWhileRevalidate
+ * replaces them as they are used, so keeping them until the replacement is
+ * ready costs nothing and covers the gap.
+ */
+async function prunePreviousCaches() {
+  const keep = await cacheName();
+  const names = await caches.keys();
+  await Promise.all(
+    names
+      .filter((name) => name.startsWith(CACHE_PREFIX) && name !== keep)
+      .map((name) => caches.delete(name))
   );
+}
+
+self.addEventListener("activate", (event) => {
+  // Claim only. The pruning waits for the warm — see prunePreviousCaches.
+  event.waitUntil(self.clients.claim());
 });
 
 let warming = false;
@@ -179,7 +191,12 @@ async function warmPrecache() {
     for (const asset of manifest.assets) {
       if (!(await cache.match(asset))) missing.push(asset);
     }
-    if (missing.length === 0) return;
+    if (missing.length === 0) {
+      // Already complete: nothing to fetch, and the older versions are now
+      // safe to let go of.
+      await prunePreviousCaches();
+      return;
+    }
 
     let cursor = 0;
     const workers = Array.from({ length: WARM_CONCURRENCY }, async () => {
@@ -200,6 +217,9 @@ async function warmPrecache() {
       }
     });
     await Promise.all(workers);
+    // Whatever could be fetched has been. An interrupted warm simply leaves
+    // the older caches in place for the next attempt to finish behind.
+    await prunePreviousCaches();
   } finally {
     warming = false;
   }
@@ -216,6 +236,25 @@ self.addEventListener("message", (event) => {
 /** Serve from cache, and refresh in the background when online. Used for asset
  *  files that are not in the manifest, where the cache is the only copy but
  *  may be older than what is deployed. */
+/**
+ * Last resort: search every cache this origin owns, rather than only the one
+ * we believe is current.
+ *
+ * The cache is named after the manifest's version, and every way of learning
+ * that version can fail — offline, mid-deploy, on a worker that restarted at
+ * the wrong moment. When it does, the asset is sitting in a cache under a name
+ * we did not guess, and the page shows a broken square for a file the browser
+ * already has. CacheStorage.match() searches all of them, so this answers
+ * correctly no matter which name the file was stored under.
+ */
+async function matchAnyCache(request) {
+  try {
+    return (await caches.match(request)) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(await cacheName());
   const cached = await cache.match(request);
@@ -230,6 +269,10 @@ async function staleWhileRevalidate(request) {
   if (cached) return cached;
   const fresh = await network;
   if (fresh) return fresh;
+
+  const anywhere = await matchAnyCache(request);
+  if (anywhere) return anywhere;
+
   return new Response("", { status: 504, statusText: "Offline" });
 }
 
@@ -251,12 +294,14 @@ async function optimizedImage(request, url) {
   }
 
   const cache = await caches.open(await cacheName());
-  const cachedVariant = await cache.match(request);
+  const cachedVariant =
+    (await cache.match(request)) ?? (await matchAnyCache(request));
   if (cachedVariant) return cachedVariant;
 
   const source = url.searchParams.get("url");
   if (source && source.startsWith("/")) {
-    const original = await cache.match(source);
+    const original =
+      (await cache.match(source)) ?? (await matchAnyCache(source));
     if (original) return original;
   }
 
