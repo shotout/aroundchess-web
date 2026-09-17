@@ -1,10 +1,21 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { currentAccountScope } from "@/app/store/account-scope";
 
 /** One finished game that never reached the backend, held until it can be. */
 export interface PendingGameSave {
   id: string;
   createdAt: number;
+  /** The account that played it, as an account scope key.
+   *
+   *  The replay sends the game with whatever bearer token is signed in at the
+   *  time, and the queue outlives a sign-out — so without this, a game played
+   *  offline by one account and flushed after somebody else signed in on the
+   *  same browser landed on *their* record: their Recent Games, their rating,
+   *  and a day streak they never played for. Stamped here, at the moment the
+   *  game is queued, because that is the only moment the owner is known for
+   *  certain. */
+  owner: string;
   /** Exactly the body postVSAILogs takes, captured at the moment the game
    *  ended. Stored whole rather than rebuilt later: by the time this is
    *  replayed the board has usually moved on to another game. */
@@ -36,7 +47,7 @@ interface PendingGameSavesState {
    *  can be entered more than once for one game (the status effect, then a
    *  retry), and two rows for one game is the worst outcome here. */
   enqueue: (
-    save: Omit<PendingGameSave, "id" | "createdAt" | "attempts">
+    save: Omit<PendingGameSave, "id" | "createdAt" | "attempts" | "owner">
   ) => string;
   remove: (id: string) => void;
   /** Records a failed replay, dropping the entry once it is out of attempts. */
@@ -57,8 +68,14 @@ export const usePendingGameSaves = create<PendingGameSavesState>()(
     (set, get) => ({
       queue: [],
       enqueue: (save) => {
+        // Empty only if the profile has not loaded, which cannot happen on a
+        // board that has just finished a game. It would never match a real
+        // owner, so such an entry is held rather than misdelivered.
+        const owner = currentAccountScope() ?? "";
+
         const existing = get().queue.find(
           (entry) =>
+            entry.owner === owner &&
             entry.body.pgn === save.body.pgn &&
             entry.body.status === save.body.status
         );
@@ -70,7 +87,7 @@ export const usePendingGameSaves = create<PendingGameSavesState>()(
         set((state) => ({
           queue: [
             ...state.queue,
-            { ...save, id, createdAt: Date.now(), attempts: 0 },
+            { ...save, id, owner, createdAt: Date.now(), attempts: 0 },
           ],
         }));
         return id;
@@ -90,7 +107,17 @@ export const usePendingGameSaves = create<PendingGameSavesState>()(
           }),
         })),
     }),
-    { name: "aroundchess:pending-game-saves" }
+    {
+      name: "aroundchess:pending-game-saves",
+      version: 1,
+      /** v0 entries carry no owner, and there is no way to work out after the
+       *  fact whose they were. Replaying one is a coin toss that can write a
+       *  game, a rating change and a day streak onto the wrong account, so
+       *  they are dropped. Only games queued before this shipped are affected
+       *  — a window of hours on a feature still in testing — and dropping them
+       *  is the same outcome as the outage never ending. */
+      migrate: (persisted: any) => ({ ...(persisted ?? {}), queue: [] }),
+    }
   )
 );
 

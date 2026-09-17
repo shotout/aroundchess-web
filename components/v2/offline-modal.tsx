@@ -1,10 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { Loader2, X } from "lucide-react";
 import { useRetryCountdown } from "./hooks/useRetryCountdown";
-
-const ICON = "/images/v2/play-vs-ai/WifinoInternet.png";
+import { OfflineWifiIcon } from "./offline-wifi-icon";
 
 /** Which problem the card is describing.
  *
@@ -66,13 +64,7 @@ export function OfflineModal({
         </button>
 
         <div className="flex justify-center mb-[16px]">
-          <Image
-            src={ICON}
-            alt=""
-            width={160}
-            height={160}
-            className="w-[80px] h-auto object-contain"
-          />
+          <OfflineWifiIcon className="w-[80px] h-[80px]" />
         </div>
 
         <h2

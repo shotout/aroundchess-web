@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { registerAccountScopedStore } from "@/functions/clear-account-storage";
 
 export const getLocalDateStamp = (date = new Date()) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
@@ -165,4 +166,18 @@ export const useStreakStore = create<StreakState>()(
       }),
     }
   )
+);
+
+// The streak belongs to the account that earned it. The once-a-day modal
+// stamps go with it: they are "has this account been told today", and a new
+// sign-in has not been told anything.
+registerAccountScopedStore(() =>
+  useStreakStore.setState({
+    status: null,
+    currentStreak: 0,
+    lastLoginModalDate: null,
+    lastBrokenModalDate: null,
+    lastSeenStreak: 0,
+    lastPlayDate: null,
+  })
 );

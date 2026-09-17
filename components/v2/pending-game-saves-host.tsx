@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useApiClient } from "@/functions/api-client";
 import { useProfileStore } from "@/app/store/profile";
 import { usePlayPageStore } from "@/app/store/playPage";
+import { accountScopeOf } from "@/app/store/account-scope";
 import {
   getLocalDateStamp,
   recordStreakPlayOnce,
@@ -31,13 +32,22 @@ import { useOnlineStatus } from "./hooks/useOnlineStatus";
  * that put data on the server. The rest of that function is board UI (the
  * result modal's rating change, the analysis PGN, the move log) and has no
  * meaning on whatever page the player is actually looking at.
+ *
+ * Only the signed-in account's own games are sent. The queue is persisted and
+ * outlives a sign-out, while the replay uses whatever bearer token is current
+ * — so one account's offline games would otherwise be written onto the next
+ * account to use the browser, rating change and day streak included.
  */
 export function PendingGameSavesHost() {
   const queue = usePendingGameSaves((state) => state.queue);
   const remove = usePendingGameSaves((state) => state.remove);
   const noteFailure = usePendingGameSaves((state) => state.noteFailure);
   const isOnline = useOnlineStatus();
-  const { sessionId } = useProfileStore();
+  // Derived from subscribed values, not read out of the store: the owner is
+  // unknowable until the profile lands, which is usually a moment after the
+  // token, and the flush below has to re-run when it does.
+  const { sessionId, profile } = useProfileStore();
+  const owner = accountScopeOf(profile);
   const { setLeaderboard, setLeaderboardMe } = usePlayPageStore();
   const {
     postVSAILogs,
@@ -77,9 +87,16 @@ export function PendingGameSavesHost() {
 
   useEffect(() => {
     if (!isOnline || !sessionId || flushingRef.current) return;
+    // Signed in, but whose account it is has not come back yet. Waiting costs
+    // one render; guessing costs somebody else's game history.
+    if (!owner) return;
 
     // Claimed entries belong to an open board that is retrying them itself.
-    const due = queue.filter((entry) => !isPendingSaveClaimed(entry.id));
+    // Another account's games stay put — this is not their session to be sent
+    // in, and the account that played them may well sign back in here.
+    const due = queue.filter(
+      (entry) => entry.owner === owner && !isPendingSaveClaimed(entry.id)
+    );
     if (due.length === 0) return;
 
     flushingRef.current = true;
@@ -172,7 +189,7 @@ export function PendingGameSavesHost() {
       .finally(() => {
         flushingRef.current = false;
       });
-  }, [isOnline, queue, sessionId]);
+  }, [isOnline, queue, sessionId, owner]);
 
   return null;
 }

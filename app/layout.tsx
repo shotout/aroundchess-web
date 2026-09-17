@@ -12,6 +12,7 @@ import { OfflineGateHost } from "../components/v2/offline-gate-host";
 import { PendingGameSavesHost } from "../components/v2/pending-game-saves-host";
 import { OfflineSimulationHost } from "../components/v2/offline-simulation-host";
 import { ServiceWorkerHost } from "../components/v2/service-worker-host";
+import { AccountScopeHost } from "../components/v2/account-scope-host";
 import { SessionKeepAlive } from "../components/v2/session-keepalive";
 // Imported for its side effect, and imported here so the fetch wrapper is in
 // place before any page code can fire a request.
@@ -99,6 +100,7 @@ export default function RootLayout({
 
           {/* <React.StrictMode> */}
           <AuthProvider>
+            <AccountScopeHost />
             <TutorialProvider>
               {children}
               <DayStreakModalHost />

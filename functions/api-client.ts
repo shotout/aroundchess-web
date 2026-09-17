@@ -13,6 +13,7 @@ import {
   shouldRefreshBeforeRequest,
 } from "./refresh-token";
 import { redactSecrets, toSafeApiErrorMessage } from "./api-error-message";
+import { clearAccountLocalState } from "./clear-account-storage";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -66,10 +67,10 @@ export function useApiClient() {
         // Training-plan data is cached per account in localStorage; leaving it
         // behind serves this user's progress to whoever logs in next.
         CacheUtil.clearAll();
-        localStorage.removeItem("sessionId");
-        localStorage.removeItem("token");
-        localStorage.removeItem("background-analysis-storage");
-        localStorage.removeItem("pgn-local-storage");
+        // And everything else: storage, session storage and cookies, bar the
+        // handful of device preferences listed there. This used to name four
+        // keys, which is how the rest kept being found by the next account.
+        clearAccountLocalState();
         clearSession();
       });
       router.replace("/login")

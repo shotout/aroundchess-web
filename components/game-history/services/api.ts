@@ -5,6 +5,7 @@ import {
   shouldRefreshBeforeRequest,
 } from "@/functions/refresh-token";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { clearAccountLocalState } from "@/functions/clear-account-storage";
 import axios, { AxiosRequestConfig, AxiosProgressEvent } from "axios";
 import { toast } from "sonner";
 
@@ -103,7 +104,9 @@ const handleSessionExpiration = () => {
   const { clearAll: clearPgn } = usePgnStore.getState();
   clearPgn();
 
-  localStorage.removeItem("token");
+  // An expired session ends here without the Log Out button ever running, so
+  // this is the only chance to clear what the account leaves behind.
+  clearAccountLocalState();
   setPersistedCookie("token", "", 0);
 
   toast.error("Your session has expired. Please log in again.");

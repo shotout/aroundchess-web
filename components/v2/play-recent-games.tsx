@@ -8,8 +8,10 @@ import { Game } from "@/components/game-history/types/GameHistoryTypes";
 import { formatGameDateTime } from "@/components/v2/game-date-time";
 import { useGameHistoryAnalysis } from "@/components/v2/hooks/useGameHistoryAnalysis";
 import { InfoTooltip } from "@/components/v2/info-tooltip";
+import { OfflineState } from "@/components/v2/offline-state";
 import { PieceAvatar } from "@/components/v2/piece-avatar";
 import { findRosterOpponentByName } from "@/components/v2/play-vs-ai-roster-data";
+import { useRefetchOnReconnect } from "@/components/v2/hooks/useRefetchOnReconnect";
 
 const ELO_UNRATED_INFO = (
   <>
@@ -60,6 +62,9 @@ function OpponentAvatar({ opponent }: { opponent: string }) {
 interface PlayRecentGamesProps {
   games: Game[];
   isLoading: boolean;
+  /** Reloads the list. Wired to the offline panel's retry, and fired for the
+   *  caller when the connection comes back. */
+  onRetry: () => void;
 }
 
 /** Source column labels. The API sends a handful of spellings per source ("VS AI
@@ -256,16 +261,23 @@ function EmptyState() {
   );
 }
 
-export function PlayRecentGames({ games, isLoading }: PlayRecentGamesProps) {
+export function PlayRecentGames({
+  games,
+  isLoading,
+  onRetry,
+}: PlayRecentGamesProps) {
+  const isOnline = useRefetchOnReconnect(onRetry);
+
   // With no games there is nothing to see on the history page — the link stays
-  // visible for layout, but greyed out and inert.
+  // visible for layout, but greyed out and inert. Offline counts as nothing to
+  // see: /my-game-history answers with the same offline panel.
   const hasGames = games.length > 0;
 
   return (
     <div className="bg-white rounded-[16px] border border-[#E5E7EB] px-[20px] py-[16px]">
       <div className="flex items-center justify-between mb-[4px]">
         <h2 className="font-bold text-xl text-[#111827]">Recent Games</h2>
-        {hasGames || isLoading ? (
+        {isOnline && (hasGames || isLoading) ? (
           <Link
             href="/my-game-history"
             className="text-lg font-bold text-[#221AE9] flex items-center gap-[4px] hover:underline"
@@ -282,7 +294,14 @@ export function PlayRecentGames({ games, isLoading }: PlayRecentGamesProps) {
         )}
       </div>
 
-      {isLoading ? (
+      {/* Offline outranks every state below, the cached rows included. They
+          come from a persisted store, so they are last session's games —
+          silently stale, and with every button on them (Analyze Mistakes above
+          all) leading nowhere. Same call the game-history list and Saved
+          Mistakes make. */}
+      {!isOnline ? (
+        <OfflineState onRetry={onRetry} isRetrying={isLoading} />
+      ) : isLoading && !hasGames ? (
         <div>
           <SkeletonRow />
           <SkeletonRow />

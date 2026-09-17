@@ -1,10 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { useRetryCountdown } from "./hooks/useRetryCountdown";
-
-const ICON = "/images/v2/play-vs-ai/WifinoInternet.png";
+import { OfflineWifiIcon } from "./offline-wifi-icon";
 
 interface OfflineStateProps {
   /** Refetch whatever this area was meant to show. */
@@ -45,13 +43,7 @@ export function OfflineState({
       aria-live="polite"
       className={`flex w-full flex-col items-center justify-center px-[16px] py-[48px] ${className}`}
     >
-      <Image
-        src={ICON}
-        alt=""
-        width={160}
-        height={160}
-        className="w-[80px] h-auto object-contain mb-[16px]"
-      />
+      <OfflineWifiIcon className="w-[80px] h-[80px] mb-[16px]" />
 
       <h3 className="text-center font-bold text-[18px] leading-[130%] text-[#111827] mb-[8px]">
         Seems like you&apos;re offline
