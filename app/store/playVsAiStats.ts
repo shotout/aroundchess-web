@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { registerAccountScopedStore } from "@/functions/clear-account-storage";
 
 export interface OpponentSummary {
   opponentUsername: string;
@@ -42,4 +43,13 @@ export const usePlayVsAiStatsStore = create<PlayVsAiStatsState>()(
       storage: createJSONStorage(() => localStorage),
     }
   )
+);
+
+// Who *this* account has played: another account's list is simply wrong.
+registerAccountScopedStore(() =>
+  usePlayVsAiStatsStore.setState({
+    opponentsPlayed: [],
+    opponentsPlayedPagination: null,
+    lastFetched: null,
+  })
 );

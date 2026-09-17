@@ -8,7 +8,7 @@ import 'swiper/css';
 import 'swiper/css/effect-cards';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import { Chess, Square } from "chess.js";
@@ -100,6 +100,36 @@ export default function GameAnalysis({
             return v3Result.metadata.playerColor;
         }
 
+        // Derive it from the mistakes themselves.
+        //
+        // Every critical mistake is a move *this user* played — that is what the
+        // analysis is — and each carries the position as it stood before that
+        // move. So the side to move in that FEN is the user's colour, full stop.
+        // No plumbing, no backend field, and right even for an analysis opened
+        // from a screen that has no game object to hand.
+        //
+        // This is what actually fixes the reported bug: every caller except the
+        // live board (PlayingPage) leaves playerColor unset, so when the backend
+        // omits gameInfo.isPlayerWhite the checks above all fall through and a
+        // Black player used to get the default below — a board upside down for
+        // the whole game.
+        //
+        // Counted across every mistake rather than read off the first one, so
+        // one unparseable FEN — or an opponent move the backend happens to
+        // include — cannot decide the orientation of the whole deck on its own.
+        let white = 0;
+        let black = 0;
+        for (const mistake of v3Result?.summary?.criticalMistakes ?? []) {
+            if (!mistake?.fen) continue;
+            try {
+                if (new Chess(mistake.fen).turn() === "w") white += 1;
+                else black += 1;
+            } catch {
+                // Unparseable: ignore this one, let the rest decide.
+            }
+        }
+        if (white || black) return white >= black ? "white" : "black";
+
         // Try to detect from PGN headers if available
         if (v3Result?.pgn) {
             try {
@@ -118,6 +148,23 @@ export default function GameAnalysis({
         // Default to white if cannot detect
         return "white";
     }, [playerColor, v3Result]);
+
+    /** Board orientation for every card in the deck.
+     *
+     *  Owned here rather than by each slide, which is how the flip button used
+     *  to work: it set state inside GameAnalysisSlide, so correcting the
+     *  orientation on one mistake left the other five as they were, and the
+     *  user swiped through a deck that changed direction under them. One
+     *  switch, one deck. */
+    const [orientation, setOrientation] = useState<BoardOrientation>(detectedPlayerColor);
+
+    useEffect(() => {
+        setOrientation(detectedPlayerColor);
+    }, [detectedPlayerColor]);
+
+    const flipOrientation = useCallback(() => {
+        setOrientation((prev) => (prev === "white" ? "black" : "white"));
+    }, []);
 
     // Left edge of the overlay: the desktop sidebar is `fixed left-0` with this
     // width (navigation.tsx, same >=1280 breakpoint), and the overlay starts
@@ -326,7 +373,7 @@ export default function GameAnalysis({
                         >
                             {localMistakes.map((mistake: any, index: number) => (
                                 <SwiperSlide key={index}>
-                                    <GameAnalysisSlide mistake={mistake} index={index} onSaveBookmark={handleSaveLog} onUnsaveBookmark={handleUnsaveLog} loadingBookmark={loadingBookmark} isTutorialPlay={isTutorialPlay} playerColor={detectedPlayerColor} />
+                                    <GameAnalysisSlide mistake={mistake} index={index} onSaveBookmark={handleSaveLog} onUnsaveBookmark={handleUnsaveLog} loadingBookmark={loadingBookmark} isTutorialPlay={isTutorialPlay} orientation={orientation} onFlip={flipOrientation} />
                                 </SwiperSlide>
                             ))}
                             <SwiperSlide>
@@ -395,7 +442,8 @@ const GameAnalysisSlide = ({
     onUnsaveBookmark,
     loadingBookmark,
     isTutorialPlay,
-    playerColor = "white"
+    orientation,
+    onFlip,
 } : {
     mistake: any;
     index: number;
@@ -403,22 +451,17 @@ const GameAnalysisSlide = ({
     onUnsaveBookmark: (index: number) => void;
     loadingBookmark: boolean;
     isTutorialPlay: boolean;
-    playerColor?: "white" | "black";
+    /** Owned by GameAnalysis so all the cards face the same way. */
+    orientation: BoardOrientation;
+    onFlip: () => void;
 }) => {
     const [game, setGame] = useState(new Chess());
     const [boardSize, setBoardSize] = useState(240);
-    // Set initial orientation based on player color
-    const [orientation, setOrientation] = useState<BoardOrientation>(playerColor);
     const [is3DMode, setIs3DMode] = useState<boolean>(false);
     const [customArrows, setCustomArrows] = useState<ArrowConfig[]>([]);
 
     const { setStyleChoosed } = useChessBoardThemeStore();
     const { chessMove, setChessMove } = useChessMoveStore();
-
-    // Update orientation when playerColor changes
-    useEffect(() => {
-        setOrientation(playerColor);
-    }, [playerColor]);
 
     // Helper function to detect if a move is a knight move (L-shaped)
     const isKnightMove = (from: string, to: string): boolean => {
@@ -432,16 +475,6 @@ const GameAnalysisSlide = ({
 
         // Knight moves: 2 squares in one direction, 1 in perpendicular
         return (fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2);
-    };
-
-    const handleSwitch = () => {
-        setOrientation((prev) => {
-            if (prev == "white") {
-                return "black";
-            } else {
-                return "white";
-            }
-        });
     };
 
     useEffect(() => {
@@ -546,7 +579,7 @@ const GameAnalysisSlide = ({
                         style={{ width: boardSize }}
                         className="flex flex-row self-end sm:self-center justify-end items-center gap-3"
                     >
-                        <button onClick={handleSwitch}>
+                        <button onClick={onFlip}>
                             <Image
                                 src={"/images/play-vs-ai/switch.png"}
                                 alt="icon"

@@ -208,6 +208,49 @@ p {
   animation: float 6s ease-in-out infinite;
 }
 
+/* NPS score circles; namespaced so it cannot reach anything else. */
+@keyframes nps-score-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.nps-score {
+  transition: transform 0.15s ease;
+}
+
+/* Gated on (hover: hover) because :hover sticks on touch: the last circle
+   tapped would keep bouncing until something else was. */
+@media (hover: hover) and (pointer: fine) {
+  .nps-score:hover,
+  .nps-score:focus-visible {
+    animation: nps-score-bounce 0.6s ease-in-out infinite;
+  }
+}
+
+/* Touch has no hover, so the bounce confirms the tap instead. Two hops, not a
+   loop: a selected answer that never stopped moving would pull the eye. */
+@media (hover: none) {
+  .nps-score--selected {
+    animation: nps-score-bounce 0.45s ease-in-out 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nps-score:hover,
+  .nps-score:focus-visible,
+  .nps-score--selected {
+    animation: none;
+  }
+  .nps-score:hover,
+  .nps-score:focus-visible {
+    transform: scale(1.06);
+  }
+}
+
 .animate-pulse-slow {
   animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
