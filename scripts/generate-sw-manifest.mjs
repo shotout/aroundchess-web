@@ -50,6 +50,57 @@ const ASSET_DIRS = [
   "audio",
 ];
 
+/**
+ * Directories taken whole, because their files are never named in the source.
+ *
+ * The board picks its sprites at runtime — `/pieces/${set}/${piece}.png`,
+ * `/boards/${board}.png`, `/3d-pieces/${piece}.webp` — and a scanner looking
+ * for string literals cannot see any of them. That is why a new game offline
+ * came up with no pieces on it: not one of them was ever in the precache.
+ * Fonts are the same story from the other direction, referenced by unquoted
+ * `url()` in CSS, and the analysis icons are built from a classification name.
+ *
+ * Taking a directory whole is the only honest answer for these — the set that
+ * will be needed is not knowable until a player picks a theme. They are
+ * candidates like any other, so the size cap and the budget still apply, and
+ * the smallest-first order means the sprites (a few KB each) are never the
+ * ones trimmed.
+ */
+const DYNAMIC_ASSET_DIRS = [
+  "pieces",
+  "classic",
+  "default",
+  "crownforge",
+  "boards",
+  "3d-pieces",
+  "3d-wood-pieces",
+  "icons",
+  "fonts",
+];
+
+/** The board's own sprites, which sit at the root rather than in a directory.
+ *  Same list the worker's ROOT_ASSET pattern serves. */
+const ROOT_ASSETS = [
+  "/bB.png",
+  "/bK.png",
+  "/bN.png",
+  "/bP.png",
+  "/bQ.png",
+  "/bR.png",
+  "/wB.png",
+  "/wK.png",
+  "/wN.png",
+  "/wP.png",
+  "/wQ.png",
+  "/wR.png",
+  "/chess.png",
+  "/chess-pattern.png",
+  "/wood-pattern.png",
+];
+
+const ASSET_EXTENSIONS =
+  /\.(?:png|jpe?g|svg|webp|gif|avif|mp3|wav|woff2?|ttf|otf)$/i;
+
 /** Anything larger is left to on-demand caching. Raised from 200KB because
  *  several of the files that showed as broken squares offline are icons in
  *  name only — /endgame-training/move-icon.png is half a megabyte — and the
@@ -125,6 +176,33 @@ async function collectSourceFiles(dir, out = []) {
   return out;
 }
 
+/** Every asset file under one of the whole-directory entries above. */
+async function collectDirectoryAssets(dirName, out = []) {
+  const base = path.join(PUBLIC_DIR, dirName);
+  if (!existsSync(base)) return out;
+
+  const walk = async (dir, prefix) => {
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (entry.name.startsWith(".")) continue;
+      const nested = `${prefix}/${entry.name}`;
+      if (entry.isDirectory()) {
+        await walk(path.join(dir, entry.name), nested);
+      } else if (ASSET_EXTENSIONS.test(entry.name)) {
+        out.push(nested);
+      }
+    }
+  };
+
+  await walk(base, `/${dirName}`);
+  return out;
+}
+
 async function main() {
   if (!existsSync(PUBLIC_DIR)) {
     console.warn("[sw-manifest] no public/ directory; nothing to do");
@@ -143,6 +221,16 @@ async function main() {
       if (match[1].includes("${")) continue;
       referenced.add(match[1]);
     }
+  }
+
+  // The runtime-addressed sets, which no amount of reading the source finds.
+  for (const dirName of DYNAMIC_ASSET_DIRS) {
+    for (const assetPath of await collectDirectoryAssets(dirName)) {
+      referenced.add(assetPath);
+    }
+  }
+  for (const assetPath of ROOT_ASSETS) {
+    referenced.add(assetPath);
   }
 
   // Sorted so what follows depends on the content, not on the order the
