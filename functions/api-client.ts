@@ -899,6 +899,52 @@ export function useApiClient() {
     });
   }, [apiRequest]);
 
+  /* NPS. v5-only paths, absent on some environments, so callers swallow errors. */
+
+  /** Read-only, so it is safe to ask again whenever the screen changes. */
+  const getNpsStatus = useCallback(() => {
+    return apiRequest({
+      method: "GET",
+      path: `${process.env.BASE_URL}/v4/nps/status`,
+    });
+  }, [apiRequest]);
+
+  /** Starts the 3-month cooldown, so fire it when it actually becomes visible. */
+  const postNpsShown = useCallback(
+    (body?: { platform?: string; appVersion?: string }) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/v4/nps/shown`,
+        body: body ?? {},
+      });
+    },
+    [apiRequest]
+  );
+
+  /** `score` is required, 0-10; `comment` optional, capped at 2000 server-side. */
+  const postNpsFeedback = useCallback(
+    (body: { score: number; comment?: string; platform?: string }) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/v4/nps`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
+
+  /** Harmless after a submit: an answered cycle is never downgraded. */
+  const postNpsDismiss = useCallback(
+    (body?: { platform?: string }) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/v4/nps/dismiss`,
+        body: body ?? {},
+      });
+    },
+    [apiRequest]
+  );
+
   return {
     isLoading,
     error,
@@ -969,5 +1015,9 @@ export function useApiClient() {
     postLeaderboardGameResult,
     getLeaderboardData,
     getLeaderboardMe,
+    getNpsStatus,
+    postNpsShown,
+    postNpsFeedback,
+    postNpsDismiss,
   };
 }
