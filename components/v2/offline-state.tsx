@@ -49,8 +49,16 @@ export function OfflineState({
         Seems like you&apos;re offline
       </h3>
 
+      {/* "try again later." is bound with non-breaking spaces so it can never
+          be split. Left to wrap freely the line lands differently at every
+          width, and on desktop it broke after "try again" — stranding "later."
+          alone on a second line under a centred paragraph, which reads as a
+          mistake rather than as a line break. Binding it leaves the only break
+          points earlier in the sentence, so the last line is always a phrase:
+          "...connection or / try again later.", the way it already wrapped on
+          mobile. */}
       <p className="text-center text-[16px] leading-[150%] text-[#111827] mb-[20px] max-w-[420px]">
-        Please check your internet connection or try again later.
+        Please check your internet connection or try&nbsp;again&nbsp;later.
       </p>
 
       <p className="text-center text-[16px] leading-[150%] text-[#9CA3AF] mb-[16px]">
