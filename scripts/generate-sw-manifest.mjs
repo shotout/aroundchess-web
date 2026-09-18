@@ -101,16 +101,61 @@ const ROOT_ASSETS = [
 const ASSET_EXTENSIONS =
   /\.(?:png|jpe?g|svg|webp|gif|avif|mp3|wav|woff2?|ttf|otf)$/i;
 
+/**
+ * The board itself: its surfaces and its piece sprites.
+ *
+ * These are not decoration and they are not interchangeable with anything
+ * else — without them a game in progress is a grid of nothing, which is what
+ * "the board did not load offline" turned out to mean. `/boards/wood.png` is
+ * 146KB and was precached; `/boards/wood-flipped.png` is 500KB and was not, so
+ * the default theme rendered for White and broke for Black. Nothing about that
+ * distinction was intentional: it fell out of the size cap and a budget that
+ * was being spent on page banners before it reached the board.
+ *
+ * So they are taken first, and the per-file cap does not apply to them. Which
+ * one a player needs is unknowable here — the theme is a stored preference and
+ * can be changed offline, and each theme has a flipped variant for playing
+ * Black — so the whole set has to be there.
+ *
+ * `/3d-pieces/chess.png` is deliberately not matched: despite the directory it
+ * is a 2.2MB illustration on the analysis loading screen, not a sprite, and
+ * the board never asks for it. It stays an ordinary candidate.
+ */
+const ESSENTIAL_PATTERNS = [
+  /^\/boards\//,
+  /^\/pieces\//,
+  /^\/3d-pieces\/[^/]+\.webp$/i,
+  /^\/3d-wood-pieces\//,
+  /^\/classic\//,
+  /^\/default\//,
+  /^\/crownforge\//,
+];
+
+function isEssential(assetPath) {
+  return (
+    ESSENTIAL_PATTERNS.some((pattern) => pattern.test(assetPath)) ||
+    ROOT_ASSETS.includes(assetPath)
+  );
+}
+
 /** Anything larger is left to on-demand caching. Raised from 200KB because
  *  several of the files that showed as broken squares offline are icons in
  *  name only — /endgame-training/move-icon.png is half a megabyte — and the
- *  old cap excluded exactly the ones people noticed. */
+ *  old cap excluded exactly the ones people noticed.
+ *
+ *  Does not apply to the essential set below, where a file being large is not
+ *  a reason to do without it. */
 const MAX_ASSET_BYTES = 600 * 1024;
 /** A ceiling on the whole precache, so one careless commit cannot turn the
  *  first visit into a multi-megabyte download without anyone noticing.
  *  Selection runs smallest-first, so what this trims is always the largest
- *  decoration, never an icon. */
-const MAX_TOTAL_BYTES = 18 * 1024 * 1024;
+ *  decoration, never an icon.
+ *
+ *  Raised from 18MB to cover the board surfaces, which are ~9MB of the total
+ *  on their own: 16 board images across four themes and two orientations, plus
+ *  the sprite sets. Under the old ceiling they competed with the page art and
+ *  lost. Everything that fitted before still fits. */
+const MAX_TOTAL_BYTES = 28 * 1024 * 1024;
 
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".css"]);
 const SKIP_DIRS = new Set(["node_modules", ".next", ".git", "public", ".vercel"]);
@@ -257,32 +302,44 @@ async function main() {
       continue;
     }
     if (!info.isFile()) continue;
-    if (info.size > MAX_ASSET_BYTES) {
+    const essential = isEssential(assetPath);
+    if (!essential && info.size > MAX_ASSET_BYTES) {
       skippedLarge += 1;
       continue;
     }
-    found.push({ assetPath, filePath, size: info.size });
+    found.push({ assetPath, filePath, size: info.size, essential });
   }
 
   /**
-   * Smallest first, and that order is shipped as well as used here.
+   * The board first, then everything else smallest first — and that order is
+   * shipped as well as used here.
    *
-   * It decides two things. The budget below now trims the heaviest
-   * decorations instead of whatever happened to sort last — `/images/...`
-   * alphabetically, which is where nearly every icon lives. And the worker
-   * warms the cache in this order, so a warm that is cut short (the tab
-   * closed, the connection dropped) has already covered the small files the
-   * UI is built out of, rather than having spent the whole time on three
-   * background images.
+   * It decides two things. The budget below trims the heaviest decorations
+   * rather than whatever happened to sort last (`/images/...` alphabetically,
+   * which is where nearly every icon lives), and it can no longer reach the
+   * board at all. And the worker warms the cache in this order, so a warm that
+   * is cut short — the tab closed, the connection dropped — has already
+   * covered the board and then the small files the UI is built out of, rather
+   * than having spent the whole time on three background images.
+   *
+   * Putting the board ahead of the icons does mean a couple of megabytes land
+   * before them. That is the right way round: a missing icon is a gap in a
+   * panel, a missing board is the game.
    */
-  found.sort((a, b) =>
-    a.size - b.size || a.assetPath.localeCompare(b.assetPath)
+  found.sort(
+    (a, b) =>
+      Number(b.essential) - Number(a.essential) ||
+      a.size - b.size ||
+      a.assetPath.localeCompare(b.assetPath)
   );
 
   const selected = [];
   let total = 0;
   for (const entry of found) {
-    if (total + entry.size > MAX_TOTAL_BYTES) {
+    // Essentials are not subject to the budget — they are the reason there is
+    // an offline mode. They sort first, so they are also charged against it
+    // before anything else can spend it.
+    if (!entry.essential && total + entry.size > MAX_TOTAL_BYTES) {
       skippedLarge += 1;
       continue;
     }
