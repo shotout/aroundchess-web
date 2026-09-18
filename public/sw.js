@@ -183,13 +183,91 @@ self.addEventListener("activate", (event) => {
 
 let warming = false;
 
+/** First four bytes of a bundle chunk. Checked before anything is parsed, so a
+ *  response that is not a chunk at all — an HTML error page, a proxy's login
+ *  portal, a truncated body — is rejected instead of being read as one. */
+const BUNDLE_MAGIC = 0x41434231; // "ACB1"
+
+/**
+ * Unpack one bundle chunk into the cache.
+ *
+ * Returns the paths it could not store, so the caller can fall back to
+ * fetching those one at a time. A chunk that is already fully cached costs one
+ * cache lookup per file and no network at all, which is what makes a repeat
+ * visit free and an interrupted warm resumable.
+ *
+ * Format is written by writeBundle() in scripts/generate-sw-manifest.mjs.
+ */
+async function warmFromChunk(chunk, assets, cache) {
+  const paths = assets.slice(chunk.from, chunk.from + chunk.count);
+
+  const missing = [];
+  for (const assetPath of paths) {
+    if (!(await cache.match(assetPath, MATCH_OPTIONS))) missing.push(assetPath);
+  }
+  if (missing.length === 0) return [];
+
+  try {
+    const response = await fetch(chunk.url, {
+      cache: "no-cache",
+      priority: "low",
+    });
+    if (!response.ok) return missing;
+
+    const buffer = await response.arrayBuffer();
+    if (buffer.byteLength < 8) return missing;
+
+    const view = new DataView(buffer);
+    if (view.getUint32(0, false) !== BUNDLE_MAGIC) return missing;
+
+    const headerLength = view.getUint32(4, true);
+    const bodyStart = 8 + headerLength;
+    if (bodyStart > buffer.byteLength) return missing;
+
+    const entries = JSON.parse(
+      new TextDecoder().decode(new Uint8Array(buffer, 8, headerLength))
+    );
+
+    const wanted = new Set(missing);
+    const stored = new Set();
+    for (const entry of entries) {
+      if (!wanted.has(entry.p)) continue;
+      const start = bodyStart + entry.o;
+      const end = start + entry.l;
+      if (end > buffer.byteLength) continue;
+      await cache.put(
+        entry.p,
+        // Content-Type has to be set here: unlike every other entry in this
+        // cache, these were never a response from the server.
+        new Response(buffer.slice(start, end), {
+          headers: { "Content-Type": entry.t },
+        })
+      );
+      stored.add(entry.p);
+    }
+
+    return missing.filter((assetPath) => !stored.has(assetPath));
+  } catch {
+    // Unreachable, out of storage, or not a chunk. The per-file fallback in
+    // warmPrecache covers it.
+    return missing;
+  }
+}
+
 /** Fill the precache, gently. Skips anything already stored, so a repeat visit
  *  costs nothing and an interrupted warm resumes where it stopped.
  *
- *  Manifest order is kept deliberately: it is smallest-first, so the icons and
- *  glyphs the UI is built out of are all in place long before the background
- *  images, and a warm that never finishes still leaves a usable offline app.
- *  See scripts/generate-sw-manifest.mjs. */
+ *  Downloaded as a handful of bundle chunks rather than 688 separate requests.
+ *  That is mostly for whoever has the network panel open — a warm that buries
+ *  every other request under hundreds of PNGs is hard to work next to — but it
+ *  also drops a full set of request and response headers per file, which for
+ *  an icon is a real fraction of what was transferred.
+ *
+ *  Manifest order is kept deliberately: the board first, then smallest-first,
+ *  so the pieces and glyphs the UI is built out of are all in place long
+ *  before the background images, and a warm that never finishes still leaves a
+ *  usable offline app. The chunks follow that same order, so the same holds
+ *  when one of them never arrives. See scripts/generate-sw-manifest.mjs. */
 async function warmPrecache() {
   if (warming) return;
   warming = true;
@@ -215,9 +293,24 @@ async function warmPrecache() {
     }
 
     const missing = [];
-    for (const asset of manifest.assets) {
-      if (!(await cache.match(asset, MATCH_OPTIONS))) missing.push(asset);
+    const chunks = Array.isArray(manifest.chunks) ? manifest.chunks : [];
+
+    if (chunks.length > 0) {
+      // One chunk at a time. Concurrency here would only take bandwidth from
+      // the page for a warm that is explicitly meant to run behind it, and
+      // sequential means the earlier — more important — chunks land first.
+      for (const chunk of chunks) {
+        const unstored = await warmFromChunk(chunk, manifest.assets, cache);
+        for (const assetPath of unstored) missing.push(assetPath);
+      }
+    } else {
+      // A manifest from before bundles existed, or a build where packing
+      // failed. Everything below still works, one request per file.
+      for (const asset of manifest.assets) {
+        if (!(await cache.match(asset, MATCH_OPTIONS))) missing.push(asset);
+      }
     }
+
     if (missing.length === 0) {
       // Already complete: nothing to fetch, and the older versions are now
       // safe to let go of.
@@ -385,6 +478,9 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/monitoring") ||
     url.pathname.startsWith("/_next/data/") ||
+    // The precache bundles. Their contents end up in the cache under the real
+    // asset paths, so caching the chunks as well would store all 27MB twice.
+    url.pathname.startsWith("/sw-bundle/") ||
     url.pathname === MANIFEST_URL
   ) {
     return;
