@@ -17,6 +17,7 @@ import {
   usePendingGameSaves,
 } from "@/app/store/pendingGameSaves";
 import { isOfflineError } from "./offline-status";
+import { refreshRecentGames } from "./recent-games-refresh";
 import { useOnlineStatus } from "./hooks/useOnlineStatus";
 
 /**
@@ -173,6 +174,12 @@ export function PendingGameSavesHost() {
       const [lb, me]: any[] = await Promise.all([
         api.getLeaderboardData().catch(() => null),
         api.getLeaderboardMe().catch(() => null),
+        // The games just sent are the newest the account has, and /play's
+        // Recent Games card is where the player looks for them. It loads on
+        // mount and on the reconnect edge — both of which happen *before* this
+        // flush lands — so without a reload here the card keeps showing the
+        // five from before the outage.
+        refreshRecentGames(sessionId),
       ]);
       if (lb?.success && lb.data) api.setLeaderboard(lb.data);
       if (me?.data) api.setLeaderboardMe(me.data);

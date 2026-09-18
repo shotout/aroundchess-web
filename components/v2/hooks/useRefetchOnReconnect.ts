@@ -2,6 +2,26 @@
 
 import { useEffect, useRef } from "react";
 import { useOnlineStatus } from "./useOnlineStatus";
+import { probeConnection } from "../offline-status";
+import { isBrowserOnline } from "../offline-simulation";
+
+/**
+ * How long to keep checking that the connection really is usable before
+ * reloading anyway.
+ *
+ * `online` fires when the device attaches to a network, not when that network
+ * can carry a request: the interface is up, but DHCP, DNS or the captive
+ * portal may not be. A refetch sent on that edge loses the race, the catch in
+ * every caller swallows it, and — because the offline panel unmounts on the
+ * same render — the list settles on whatever it was holding before the outage
+ * with no sign anything failed. That is the "came back online and the games
+ * were still yesterday's" report.
+ *
+ * Cumulative waits, so the common case (already usable) costs nothing and the
+ * slow case gives up after about seven seconds and tries regardless — a probe
+ * that never answers is not proof the API cannot be reached.
+ */
+const PROBE_DELAYS_MS = [0, 500, 1500, 2000, 3000];
 
 /**
  * Reload a list when the connection comes back, and report the online state
@@ -42,7 +62,29 @@ export function useRefetchOnReconnect(refetch: () => void): boolean {
   useEffect(() => {
     const cameBackOnline = isOnline && !wasOnlineRef.current;
     wasOnlineRef.current = isOnline;
-    if (cameBackOnline) refetchRef.current();
+    if (!cameBackOnline) return;
+
+    let cancelled = false;
+
+    const refetchWhenReachable = async () => {
+      for (const delay of PROBE_DELAYS_MS) {
+        if (delay > 0) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+        if (cancelled) return;
+        // Dropped out again while waiting: the next `online` starts this over.
+        if (!isBrowserOnline()) return;
+        if (await probeConnection()) break;
+        if (cancelled) return;
+      }
+      if (!cancelled) refetchRef.current();
+    };
+
+    refetchWhenReachable();
+
+    return () => {
+      cancelled = true;
+    };
   }, [isOnline]);
 
   return isOnline;

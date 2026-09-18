@@ -9,8 +9,7 @@ import { PlayChesscomBanner } from "@/components/v2/play-chesscom-banner";
 import { useProfileStore } from "@/app/store/profile";
 import { refreshStreakStatus } from "@/app/store/streak";
 import { usePlayPageStore } from "@/app/store/playPage";
-import { gameHistoryApi } from "@/components/game-history/services/api";
-import { transformApiDataToComponentFormat } from "@/components/game-history/hooks/useGameData";
+import { refreshRecentGames } from "@/components/v2/recent-games-refresh";
 import Navigation from "@/components/navigator/navigation";
 import { useApiClient } from "@/functions/api-client";
 
@@ -26,7 +25,7 @@ export function PlayPage() {
     streak, setStreak,
     leaderboard, setLeaderboard,
     leaderboardMe, setLeaderboardMe,
-    recentGames, setRecentGames,
+    recentGames,
   } = usePlayPageStore();
   const [isLoadingGames, setIsLoadingGames] = useState(false);
 
@@ -35,17 +34,9 @@ export function PlayPage() {
   const loadRecentGames = useCallback(() => {
     if (!sessionId) return;
     setIsLoadingGames(true);
-    gameHistoryApi
-      .getUserGames(sessionId, {
-        sources: ["chesscom", "vs_ai", "pgn_upload"],
-        limit: 5,
-        page: 1,
-      })
-      .then((res) => {
-        if (res?.data) setRecentGames(transformApiDataToComponentFormat(Array.isArray(res.data) ? res.data.slice(0, 5) : []));
-      })
-      .catch(() => {})
-      .finally(() => setIsLoadingGames(false));
+    // Writes the rows into the same store PendingGameSavesHost refreshes after
+    // it sends the games finished during an outage.
+    refreshRecentGames(sessionId).finally(() => setIsLoadingGames(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 

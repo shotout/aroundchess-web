@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { X } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { GameLeaveGuardType } from "@/app/store/gameLeaveGuard";
 
 const ICON = "/images/v2/play-vs-ai/warning_knight.png";
@@ -68,6 +68,12 @@ export function PlayVsAiLeaveGuardModal({
   onConfirm,
 }: PlayVsAiLeaveGuardModalProps) {
   const content = CONTENT[type];
+  /** This modal only ever opens mid-game, which is exactly when the connection
+   *  is most likely to have gone — and an icon the browser has not fetched
+   *  before then renders as a broken box directly above the question. The
+   *  knight is decoration; the title, the warning and the two buttons are the
+   *  modal. Drop it rather than show the box. */
+  const [iconFailed, setIconFailed] = useState(false);
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/50 p-4">
@@ -80,15 +86,29 @@ export function PlayVsAiLeaveGuardModal({
           <X className="w-6 h-6" />
         </button>
 
-        <div className="flex justify-center mb-[16px]">
-          <Image
-            src={ICON}
-            alt=""
-            width={200}
-            height={200}
-            className="w-[132px] h-auto object-contain"
-          />
-        </div>
+        {iconFailed ? (
+          // Keeps the title clear of the close button in the corner.
+          <div className="h-[16px]" />
+        ) : (
+          <div className="flex justify-center mb-[16px]">
+            <Image
+              src={ICON}
+              alt=""
+              width={200}
+              height={200}
+              className="w-[132px] h-auto object-contain"
+              // Served straight from /public rather than through the image
+              // optimizer. The optimizer's URL carries a width and a quality,
+              // so each variant is a separate file the precache cannot know
+              // about ahead of time and the worker can only fall back to the
+              // original for; this path *is* the precached one, so it resolves
+              // from the cache with no network involved at all. 12KB either
+              // way — worth spending to make a mid-game modal deterministic.
+              unoptimized
+              onError={() => setIconFailed(true)}
+            />
+          </div>
+        )}
 
         <h2 className="text-center font-bold text-[24px] leading-[130%] text-[#111827] mb-[12px]">
           {content.title}
