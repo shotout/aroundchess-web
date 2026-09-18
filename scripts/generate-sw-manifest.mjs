@@ -11,16 +11,21 @@
  * icons, glyphs and piece sprites the UI reaches for at the moment something
  * happens. Anything bigger is decorative, and the service worker still caches
  * it on demand once it has been seen.
+ *
+ * The selected files are also packed into a handful of bundle chunks beside
+ * the list, which is how the worker actually downloads them — see
+ * writeBundle() at the bottom.
  */
 
 import { createHash } from "node:crypto";
-import { readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, "public");
 const OUTPUT = path.join(PUBLIC_DIR, "sw-manifest.json");
+const BUNDLE_DIR = path.join(PUBLIC_DIR, "sw-bundle");
 
 /** Directories under /public whose contents the UI renders. */
 const ASSET_DIRS = [
@@ -208,6 +213,131 @@ async function existsCaseExact(assetPath) {
   return false;
 }
 
+/**
+ * Roughly how much goes into one bundle chunk.
+ *
+ * One file would be tidiest in the network panel and the worst thing to lose:
+ * a warm interrupted at 26MB would have nothing to show for it, because a
+ * chunk is only useful once it has arrived whole. A few megabytes each means a
+ * dropped connection costs one chunk, and — since the packing follows the warm
+ * order — whatever did arrive is the most important part of the list.
+ */
+const CHUNK_TARGET_BYTES = 4 * 1024 * 1024;
+
+/** Cache Storage keeps whatever Content-Type it is handed, and the entries
+ *  written out of a bundle are built here rather than fetched, so the type has
+ *  to travel with them. Getting this wrong is a font that does not apply or an
+ *  image the browser refuses to decode. */
+const CONTENT_TYPES = {
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".avif": "image/avif",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".ttf": "font/ttf",
+  ".otf": "font/otf",
+  ".json": "application/json",
+};
+
+function contentTypeOf(assetPath) {
+  return (
+    CONTENT_TYPES[path.extname(assetPath).toLowerCase()] ??
+    "application/octet-stream"
+  );
+}
+
+/**
+ * Pack the selected assets into a few binary chunks.
+ *
+ * The warm used to issue one request per file. That works, but 688 of them
+ * bury everything else in the network panel for as long as it runs, and each
+ * one carries a full set of request and response headers for a file that is
+ * often smaller than they are. A chunk is one request for a few hundred files.
+ *
+ * Layout, which sw.js reads back:
+ *
+ *   "ACB1"                4 bytes, so a truncated or misrouted response (an
+ *                         SPA fallback page, say) is rejected rather than
+ *                         parsed into nonsense
+ *   headerLength          uint32, little-endian
+ *   header                JSON: [{ p: path, o: offset, l: length, t: type }]
+ *   body                  the files, concatenated, offsets relative to here
+ *
+ * Chunk order follows `selected`, which is warm order — the board first, then
+ * smallest-first — so an interrupted warm loses the least important chunks.
+ *
+ * Each chunk is named after its own contents rather than the manifest version.
+ * A deploy bumps the version whenever any asset changes, and a version-named
+ * chunk would then be a new URL with nothing to revalidate against — 27MB back
+ * over the wire to pick up one redrawn icon. Named this way, the chunks that
+ * did not change keep their URL and answer 304 out of the HTTP cache. Packing
+ * still shifts when a file is added or resized, so this is an opportunity
+ * rather than a guarantee; it costs nothing to take.
+ */
+async function writeBundle(selected) {
+  // Wiped rather than merged: chunks are named after the manifest version, so
+  // last build's would otherwise pile up in /public for every deploy.
+  await rm(BUNDLE_DIR, { recursive: true, force: true });
+  await mkdir(BUNDLE_DIR, { recursive: true });
+
+  const chunks = [];
+  let index = 0;
+
+  while (index < selected.length) {
+    const from = index;
+    const entries = [];
+    const bodies = [];
+    let offset = 0;
+
+    // `offset === 0` keeps a file larger than the target on its own rather
+    // than looping forever trying to find room for it.
+    while (
+      index < selected.length &&
+      (offset === 0 || offset + selected[index].size <= CHUNK_TARGET_BYTES)
+    ) {
+      const entry = selected[index];
+      const data = await readFile(entry.filePath);
+      entries.push({
+        p: entry.assetPath,
+        o: offset,
+        l: data.length,
+        t: contentTypeOf(entry.assetPath),
+      });
+      bodies.push(data);
+      offset += data.length;
+      index += 1;
+    }
+
+    const header = Buffer.from(JSON.stringify(entries), "utf8");
+    const prefix = Buffer.alloc(8);
+    prefix.write("ACB1", 0, "ascii");
+    prefix.writeUInt32LE(header.length, 4);
+    const file = Buffer.concat([prefix, header, ...bodies]);
+
+    const name = `${createHash("sha256")
+      .update(file)
+      .digest("hex")
+      .slice(0, 16)}.bin`;
+    await writeFile(path.join(BUNDLE_DIR, name), file);
+    chunks.push({
+      url: `/sw-bundle/${name}`,
+      bytes: file.length,
+      // Into `manifest.assets`, which is this same list in this same order.
+      // Two integers rather than repeating every path a second time.
+      from,
+      count: entries.length,
+    });
+  }
+
+  return chunks;
+}
+
 async function collectSourceFiles(dir, out = []) {
   const entries = await readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
@@ -360,19 +490,33 @@ async function main() {
   }
 
   const assets = selected.map((entry) => entry.assetPath);
+  const version = hash.digest("hex").slice(0, 16);
+
+  // Best effort. A build that cannot write the bundle still produces a usable
+  // manifest, and the worker falls back to fetching the files one by one —
+  // noisier, but not broken.
+  let chunks = [];
+  try {
+    chunks = await writeBundle(selected);
+  } catch (error) {
+    console.warn("[sw-manifest] bundle generation failed:", error);
+    await rm(BUNDLE_DIR, { recursive: true, force: true }).catch(() => {});
+  }
 
   const manifest = {
-    version: hash.digest("hex").slice(0, 16),
+    version,
     generatedAt: new Date().toISOString(),
     totalBytes: total,
     assets,
+    chunks,
   };
 
   await writeFile(OUTPUT, JSON.stringify(manifest, null, 2) + "\n", "utf8");
 
   console.log(
     `[sw-manifest] ${assets.length} assets, ${(total / 1024 / 1024).toFixed(2)} MB ` +
-      `(skipped ${skippedLarge} large, ${skippedMissing} missing) → version ${manifest.version}`
+      `in ${chunks.length} chunks ` +
+      `(skipped ${skippedLarge} large, ${skippedMissing} missing) → version ${version}`
   );
 }
 
