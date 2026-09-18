@@ -57,6 +57,33 @@ const ROOT_ASSET = /^\/(?:[bw][BKNPQR]|chess|chess-pattern|wood-pattern)\.png$/;
  *  prepare for an outage that may never come is a bad trade. */
 const WARM_CONCURRENCY = 4;
 
+/**
+ * Header matching is off for every cache lookup here.
+ *
+ * A `Vary` on the stored response makes the browser compare request headers
+ * before it will hand the entry back, and the headers differ by construction:
+ * the warm stores an entry fetched by this worker, while the lookup that wants
+ * it later is built from a bare path string. The bytes are the same file
+ * either way, so a header mismatch can only ever turn a cached asset into a
+ * broken square.
+ */
+const MATCH_OPTIONS = { ignoreVary: true };
+
+/**
+ * How long the image optimizer is given before the precached original is used
+ * in its place.
+ *
+ * Being offline is not the only way a request fails to arrive. A captive
+ * portal or a dead uplink does not refuse it — it simply never answers, so
+ * `fetch` neither resolves nor rejects, and an <img> waiting on it stays a
+ * broken square for as long as the page is open. That is the "sometimes" in
+ * the offline reports: a hard disconnect fell straight through to the cache,
+ * a half-dead connection hung here instead.
+ *
+ * Long enough that a slow but live connection still gets the real variant.
+ */
+const OPTIMIZER_TIMEOUT_MS = 4000;
+
 let manifestPromise = null;
 
 /**
@@ -189,7 +216,7 @@ async function warmPrecache() {
 
     const missing = [];
     for (const asset of manifest.assets) {
-      if (!(await cache.match(asset))) missing.push(asset);
+      if (!(await cache.match(asset, MATCH_OPTIONS))) missing.push(asset);
     }
     if (missing.length === 0) {
       // Already complete: nothing to fetch, and the older versions are now
@@ -249,7 +276,7 @@ self.addEventListener("message", (event) => {
  */
 async function matchAnyCache(request) {
   try {
-    return (await caches.match(request)) ?? null;
+    return (await caches.match(request, MATCH_OPTIONS)) ?? null;
   } catch {
     return null;
   }
@@ -257,7 +284,7 @@ async function matchAnyCache(request) {
 
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(await cacheName());
-  const cached = await cache.match(request);
+  const cached = await cache.match(request, MATCH_OPTIONS);
 
   const network = fetch(request)
     .then((response) => {
@@ -276,34 +303,62 @@ async function staleWhileRevalidate(request) {
   return new Response("", { status: 504, statusText: "Offline" });
 }
 
-/** next/image requests cannot be precached — the URL carries a width and
- *  quality, so one source file has many variants and no way to know which the
- *  page will ask for. Tried over the network first, then answered with the raw
- *  precached original: unoptimised and a little larger, but it renders, which
- *  is the whole point. Online behaviour is untouched. */
+/** Resolve to null once the deadline passes, without cancelling the promise —
+ *  a slow response is still worth caching, and is still asked for further down
+ *  once there is nothing better to answer with. */
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((resolve) => setTimeout(() => resolve(null), ms)),
+  ]);
+}
+
+/**
+ * next/image requests, which cannot be precached: the URL carries a width and
+ * a quality, so one source file has many variants and no way to know which the
+ * page will ask for.
+ *
+ * Cache first, exactly like every other asset. This used to await the network
+ * before it would look in the cache at all, which meant the only thing
+ * standing between an icon and a broken square was `fetch` failing *promptly*
+ * — true when the device is cleanly offline, and not true on the flaky
+ * connections where the complaints actually came from. A stored variant is now
+ * served straight away and refreshed behind the request, and the network is
+ * only waited on when there is nothing stored to show meanwhile.
+ *
+ * The last resort is the raw precached original: unoptimised and a little
+ * larger, but it renders, which is the whole point.
+ */
 async function optimizedImage(request, url) {
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(await cacheName());
+  const cache = await caches.open(await cacheName());
+
+  const network = fetch(request)
+    .then((response) => {
+      if (!response.ok) return null;
       cache.put(request, response.clone());
       return response;
-    }
-  } catch {
-    // fall through to the cache
-  }
+    })
+    .catch(() => null);
 
-  const cache = await caches.open(await cacheName());
   const cachedVariant =
-    (await cache.match(request)) ?? (await matchAnyCache(request));
+    (await cache.match(request, MATCH_OPTIONS)) ??
+    (await matchAnyCache(request));
   if (cachedVariant) return cachedVariant;
+
+  const fresh = await withTimeout(network, OPTIMIZER_TIMEOUT_MS);
+  if (fresh) return fresh;
 
   const source = url.searchParams.get("url");
   if (source && source.startsWith("/")) {
     const original =
-      (await cache.match(source)) ?? (await matchAnyCache(source));
+      (await cache.match(source, MATCH_OPTIONS)) ?? (await matchAnyCache(source));
     if (original) return original;
   }
+
+  // Nothing cached under either name. The connection may only have been slow,
+  // so wait it out after all rather than reporting a file we could still get.
+  const late = await network;
+  if (late) return late;
 
   return new Response("", { status: 504, statusText: "Offline" });
 }
@@ -346,7 +401,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       (async () => {
         const cache = await caches.open(await cacheName());
-        const cached = await cache.match(request);
+        const cached = await cache.match(request, MATCH_OPTIONS);
         if (cached) return cached;
         try {
           const response = await fetch(request);
