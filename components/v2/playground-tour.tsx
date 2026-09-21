@@ -20,6 +20,8 @@ import { LoseModalCard } from "@/components/v2/play-vs-ai-lose-modal";
 import { openDayStreakModal } from "@/components/v2/hooks/useDayStreakModal";
 import { setPlaygroundTourActive } from "@/components/v2/playground-tour-active";
 import { getLocalDateStamp, useStreakStore } from "@/app/store/streak";
+import { refreshLeaderboard } from "@/app/store/playPage";
+import { useApiClient } from "@/functions/api-client";
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
 import { HeroPlayVSAIPreview } from "@/components/v2/hero-play-vs-ai-preview";
 
@@ -1529,6 +1531,10 @@ export function PlaygroundTour({
 
   useEffect(() => () => setPlaygroundTourActive(false), []);
 
+  // Used by finish(): the page's own standing fetch ran before this account had
+  // one, so the tour re-asks on the way out.
+  const { getLeaderboardData, getLeaderboardMe } = useApiClient();
+
   const begin = () => {
     try {
       if (localStorage.getItem(PENDING_KEY)) firstRunRef.current = true;
@@ -1584,6 +1590,13 @@ export function PlaygroundTour({
     try {
       localStorage.removeItem(PENDING_KEY);
     } catch {}
+    // The page behind the tour fetched its leaderboard standing once, on mount
+    // — for a new account that is seconds after sign-up, before the backend has
+    // a /leaderboard/me row to give, so the top bar was left with no can_join
+    // and stayed in its plain state instead of the greyed-out calibrating one.
+    // The tour runs for minutes; by the time it ends the row exists, so ask
+    // again. Never rejects (see refreshLeaderboard).
+    refreshLeaderboard(getLeaderboardData, getLeaderboardMe);
     if (firstCompletion) {
       const streakStore = useStreakStore.getState();
       openDayStreakModal({

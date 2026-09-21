@@ -226,14 +226,17 @@ export function PlayTopBar({ streak, elo, rank, movedUp, canJoin, gamesRemaining
   //  • freeze (blue): player is frozen after inactivity — can_join === false
   //    && is_inactive === true (passed in as isInactive).
   //  • join (grey): uncalibrated player who still needs games to join —
-  //    can_join === false && games remaining > 0, and is not frozen.
+  //    can_join === false and not frozen.
   const showFreezeCover = isInactive === true;
-  const showJoinCover =
-    canJoin === false && !showFreezeCover && (gamesRemaining ?? 0) > 0;
+  // No games-remaining floor, which is how the leaderboard page reads the same
+  // payload: a brand-new account can come back with can_join false and no count
+  // yet, and that used to leave the bar looking like a rated player's with bare
+  // dashes instead of the greyed-out calibrating state.
+  const showJoinCover = canJoin === false && !showFreezeCover;
   const leaderboardNote =
     gamesRemaining && gamesRemaining > 0
       ? `${gamesRemaining} more ${gamesRemaining === 1 ? "game" : "games"} to join the Leaderboard.`
-      : null;
+      : "Play 5 games to join the Leaderboard.";
 
   return (
     <div data-tour-anchor="play-top-bar" className="flex flex-col">
