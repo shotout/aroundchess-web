@@ -1,26 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { animate } from "framer-motion";
 
 // 0-9 plus a duplicate 0 so a wheel can roll forward past 9 (9 -> 0 wrap).
 const DIGIT_STRIP = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 
-function DigitWheel({ position }: { position: number }) {
-  return (
-    <span className="relative inline-block h-[1em] w-[1ch] overflow-hidden">
-      <span
-        className="absolute left-0 top-0 flex flex-col w-full"
-        style={{ transform: `translateY(${-position}em)` }}
-      >
-        {DIGIT_STRIP.map((d, i) => (
-          <span key={i} className="h-[1em] leading-[1em] text-center">
-            {d}
-          </span>
-        ))}
-      </span>
-    </span>
-  );
+/**
+ * Where wheel `place` (0 = units, 1 = tens, …) sits for a given counter value,
+ * in ems of downward travel.
+ *
+ * The units wheel turns continuously, because it is the one the eye follows —
+ * gating it like the wheels above it left it parked for 90% of every step and
+ * then snapping, which read as a dropped-frame stutter rather than as motion.
+ *
+ * Every wheel above it keeps the mechanical tick: it holds its digit while the
+ * wheel below crosses its cycle and only turns over during the last 10% of it,
+ * exactly like an old car's dial.
+ */
+function wheelPosition(value: number, place: number): number {
+  const scaled = Math.max(0, value) / Math.pow(10, place);
+  const digit = Math.floor(scaled) % 10;
+  const frac = scaled - Math.floor(scaled);
+  if (place === 0) return digit + frac;
+  return digit + (frac > 0.9 ? (frac - 0.9) * 10 : 0);
 }
 
 interface EloOdometerProps {
@@ -52,51 +55,78 @@ export function EloOdometer({
   const start = Math.round(from);
   const target = Math.round(to);
 
-  const [value, setValue] = useState(start);
-  // Off outside the roll, so a resting counter can never render a part-rolled
-  // wheel: the digits below come straight from `target` once this is false.
-  const [rolling, setRolling] = useState(false);
+  const digitCount = useMemo(
+    () =>
+      Math.max(
+        String(Math.max(Math.abs(start), Math.abs(target), 1)).length,
+        1
+      ),
+    [start, target]
+  );
+
+  // Indexed by place value, so refs.current[0] is the units wheel.
+  const wheels = useRef<(HTMLSpanElement | null)[]>([]);
 
   useEffect(() => {
-    if (start === target) {
-      setValue(target);
-      setRolling(false);
-      return;
-    }
-    setValue(start);
-    setRolling(true);
+    // Written straight to the DOM rather than through state. Re-rendering every
+    // wheel (and all eleven digits on each) once per frame while the win/lose
+    // Lottie is decoding its own frames was enough to drop the roll well below
+    // 60fps; the digits themselves never change, only the offset does.
+    const apply = (value: number) => {
+      for (let place = 0; place < digitCount; place++) {
+        const el = wheels.current[place];
+        if (el) {
+          el.style.transform = `translateY(${-wheelPosition(value, place)}em)`;
+        }
+      }
+    };
+
+    apply(start);
+    if (start === target) return;
+
     const controls = animate(start, target, {
       duration,
       delay,
       ease: [0.25, 1, 0.4, 1],
-      onUpdate: (v) => setValue(v),
+      onUpdate: apply,
       // Snap: the last frame can land a hair short of `target`, which is all
       // it takes to strand the units wheel between two digits.
-      onComplete: () => {
-        setValue(target);
-        setRolling(false);
-      },
+      onComplete: () => apply(target),
     });
     return () => controls.stop();
-  }, [start, target, duration, delay]);
+  }, [start, target, duration, delay, digitCount]);
 
-  const safeValue = Math.max(0, rolling ? value : target);
-  const digitCount = Math.max(
-    String(Math.max(Math.abs(start), Math.abs(target), 1)).length,
-    1
+  const places = [];
+  for (let place = digitCount - 1; place >= 0; place--) places.push(place);
+
+  return (
+    <span className={`inline-flex ${className}`}>
+      {places.map((place) => (
+        <span
+          key={place}
+          className="relative inline-block h-[1em] w-[1ch] overflow-hidden"
+        >
+          <span
+            ref={(el) => {
+              wheels.current[place] = el;
+            }}
+            className="absolute left-0 top-0 flex flex-col w-full"
+            // The first paint matches the opening value; every frame after it
+            // comes from the effect above. willChange keeps each wheel on its
+            // own layer so a turn is a composite, not a repaint.
+            style={{
+              transform: `translateY(${-wheelPosition(start, place)}em)`,
+              willChange: "transform",
+            }}
+          >
+            {DIGIT_STRIP.map((d, i) => (
+              <span key={i} className="h-[1em] leading-[1em] text-center">
+                {d}
+              </span>
+            ))}
+          </span>
+        </span>
+      ))}
+    </span>
   );
-
-  const wheels = [];
-  for (let i = digitCount - 1; i >= 0; i--) {
-    const pow = Math.pow(10, i);
-    const scaled = safeValue / pow;
-    const digit = Math.floor(scaled) % 10;
-    const frac = scaled - Math.floor(scaled);
-    // The wheel stays put for 90% of the lower cycle, then rolls over
-    // during the final 10% — the mechanical tick.
-    const roll = rolling && frac > 0.9 ? (frac - 0.9) * 10 : 0;
-    wheels.push(<DigitWheel key={i} position={digit + roll} />);
-  }
-
-  return <span className={`inline-flex ${className}`}>{wheels}</span>;
 }
