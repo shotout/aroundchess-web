@@ -5,7 +5,7 @@ import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import Image from "next/image";
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useV3BackgroundAnalysisStore } from "@/app/store/v3BackgroundAnalysis";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useV3PollingManager } from "../hooks/useV3PollingManager";
@@ -15,6 +15,8 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   game?: any;
   onOpenGameAnalysis?: (v3Result?: any) => void;
+  /** The side this user played. Given, it wins over anything derived below. */
+  playerColor?: "white" | "black";
 }
 
 /** Measured average time for an analysis to come back. */
@@ -28,7 +30,8 @@ export default function ProcessingAnalysisMode({
     open,
     onOpenChange,
     game,
-    onOpenGameAnalysis
+    onOpenGameAnalysis,
+    playerColor
 }: Props) {
     const { getJobByGameId } = useV3BackgroundAnalysisStore();
     const { startV3BackgroundPolling } = useV3PollingManager();
@@ -66,6 +69,37 @@ export default function ProcessingAnalysisMode({
             : isTakingLonger
               ? "Just one more moment..."
               : "AI Analyzing Now...";
+
+    // Which way up the preview board sits. A Black player watching their own
+    // game replay used to see it from White's side — the board the analysis
+    // itself then opens with is already oriented to the player, so the loading
+    // animation was the odd one out.
+    //
+    // Order matters: an explicit prop first (PlayingPage knows myColor for
+    // certain), then the game record's own colour field, and only then the PGN
+    // headers, which are the sole clue a history/import row carries.
+    const boardOrientation: "white" | "black" = useMemo(() => {
+        if (playerColor) return playerColor;
+
+        const recorded = (game?.playerColor ?? game?.color ?? "")
+            .toString()
+            .toLowerCase();
+        if (recorded === "white" || recorded === "black") return recorded;
+
+        const pgn: string = game?.pgn ?? "";
+        if (pgn) {
+            const white = pgn.match(/\[White\s+"([^"]*)"\]/i)?.[1] ?? "";
+            const black = pgn.match(/\[Black\s+"([^"]*)"\]/i)?.[1] ?? "";
+            // Play vs AI writes the bot in as "<name> (AI)" on whichever side it
+            // took, so the user is simply the other one.
+            const aiIsWhite = /\(AI\)/i.test(white);
+            const aiIsBlack = /\(AI\)/i.test(black);
+            if (aiIsWhite !== aiIsBlack) return aiIsWhite ? "black" : "white";
+            if (/^you$/i.test(black.trim())) return "black";
+        }
+
+        return "white";
+    }, [playerColor, game?.playerColor, game?.color, game?.pgn]);
 
     useEffect(() => {
         if (open && game?.pgn) {
@@ -201,7 +235,7 @@ export default function ProcessingAnalysisMode({
                     </h4>
                     <div className="w-full max-w-full overflow-visible flex justify-center">
                         <div className="flex justify-center w-full max-w-[calc(100vw-64px)] lg:max-w-[386px] xl:max-w-[482px]">
-                            <PgnPlayer maxBoardSize={380} />
+                            <PgnPlayer maxBoardSize={380} orientation={boardOrientation} />
                         </div>
                     </div>
                 </div>

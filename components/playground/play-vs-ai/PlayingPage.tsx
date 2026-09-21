@@ -3330,6 +3330,7 @@ export default function PlayingPage() {
         open={processingAnalysisModeOpen}
         onOpenChange={setProcessingAnalysisModeOpen}
         game={gameFromPgn}
+        playerColor={myColor as "white" | "black"}
         onOpenGameAnalysis={(v3Result) => {
           setV3AnalysisResult(v3Result);
           setGameAnalysisOpen(true);
