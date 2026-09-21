@@ -581,7 +581,7 @@ function RegisterPage() {
                 <div className="mb-6">
                   <div className="flex justify-center my-4 sm:my-6">
                     <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center">
-                      <div className="absolute inset-0 bg-blue-100 rounded-full opacity-30 animate-pulse"></div>
+                      <div className="absolute inset-0 bg-blue-100 rounded-full opacity-30"></div>
                       <div className="z-10">
                         <Image
                           src={"/icons/email-sent.png"}

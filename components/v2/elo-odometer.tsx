@@ -45,26 +45,44 @@ export function EloOdometer({
   delay = 0.6,
   className = "",
 }: EloOdometerProps) {
-  const [value, setValue] = useState(from);
+  // Whole ratings only. The API can hand back a fractional ELO, and a
+  // fractional *end* value left a wheel parked between two digits forever —
+  // the counter looked frozen mid-roll. Rounding first means the roll always
+  // lands on a whole digit.
+  const start = Math.round(from);
+  const target = Math.round(to);
+
+  const [value, setValue] = useState(start);
+  // Off outside the roll, so a resting counter can never render a part-rolled
+  // wheel: the digits below come straight from `target` once this is false.
+  const [rolling, setRolling] = useState(false);
 
   useEffect(() => {
-    if (from === to) {
-      setValue(to);
+    if (start === target) {
+      setValue(target);
+      setRolling(false);
       return;
     }
-    const controls = animate(from, to, {
+    setValue(start);
+    setRolling(true);
+    const controls = animate(start, target, {
       duration,
       delay,
       ease: [0.25, 1, 0.4, 1],
       onUpdate: (v) => setValue(v),
+      // Snap: the last frame can land a hair short of `target`, which is all
+      // it takes to strand the units wheel between two digits.
+      onComplete: () => {
+        setValue(target);
+        setRolling(false);
+      },
     });
     return () => controls.stop();
-  }, [from, to, duration, delay]);
+  }, [start, target, duration, delay]);
 
-  const safeValue = Math.max(0, value);
+  const safeValue = Math.max(0, rolling ? value : target);
   const digitCount = Math.max(
-    String(Math.max(Math.abs(Math.round(from)), Math.abs(Math.round(to)), 1))
-      .length,
+    String(Math.max(Math.abs(start), Math.abs(target), 1)).length,
     1
   );
 
@@ -76,7 +94,7 @@ export function EloOdometer({
     const frac = scaled - Math.floor(scaled);
     // The wheel stays put for 90% of the lower cycle, then rolls over
     // during the final 10% — the mechanical tick.
-    const roll = frac > 0.9 ? (frac - 0.9) * 10 : 0;
+    const roll = rolling && frac > 0.9 ? (frac - 0.9) * 10 : 0;
     wheels.push(<DigitWheel key={i} position={digit + roll} />);
   }
 
