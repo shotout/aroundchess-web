@@ -20,6 +20,7 @@ import {
   markVsAiGameFinished,
   NPS_MIN_FINISHED_GAMES,
 } from "@/components/v2/nps-eligibility";
+import { npsPlatform } from "@/components/v2/nps-platform";
 
 /** Shows the NPS layover once the backend says eligible and the screen is clear. */
 
@@ -98,7 +99,7 @@ export function NpsFeedbackHost() {
   // A non-preview request is a real prompt, so it starts the clock.
   useEffect(() => {
     if (request && !request.preview) {
-      apiRef.current.postNpsShown({ platform: "web" }).catch(() => {});
+      apiRef.current.postNpsShown({ platform: npsPlatform() }).catch(() => {});
     }
   }, [request]);
 
@@ -238,7 +239,7 @@ export function NpsFeedbackHost() {
         shownRef.current = true;
         setOpen(true);
         // On the render that makes it visible: this starts the 90-day clock.
-        apiRef.current.postNpsShown({ platform: "web" }).catch(() => {});
+        apiRef.current.postNpsShown({ platform: npsPlatform() }).catch(() => {});
       };
 
       tryOpen();
@@ -258,7 +259,7 @@ export function NpsFeedbackHost() {
     setOpen(false);
     clearRequest();
     if (isPreview) return;
-    postNpsDismiss({ platform: "web" }).catch(() => {});
+    postNpsDismiss({ platform: npsPlatform() }).catch(() => {});
   }, [postNpsDismiss, clearRequest, isPreview]);
 
   const handleSubmit = useCallback(
@@ -273,7 +274,7 @@ export function NpsFeedbackHost() {
         await postNpsFeedback({
           score,
           ...(comment.trim() ? { comment: comment.trim() } : {}),
-          platform: "web",
+          platform: npsPlatform(),
         });
       } catch {
         // The cooldown already runs from /shown; not worth trapping the user.

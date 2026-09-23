@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface CommentaryMoveProps {
   classify: string;
@@ -7,7 +7,6 @@ interface CommentaryMoveProps {
 
 export const CommentaryMove = ({ classify }: CommentaryMoveProps) => {
   const [isVisible, setIsVisible] = useState(true);
-  const [key, setKey] = useState(0);
   /** The commentary animations are 5–10MB each, so the service worker cannot
    *  precache them (see scripts/generate-sw-manifest.mjs) and one that has
    *  never been fetched is simply not available offline. Showing nothing is
@@ -16,10 +15,26 @@ export const CommentaryMove = ({ classify }: CommentaryMoveProps) => {
    *  players were reporting sitting beside the board. */
   const [failed, setFailed] = useState(false);
 
+  /** Stable on purpose, and load-bearing. next/image attaches its <img> with a
+   *  callback ref that lists `onError` among its dependencies, and that ref
+   *  runs `img.src = img.src` whenever an onError handler is present (its
+   *  workaround for errors thrown before hydration). A new arrow function per
+   *  render gave the ref a new identity every render, so React re-attached it
+   *  and the self-assignment re-ran — which restarts an animated GIF from its
+   *  first frame. The board re-renders on every drag, so the banner blinked
+   *  for as long as a piece was being moved. */
+  const handleError = useCallback(() => setFailed(true), []);
+
+  /** No remount key here on purpose. Bumping one after mount tore the <img>
+   *  down and built a new one while the GIF was still painting, so the banner
+   *  blanked and replayed its fade-in — the blink. The banner is already
+   *  unmounted between moves (the board clears the classification first), so
+   *  each new move gets a fresh element without any help, and a classification
+   *  that changes in place (a move followed by checkmate) swaps `src`, which
+   *  starts the new animation on its own. */
   useEffect(() => {
     setIsVisible(true);
     setFailed(false);
-    setKey((prev) => prev + 1);
 
     const timer = setTimeout(() => {
       setIsVisible(false);
@@ -35,14 +50,13 @@ export const CommentaryMove = ({ classify }: CommentaryMoveProps) => {
   return (
     <div className="animate-in fade-in duration-500">
       <Image
-        key={key}
         src={`/images/play-vs-ai/${classify}.gif`}
         alt="Move Commentary GIF"
         width={244}
         height={44}
         unoptimized={true}
         priority={true}
-        onError={() => setFailed(true)}
+        onError={handleError}
         style={{
           animationIterationCount: 1,
         }}
