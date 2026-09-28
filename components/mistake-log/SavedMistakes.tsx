@@ -85,6 +85,11 @@ const fetchLastAnalysisV3 = async (
   }
 };
 
+// The "See Mistakes" button is `hidden lg:flex`, so below lg tapping the card
+// does its job and opens the analysis.
+const cardOpensAnalysis = () =>
+  !window.matchMedia("(min-width: 1024px)").matches;
+
 const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
   const { chessMove, setChessMove } = useChessMoveStore();
   const {
@@ -385,6 +390,7 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                   handleOnClickMovement(display);
                   setPreviousAnalysesDetail(item);
                   setPgn(item.pgn);
+                  if (cardOpensAnalysis()) handleViewAnalysis(item);
                 }}
               >
                 <div
@@ -399,7 +405,11 @@ const SavedMistakes: React.FC<savedProps> = ({ onClickSeePrevious }) => {
                       {item.title}
                     </div>
                     <div
-                      onClick={() => handleUnsaveLog(item.mistakeLog.id)}
+                      onClick={(e) => {
+                        // Where the card opens the analysis, unsaving mustn't too.
+                        if (cardOpensAnalysis()) e.stopPropagation();
+                        handleUnsaveLog(item.mistakeLog.id);
+                      }}
                       className="rounded-lg bg-[#E6F7FE] border border-[#C6EEFE] p-[10px] items-center font-semibold"
                     >
                       {loadingUnsave ? (

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { renderShareCard } from "@/components/v2/share-image-canvas";
 import {
@@ -52,10 +53,16 @@ interface Network {
   web: (caption: string, url: string) => string;
 }
 
-// `filename: 'aroundchess'` in the app's share payload, and one `AroundChess`
-// gallery album for every saved card — so one name here too, rather than a
-// different one per card kind.
-const SHARE_FILE_NAME = "aroundchess.png";
+// One name per card kind, stamped with the day it leaves the page (ddmmyyyy,
+// the user's local date): AroundChess_CurrentRank_28092026.png. Used for the
+// download and for the file handed to the native share sheet alike.
+function shareFileName(spec: ShareCardSpec): string {
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, "0");
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const card = spec.kind === "leaderboard" ? "CurrentRank" : "GameResult";
+  return `AroundChess_${card}_${dd}${mm}${now.getFullYear()}.png`;
+}
 
 // The mobile app sends the bare message with no link — it has no shareable web
 // URL to attach. The web build appends the /s link because that is the only way
@@ -256,7 +263,7 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
   const savedRef = useRef(false);
   const saveOnce = (): boolean => {
     if (!blob || savedRef.current) return false;
-    download(blob, SHARE_FILE_NAME);
+    download(blob, shareFileName(specRef.current));
     savedRef.current = true;
     return true;
   };
@@ -291,7 +298,7 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     const caption = network.noLink ? message : withLink(message);
     const target = network.web(caption, url);
 
-    const file = shareableFile(blob, SHARE_FILE_NAME);
+    const file = shareableFile(blob, shareFileName(specRef.current));
     if (file) {
       // Facebook will discard the `text` below, so the words go to the
       // clipboard as well and one paste puts them in the composer. The link
@@ -358,16 +365,13 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
   const handleSave = () => {
     if (!blob) return;
     // An explicit tap always writes a copy, even if a share already saved one.
-    download(blob, SHARE_FILE_NAME);
+    download(blob, shareFileName(specRef.current));
     savedRef.current = true;
     toast("Image saved.");
   };
 
-  return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-[600] flex items-stretch justify-center bg-black/50 sm:items-center sm:p-4"
-    >
+  const panel = (
+    <div className="pointer-events-none fixed inset-0 z-[600] flex items-stretch justify-center sm:items-center sm:p-4">
       <div
         onClick={(e) => e.stopPropagation()}
         /* Centred on the WINDOW, with no margin nudging it clear of the header
@@ -376,10 +380,8 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
            panels — offsetting only this one put the two overlays on visibly
            different centres as the user stepped from the result to the share
            sheet. Whatever is decided about clearing the shell, both have to
-           agree, so this one follows the modals it comes from.
-           The backdrop is full-bleed either way, so the dim and the
-           click-to-close still cover the header and the sidebar. */
-        className="relative flex w-full max-w-[560px] flex-col overflow-y-auto bg-white p-[20px] sm:max-h-[95vh] sm:rounded-3xl sm:p-[28px]"
+           agree, so this one follows the modals it comes from. */
+        className="pointer-events-auto relative flex w-full max-w-[560px] flex-col overflow-y-auto bg-white p-[20px] sm:max-h-[95vh] sm:rounded-3xl sm:p-[28px]"
       >
         <button
           type="button"
@@ -452,5 +454,22 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
         </button>
       </div>
     </div>
+  );
+
+  // Two layers. The dim renders inline, where it always has, so it covers what
+  // it always did — opened from the Play VS AI bar, that is the page, with the
+  // header and sidebar left lit above it. Only the panel goes into <body>:
+  // inline it was capped by the opener's stacking context (that bar's Share
+  // sits in a `relative z-20` wrapper) and painted under the fixed z-50 header,
+  // which cut off its top and the Back button on shorter windows. Its layer is
+  // click-through, so a click beside the panel still lands on the dim (or the
+  // header) exactly as before.
+  return (
+    <>
+      <div onClick={onClose} className="fixed inset-0 z-[600] bg-black/50" />
+      {typeof document === "undefined"
+        ? panel
+        : createPortal(panel, document.body)}
+    </>
   );
 }
