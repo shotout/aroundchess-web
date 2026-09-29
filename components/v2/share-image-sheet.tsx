@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
@@ -383,14 +383,28 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
            agree, so this one follows the modals it comes from. */
         className="pointer-events-auto relative flex w-full max-w-[560px] flex-col overflow-y-auto bg-white p-[20px] sm:max-h-[95vh] sm:rounded-3xl sm:p-[28px]"
       >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Back"
-          className="mb-[16px] w-fit text-[#111827] hover:text-[#374151]"
-        >
-          <ArrowLeft size={30} strokeWidth={2.5} />
-        </button>
+        {/* The result modals open this sheet on top of themselves, so Back
+            returns there. The leaderboard's has nothing behind it to go back
+            to — it just closes. */}
+        {spec.kind === "leaderboard" ? (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="mb-[16px] w-fit self-end text-[#111827] hover:text-[#374151]"
+          >
+            <X size={30} strokeWidth={2.5} />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Back"
+            className="mb-[16px] w-fit text-[#111827] hover:text-[#374151]"
+          >
+            <ArrowLeft size={30} strokeWidth={2.5} />
+          </button>
+        )}
 
         {/* shrink-0: the sheet is a fixed-height flex column on mobile, so without
             it this box collapses to its min-height while the image keeps its own
