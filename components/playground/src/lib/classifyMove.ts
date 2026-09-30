@@ -18,6 +18,32 @@ function getGlobalStockfish() {
   return globalStockfishEngine;
 }
 
+/** Build the classification engine ahead of the first move that needs it.
+ *
+ *  This is a *second* Stockfish worker, separate from the one the board plays
+ *  against, and it used to be constructed lazily — on the first classified
+ *  move, which is the worst possible moment to need the network. A player who
+ *  went offline after the page loaded but before moving got a worker whose
+ *  script never arrived, so getEval ran to its 10s timeout before the caller
+ *  fell back to "good-move": a ten-second stall on the first move of the game.
+ *
+ *  Warming it while the page is still loading puts that fetch where a
+ *  connection is far likelier to exist. Safe to call repeatedly — the engine
+ *  is a singleton. Skip it where classification never runs (mobile returns
+ *  early in getClassificationMove) so a phone doesn't carry a whole second
+ *  WASM engine for nothing.
+ */
+export function preloadClassificationEngine() {
+  if (typeof window === "undefined") return;
+  try {
+    getGlobalStockfish();
+  } catch (error) {
+    // A worker that can't be built is not worth failing a render over — the
+    // classification call site already falls back to "good-move".
+    console.error("Could not preload the classification engine:", error);
+  }
+}
+
 const evaluationCache = new Map<
   string,
   { bestScore: number; bestMove: string; topMoves: string[] }

@@ -64,7 +64,7 @@ export function ChooseColor() {
                   priority
                   onError={(e) => {
                     console.error(`Failed to load piece image: ${pieceTheme}/black/P.png`);
-                    e.currentTarget.src = `/default/black/P.png`;
+                    e.currentTarget.src = `/default/black/p.png`;
                   }}
                 />
                 <Button 

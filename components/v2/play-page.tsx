@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PlayHeroGamePreview } from "@/components/v2/play-hero-game-preview";
 import { PlayGreeting, PlayTopBar } from "@/components/v2/play-top-bar";
@@ -9,8 +9,7 @@ import { PlayChesscomBanner } from "@/components/v2/play-chesscom-banner";
 import { useProfileStore } from "@/app/store/profile";
 import { refreshStreakStatus } from "@/app/store/streak";
 import { usePlayPageStore } from "@/app/store/playPage";
-import { gameHistoryApi } from "@/components/game-history/services/api";
-import { transformApiDataToComponentFormat } from "@/components/game-history/hooks/useGameData";
+import { refreshRecentGames } from "@/components/v2/recent-games-refresh";
 import Navigation from "@/components/navigator/navigation";
 import { useApiClient } from "@/functions/api-client";
 
@@ -26,8 +25,20 @@ export function PlayPage() {
     streak, setStreak,
     leaderboard, setLeaderboard,
     leaderboardMe, setLeaderboardMe,
-    recentGames, setRecentGames,
+    recentGames,
   } = usePlayPageStore();
+  const [isLoadingGames, setIsLoadingGames] = useState(false);
+
+  /** Pulled out of the effect so the offline panel's "Try to Reconnect" and
+   *  the refetch-on-reconnect can run the same load the page runs on mount. */
+  const loadRecentGames = useCallback(() => {
+    if (!sessionId) return;
+    setIsLoadingGames(true);
+    // Writes the rows into the same store PendingGameSavesHost refreshes after
+    // it sends the games finished during an outage.
+    refreshRecentGames(sessionId).finally(() => setIsLoadingGames(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -46,16 +57,7 @@ export function PlayPage() {
       .then((res: any) => { if (res?.data) setLeaderboardMe(res.data); })
       .catch(() => {});
 
-    gameHistoryApi
-      .getUserGames(sessionId, {
-        sources: ["chesscom", "vs_ai", "pgn_upload"],
-        limit: 5,
-        page: 1,
-      })
-      .then((res) => {
-        if (res?.data) setRecentGames(transformApiDataToComponentFormat(Array.isArray(res.data) ? res.data.slice(0, 5) : []));
-      })
-      .catch(() => {});
+    loadRecentGames();
   }, [sessionId]);
 
   return (
@@ -89,7 +91,7 @@ export function PlayPage() {
 
             <PlayChesscomBanner />
 
-            <div className="pt-8"><PlayRecentGames games={recentGames} isLoading={false} /></div>
+            <div className="pt-8"><PlayRecentGames games={recentGames} isLoading={isLoadingGames} onRetry={loadRecentGames} /></div>
             </div>
             </div>
           </div>

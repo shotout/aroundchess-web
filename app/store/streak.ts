@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { registerAccountScopedStore } from "@/functions/clear-account-storage";
 
 export const getLocalDateStamp = (date = new Date()) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
@@ -61,6 +62,29 @@ export function isStreakBroken(status: any): boolean {
 // data instead of a cached snapshot.
 let statusRefreshKey: string | null = null;
 let statusRefresh: Promise<any> | null = null;
+
+// Same idea for recording a play, for a different reason. Two callers can now
+// reach for the day at the same moment: the board saving the game it has just
+// finished, and PendingGameSavesHost flushing an earlier offline game on the
+// same reconnect. Both gate on lastPlayDate, which is only stamped once the
+// call has succeeded — deliberately, so a failure retries — so without this
+// they would both fire and the day would be recorded twice.
+let recordPlayInFlight: Promise<any> | null = null;
+
+/** Record today's play once, however many callers ask at the same moment.
+ *  Resolves with the raw response, or null when the request failed. */
+export function recordStreakPlayOnce(
+  record: () => Promise<any>
+): Promise<any> {
+  if (recordPlayInFlight) return recordPlayInFlight;
+  const pending: Promise<any> = record()
+    .catch(() => null)
+    .finally(() => {
+      if (recordPlayInFlight === pending) recordPlayInFlight = null;
+    });
+  recordPlayInFlight = pending;
+  return pending;
+}
 
 /** Re-derive the streak badges from the backend: fetches /v4/streaks/status
  * and pushes it through setStatus (which reconciles hasPlayedToday → the
@@ -142,4 +166,18 @@ export const useStreakStore = create<StreakState>()(
       }),
     }
   )
+);
+
+// The streak belongs to the account that earned it. The once-a-day modal
+// stamps go with it: they are "has this account been told today", and a new
+// sign-in has not been told anything.
+registerAccountScopedStore(() =>
+  useStreakStore.setState({
+    status: null,
+    currentStreak: 0,
+    lastLoginModalDate: null,
+    lastBrokenModalDate: null,
+    lastSeenStreak: 0,
+    lastPlayDate: null,
+  })
 );

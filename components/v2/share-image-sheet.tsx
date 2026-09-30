@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { renderShareCard } from "@/components/v2/share-image-canvas";
 import {
@@ -52,10 +53,16 @@ interface Network {
   web: (caption: string, url: string) => string;
 }
 
-// `filename: 'aroundchess'` in the app's share payload, and one `AroundChess`
-// gallery album for every saved card — so one name here too, rather than a
-// different one per card kind.
-const SHARE_FILE_NAME = "aroundchess.png";
+// One name per card kind, stamped with the day it leaves the page (ddmmyyyy,
+// the user's local date): AroundChess_CurrentRank_28092026.png. Used for the
+// download and for the file handed to the native share sheet alike.
+function shareFileName(spec: ShareCardSpec): string {
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, "0");
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const card = spec.kind === "leaderboard" ? "CurrentRank" : "GameResult";
+  return `AroundChess_${card}_${dd}${mm}${now.getFullYear()}.png`;
+}
 
 // The mobile app sends the bare message with no link — it has no shareable web
 // URL to attach. The web build appends the /s link because that is the only way
@@ -256,7 +263,7 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
   const savedRef = useRef(false);
   const saveOnce = (): boolean => {
     if (!blob || savedRef.current) return false;
-    download(blob, SHARE_FILE_NAME);
+    download(blob, shareFileName(specRef.current));
     savedRef.current = true;
     return true;
   };
@@ -291,7 +298,7 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
     const caption = network.noLink ? message : withLink(message);
     const target = network.web(caption, url);
 
-    const file = shareableFile(blob, SHARE_FILE_NAME);
+    const file = shareableFile(blob, shareFileName(specRef.current));
     if (file) {
       // Facebook will discard the `text` below, so the words go to the
       // clipboard as well and one paste puts them in the composer. The link
@@ -358,40 +365,46 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
   const handleSave = () => {
     if (!blob) return;
     // An explicit tap always writes a copy, even if a share already saved one.
-    download(blob, SHARE_FILE_NAME);
+    download(blob, shareFileName(specRef.current));
     savedRef.current = true;
     toast("Image saved.");
   };
 
-  return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-[600] flex items-stretch justify-center bg-black/50 sm:items-center sm:p-4"
-    >
+  const panel = (
+    <div className="pointer-events-none fixed inset-0 z-[600] flex items-stretch justify-center sm:items-center sm:p-4">
       <div
         onClick={(e) => e.stopPropagation()}
-        /* The two margins centre the sheet over the CONTENT rather than the
-           window — the shell pins a header across the top and, from 1280px up,
-           a sidebar of window.innerWidth/6 down the left, so a window-centred
-           panel reads high and to the left of the area it belongs to.
-           Under justify-center/items-center a leading margin M moves the
-           panel's centre to (size + M)/2, so M = exactly the strip being
-           displaced by. vw counts the scrollbar just as innerWidth does, and xl
-           is the 1280px the shell itself switches the sidebar on at.
-           max-h drops by the same header strip so a tall sheet still ends
-           inside the viewport instead of running off the bottom.
-           The backdrop stays full-bleed, so the dim and the click-to-close
-           still cover both the header and the sidebar. */
-        className="relative flex w-full max-w-[560px] flex-col overflow-y-auto bg-white p-[20px] sm:mt-[calc(var(--banner-height,0px)_+_var(--current-header-height))] sm:max-h-[calc(95vh_-_var(--banner-height,0px)_-_var(--current-header-height))] sm:rounded-3xl sm:p-[28px] xl:ml-[16.6667vw]"
+        /* Centred on the WINDOW, with no margin nudging it clear of the header
+           or the sidebar. This sheet is opened from the win/lose/draw result
+           modals, which are plain viewport-centred `fixed inset-0` flex
+           panels — offsetting only this one put the two overlays on visibly
+           different centres as the user stepped from the result to the share
+           sheet. Whatever is decided about clearing the shell, both have to
+           agree, so this one follows the modals it comes from. */
+        className="pointer-events-auto relative flex w-full max-w-[560px] flex-col overflow-y-auto bg-white p-[20px] sm:max-h-[95vh] sm:rounded-3xl sm:p-[28px]"
       >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Back"
-          className="mb-[16px] w-fit text-[#111827] hover:text-[#374151]"
-        >
-          <ArrowLeft size={30} strokeWidth={2.5} />
-        </button>
+        {/* The result modals open this sheet on top of themselves, so Back
+            returns there. The leaderboard's has nothing behind it to go back
+            to — it just closes. */}
+        {spec.kind === "leaderboard" ? (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="mb-[16px] w-fit self-end text-[#111827] hover:text-[#374151]"
+          >
+            <X size={30} strokeWidth={2.5} />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Back"
+            className="mb-[16px] w-fit text-[#111827] hover:text-[#374151]"
+          >
+            <ArrowLeft size={30} strokeWidth={2.5} />
+          </button>
+        )}
 
         {/* shrink-0: the sheet is a fixed-height flex column on mobile, so without
             it this box collapses to its min-height while the image keeps its own
@@ -455,5 +468,22 @@ export function ShareImageSheet({ spec, onClose }: ShareImageSheetProps) {
         </button>
       </div>
     </div>
+  );
+
+  // Two layers. The dim renders inline, where it always has, so it covers what
+  // it always did — opened from the Play VS AI bar, that is the page, with the
+  // header and sidebar left lit above it. Only the panel goes into <body>:
+  // inline it was capped by the opener's stacking context (that bar's Share
+  // sits in a `relative z-20` wrapper) and painted under the fixed z-50 header,
+  // which cut off its top and the Back button on shorter windows. Its layer is
+  // click-through, so a click beside the panel still lands on the dim (or the
+  // header) exactly as before.
+  return (
+    <>
+      <div onClick={onClose} className="fixed inset-0 z-[600] bg-black/50" />
+      {typeof document === "undefined"
+        ? panel
+        : createPortal(panel, document.body)}
+    </>
   );
 }

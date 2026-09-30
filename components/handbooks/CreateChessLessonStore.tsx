@@ -10,6 +10,7 @@ import {
 import { useProfileStore } from "@/app/store/profile";
 import { refreshSession } from "@/functions/refresh-token";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { clearAccountLocalState } from "@/functions/clear-account-storage";
 import { toast } from "sonner";
 
 interface CreateStoreOptions {
@@ -34,7 +35,9 @@ const handleSessionExpiration = () => {
   const { clearAll } = useProfileStore.getState();
   clearAll();
 
-  localStorage.removeItem("token");
+  // Same as the game-history client: the Log Out button never runs on this
+  // path, so the account's leftovers get cleared here or not at all.
+  clearAccountLocalState();
   setPersistedCookie("token", "", 0);
 
   toast.error("Your session has expired. Please log in again.");

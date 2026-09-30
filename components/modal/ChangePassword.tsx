@@ -18,6 +18,7 @@ import { useProfileStore } from "@/app/store/profile";
 import { useApiClient } from "@/functions/api-client";
 import { supabase } from "@/lib/supabase";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { clearAccountLocalState } from "@/functions/clear-account-storage";
 import CacheUtil from "@/app/training-plan/api/cacheUtils";
 import DotSpinner from "../game-history/Spinner";
 import {
@@ -29,17 +30,6 @@ const BASE_URL = process.env.BASE_URL;
 
 const FIELD_CLASS =
   "w-full h-[56px] rounded-[12px] bg-[#F7FCFF] border border-[#DCE9F0] pl-[48px] pr-[48px] text-[15px] placeholder:text-[#9CA3AF] focus-visible:ring-0 focus-visible:border-[#221AE9]";
-
-/** Every key the old session leaves behind in localStorage. */
-const AUTH_STORAGE_KEYS = [
-  "sessionId",
-  "token",
-  "access_token",
-  "refresh_token",
-  "Profile-storage",
-  "background-analysis-storage",
-  "pgn-local-storage",
-];
 
 /** How long the modal will hold its spinner waiting on session revocation. */
 const REVOKE_TIMEOUT_MS = 8000;
@@ -177,12 +167,11 @@ export function ChangePassword() {
       // Training-plan data is cached per account in localStorage; leaving it
       // behind serves this user's progress to whoever logs in next.
       CacheUtil.clearAll();
-      // "Profile-storage" is the persisted profile store — access token,
-      // refresh token and expiry all live in it, so removing the key takes the
-      // whole session with it. The app's Log Out button clears only sessionId
-      // and token, which is how a live refresh token could outlive the
-      // password it was issued under.
-      AUTH_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+      // Takes "Profile-storage" with it — the persisted profile store, where
+      // the access token, refresh token and expiry live — so no credential
+      // issued under the old password survives the change. Shared with the Log
+      // Out button, which is how that guarantee stays true as stores are added.
+      clearAccountLocalState();
     } finally {
       // Always reached: a storage failure must not leave the user parked on
       // /profile with credentials that no longer work. `replace`, not `href`,

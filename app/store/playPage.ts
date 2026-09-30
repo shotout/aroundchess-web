@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { registerAccountScopedStore } from "@/functions/clear-account-storage";
 
 interface LeaderboardData {
   my_elo: number;
@@ -60,6 +61,18 @@ export const usePlayPageStore = create<PlayPageState>()(
       storage: createJSONStorage(() => localStorage),
     }
   )
+);
+
+// Every field here is one account's own standing, and all of it is persisted,
+// so it must not outlive the sign-in that fetched it.
+registerAccountScopedStore(() =>
+  usePlayPageStore.setState({
+    streak: 0,
+    leaderboard: null,
+    leaderboardMe: null,
+    leaderboardEntries: null,
+    recentGames: [],
+  })
 );
 
 /**

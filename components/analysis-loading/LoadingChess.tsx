@@ -21,9 +21,11 @@ interface ParsedMove {
 
 interface PgnPlayerProps {
   maxBoardSize?: number;
+  /** Side to show at the bottom. Defaults to white, as before. */
+  orientation?: "white" | "black";
 }
 
-const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
+const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize, orientation = "white" }) => {
   const {
     StyleChoosed,
     setStyleChoosed,
@@ -36,7 +38,7 @@ const PgnPlayer: React.FC<PgnPlayerProps> = ({ maxBoardSize }) => {
   const [game, setGame] = useState<Chess>(new Chess());
   const [moveHistory, setMoveHistory] = useState<ParsedMove[]>([]);
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
-  const [boardOrientation] = useState<"white" | "black">("white");
+  const boardOrientation = orientation;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [boardSize, setBoardSize] = useState(700); // Default size

@@ -208,6 +208,36 @@ p {
   animation: float 6s ease-in-out infinite;
 }
 
+/* NPS score circles; namespaced so it cannot reach anything else. */
+.nps-score {
+  transition: transform 0.15s ease;
+}
+
+/* One lift, held. The circle rises while it is hovered and stays there until
+   the pointer leaves — no repeating bounce, which read as restless next to
+   eleven other circles. Gated on (hover: hover) because :hover sticks on
+   touch: the last circle tapped would stay raised until something else was. */
+@media (hover: hover) and (pointer: fine) {
+  .nps-score:hover,
+  .nps-score:focus-visible {
+    transform: translateY(-7px);
+  }
+}
+
+/* Touch has no hover, so the lift marks the chosen answer instead. */
+@media (hover: none) {
+  .nps-score--selected {
+    transform: translateY(-7px);
+  }
+}
+
+/* Same resting/raised positions, just no travel between them. */
+@media (prefers-reduced-motion: reduce) {
+  .nps-score {
+    transition: none;
+  }
+}
+
 .animate-pulse-slow {
   animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

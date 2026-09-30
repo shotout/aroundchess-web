@@ -7,6 +7,14 @@ import { AppSettingProvider } from "../components/v2/app-setting-provider";
 import { TutorialProvider } from "../components/TutorialProvider";
 import { DayStreakModalHost } from "../components/v2/day-streak-modal-host";
 import { ChesscomPromoModalHost } from "../components/v2/chesscom-promo-modal-host";
+import { OfflineBannerHost } from "../components/v2/offline-banner-host";
+import { OfflineGateHost } from "../components/v2/offline-gate-host";
+import { PendingGameSavesHost } from "../components/v2/pending-game-saves-host";
+import { OfflineSimulationHost } from "../components/v2/offline-simulation-host";
+import { ServiceWorkerHost } from "../components/v2/service-worker-host";
+import { AccountScopeHost } from "../components/v2/account-scope-host";
+import { NpsFeedbackHost } from "../components/v2/nps-feedback-host";
+import { OfflineNavigationHost } from "../components/v2/offline-navigation-host";
 import { SessionKeepAlive } from "../components/v2/session-keepalive";
 // Imported for its side effect, and imported here so the fetch wrapper is in
 // place before any page code can fire a request.
@@ -94,10 +102,18 @@ export default function RootLayout({
 
           {/* <React.StrictMode> */}
           <AuthProvider>
+            <AccountScopeHost />
             <TutorialProvider>
               {children}
               <DayStreakModalHost />
               <ChesscomPromoModalHost />
+              <OfflineBannerHost />
+              <OfflineGateHost />
+              <OfflineNavigationHost />
+              <PendingGameSavesHost />
+              <ServiceWorkerHost />
+              <OfflineSimulationHost />
+              <NpsFeedbackHost />
               <Toaster />
             </TutorialProvider>
           </AuthProvider>
