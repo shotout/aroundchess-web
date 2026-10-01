@@ -26,7 +26,6 @@ export interface WeekDay {
 
 export interface UserProfileCardProps {
   userProfile?: UserProfile;
-  avatar?: string;
   skillLevels?: any[];
   goals?: { id: string; text: string }[];
   schedule?: any;

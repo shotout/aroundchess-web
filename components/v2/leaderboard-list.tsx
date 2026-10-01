@@ -6,6 +6,7 @@ import { OfflineState } from "@/components/v2/offline-state";
 import { useRefetchOnReconnect } from "@/components/v2/hooks/useRefetchOnReconnect";
 import { PieceAvatar } from "@/components/v2/piece-avatar";
 import { formatNumber } from "@/components/v2/format-number";
+import { InfoTooltip } from "@/components/v2/info-tooltip";
 
 export interface LeaderboardEntry {
   rank: number;
@@ -440,12 +441,17 @@ export function LeaderboardList({
         <span className={`${RANK_CHANGE_WIDTH} shrink-0`} />
         <span className={`${RANK_WIDTH} shrink-0`} />
         <span className="flex-1 text-md sm:text-xl font-bold text-white">Player</span>
-        <span
-          className="flex items-center gap-[4px] text-md sm:text-xl font-bold text-white"
-          title="Your leaderboard score, based on ELO and games played."
-        >
-          Score <span className="w-[13px] h-[13px] rounded-full border border-white text-[9px] leading-[11px] text-center">i</span>
-        </span>
+        <InfoTooltip
+          text="Your leaderboard score, based on ELO and games played."
+          align="right"
+          label={<span className="text-md sm:text-xl font-bold text-white">Score</span>}
+          icon={
+            <span className="w-[13px] h-[13px] rounded-full border border-white text-white text-[9px] leading-[11px] text-center">
+              i
+            </span>
+          }
+          className="gap-[4px]"
+        />
       </div>
 
       <div className="relative">

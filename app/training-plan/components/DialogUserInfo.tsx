@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import Image from "next/image";
 import { useTrainingPlanStore, useUserStore } from "../store";
 import { useProfileStore } from "@/app/store/profile";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { GamePlayerAvatar } from "@/components/v2/game-player-avatar";
 
 interface DialogUserInfoProps {
   username: string;
@@ -50,6 +52,10 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
   skillLevels = DEFAULT_SKILL_LEVELS,
 }) => {
   const { userProfile: profile } = useTrainingPlanStore();
+  const { profile: accountProfile } = useProfileStore();
+  const { username: pgnUsername } = usePgnStore();
+  const avatarSeed =
+    accountProfile?.username || pgnUsername || accountProfile?.email || "user";
   const displayUsername = profile?.username || username;
   const currentElo = profile?.elo || 0;
 
@@ -91,23 +97,7 @@ const DialogUserInfo: React.FC<DialogUserInfoProps> = ({
   return (
     <div className="lg:w-96 w-full border-gray-200 p-2 bg-white rounded-md">
       <div className="flex items-center gap-3 mb-4">
-        {profile?.avatar ? (
-          <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0 relative">
-            <Image
-              src={profile.avatar}
-              layout="fill"
-              alt={`${displayUsername}'s avatar`}
-              className="object-cover"
-              style={{ borderRadius: "100%" }}
-            />
-          </div>
-        ) : (
-          <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-            <span className="text-gray-500 font-bold text-lg">
-              {displayUsername.charAt(0).toUpperCase()}
-            </span>
-          </div>
-        )}
+        <GamePlayerAvatar imageUrl={accountProfile?.imageUrl} seed={avatarSeed} />
         <div className="flex justify-between items-center w-full">
           <div className="font-semibold">{displayUsername}</div>
           <div className="text-[14px] --sm flex items-center">
