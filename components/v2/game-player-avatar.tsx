@@ -11,9 +11,15 @@ import { PieceAvatar } from "@/components/v2/piece-avatar";
 export function GamePlayerAvatar({
   imageUrl,
   seed,
+  className = "w-[48px] h-[48px]",
+  pieceClassName = "w-[20px] h-[26px]",
 }: {
   imageUrl?: string | null;
   seed: string;
+  /** circle sizing classes */
+  className?: string;
+  /** pawn sizing classes for the fallback */
+  pieceClassName?: string;
 }) {
   const [failed, setFailed] = useState(false);
   const src = imageUrl && !failed ? imageUrl : null;
@@ -24,7 +30,7 @@ export function GamePlayerAvatar({
       <img
         src={src}
         alt="Profile picture"
-        className="w-[48px] h-[48px] rounded-full object-cover shrink-0"
+        className={`${className} rounded-full object-cover shrink-0`}
         onError={() => setFailed(true)}
       />
     );
@@ -33,8 +39,8 @@ export function GamePlayerAvatar({
   return (
     <PieceAvatar
       seed={seed}
-      className="w-[48px] h-[48px]"
-      pieceClassName="w-[20px] h-[26px]"
+      className={className}
+      pieceClassName={pieceClassName}
     />
   );
 }

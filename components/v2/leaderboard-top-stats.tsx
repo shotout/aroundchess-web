@@ -73,10 +73,13 @@ function MobileStatCard({
     <div className="flex items-center gap-[6px] min-w-0">
       <Image src={icon} alt="" width={28} height={28} className="w-[26px] h-[26px] object-contain shrink-0" />
       <div className="flex flex-col leading-tight min-w-0">
-        <div className="flex items-center gap-[2px]">
-          <span className="text-[9px] text-[#6B7280] whitespace-nowrap truncate">{label}</span>
-          <InfoTooltip text={infoText} size={10} align={infoAlign} />
-        </div>
+        <InfoTooltip
+          text={infoText}
+          size={10}
+          align={infoAlign}
+          label={<span className="text-[9px] text-[#6B7280] whitespace-nowrap truncate">{label}</span>}
+          className="gap-[2px]"
+        />
         {children}
       </div>
     </div>

@@ -2,6 +2,9 @@ import React, { useMemo, useEffect, useState } from "react";
 import { UserProfileCardProps } from "./types";
 import Image from "next/image";
 import { useUserStore } from "../store";
+import { useProfileStore } from "@/app/store/profile";
+import { usePgnStore } from "@/app/store/zustandStore";
+import { GamePlayerAvatar } from "@/components/v2/game-player-avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DotSpinner from "@/components/game-history/Spinner";
 import SkillProgressTrack, { getLevelTitleForElo } from "./SkillProgressTrack";
@@ -9,7 +12,6 @@ import CustomInfoTooltip from "./CustomTooltip";
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userProfile,
-  avatar,
   schedule,
 }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -46,7 +48,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     };
   }, [profile, userProfile]);
 
-  const avatarUrl = profile?.avatar || avatar;
+  const { profile: accountProfile } = useProfileStore();
+  const { username } = usePgnStore();
+  const avatarSeed =
+    accountProfile?.username || username || accountProfile?.email || "user";
 
   const tooltipContent =
     "Improvement is non-linear - each bracket represents increasing complexity and the need for refined techniques. Consistency, regular self-review, and adaptation of training (including coaching and tournament experience) become more critical as you advance.";
@@ -81,17 +86,12 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       <div className="p-4 pt-2 md:pt-4 gap-y-4 flex flex-col">
         <div className="flex items-center gap-4 justify-between ">
           <div className="bg-white items-center p-1 lg:p-2 gap-x-3 lg:gap-x-2 border-2 border-[#221AE9] rounded-full justify-center flex">
-            {avatarUrl && (
-              <div className="w-7 h-7 md:w-10 md:h-10 shrink-0 overflow-hidden rounded-full">
-                <Image
-                  src={avatarUrl}
-                  width={24}
-                  height={24}
-                  alt="User avatar"
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            )}
+            <GamePlayerAvatar
+              imageUrl={accountProfile?.imageUrl}
+              seed={avatarSeed}
+              className="w-7 h-7 md:w-10 md:h-10"
+              pieceClassName="w-[12px] h-[15px] md:w-[17px] md:h-[22px]"
+            />
             {/* Smaller on mobile so "name • level • ELO" stays on one line as
                 in the mockup. Left free to wrap rather than nowrap-and-overflow
                 if a username is long enough to need it. */}

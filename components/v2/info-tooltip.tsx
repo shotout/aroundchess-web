@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 
 interface InfoTooltipProps {
   text: ReactNode;
@@ -9,8 +9,14 @@ interface InfoTooltipProps {
   align?: "left" | "right" | "center";
   /** Icon shown for the trigger; defaults to the neutral info glyph. */
   iconSrc?: string;
+  /** Custom trigger glyph, used instead of the iconSrc image. */
+  icon?: ReactNode;
   /** Override the bubble width (Tailwind max-w class). */
   maxWidthClass?: string;
+  /** Text before the icon; hovering or tapping it also opens the bubble. */
+  label?: ReactNode;
+  /** Classes for the label + icon row (e.g. the gap between them). */
+  className?: string;
 }
 
 export function InfoTooltip({
@@ -18,7 +24,10 @@ export function InfoTooltip({
   size = 14,
   align = "right",
   iconSrc = "/images/v2/play/information.png",
+  icon,
   maxWidthClass = "max-w-[min(220px,70vw)]",
+  label,
+  className = "",
 }: InfoTooltipProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -38,30 +47,34 @@ export function InfoTooltip({
 
   const arrowOffset = Math.max(size / 2, 10);
 
-  return (
+  const toggle = (e: ReactMouseEvent) => {
+    e.stopPropagation();
+    setOpen((v) => !v);
+  };
+
+  const iconTrigger = (
     <div
-      ref={ref}
+      ref={label ? undefined : ref}
       className="relative inline-flex shrink-0"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onMouseEnter={label ? undefined : () => setOpen(true)}
+      onMouseLeave={label ? undefined : () => setOpen(false)}
     >
       <button
         type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen((v) => !v);
-        }}
+        onClick={toggle}
         className="flex items-center justify-center"
         aria-label="More info"
       >
-        <Image
-          src={iconSrc}
-          alt="info"
-          width={size}
-          height={size}
-          style={{ width: size, height: size }}
-          className="object-contain shrink-0"
-        />
+        {icon ?? (
+          <Image
+            src={iconSrc}
+            alt="info"
+            width={size}
+            height={size}
+            style={{ width: size, height: size }}
+            className="object-contain shrink-0"
+          />
+        )}
       </button>
 
       {open && (
@@ -91,6 +104,27 @@ export function InfoTooltip({
           </div>
         </div>
       )}
+    </div>
+  );
+
+  if (!label) return iconTrigger;
+
+  return (
+    <div
+      ref={ref}
+      className={`flex items-center min-w-0 ${className}`}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setOpen(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setOpen(false)}
+    >
+      <button
+        type="button"
+        tabIndex={-1}
+        onClick={toggle}
+        className="flex min-w-0 text-left py-[6px] -my-[6px]"
+      >
+        {label}
+      </button>
+      {iconTrigger}
     </div>
   );
 }
