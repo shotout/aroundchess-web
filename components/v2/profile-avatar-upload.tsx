@@ -11,6 +11,11 @@ interface ProfileAvatarUploadProps {
   className?: string;
   /** Rendered when the user has no profile picture yet. */
   fallback: React.ReactNode;
+  /**
+   * Fallback for the editor dialog's large preview circle. Defaults to
+   * `fallback`; pass one when `fallback` is fixed-size and wouldn't fill it.
+   */
+  editorFallback?: React.ReactNode;
   /** Show the blue pencil badge on the bottom-right corner. */
   showEditBadge?: boolean;
 }
@@ -24,6 +29,7 @@ interface ProfileAvatarUploadProps {
 const ProfileAvatarUpload = ({
   className = "",
   fallback,
+  editorFallback,
   showEditBadge = false,
 }: ProfileAvatarUploadProps) => {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -78,7 +84,7 @@ const ProfileAvatarUpload = ({
         open={isEditorOpen}
         onOpenChange={setIsEditorOpen}
         currentPictureUrl={pictureUrl}
-        fallback={fallback}
+        fallback={editorFallback ?? fallback}
       />
     </>
   );
