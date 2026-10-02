@@ -277,6 +277,14 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const avatarSeed =
     profileShow?.username || username || profileShow?.email || "user";
 
+  const avatarEditorFallback = (
+    <PieceAvatar
+      seed={avatarSeed}
+      className="w-full h-full"
+      pieceClassName="w-[34px] h-[44px]"
+    />
+  );
+
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col z-10">
       {/* Logo */}
@@ -679,6 +687,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                     pieceClassName="w-[17px] h-[22px]"
                   />
                 }
+                editorFallback={avatarEditorFallback}
               />
               <div className="overflow-hidden text-left">
                 <h4 className="font-medium text-[18px] truncate">
@@ -730,6 +739,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                   pieceClassName="w-[17px] h-[22px]"
                 />
               }
+              editorFallback={avatarEditorFallback}
             />
             <div className="overflow-hidden text-left">
               <h4 className="font-medium text-[18px] truncate">
