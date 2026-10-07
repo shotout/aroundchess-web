@@ -257,7 +257,6 @@ const ChessProgressionUI: React.FC = () => {
                   currentElo: displayElo,
                   avatar: displayAvatar,
                 }}
-                avatar={displayAvatar}
               />
             )}
           </>

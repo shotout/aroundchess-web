@@ -161,9 +161,9 @@ export function AnalysisSection() {
 
               {/* Fixed height carousel container */}
               <div className="border border-input md:border 2 rounded-md py-2 px-2 sm:py-4 sm:px-4 mt-4">
-                <div className="flex flex-col xl:flex-row w-full min-h-[600px] sm:min-h-[500px] xl:min-h-auto">
+                <div className="flex flex-col xl:flex-row w-full min-h-[600px] sm:min-h-[500px] xl:min-h-0 xl:max-w-[1120px] xl:mx-auto">
                   {/* Image container with fixed dimensions */}
-                  <div className="flex items-start border border-input sm:border-none w-full xl:w-[58%] overflow-hidden rounded-[8px] bg-white">
+                  <div className="flex items-start xl:items-center border border-input sm:border-none w-full md:max-w-[520px] md:mx-auto xl:max-w-none xl:mx-0 xl:w-1/2 overflow-hidden rounded-[8px] bg-white">
                     <div className="relative bg-white rounded-[8px] p-[8px] border border-[#DEDEDE] w-full flex xl:items-center">
                       <div className="relative w-full aspect-square">
                         <AnimatePresence mode="wait">
@@ -217,7 +217,7 @@ export function AnalysisSection() {
                   </div>
 
                   {/* Content container with fixed height */}
-                  <div className="px-1 lg:px-6 w-full xl:w-[42%] md:mt-2 flex flex-col ">
+                  <div className="px-1 lg:px-6 w-full xl:w-1/2 md:mt-2 xl:mt-0 flex flex-col">
                     <div className="xl:overflow-hidden">
                       <AnimatePresence mode="wait">
                         <motion.div
@@ -244,7 +244,7 @@ export function AnalysisSection() {
 
                           {/* Cards: horizontal scroll on mobile, vertical stack on desktop */}
                           {/* Outer: block-level overflow-x scroll — height driven by inner flex child */}
-                          <div className="mt-4 overflow-x-auto xl:overflow-y-auto xl:max-h-[400px]">
+                          <div className="mt-4 overflow-x-auto xl:overflow-visible">
                             {/* Inner: flex row on mobile, block stack on desktop */}
                             <div className="flex xl:block gap-3 xl:gap-0 xl:space-y-3 pb-2 xl:pb-0">
                               <div className="w-[240px] xl:w-auto flex-shrink-0 border border-[#221AE9] border-l-4 bg-[#F6F9FF] rounded-md py-2 px-2 sm:px-4">
@@ -286,7 +286,7 @@ export function AnalysisSection() {
                     </div>
 
                     {/* Button — desktop only (mobile version is after navigation) */}
-                    <div className="hidden xl:flex flex-col w-full items-center justify-center pt-4">
+                    <div className="hidden xl:flex flex-col w-full items-center justify-center pt-4 xl:mt-auto">
                       <button
                         onClick={handleAnalysis}
                         className="btn-primary rounded-full py-2 w-full px-7 sm:px-16 font-normal text-[14px] --sm sm:text-md hover:opacity-90 transition-opacity"

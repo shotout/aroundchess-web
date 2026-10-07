@@ -35,6 +35,10 @@ interface SidebarLink {
   disabled?: boolean;
   permission?: boolean;
   isPremium?: boolean;
+  /** Same as the child's: hash appended on mobile so the page scrolls to it. */
+  mobileScrollTo?: string;
+  /** Extra pathnames (exact match) that also light up this section. */
+  activePaths?: string[];
   children?: {
     name: string;
     href: string;
@@ -58,9 +62,13 @@ const sidebarLinks: SidebarLink[] = [
   },
   {
     name: "Play",
-    href: "/play",
-    icon: "/icons/sidebar-playground-practice-icon.png",
-    iconActive: "/icons/sidebar-playground-practice-icon-active.png",
+    // The header opens its first child, so Play vs AI lights up underneath it.
+    href: "/playground/play-vs-ai",
+    mobileScrollTo: "play-vs-ai",
+    // The "Play Now" pill's hub page — still part of Play.
+    activePaths: ["/play"],
+    icon: "/images/v2/sidebar/play.png",
+    iconActive: "/images/v2/sidebar/play.png",
     children: [
       {
         name: "Play vs AI",
@@ -71,6 +79,15 @@ const sidebarLinks: SidebarLink[] = [
         // on the card itself — same jump the leaderboard's "Play Now" does.
         mobileScrollTo: "play-vs-ai",
       },
+    ],
+  },
+  {
+    name: "Analyze",
+    // The header opens its first child, so Game History lights up underneath it.
+    href: "/my-game-history",
+    icon: "/images/v2/sidebar/analyze.png",
+    iconActive: "/images/v2/sidebar/analyze.png",
+    children: [
       {
         name: "Game History",
         href: "/my-game-history",
@@ -95,8 +112,8 @@ const sidebarLinks: SidebarLink[] = [
   {
     name: "Practice",
     href: "/practice",
-    icon: "/icons/sidebar-puzzle-icon.png",
-    iconActive: "/icons/sidebar-puzzle-icon-active.png",
+    icon: "/images/v2/sidebar/practice.png",
+    iconActive: "/images/v2/sidebar/practice.png",
     isPremium: true,
     children: [
       {
@@ -260,6 +277,14 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const avatarSeed =
     profileShow?.username || username || profileShow?.email || "user";
 
+  const avatarEditorFallback = (
+    <PieceAvatar
+      seed={avatarSeed}
+      className="w-full h-full"
+      pieceClassName="w-[34px] h-[44px]"
+    />
+  );
+
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col z-10">
       {/* Logo */}
@@ -422,6 +447,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             const hasChildren = !!section.children?.length;
             const isActive = section.href
               ? pathname?.includes(section.href) ||
+                section.activePaths?.includes(pathname ?? "") ||
                 section.children?.some((c) => pathname?.includes(c.href))
               : section.children?.some((c) => pathname === c.href);
 
@@ -434,7 +460,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                   {section.href ? (
                     <Link
                       href={
-                        !isSignedIn && !section.permission ? "#" : section.href!
+                        !isSignedIn && !section.permission
+                          ? "#"
+                          : isMobile && section.mobileScrollTo
+                            ? `${section.href}#${section.mobileScrollTo}`
+                            : section.href!
                       }
                       onClick={() =>
                         handleNavigation(section.href!, section.permission)
@@ -657,6 +687,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                     pieceClassName="w-[17px] h-[22px]"
                   />
                 }
+                editorFallback={avatarEditorFallback}
               />
               <div className="overflow-hidden text-left">
                 <h4 className="font-medium text-[18px] truncate">
@@ -708,6 +739,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
                   pieceClassName="w-[17px] h-[22px]"
                 />
               }
+              editorFallback={avatarEditorFallback}
             />
             <div className="overflow-hidden text-left">
               <h4 className="font-medium text-[18px] truncate">
