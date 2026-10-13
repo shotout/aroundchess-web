@@ -48,7 +48,7 @@ const BLOCKED_ROUTE_PREFIXES = [
 const SCREEN_POLL_MS = 600;
 const SCREEN_POLL_GIVE_UP_MS = 45_000;
 
-function isBlockedRoute(pathname: string | null): boolean {
+export function isBlockedRoute(pathname: string | null): boolean {
   if (!pathname) return true;
   return BLOCKED_ROUTE_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
