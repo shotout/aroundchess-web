@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  CANCEL_OFFER_PENDING_COOKIE,
+  CANCEL_OFFER_PENDING_MAX_AGE_S,
+  CANCEL_OFFER_QUERY_PARAM,
+} from "./constants/cancelOffer";
 
 const publicRoutes = [
   "/",
@@ -72,7 +77,20 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  return NextResponse.redirect(new URL("/login", req.url));
+  const loginRedirect = NextResponse.redirect(new URL("/login", req.url));
+
+  // The redirect drops the query string, so a resubscribe link to a protected
+  // page opened while signed out would lose its banner. Park it in a cookie;
+  // the banner host opens it once they have logged in.
+  if (req.nextUrl.searchParams.has(CANCEL_OFFER_QUERY_PARAM)) {
+    loginRedirect.cookies.set(CANCEL_OFFER_PENDING_COOKIE, "1", {
+      path: "/",
+      maxAge: CANCEL_OFFER_PENDING_MAX_AGE_S,
+      sameSite: "lax",
+    });
+  }
+
+  return loginRedirect;
 }
 
 export const config = {

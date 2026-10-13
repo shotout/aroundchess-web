@@ -4,25 +4,17 @@ import { useContactUs } from "@/app/store/contactUs";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
-import { useConfirmLogin } from "@/app/store/confirmLogin";
-import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import DotSpinner from "@/components/game-history/Spinner";
-import { useApiClient } from "@/functions/api-client";
 import { formatDateHistory } from "@/functions/format-date";
-import { trackPaywallInteraction } from "@/functions/tracking";
 import {
   MARCH_OFFER_MONTHLY_PRICE,
   MARCH_OFFER_YEARLY_PRICE,
 } from "@/constants/marchOffer";
+import { useMembershipCheckout } from "@/hooks/useMembershipCheckout";
 import { usePromoActive, usePromoEndDateLabel } from "@/hooks/usePromo";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
-import { toast } from "sonner";
-import {
-  PAYMENT_ERROR_MESSAGE,
-  redactSecrets,
-} from "@/functions/api-error-message";
+import React from "react";
 
 const FEATURE_TILES = [
   { icon: "/images/v2/profile/icon-_Analyze Games 1.png", top: "Analyze", bottom: "Games" },
@@ -114,6 +106,31 @@ const CurrentPackageBox = ({ note }: { note?: string }) => (
   </div>
 );
 
+/** The premium cards' "You are on this Package" badge — the cyan, crowned
+ *  style the header's "Premium package active!" pill uses. */
+const PremiumCurrentPackageBox = ({ note }: { note?: string }) => (
+  <div className="relative w-full overflow-hidden rounded-[12px] border border-dashed border-white bg-[linear-gradient(to_right,#25CEDA,#25CEDA_55%,#B2E8F9)] px-[10px] py-[8px] lg:px-[12px] flex items-center gap-2 min-h-[48px]">
+    <Image
+      src="/icons/onboarding-popup.png"
+      alt=""
+      width={36}
+      height={36}
+      className="relative z-10 object-contain shrink-0 w-[28px] h-[28px] lg:w-[36px] lg:h-[36px]"
+    />
+    <p className="relative z-10 text-[11px] lg:text-[14px] font-medium leading-[130%] text-black text-left">
+      You are on this Package.{note ? ` ${note}` : ""}
+    </p>
+    <Image
+      src="/icons/sparks-member.png"
+      alt=""
+      aria-hidden
+      width={56}
+      height={56}
+      className="pointer-events-none absolute right-0 top-0 h-full w-[56px] object-cover"
+    />
+  </div>
+);
+
 interface PremiumPlanCardProps {
   billedLabel: string;
   gradientClass: string;
@@ -158,7 +175,13 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   showCancel,
   onCancel,
 }) => (
-  <div className={`relative flex flex-col rounded-[16px] p-[12px] lg:p-[16px] text-white shadow-md ${gradientClass}`}>
+  <div
+    className={`relative flex flex-col rounded-[16px] p-[12px] lg:p-[16px] text-white ${gradientClass} ${
+      isCurrentPlan
+        ? "ring-[3px] ring-[#7FF5F0] shadow-[0_0_24px_rgba(37,206,218,0.55)]"
+        : "shadow-md"
+    }`}
+  >
     {showSaveBadge && (
       <div className="absolute -top-3 left-0 right-0 flex justify-center">
         <div className="bg-[#A855F7] px-3 lg:px-4 py-1 rounded-full text-[11px] lg:text-[13px] font-semibold">
@@ -243,10 +266,10 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
 
     {isCurrentPlan && (
       <div className="mt-4">
-        <CurrentPackageBox note={memberNote} />
+        <PremiumCurrentPackageBox note={memberNote} />
         {showCancel && (
-          <button className="mt-3 w-full" onClick={onCancel}>
-            <span className="font-medium text-[14px] text-white underline underline-offset-2">
+          <button type="button" className="mt-3 w-full" onClick={onCancel}>
+            <span className="font-medium text-[14px] lg:text-[16px] text-white underline underline-offset-2 hover:opacity-80">
               Cancel Subscription
             </span>
           </button>
@@ -272,21 +295,16 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   showTitle = false,
   source = "user_settings",
 }) => {
+  const { activeMembership, isMember, isMemberMonthly, profile, sessionId } =
+    useProfileStore();
+  const { setOpen: setOpenPricing } = usePricingOffer();
   const {
-    allMembershipPackages,
-    activeMembership,
-    isMember,
-    isMemberMonthly,
-    profile,
-    sessionId,
-    setAllMembershipPackages,
-  } = useProfileStore();
-  const { setOpen: setOpenLogin } = useConfirmLogin();
-  const { setOpen: setOpenPricing, setParamsPayment } = usePricingOffer();
-  const { checkoutSessions, isLoading, getAllMembershipPackage } = useApiClient();
+    startCheckout: handleGetPremium,
+    paySelected,
+    isLoading,
+  } = useMembershipCheckout(source);
   const { setOpen: setOpenCancel } = useCancelSubscription();
   const { setOpen: setOpenContactUs } = useContactUs();
-  const [paySelected, setPaySelected] = useState("");
 
   const isPremium = Boolean(isMember || isMemberMonthly);
 
@@ -321,132 +339,21 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     window.location.href = "/register";
   };
 
-  // Ensure we have membership packages loaded (fallback to API if needed)
-  const resolveMembershipPackages = async () => {
-    let packagesArray: any[] = [];
+  // `isCancelled` (GET /membership/active) is the cancelled-but-still-paid
+  // flag; autoRenew alone can't tell, store rows keep it false while renewing.
+  const isCancelled = Boolean(activeMembership?.isCancelled);
 
-    if (Array.isArray(allMembershipPackages)) {
-      packagesArray = allMembershipPackages;
-    } else if (allMembershipPackages && typeof allMembershipPackages === "object") {
-      packagesArray = Object.values(allMembershipPackages);
-    }
-
-    if (!packagesArray.length) {
-      try {
-        const response = await getAllMembershipPackage({});
-        if (response?.data && Array.isArray(response.data)) {
-          packagesArray = response.data;
-          setAllMembershipPackages(response.data);
-        }
-      } catch (e) {
-        console.error("Failed to load membership packages", e);
-      }
-    }
-
-    if (!packagesArray.length) {
-      return { premium: null as any, monthlyPremium: null as any };
-    }
-
-    const premium = packagesArray.find((pkg: any) => pkg?.type === "YEARLY") ?? null;
-    const monthlyPremium =
-      packagesArray.find((pkg: any) => pkg?.type === "MONTHLY") ?? null;
-
-    return { premium, monthlyPremium };
-  };
-
-  const handleGetPremium = async (type: "monthly" | "yearly") => {
-    setPaySelected(type);
-
-    trackPaywallInteraction(sessionId, {
-      buttonName: "get_premium",
-      planType: type,
-      source,
-    });
-
-    if (sessionId.length == 0) {
-      setOpenLogin(true);
-      return;
-    }
-
-    const { premium, monthlyPremium } = await resolveMembershipPackages();
-
-    const isMonthly = type == "monthly";
-    const selectedPackage = isMonthly ? monthlyPremium : premium;
-
-    if (!selectedPackage) {
-      console.error(
-        `Membership package not found for type ${isMonthly ? "MONTHLY" : "YEARLY"}`
-      );
-      setPaySelected("");
-      return;
-    }
-
-    type BodyType = {
-      productName: any;
-      price: number;
-      quantity: number;
-      description: any;
-      type: string;
-      idUser: any;
-      membershipId: any;
-      stripeProductId: any;
-      totalPrice: any;
-      couponId?: any;
-    };
-
-    const yearlyCheckoutPrice = (premium?.price ?? 79.99) * 100;
-    const monthlyCheckoutPrice =
-      profile?.discountInfo?.hasActiveDiscount && isPass > 0
-        ? 699
-        : (monthlyPremium?.price ?? 9.99) * 100;
-    const body: BodyType = {
-      productName: selectedPackage.name,
-      price: isMonthly ? monthlyCheckoutPrice : yearlyCheckoutPrice,
-      quantity: 1,
-      description: selectedPackage.description,
-      type: "membership",
-      idUser: profile.id,
-      membershipId: selectedPackage.id,
-      stripeProductId: selectedPackage.stripeProductId,
-      totalPrice: isMonthly ? monthlyCheckoutPrice : yearlyCheckoutPrice,
-    };
-    if (profile.discountInfo?.discountCode) {
-      body.couponId = profile.discountInfo?.discountCode;
-    }
-    setParamsPayment(body);
-    trackCustomEvent("InitiateCheckoutSubscription", body);
-    try {
-      const res = await checkoutSessions(body);
-      if (res?.data?.url) {
-        window.location.href = res.data.url;
-        return;
-      }
-      // The backend reports checkout failures in a 200 body, so apiRequest's
-      // sanitizer (which only runs on thrown errors) never sees them and the raw
-      // wording used to reach the toast — including provider detail like
-      // "Expired API Key provided: sk_live_***". None of it is actionable for a
-      // user, so show the shared payment line and keep the detail in the log.
-      console.error(
-        "Checkout session response without url:",
-        redactSecrets(String(res?.message ?? ""))
-      );
-      toast.error(PAYMENT_ERROR_MESSAGE);
-    } catch (error: any) {
-      console.error(
-        "Checkout session failed:",
-        redactSecrets(String(error?.message ?? ""))
-      );
-      toast.error(PAYMENT_ERROR_MESSAGE);
-    } finally {
-      setPaySelected("");
-    }
-  };
-
-  const memberNote = activeMembership?.autoRenew
+  const memberNote = isCancelled
+    ? `Your Premium access ends on ${formatDateHistory(activeMembership.endDate)}.`
+    : activeMembership?.autoRenew
     ? `The Subscription automatically renews on ${formatDateHistory(
         activeMembership.endDate
       )}.`
     : undefined;
+
+  // Only a renewing Stripe plan can be cancelled from the web: store rows
+  // (App Store / Google Play) keep autoRenew false, so they never see it.
+  const canCancel = Boolean(activeMembership?.autoRenew && !isCancelled);
 
   return (
     <div className="flex flex-col gap-4">
@@ -566,7 +473,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           isLoadingPay={isLoading && paySelected == "monthly"}
           onGetPremium={() => handleGetPremium("monthly")}
           memberNote={isMemberMonthly ? memberNote : undefined}
-          showCancel={Boolean(isMemberMonthly && activeMembership?.autoRenew)}
+          showCancel={Boolean(isMemberMonthly && canCancel)}
           onCancel={handleCancelSubscription}
         />
 
@@ -589,7 +496,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           isLoadingPay={isLoading && paySelected == "yearly"}
           onGetPremium={() => handleGetPremium("yearly")}
           memberNote={isMember ? memberNote : undefined}
-          showCancel={Boolean(isMember && activeMembership?.autoRenew)}
+          showCancel={Boolean(isMember && canCancel)}
           onCancel={handleCancelSubscription}
         />
       </div>
