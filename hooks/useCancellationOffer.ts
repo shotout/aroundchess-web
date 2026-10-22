@@ -12,6 +12,10 @@ import { toast } from "sonner";
 /** The parts of GET /membership/cancellation-offer the web reads. */
 export interface CancellationOfferStatus {
   eligible: boolean;
+  /** Why not, when not: e.g. "window_closed", "already_redeemed". */
+  reason?: string;
+  /** The cancellation that opened the offer. */
+  cancellationDate: string | null;
   /** When the offer stops being sold: the cancellation + 7 days. */
   validUntil: string | null;
   offer: {
@@ -27,15 +31,18 @@ export interface CancellationOfferStatus {
  * from their cancellation, once). `offer` is null whenever it isn't for sale
  * here, including a failed request, so callers just leave the banner out.
  * `terms` is the pass as configured, for sale or not: what a pass holder's
- * card shows. `fetchKey` re-reads it when it changes, e.g. right after a cancel.
+ * card shows. `loaded` turns true once the backend has answered (or failed).
+ * `fetchKey` re-reads it when it changes, e.g. right after a cancel.
  */
 export const useCancellationOffer = (enabled: boolean, fetchKey?: string) => {
   const { getCancellationOffer, postCancellationOfferCheckout } = useApiClient();
   const { setParamsPayment } = usePricingOffer();
   const [status, setStatus] = useState<CancellationOfferStatus | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   useEffect(() => {
+    setLoaded(false);
     if (!enabled) {
       setStatus(null);
       return;
@@ -48,6 +55,9 @@ export const useCancellationOffer = (enabled: boolean, fetchKey?: string) => {
       })
       .catch(() => {
         if (!cancelled) setStatus(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoaded(true);
       });
 
     return () => {
@@ -58,7 +68,11 @@ export const useCancellationOffer = (enabled: boolean, fetchKey?: string) => {
 
   const offer =
     status?.eligible && status.offer?.webAvailable && status.validUntil
-      ? { ...status.offer, validUntil: status.validUntil }
+      ? {
+          ...status.offer,
+          validUntil: status.validUntil,
+          cancellationDate: status.cancellationDate,
+        }
       : null;
 
   const startCheckout = async () => {
@@ -94,5 +108,59 @@ export const useCancellationOffer = (enabled: boolean, fetchKey?: string) => {
     setIsCheckingOut(false);
   };
 
-  return { offer, terms: status?.offer ?? null, startCheckout, isCheckingOut };
+  return {
+    offer,
+    terms: status?.offer ?? null,
+    reason: status?.reason ?? null,
+    loaded,
+    startCheckout,
+    isCheckingOut,
+  };
+};
+
+/**
+ * The paid plan whose cancellation opened the offer, once it has already run
+ * out inside the 7 days (the user is back on FREE): its type and end date,
+ * from GET /membership/history. Matched on the cancellation date the offer
+ * status reports, so a pass or an older plan is never picked. Pass null to
+ * skip the request.
+ */
+export const useLapsedPlan = (cancellationDate: string | null) => {
+  const { getMembershipHistory } = useApiClient();
+  const [plan, setPlan] = useState<{
+    type: "MONTHLY" | "YEARLY";
+    endDate: string;
+  } | null>(null);
+
+  useEffect(() => {
+    setPlan(null);
+    if (!cancellationDate) return;
+
+    const wanted = new Date(cancellationDate).getTime();
+    let cancelled = false;
+    getMembershipHistory({})
+      .then((res: any) => {
+        if (cancelled) return;
+        const rows: any[] = Array.isArray(res?.data) ? res.data : [];
+        const row = rows.find((m) => {
+          const type = m?.membershipPackage?.type;
+          return (
+            (type === "MONTHLY" || type === "YEARLY") &&
+            m.cancellationDate != null &&
+            new Date(m.cancellationDate).getTime() === wanted
+          );
+        });
+        setPlan(row ? { type: row.membershipPackage.type, endDate: row.endDate } : null);
+      })
+      .catch(() => {
+        if (!cancelled) setPlan(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cancellationDate]);
+
+  return plan;
 };
