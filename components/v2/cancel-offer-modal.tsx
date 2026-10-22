@@ -11,20 +11,19 @@ import {
   CANCEL_OFFER_PENDING_MAX_AGE_S,
   CANCEL_OFFER_QUERY_PARAM,
 } from "@/constants/cancelOffer";
-import { formatDateSubscription } from "@/functions/format-date";
-import { useMembershipCheckout } from "@/hooks/useMembershipCheckout";
+import { useCancellationOffer } from "@/hooks/useCancellationOffer";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-/** Banner copy only. What Stripe charges is decided at checkout by the
- *  backend (Stripe price + coupon), not by these numbers. */
-const FULL_MONTHLY_PRICE = 9.99;
-const OFFER_MONTHLY_PRICE = 4.49;
-const MONTHLY_ANALYSES = 80;
-
 interface CancelOfferModalProps {
+  /** What the pass costs. */
+  price: number;
+  /** The same months at the full monthly price, struck through. */
+  fullPrice: number;
+  months: number;
+  analyses: number;
   onClose: () => void;
   onGetOffer: () => void;
   isLoading: boolean;
@@ -32,8 +31,12 @@ interface CancelOfferModalProps {
   suspended?: boolean;
 }
 
-/** "Enjoy 50% off — Resubscribe now" banner. */
+/** "Enjoy up to 66% off — Resubscribe now": the cancellation-offer pass. */
 export function CancelOfferModal({
+  price,
+  fullPrice,
+  months,
+  analyses,
   onClose,
   onGetOffer,
   isLoading,
@@ -123,25 +126,26 @@ export function CancelOfferModal({
             </svg>
           </button>
 
-          <div className="relative flex flex-col items-center px-[24px] pb-[24px] pt-[40px] sm:px-[32px] sm:pb-[28px] sm:pt-[48px] md:px-[48px] md:pb-[20px] md:pt-[16px]">
+          <div className="relative flex flex-col items-center px-[30px] pb-[24px] pt-[40px] sm:px-[32px] sm:pb-[28px] sm:pt-[48px] md:px-[48px] md:py-[24px]">
             <h2 id="cancel-offer-title" className="sr-only">
-              Enjoy 50% off — resubscribe now
+              Enjoy up to 66% off — resubscribe now
             </h2>
+            {/* The trimmed art (no transparent margin) under its own name:
+                next.config caches optimized images by URL for 30 days. */}
             <Image
-              src="/images/v2/cancelation/header.png"
+              src="/images/v2/cancelation/resubscribe-66.png"
               alt=""
               aria-hidden
-              width={796}
-              height={530}
+              width={450}
+              height={274}
               priority
               draggable={false}
-              className="h-auto w-[88%] select-none md:w-[60%]"
+              className="h-auto w-[90%] select-none md:w-[60%]"
             />
 
-            {/* md: tucked into the art's transparent bottom margin, as in the mockup. */}
-            <p className="mt-[16px] flex flex-wrap items-baseline justify-center gap-x-[6px] text-white md:-mt-[8px]">
+            <p className="mt-[24px] flex flex-wrap items-baseline justify-center gap-x-[8px] text-white md:mt-[18px]">
               <span className="relative text-[15px] text-white/60 sm:text-[17px]">
-                ${FULL_MONTHLY_PRICE.toFixed(2)}
+                ${fullPrice.toFixed(2)}
                 {/* Same rotated red bar the plan cards use for a struck price. */}
                 <span
                   aria-hidden
@@ -149,23 +153,28 @@ export function CancelOfferModal({
                 />
               </span>
               <span className="text-[28px] font-bold leading-none sm:text-[32px]">
-                ${OFFER_MONTHLY_PRICE.toFixed(2)}
+                ${price.toFixed(2)}
               </span>
-              <span className="text-[16px] sm:text-[18px]">/month</span>
+              <span className="text-[16px] sm:text-[18px]">
+                /{months === 1 ? "month" : `${months} months`}
+              </span>
             </p>
-            <p className="mt-[6px] text-[14px] text-white sm:text-[16px] md:mt-[2px] md:text-[17px]">
-              (
-              <span className="font-bold">
-                ${(OFFER_MONTHLY_PRICE / MONTHLY_ANALYSES).toFixed(2)}
+            {/* Phones: the count on its own line. md: one line. */}
+            <p className="mt-[6px] text-center text-[15px] leading-[140%] text-white sm:text-[16px]">
+              <span className="block font-bold md:inline">
+                {analyses.toLocaleString("en-US")} Game Analyses
               </span>{" "}
-              per Analysis)
+              <span className="block md:inline">
+                (<span className="font-bold">${(price / analyses).toFixed(2)}</span> per
+                Analysis)
+              </span>
             </p>
 
             <button
               type="button"
               onClick={onGetOffer}
               disabled={isLoading}
-              className="mt-[18px] flex h-[48px] w-full items-center justify-center rounded-full border-[3px] border-white/40 bg-[linear-gradient(180deg,#FFFFFF_0%,#E6F7FE_100%)] text-[17px] font-bold uppercase tracking-[0.02em] text-[#221AE9] shadow-[0_8px_24px_rgba(10,20,120,0.35)] transition-transform hover:scale-[1.01] disabled:cursor-not-allowed disabled:hover:scale-100 sm:h-[54px] sm:text-[19px] md:mt-[14px] md:h-[50px] md:w-[300px]"
+              className="mt-[16px] flex h-[48px] w-full items-center justify-center rounded-full border-[3px] border-white/40 bg-[linear-gradient(180deg,#FFFFFF_0%,#E6F7FE_100%)] text-[17px] font-bold uppercase tracking-[0.02em] text-[#221AE9] shadow-[0_8px_24px_rgba(10,20,120,0.35)] transition-transform hover:scale-[1.01] disabled:cursor-not-allowed disabled:hover:scale-100 sm:h-[54px] sm:text-[19px] md:mt-[28px] md:h-[48px] md:w-[300px]"
             >
               {isLoading ? <DotSpinner size={8} /> : "Get Offer"}
             </button>
@@ -173,7 +182,7 @@ export function CancelOfferModal({
             <button
               type="button"
               onClick={onClose}
-              className="mt-[16px] text-[14px] font-bold uppercase tracking-[0.02em] text-white transition-opacity hover:opacity-80 sm:text-[16px] md:mt-[14px]"
+              className="mt-[22px] text-[15px] font-bold uppercase tracking-[0.02em] text-white transition-opacity hover:opacity-80 sm:text-[16px]"
             >
               No Thanks
             </button>
@@ -286,34 +295,31 @@ function CancelOfferModalContainer({
   onClose: () => void;
   suspended: boolean;
 }) {
-  const isPremium = useProfileStore((state) =>
-    Boolean(state.isMember || state.isMemberMonthly)
-  );
-  const endDate = useProfileStore((state) => state.activeMembership?.endDate);
-  const { startCheckout, paySelected, isLoading } =
-    useMembershipCheckout("user_settings");
+  const { offer, reason, loaded, startCheckout, isCheckingOut } =
+    useCancellationOffer(true);
 
-  const handleGetOffer = () => {
-    // Same rule as the plan cards (canPurchase = !isPremium): checkout is
-    // refused while a paid plan is still running, so don't send them there.
-    if (isPremium) {
-      toast.info(
-        endDate
-          ? `Your Premium plan is still active until ${formatDateSubscription(
-              endDate
-            )}. You can use this offer once it ends.`
-          : "You already have an active Premium plan."
-      );
-      return;
+  // Opened from an email link, possibly days later: when the pass can't be
+  // bought any more, say why instead of showing an offer checkout would refuse.
+  useEffect(() => {
+    if (!loaded || offer) return;
+    if (reason === "window_closed") toast.info("This offer has ended.");
+    else if (reason === "already_redeemed") {
+      toast.info("You've already claimed this offer.");
     }
-    startCheckout("monthly");
-  };
+    onClose();
+  }, [loaded, offer, reason, onClose]);
+
+  if (!offer) return null;
 
   return (
     <CancelOfferModal
+      price={offer.price}
+      fullPrice={9.99 * offer.durationInMonths}
+      months={offer.durationInMonths}
+      analyses={offer.tokens > 0 ? offer.tokens : 80 * offer.durationInMonths}
       onClose={onClose}
-      onGetOffer={handleGetOffer}
-      isLoading={isLoading && paySelected === "monthly"}
+      onGetOffer={startCheckout}
+      isLoading={isCheckingOut}
       suspended={suspended}
     />
   );
@@ -321,8 +327,8 @@ function CancelOfferModalContainer({
 
 /**
  * Opens the resubscribe banner for `?cancel_offer` on any page, for signed-in
- * users only. "Get Offer" starts the same monthly Stripe checkout as the plan
- * cards.
+ * users only, while the backend still sells them the cancellation-offer pass.
+ * "Get Offer" starts the pass's Stripe checkout, as the /profile banner does.
  *
  * The param only marks the offer pending (a cookie) and is dropped from the
  * URL. A signed-out visitor never sees the banner; the offer waits until they
