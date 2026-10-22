@@ -15,3 +15,7 @@ export const CANCEL_OFFER_PENDING_COOKIE = "cancel_offer_pending";
 
 /** The email promises the offer for 7 days. */
 export const CANCEL_OFFER_PENDING_MAX_AGE_S = 7 * 24 * 60 * 60;
+
+/** The pass is sold for 7 days from the cancellation (the backend's
+ *  CANCELLATION_OFFER_WINDOW_DAYS); the plan cards follow the same window. */
+export const CANCEL_OFFER_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;

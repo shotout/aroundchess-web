@@ -5,16 +5,21 @@ import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import DotSpinner from "@/components/game-history/Spinner";
-import { formatDateHistory } from "@/functions/format-date";
+import { formatDateSubscription } from "@/functions/format-date";
 import {
   MARCH_OFFER_MONTHLY_PRICE,
   MARCH_OFFER_YEARLY_PRICE,
 } from "@/constants/marchOffer";
+import { CANCEL_OFFER_WINDOW_MS } from "@/constants/cancelOffer";
+import { CancelOfferBanner } from "@/components/v2/cancel-offer-banner";
+import { PremiumPackageBadge } from "@/components/v2/premium-package-badge";
+import { useCancellationOffer } from "@/hooks/useCancellationOffer";
 import { useMembershipCheckout } from "@/hooks/useMembershipCheckout";
 import { usePromoActive, usePromoEndDateLabel } from "@/hooks/usePromo";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "sonner";
 
 const FEATURE_TILES = [
   { icon: "/images/v2/profile/icon-_Analyze Games 1.png", top: "Analyze", bottom: "Games" },
@@ -106,33 +111,39 @@ const CurrentPackageBox = ({ note }: { note?: string }) => (
   </div>
 );
 
-/** The premium cards' "You are on this Package" badge — the cyan, crowned
- *  style the header's "Premium package active!" pill uses. */
-const PremiumCurrentPackageBox = ({ note }: { note?: string }) => (
-  <div className="relative w-full overflow-hidden rounded-[12px] border border-dashed border-white bg-[linear-gradient(to_right,#25CEDA,#25CEDA_55%,#B2E8F9)] px-[10px] py-[8px] lg:px-[12px] flex items-center gap-2 min-h-[48px]">
-    <Image
-      src="/icons/onboarding-popup.png"
-      alt=""
-      width={36}
-      height={36}
-      className="relative z-10 object-contain shrink-0 w-[28px] h-[28px] lg:w-[36px] lg:h-[36px]"
-    />
-    <p className="relative z-10 text-[11px] lg:text-[14px] font-medium leading-[130%] text-black text-left">
-      You are on this Package.{note ? ` ${note}` : ""}
+/** A cancelled plan's card while the cancellation offer runs: when Premium
+ *  ends, and the way back. */
+const SubscriptionEndsBox = ({
+  endsOnLabel,
+  onReactivate,
+  isReactivating,
+}: {
+  endsOnLabel: string;
+  onReactivate?: () => void;
+  isReactivating?: boolean;
+}) => (
+  <div className="mt-4 rounded-[12px] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF3F3_45%,#F8C4C4_100%)] px-[10px] py-[12px] text-center lg:px-[16px] lg:py-[16px]">
+    <p className="text-[11px] font-medium leading-[130%] text-[#1E1E1E] lg:text-[14px]">
+      Your subscription ends on {endsOnLabel}.
     </p>
-    <Image
-      src="/icons/sparks-member.png"
-      alt=""
-      aria-hidden
-      width={56}
-      height={56}
-      className="pointer-events-none absolute right-0 top-0 h-full w-[56px] object-cover"
-    />
+    {onReactivate && (
+      <button
+        type="button"
+        onClick={onReactivate}
+        disabled={isReactivating}
+        className="mt-[10px] flex h-[32px] w-full items-center justify-center rounded-full border border-[#BFE6FB] bg-[linear-gradient(180deg,#FFFFFF_0%,#E6F7FE_100%)] text-[13px] font-semibold text-[#221AE9] shadow-[0_4px_12px_rgba(34,26,233,0.15)] transition-colors hover:bg-white disabled:cursor-not-allowed lg:mt-[12px] lg:h-[40px] lg:text-[15px]"
+      >
+        {isReactivating ? <DotSpinner size={8} /> : "Reactivate"}
+      </button>
+    )}
   </div>
 );
 
 interface PremiumPlanCardProps {
   billedLabel: string;
+  /** Phones: a smaller pill for a label longer than "Billed Monthly", which
+   *  would otherwise overflow the half-width card. */
+  compactBilledLabel?: boolean;
   gradientClass: string;
   statNumber: string;
   statUnit: string;
@@ -149,13 +160,19 @@ interface PremiumPlanCardProps {
   canPurchase: boolean;
   isLoadingPay: boolean;
   onGetPremium: () => void;
-  memberNote?: string;
   showCancel: boolean;
   onCancel: () => void;
+  /** Set on the cancelled plan inside the offer window: swaps the "You are
+   *  on this Package" badge for the end date. */
+  endsOnLabel?: string;
+  /** The offer's checkout; left out while the offer isn't for sale. */
+  onReactivate?: () => void;
+  isReactivating?: boolean;
 }
 
 const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   billedLabel,
+  compactBilledLabel,
   gradientClass,
   statNumber,
   statUnit,
@@ -171,9 +188,11 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   canPurchase,
   isLoadingPay,
   onGetPremium,
-  memberNote,
   showCancel,
   onCancel,
+  endsOnLabel,
+  onReactivate,
+  isReactivating,
 }) => (
   <div
     className={`relative flex flex-col rounded-[16px] p-[12px] lg:p-[16px] text-white ${gradientClass} ${
@@ -200,7 +219,11 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       />
       <div className="flex flex-col items-start gap-1">
         <h3 className="text-[15px] lg:text-[20px] font-semibold leading-[130%]">Premium Plan</h3>
-        <div className="bg-[#FFC933] text-[#1E1E1E] text-[11px] lg:text-[15px] font-bold px-2 lg:px-3 py-[2px] rounded-full">
+        <div
+          className={`bg-[#FFC933] text-[#1E1E1E] lg:text-[15px] font-bold lg:px-3 py-[2px] rounded-full whitespace-nowrap ${
+            compactBilledLabel ? "text-[10px] px-[6px]" : "text-[11px] px-2"
+          }`}
+        >
           {billedLabel}
         </div>
       </div>
@@ -264,18 +287,25 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       </>
     )}
 
-    {isCurrentPlan && (
-      <div className="mt-4">
-        <PremiumCurrentPackageBox note={memberNote} />
-        {showCancel && (
-          <button type="button" className="mt-3 w-full" onClick={onCancel}>
-            <span className="font-medium text-[14px] lg:text-[16px] text-white underline underline-offset-2 hover:opacity-80">
-              Cancel Subscription
-            </span>
-          </button>
-        )}
-      </div>
-    )}
+    {isCurrentPlan &&
+      (endsOnLabel ? (
+        <SubscriptionEndsBox
+          endsOnLabel={endsOnLabel}
+          onReactivate={onReactivate}
+          isReactivating={isReactivating}
+        />
+      ) : (
+        <div className="mt-4">
+          <PremiumPackageBadge />
+          {showCancel && (
+            <button type="button" className="mt-3 w-full" onClick={onCancel}>
+              <span className="font-medium text-[14px] lg:text-[16px] text-white underline underline-offset-2 hover:opacity-80">
+                Cancel Subscription
+              </span>
+            </button>
+          )}
+        </div>
+      ))}
   </div>
 );
 
@@ -343,17 +373,86 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   // flag; autoRenew alone can't tell, store rows keep it false while renewing.
   const isCancelled = Boolean(activeMembership?.isCancelled);
 
-  const memberNote = isCancelled
-    ? `Your Premium access ends on ${formatDateHistory(activeMembership.endDate)}.`
-    : activeMembership?.autoRenew
-    ? `The Subscription automatically renews on ${formatDateHistory(
-        activeMembership.endDate
-      )}.`
-    : undefined;
-
   // Only a renewing Stripe plan can be cancelled from the web: store rows
   // (App Store / Google Play) keep autoRenew false, so they never see it.
   const canCancel = Boolean(activeMembership?.autoRenew && !isCancelled);
+
+  // For 7 days from a cancel the cancelled plan's card shows when Premium
+  // ends, the plans are on sale again and the offer banner goes up; after
+  // that the cards are back to normal.
+  const inOfferWindow =
+    isCancelled &&
+    new Date(activeMembership.cancellationDate).getTime() + CANCEL_OFFER_WINDOW_MS >
+      Date.now();
+  const endsOnLabel = inOfferWindow
+    ? formatDateSubscription(activeMembership.endDate)
+    : undefined;
+  const plansOnSale = !isPremium || inOfferWindow;
+
+  // A cancellation-offer pass (GET /membership/active is_cancel_offer) is
+  // Monthly Premium sold as one block of months, so the monthly card shows
+  // the pass's terms instead of the subscription's.
+  const isOnPass = Boolean(activeMembership?.is_cancel_offer);
+
+  // A cancelled plan inside its window, or a free account that may have
+  // lapsed inside it; the backend has the final say on the offer. A pass
+  // holder only needs the terms.
+  const { offer, terms, startCheckout: startOfferCheckout, isCheckingOut } =
+    useCancellationOffer(
+      sessionId.length > 0 &&
+        (isOnPass || (isCancelled ? inOfferWindow : !isPremium)),
+      activeMembership?.cancellationDate ?? ""
+    );
+
+  const passTerms = isOnPass ? terms : null;
+  const monthsLabel = (months: number) =>
+    months === 1 ? "month" : `${months} months`;
+  const monthlyCard = passTerms
+    ? {
+        billedLabel: `Billed per ${monthsLabel(passTerms.durationInMonths)}`,
+        analyses:
+          passTerms.tokens > 0 ? passTerms.tokens : 80 * passTerms.durationInMonths,
+        statUnit: `per ${monthsLabel(passTerms.durationInMonths)}`,
+        hasDiscount: true,
+        fullPrice: 9.99 * passTerms.durationInMonths,
+        price: passTerms.price,
+        period: monthsLabel(passTerms.durationInMonths),
+      }
+    : {
+        billedLabel: "Billed Monthly",
+        analyses: 80,
+        statUnit: "per month",
+        hasDiscount: Boolean(showMarchDiscount || hasLegacyMonthlyDiscount),
+        fullPrice: 9.99,
+        price: monthlyPrice,
+        period: "month",
+      };
+  // Reactivate and the banner's Get Offer sell the same pass; this keeps the
+  // spinner on the button that was pressed.
+  const [offerCheckoutFrom, setOfferCheckoutFrom] = useState<"card" | "banner">();
+  const handleOfferCheckout = (from: "card" | "banner") => {
+    setOfferCheckoutFrom(from);
+    startOfferCheckout();
+  };
+  // Reactivate is the pass's checkout, so it shows only while the pass is for
+  // sale; otherwise the card just says when Premium ends.
+  const handleReactivate =
+    inOfferWindow && offer ? () => handleOfferCheckout("card") : undefined;
+  const isReactivating = isCheckingOut && offerCheckoutFrom === "card";
+
+  const handleGetPlan = (type: "monthly" | "yearly") => {
+    // The backend refuses a checkout while a paid plan still runs, cancelled
+    // or not, so don't send them to Stripe for an error.
+    if (isPremium) {
+      toast.info(
+        `Your Premium plan is active until ${formatDateSubscription(
+          activeMembership?.endDate
+        )}. You can switch plans once it ends.`
+      );
+      return;
+    }
+    handleGetPremium(type);
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -399,7 +498,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         </div>
       </div>
 
-      {!isPremium && (
+      {plansOnSale && (
         <h2 className="text-center text-[16px] md:text-[24px] font-bold text-[#221AE9] whitespace-nowrap md:whitespace-normal">
           Go Premium Now for unlimited Access
         </h2>
@@ -455,26 +554,29 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           )}
         </div>
 
-        {/* Premium monthly */}
+        {/* Premium monthly — or the pass, for a pass holder */}
         <PremiumPlanCard
-          billedLabel="Billed Monthly"
+          billedLabel={monthlyCard.billedLabel}
+          compactBilledLabel={Boolean(passTerms)}
           gradientClass="bg-gradient-to-br from-[#130F83] to-[#00FFBB]"
-          statNumber="80"
-          statUnit="per month"
+          statNumber={monthlyCard.analyses.toLocaleString("en-US")}
+          statUnit={monthlyCard.statUnit}
           analysisFeature="Analyze the mistakes of 80 Games per month"
-          hasDiscount={showMarchDiscount || hasLegacyMonthlyDiscount}
-          fullPrice={9.99}
-          price={monthlyPrice}
-          period="month"
-          perAnalysis={(monthlyPrice / 80).toFixed(2)}
-          offerEndsLabel={showMarchDiscount ? promoEndLabel : ""}
+          hasDiscount={monthlyCard.hasDiscount}
+          fullPrice={monthlyCard.fullPrice}
+          price={monthlyCard.price}
+          period={monthlyCard.period}
+          perAnalysis={(monthlyCard.price / monthlyCard.analyses).toFixed(2)}
+          offerEndsLabel={showMarchDiscount && !passTerms ? promoEndLabel : ""}
           isCurrentPlan={Boolean(isMemberMonthly)}
-          canPurchase={!isPremium}
+          canPurchase={plansOnSale && !isMemberMonthly}
           isLoadingPay={isLoading && paySelected == "monthly"}
-          onGetPremium={() => handleGetPremium("monthly")}
-          memberNote={isMemberMonthly ? memberNote : undefined}
+          onGetPremium={() => handleGetPlan("monthly")}
           showCancel={Boolean(isMemberMonthly && canCancel)}
           onCancel={handleCancelSubscription}
+          endsOnLabel={isMemberMonthly ? endsOnLabel : undefined}
+          onReactivate={isMemberMonthly ? handleReactivate : undefined}
+          isReactivating={isReactivating}
         />
 
         {/* Premium yearly */}
@@ -492,13 +594,30 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           perAnalysis={(yearlyPrice / 1000).toFixed(2)}
           offerEndsLabel={showMarchDiscount ? promoEndLabel : ""}
           isCurrentPlan={Boolean(isMember)}
-          canPurchase={!isPremium}
+          canPurchase={plansOnSale && !isMember}
           isLoadingPay={isLoading && paySelected == "yearly"}
-          onGetPremium={() => handleGetPremium("yearly")}
-          memberNote={isMember ? memberNote : undefined}
+          onGetPremium={() => handleGetPlan("yearly")}
           showCancel={Boolean(isMember && canCancel)}
           onCancel={handleCancelSubscription}
+          endsOnLabel={isMember ? endsOnLabel : undefined}
+          onReactivate={isMember ? handleReactivate : undefined}
+          isReactivating={isReactivating}
         />
+
+        {/* Phones: between the paid cards and the free one. lg: under all three. */}
+        {offer && (
+          <div className="order-1 col-span-2 lg:order-last lg:col-span-3">
+            <CancelOfferBanner
+              price={offer.price}
+              fullPrice={9.99 * offer.durationInMonths}
+              months={offer.durationInMonths}
+              analyses={offer.tokens > 0 ? offer.tokens : 80 * offer.durationInMonths}
+              validUntil={offer.validUntil}
+              onGetOffer={() => handleOfferCheckout("banner")}
+              isLoading={isCheckingOut && offerCheckoutFrom === "banner"}
+            />
+          </div>
+        )}
       </div>
 
       {/* Legal links — mobile only, per mockup */}

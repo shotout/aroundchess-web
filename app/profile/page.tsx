@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useLayoutEffect, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { ChangePassword } from "@/components/modal/ChangePassword";
@@ -14,20 +14,36 @@ import DeleteAccount from "@/components/profile/DeleteAccount";
 import DotSpinner from "@/components/game-history/Spinner";
 import ChessAccountSetup from "@/components/analysis/onboarding/ChessAccountSetup";
 import { usePgnStore } from "../store/zustandStore";
-import { useProfileStore } from "../store/profile";
+import { refreshTokenBalance, useProfileStore } from "../store/profile";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
+import { useApiClient } from "@/functions/api-client";
 import { formatTimePgn } from "@/functions/format-date";
 import { trackCustomEvent, trackSubscription } from "../utils/facebookPixel";
 import { usePricingOffer } from "../store/pricingOffer";
+
+/** Gaps between GET /membership/active reads after a Stripe checkout, ~30s in
+ *  all. */
+const MEMBERSHIP_POLL_DELAYS_MS = [1500, 2000, 3000, 5000, 8000, 10000];
+
 function Profile() {
   const { paramsPayment } = usePricingOffer();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { setCallFetch } = useProfileFetch();
-  const { setAlreadyFetchProfile, setAlreadyFetch } = useProfileStore();
+  const {
+    sessionId,
+    setAlreadyFetchProfile,
+    setAlreadyFetch,
+    setActiveMembership,
+    setIsMember,
+    setIsMemberMonthly,
+  } = useProfileStore();
+  const { getActiveMembership, getTokenBalance } = useApiClient();
   const { setOpen: setOpenSuccess } = useSuccessSubscription();
 
   const [openAccountConnected, setOpenAccountConnected] = useState(false);
+  const [awaitingMembership, setAwaitingMembership] = useState(false);
+  const membershipIdBeforeCheckout = useRef<string | undefined>(undefined);
 
   const {
     setOpen: setOpenPurchaseStatus,
@@ -61,6 +77,11 @@ function Profile() {
 
     switch (status) {
       case "successSubscribe":
+        // Still the persisted pre-checkout row: the refetch above hasn't
+        // resolved yet.
+        membershipIdBeforeCheckout.current =
+          useProfileStore.getState().activeMembership?.id;
+        setAwaitingMembership(true);
         setOpenSuccess(true);
         trackCustomEvent("Subscribe", {
           ...paramsPayment,
@@ -94,6 +115,55 @@ function Profile() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Stripe sends the browser back here as soon as the payment clears, but the
+  // membership is only written by the checkout.session.completed webhook,
+  // which usually lands a few seconds later. The one refetch on arrival loses
+  // that race and stores the old FREE row (or nothing), so keep reading until
+  // a paid plan that wasn't there before checkout shows up. The id check is
+  // for the cancellation offer: its buyer can still be on a cancelled-but-paid
+  // plan, and the pass is a new row.
+  useEffect(() => {
+    if (!awaitingMembership || !sessionId) return;
+
+    let cancelled = false;
+    let timer: number | undefined;
+    let attempt = 0;
+
+    const check = async () => {
+      const response = await getActiveMembership({}).catch(() => null);
+      if (cancelled) return;
+
+      const data = response?.data;
+      const type = data?.membershipPackage?.type;
+      if (
+        (type == "MONTHLY" || type == "YEARLY") &&
+        data.id !== membershipIdBeforeCheckout.current
+      ) {
+        setIsMember(type == "YEARLY");
+        setIsMemberMonthly(type == "MONTHLY");
+        setActiveMembership(data);
+        // The cancellation pass credits bonus tokens in the same webhook.
+        refreshTokenBalance(sessionId, () => getTokenBalance({}));
+        setAwaitingMembership(false);
+        return;
+      }
+
+      if (attempt >= MEMBERSHIP_POLL_DELAYS_MS.length) {
+        setAwaitingMembership(false);
+        return;
+      }
+      timer = window.setTimeout(check, MEMBERSHIP_POLL_DELAYS_MS[attempt++]);
+    };
+
+    timer = window.setTimeout(check, MEMBERSHIP_POLL_DELAYS_MS[attempt++]);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [awaitingMembership, sessionId]);
 
   return (
     <Suspense>

@@ -717,6 +717,26 @@ export function useApiClient() {
     },
     [apiRequest]
   );
+  const getCancellationOffer = useCallback(
+    (params: any) => {
+      return apiRequest({
+        method: "GET",
+        path: `${process.env.BASE_URL}/membership/cancellation-offer`,
+        params,
+      });
+    },
+    [apiRequest]
+  );
+  const postCancellationOfferCheckout = useCallback(
+    (body: any) => {
+      return apiRequest({
+        method: "POST",
+        path: `${process.env.BASE_URL}/membership/cancellation-offer/checkout`,
+        body,
+      });
+    },
+    [apiRequest]
+  );
   const getNewsCategories = useCallback(
     (params: any) => {
       return apiRequest({
@@ -996,6 +1016,8 @@ export function useApiClient() {
     getCheckAnalysisAccess,
     getProfile,
     postCancelMembership,
+    getCancellationOffer,
+    postCancellationOfferCheckout,
     getNewsCategories,
     getNews,
     getNewsById,

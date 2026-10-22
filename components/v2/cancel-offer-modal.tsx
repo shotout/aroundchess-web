@@ -11,7 +11,7 @@ import {
   CANCEL_OFFER_PENDING_MAX_AGE_S,
   CANCEL_OFFER_QUERY_PARAM,
 } from "@/constants/cancelOffer";
-import { formatDateHistory } from "@/functions/format-date";
+import { formatDateSubscription } from "@/functions/format-date";
 import { useMembershipCheckout } from "@/hooks/useMembershipCheckout";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -299,7 +299,7 @@ function CancelOfferModalContainer({
     if (isPremium) {
       toast.info(
         endDate
-          ? `Your Premium plan is still active until ${formatDateHistory(
+          ? `Your Premium plan is still active until ${formatDateSubscription(
               endDate
             )}. You can use this offer once it ends.`
           : "You already have an active Premium plan."
