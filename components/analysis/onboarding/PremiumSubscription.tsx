@@ -11,7 +11,6 @@ import {
   redactSecrets,
 } from "@/functions/api-error-message";
 import { toast } from "sonner";
-import { formatDateHistory } from "@/functions/format-date";
 import { fadeInUp, motion } from "@/utils/motion";
 import { loadStripe } from "@stripe/stripe-js";
 import { CheckCircle, Users, X } from "lucide-react";
@@ -19,6 +18,7 @@ import Image from "next/image";
 import React, { useEffect, useState, useRef } from "react";
 import PriceDiscount from "./PriceDiscount";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
+import { PremiumPackageBadge } from "@/components/v2/premium-package-badge";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { trackPaywallInteraction } from "@/functions/tracking";
@@ -678,37 +678,8 @@ export const PremiumSubsContent: React.FC<{
 
             {isMemberMonthly && (
               <>
-                <motion.div
-                  variants={fadeInUp}
-                  className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]"
-                >
-                  <div className="flex h-12 flex-row items-center rounded-lg gap-2">
-                    <Image
-                      src="/icons/onboarding-popup.png"
-                      alt="icon"
-                      width={32}
-                      height={32}
-                      className="object-contain m-3 mr-0"
-                    />
-                    <span className="font-medium text-[14px] --xs text-black z-10">
-                      {`You are on this Package. ${
-                        activeMembership.autoRenew
-                          ? ` The Subscription automatically renews on ` +
-                            formatDateHistory(activeMembership.endDate) +
-                            "."
-                          : ``
-                      }`}
-                    </span>
-                    <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
-                      <Image
-                        src="/icons/sparks-member.png"
-                        alt="icon"
-                        width={48}
-                        height={48}
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
+                <motion.div variants={fadeInUp} className="mt-3 w-full">
+                  <PremiumPackageBadge />
                 </motion.div>
                 {activeMembership.autoRenew && (
                   <button className="mt-3" onClick={handleCancelSubscription}>
@@ -801,24 +772,8 @@ export const PremiumSubsContent: React.FC<{
 
             {isMember && (
             <>
-              <motion.div variants={fadeInUp}
-                className="mt-3 relative w-full rounded-lg bg-[linear-gradient(to_right,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#25CEDA,_#B2E8F9)] border border-dashed border-white p-[1px]">
-                <div className="flex h-12 flex-row items-center rounded-lg gap-2">
-                  <Image src="/icons/onboarding-popup.png" alt="icon" width={32} height={32}
-                    className="object-contain m-3 mr-0" />
-                  <span className="font-medium text-[14px] --xs text-black z-10">
-                    {`You are on this Package. ${
-                    activeMembership.autoRenew
-                    ? ` The Subscription automatically renews on ` +
-                    formatDateHistory(activeMembership.endDate) +
-                    "."
-                    : ``
-                    }`}
-                  </span>
-                  <div className="absolute right-0 top-0 bottom-0 h-full flex items-center justify-center">
-                    <Image src="/icons/sparks-member.png" alt="icon" width={48} height={48} className="object-cover" />
-                  </div>
-                </div>
+              <motion.div variants={fadeInUp} className="mt-3 w-full">
+                <PremiumPackageBadge />
               </motion.div>
               {activeMembership.autoRenew && (
               <button className="mt-3" onClick={handleCancelSubscription}>

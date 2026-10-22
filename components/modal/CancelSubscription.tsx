@@ -2,15 +2,22 @@
 
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { useProfileStore } from "@/app/store/profile";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import DotSpinner from "@/components/game-history/Spinner";
+import { X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { useApiClient } from "@/functions/api-client";
 import { redactSecrets } from "@/functions/api-error-message";
-import { formatDateHistory } from "@/functions/format-date";
+import { formatDateSubscription } from "@/functions/format-date";
 import { toast } from "sonner";
 
 export function CancelSubscription() {
@@ -66,7 +73,7 @@ export function CancelSubscription() {
     setOpen(false);
     toast.success(
       endDate
-        ? `Your subscription has been cancelled. Premium stays active until ${formatDateHistory(
+        ? `Your subscription has been cancelled. Premium stays active until ${formatDateSubscription(
             endDate
           )}.`
         : "Your subscription has been cancelled."
@@ -75,57 +82,62 @@ export function CancelSubscription() {
   const handleKeep = () => {
     setOpen(false);
   };
+  const endDate = activeMembership?.endDate;
+
   return (
     <Dialog open={open} onOpenChange={(next) => !isCancelling && setOpen(next)}>
-      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] sm:max-h-[95%] lg:p-[32px] bg-white max-h-[95%] overflow-y-hidden">
-        {/* Radix requires an accessible name on every DialogContent */}
-        <DialogTitle className="sr-only">Cancel subscription</DialogTitle>
-        <DialogHeader className="flex items-center">
-          <span className="text-center font-medium text-[18px] w-2/3">
-            Are you sure you want to cancel your AroundChess Subscription
-          </span>
-        </DialogHeader>
-        <div className="flex flex-col justify-center items-center bg-white">
-          <div className="flex flex-row items-center justify-center gap-3">
-            <Image
-              src="/icons/isolation-mode.png"
-              alt="isolation-mode"
-              width={1000}
-              height={1000}
-              className="w-[150px] h-[120px] sm:w-[188px] sm:h-[160px] object-contain"
-              priority
-            />
-          </div>
-          <div className="flex flex-col items-center justify-center gap-2 mt-4 mb-4">
-            <span className="font-normal text-[18px] text-[#364152] text-center">
-              The cancellation will take effect and you will lose all of your
-              AroundChess Unlimited Benefits at the end of the current billing
-              period. You can reactivate your Subscription at any time.
-            </span>
-          </div>
+      {/* [&>button]:hidden drops the shared dialog's own X; this one is
+          wrapped, so it stays. Phones: buttons stacked full width. sm: side
+          by side, and the X gets its bordered box. */}
+      <DialogContent className="w-[calc(100%-32px)] max-w-[400px] max-h-[95vh] gap-0 overflow-y-auto rounded-[24px] border-none bg-[#F8FBFF] p-[16px] sm:max-w-[550px] sm:rounded-[16px] md:p-[20px] [&>button]:hidden">
+        <div className="absolute right-[16px] top-[20px] sm:top-[16px]">
+          <DialogClose
+            disabled={isCancelling}
+            aria-label="Close"
+            className="flex h-[32px] w-[32px] items-center justify-center text-black transition-opacity hover:opacity-70 disabled:cursor-not-allowed sm:w-[40px] sm:rounded-[8px] sm:border sm:border-[#D0D5DD] sm:bg-white"
+          >
+            <X className="h-[24px] w-[24px] sm:h-[18px] sm:w-[18px]" strokeWidth={2.25} />
+          </DialogClose>
         </div>
-        <div className="flex flex-row justify-center items-center gap-3">
+
+        <div className="flex flex-col items-center text-center">
+          <Image
+            src="/images/delete-knight.png"
+            alt=""
+            aria-hidden
+            width={480}
+            height={481}
+            priority
+            className="h-auto w-[112px]"
+          />
+          <DialogTitle className="mt-[20px] px-[8px] text-[20px] font-semibold leading-[130%] tracking-normal text-black">
+            Are you sure you want to cancel your subscription?
+          </DialogTitle>
+          <DialogDescription className="mt-[8px] max-w-[380px] text-[16px] leading-[150%] text-[#4B5563]">
+            {endDate
+              ? `If you cancel this subscription, your Premium benefits remain active until ${formatDateSubscription(
+                  endDate
+                )}`
+              : "If you cancel this subscription, your Premium benefits remain active until the end of your billing period"}
+          </DialogDescription>
+        </div>
+
+        <div className="mt-[20px] flex flex-col gap-[16px] sm:flex-row sm:justify-center">
           <button
+            type="button"
             onClick={handleCancel}
             disabled={isCancelling}
-            className="w-full btn-secondary rounded-full h-[44px] disabled:cursor-not-allowed"
+            className="flex h-[48px] w-full items-center justify-center rounded-full border border-[#C01B1B] bg-white px-[24px] text-[15px] font-medium text-[#C01B1B] transition-colors hover:bg-red-50 disabled:cursor-not-allowed sm:h-[40px] sm:w-auto sm:min-w-[160px]"
           >
-            {isCancelling ? (
-              <DotSpinner size={8} />
-            ) : (
-              <span className="font-medium text-[14px] -- sm:text-[16px] text-[#221AE9]">
-                Cancel Subscription
-              </span>
-            )}
+            {isCancelling ? <DotSpinner size={8} /> : "Cancel Subscription"}
           </button>
           <button
+            type="button"
             onClick={handleKeep}
             disabled={isCancelling}
-            className="w-full btn-primary rounded-full h-[44px] disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-[48px] w-full items-center justify-center rounded-full bg-[#C01B1B] px-[24px] text-[15px] font-medium text-white transition-colors hover:bg-[#A51616] disabled:cursor-not-allowed disabled:opacity-60 sm:h-[40px] sm:w-auto sm:min-w-[160px]"
           >
-            <span className="font-medium text-[14px] -- sm:text-[16px] text-[#e6f7fe]">
-              Keep Subscription
-            </span>
+            Keep Subscription
           </button>
         </div>
       </DialogContent>
