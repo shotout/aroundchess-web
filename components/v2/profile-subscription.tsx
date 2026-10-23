@@ -210,13 +210,13 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       </div>
     )}
 
-    <div className="flex items-center gap-2 lg:gap-3 mb-3 pt-1">
+    <div className="flex items-center gap-[6px] min-[390px]:gap-2 lg:gap-3 mb-3 pt-1">
       <Image
         src="/images/v2/profile/premium_package.png"
         alt="Premium Plan"
         width={56}
         height={56}
-        className="object-contain shrink-0 w-[40px] h-[40px] lg:w-[56px] lg:h-[56px]"
+        className="object-contain shrink-0 w-[24px] h-[24px] min-[390px]:w-[40px] min-[390px]:h-[40px] lg:w-[56px] lg:h-[56px]"
       />
       <div className="flex flex-col items-start gap-1">
         <h3 className="text-[15px] lg:text-[20px] font-semibold leading-[130%]">Premium Plan</h3>
@@ -232,8 +232,8 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
 
     <div className="rounded-[12px] bg-[#0B2B57]/60 p-[10px] lg:p-[12px] flex flex-col gap-2">
       <div className="flex items-center justify-center gap-1 lg:gap-2 py-1">
-        <span className="text-[26px] lg:text-[40px] font-bold leading-none">{statNumber}</span>
-        <span className="text-[11px] lg:text-[15px] font-semibold leading-[120%]">
+        <span className="text-[22px] min-[390px]:text-[26px] lg:text-[40px] font-bold leading-none">{statNumber}</span>
+        <span className="text-[11px] lg:text-[15px] font-semibold leading-[120%] whitespace-nowrap">
           Analyses <br /> {statUnit}
         </span>
       </div>
