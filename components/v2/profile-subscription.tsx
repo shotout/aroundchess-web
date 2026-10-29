@@ -210,13 +210,13 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       </div>
     )}
 
-    <div className="flex items-center gap-[6px] min-[390px]:gap-2 lg:gap-3 mb-3 pt-1">
+    <div className="flex items-center gap-[6px] md:gap-2 lg:gap-3 mb-3 pt-1">
       <Image
         src="/images/v2/profile/premium_package.png"
         alt="Premium Plan"
         width={56}
         height={56}
-        className="object-contain shrink-0 w-[24px] h-[24px] min-[390px]:w-[40px] min-[390px]:h-[40px] lg:w-[56px] lg:h-[56px]"
+        className="object-contain shrink-0 w-[24px] h-[24px] md:w-[40px] md:h-[40px] lg:w-[56px] lg:h-[56px]"
       />
       <div className="flex flex-col items-start gap-1">
         <h3 className="text-[14px] md:text-[15px] lg:text-[20px] font-semibold leading-[130%] whitespace-nowrap">Premium Plan</h3>
