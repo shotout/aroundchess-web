@@ -219,7 +219,7 @@ const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
         className="object-contain shrink-0 w-[24px] h-[24px] min-[390px]:w-[40px] min-[390px]:h-[40px] lg:w-[56px] lg:h-[56px]"
       />
       <div className="flex flex-col items-start gap-1">
-        <h3 className="text-[15px] lg:text-[20px] font-semibold leading-[130%]">Premium Plan</h3>
+        <h3 className="text-[14px] md:text-[15px] lg:text-[20px] font-semibold leading-[130%] whitespace-nowrap">Premium Plan</h3>
         <div
           className={`bg-[#FFC933] text-[#1E1E1E] lg:text-[15px] font-bold lg:px-3 py-[2px] rounded-full whitespace-nowrap ${
             compactBilledLabel ? "text-[10px] px-[6px]" : "text-[11px] px-2"
@@ -374,9 +374,19 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   // flag; autoRenew alone can't tell, store rows keep it false while renewing.
   const isCancelled = Boolean(activeMembership?.isCancelled);
 
+  // A cancellation-offer pass (GET /membership/active is_cancel_offer) is
+  // Monthly Premium sold as one block of months, so the monthly card shows
+  // the pass's terms instead of the subscription's.
+  const isOnPass = Boolean(activeMembership?.is_cancel_offer);
+
   // Only a renewing Stripe plan can be cancelled from the web: store rows
   // (App Store / Google Play) keep autoRenew false, so they never see it.
-  const canCancel = Boolean(activeMembership?.autoRenew && !isCancelled);
+  // A pass never renews either, but still offers Cancel: with no Stripe
+  // subscription behind it, the backend only stamps its cancellationDate and
+  // the pass runs to its end date.
+  const canCancel = Boolean(
+    (activeMembership?.autoRenew || isOnPass) && !isCancelled
+  );
 
   // For 7 days from a cancel the cancelled plan's card shows when Premium
   // ends, the plans are on sale again and the offer banner goes up; after
@@ -386,11 +396,6 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     new Date(activeMembership.cancellationDate).getTime() + CANCEL_OFFER_WINDOW_MS >
       Date.now();
   const plansOnSale = !isPremium || inOfferWindow;
-
-  // A cancellation-offer pass (GET /membership/active is_cancel_offer) is
-  // Monthly Premium sold as one block of months, so the monthly card shows
-  // the pass's terms instead of the subscription's.
-  const isOnPass = Boolean(activeMembership?.is_cancel_offer);
 
   // A cancelled plan inside its window, or a free account that may have
   // lapsed inside it; the backend has the final say on the offer. A pass
