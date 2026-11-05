@@ -51,6 +51,20 @@ export const useHasMembership = () => useProfileStore(readHasMembership);
 /** Non-reactive form for timers and event handlers. */
 export const hasMembership = () => readHasMembership(useProfileStore.getState());
 
+/** Has this account ever cancelled a subscription? `isEverCancelSubscription`
+ *  on GET /v5/api/profile, sticky once true. Such an account pays full price:
+ *  the app promo is off for it, and only the zero-token "Get more Analyses"
+ *  offer and the cancellation-offer pass stay. */
+const readHasEverCancelled = (state: { profile: any }): boolean =>
+  Boolean(state.profile?.isEverCancelSubscription);
+
+/** Reactive form — re-renders when the profile call lands. */
+export const useHasEverCancelled = () => useProfileStore(readHasEverCancelled);
+
+/** Non-reactive form for timers and event handlers. */
+export const hasEverCancelled = () =>
+  readHasEverCancelled(useProfileStore.getState());
+
 // Only an in-flight request is shared, mirroring refreshStreakStatus: the
 // header and the mobile drawer's sidebar can ask at the same moment and
 // coalesce into one GET, while a later ask (drawer reopened, analysis just

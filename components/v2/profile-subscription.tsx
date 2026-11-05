@@ -2,7 +2,7 @@
 
 import { useContactUs } from "@/app/store/contactUs";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useProfileStore } from "@/app/store/profile";
+import { useHasEverCancelled, useProfileStore } from "@/app/store/profile";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import DotSpinner from "@/components/game-history/Spinner";
 import { formatDateSubscription } from "@/functions/format-date";
@@ -18,8 +18,7 @@ import { useMembershipCheckout } from "@/hooks/useMembershipCheckout";
 import { usePromoActive, usePromoEndDateLabel } from "@/hooks/usePromo";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
-import { toast } from "sonner";
+import React from "react";
 
 const FEATURE_TILES = [
   { icon: "/images/v2/profile/icon-_Analyze Games 1.png", top: "Analyze", bottom: "Games" },
@@ -111,8 +110,8 @@ const CurrentPackageBox = ({ note }: { note?: string }) => (
   </div>
 );
 
-/** A cancelled plan's card while the cancellation offer runs: when Premium
- *  ends (or ended), and the way back. */
+/** A cancelled plan's card until Premium ends (or, inside the offer window,
+ *  after it ended): when it ends, and the way back. */
 const SubscriptionEndsBox = ({
   endsText,
   onReactivate,
@@ -162,11 +161,12 @@ interface PremiumPlanCardProps {
   onGetPremium: () => void;
   showCancel: boolean;
   onCancel: () => void;
-  /** Set on the cancelled plan inside the offer window, running or already
-   *  ended: "Your subscription ends/ended on …" takes the place of the "You
-   *  are on this Package" badge. */
+  /** Set on the cancelled plan while it runs, and inside the offer window once
+   *  it has ended: "Your subscription ends/ended on …" takes the place of the
+   *  "You are on this Package" badge. */
   endsText?: string;
-  /** The offer's checkout; left out while the offer isn't for sale. */
+  /** Undoes the cancel while the plan runs; once it has ended, buys it again
+   *  at its own price (not the pass). */
   onReactivate?: () => void;
   isReactivating?: boolean;
 }
@@ -326,8 +326,13 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   showTitle = false,
   source = "user_settings",
 }) => {
-  const { activeMembership, isMember, isMemberMonthly, profile, sessionId } =
-    useProfileStore();
+  const {
+    activeMembership,
+    isMember,
+    isMemberMonthly,
+    profile,
+    sessionId,
+  } = useProfileStore();
   const { setOpen: setOpenPricing } = usePricingOffer();
   const {
     startCheckout: handleGetPremium,
@@ -345,9 +350,14 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
 
   const marchActive = usePromoActive();
   const promoEndLabel = usePromoEndDateLabel();
-  const showMarchDiscount = marchActive && !isPremium;
+  // An account that ever cancelled pays full price; the zero-token discount
+  // and the cancellation-offer pass are all that stay for it.
+  const everCancelled = useHasEverCancelled();
+  const showMarchDiscount = marchActive && !isPremium && !everCancelled;
+  // A plan bought while another still runs (a switch) is sold at the normal
+  // price, so the zero-token discount is for free accounts only.
   const hasLegacyMonthlyDiscount =
-    !isMemberMonthly && profile?.discountInfo?.hasActiveDiscount && isPass > 0;
+    !isPremium && profile?.discountInfo?.hasActiveDiscount && isPass > 0;
 
   const monthlyPrice = showMarchDiscount
     ? MARCH_OFFER_MONTHLY_PRICE
@@ -388,26 +398,37 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     (activeMembership?.autoRenew || isOnPass) && !isCancelled
   );
 
-  // For 7 days from a cancel the cancelled plan's card shows when Premium
-  // ends, the plans are on sale again and the offer banner goes up; after
-  // that the cards are back to normal.
+  // The other plan can always be bought (a switch), and the cancelled plan's
+  // card shows when Premium ends, and Reactivate, until it does. For 7 days
+  // from a cancel the "Go Premium" heading is back too.
   const inOfferWindow =
     isCancelled &&
     new Date(activeMembership.cancellationDate).getTime() + CANCEL_OFFER_WINDOW_MS >
       Date.now();
   const plansOnSale = !isPremium || inOfferWindow;
 
-  // A cancelled plan inside its window, or a free account that may have
-  // lapsed inside it; the backend has the final say on the offer. A pass
-  // holder only needs the terms.
+  // A cancelled plan, or a free account whose plan may have lapsed lately.
+  // The backend sells the pass, and so keeps the banner up, until 7 days
+  // after the cancelled plan ends (its validUntil). A pass holder only needs
+  // the terms.
   const { offer, terms, startCheckout: startOfferCheckout, isCheckingOut } =
     useCancellationOffer(
-      sessionId.length > 0 &&
-        (isOnPass || (isCancelled ? inOfferWindow : !isPremium)),
+      sessionId.length > 0 && (isOnPass || isCancelled || !isPremium),
       activeMembership?.cancellationDate ?? ""
     );
 
-  const passTerms = isOnPass ? terms : null;
+  // The cancelled plan's card says when Premium ends. Still running: its own
+  // end date, for as long as it runs. Already ran out inside the window
+  // (store sandbox plans end in minutes): looked up by the cancellation that
+  // opened the offer, since the account is back on FREE and has no current
+  // plan card.
+  const lapsedPlan = useLapsedPlan(
+    !isPremium && offer ? offer.cancellationDate : null
+  );
+  // A cancelled 6-month that ran out keeps its card until the offer ends.
+  const lapsedPass = lapsedPlan?.type === "MONTHLY" && Boolean(offer?.isCancelOffer);
+
+  const passTerms = isOnPass || lapsedPass ? terms : null;
   const monthsLabel = (months: number) =>
     months === 1 ? "month" : `${months} months`;
   const monthlyCard = passTerms
@@ -430,27 +451,8 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         price: monthlyPrice,
         period: "month",
       };
-  // Reactivate and the banner's Get Offer sell the same pass; this keeps the
-  // spinner on the button that was pressed.
-  const [offerCheckoutFrom, setOfferCheckoutFrom] = useState<"card" | "banner">();
-  const handleOfferCheckout = (from: "card" | "banner") => {
-    setOfferCheckoutFrom(from);
-    startOfferCheckout();
-  };
-  // Reactivate is the pass's checkout, so it shows only while the pass is for
-  // sale; otherwise the card just says when Premium ends.
-  const handleReactivate = offer ? () => handleOfferCheckout("card") : undefined;
-  const isReactivating = isCheckingOut && offerCheckoutFrom === "card";
-
-  // The cancelled plan's card says when Premium ends. Still running: its own
-  // end date. Already ran out inside the window (store sandbox plans end in
-  // minutes): looked up by the cancellation that opened the offer, since the
-  // account is back on FREE and has no current plan card.
-  const lapsedPlan = useLapsedPlan(
-    !isPremium && offer ? offer.cancellationDate : null
-  );
   const endsTextFor = (plan: "MONTHLY" | "YEARLY") => {
-    if (inOfferWindow && (plan === "MONTHLY" ? isMemberMonthly : isMember)) {
+    if (isCancelled && (plan === "MONTHLY" ? isMemberMonthly : isMember)) {
       return `Your subscription ends on ${formatDateSubscription(
         activeMembership.endDate
       )}.`;
@@ -465,18 +467,20 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   const monthlyEndsText = endsTextFor("MONTHLY");
   const yearlyEndsText = endsTextFor("YEARLY");
 
-  const handleGetPlan = (type: "monthly" | "yearly") => {
-    // The backend refuses a checkout while a paid plan still runs, cancelled
-    // or not, so don't send them to Stripe for an error.
-    if (isPremium) {
-      toast.info(
-        `Your Premium plan is active until ${formatDateSubscription(
-          activeMembership?.endDate
-        )}. You can switch plans once it ends.`
-      );
-      return;
+  // Reactivate buys the cancelled plan again through checkout at its normal
+  // price, as Get Premium does. A cancelled 6-month is bought again as the
+  // offer.
+  const reactivateProps = (type: "monthly" | "yearly", endsText?: string) => {
+    if (!endsText) return {};
+    if (type === "monthly" && passTerms) {
+      return offer
+        ? { onReactivate: startOfferCheckout, isReactivating: isCheckingOut }
+        : {};
     }
-    handleGetPremium(type);
+    return {
+      onReactivate: () => handleGetPremium(type),
+      isReactivating: isLoading && paySelected == type,
+    };
   };
 
   return (
@@ -594,14 +598,13 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           perAnalysis={(monthlyCard.price / monthlyCard.analyses).toFixed(2)}
           offerEndsLabel={showMarchDiscount && !passTerms ? promoEndLabel : ""}
           isCurrentPlan={Boolean(isMemberMonthly)}
-          canPurchase={plansOnSale && !isMemberMonthly && !monthlyEndsText}
+          canPurchase={!isMemberMonthly && !monthlyEndsText}
           isLoadingPay={isLoading && paySelected == "monthly"}
-          onGetPremium={() => handleGetPlan("monthly")}
+          onGetPremium={() => handleGetPremium("monthly")}
           showCancel={Boolean(isMemberMonthly && canCancel)}
           onCancel={handleCancelSubscription}
           endsText={monthlyEndsText}
-          onReactivate={monthlyEndsText ? handleReactivate : undefined}
-          isReactivating={isReactivating}
+          {...reactivateProps("monthly", monthlyEndsText)}
         />
 
         {/* Premium yearly */}
@@ -619,14 +622,13 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           perAnalysis={(yearlyPrice / 1000).toFixed(2)}
           offerEndsLabel={showMarchDiscount ? promoEndLabel : ""}
           isCurrentPlan={Boolean(isMember)}
-          canPurchase={plansOnSale && !isMember && !yearlyEndsText}
+          canPurchase={!isMember && !yearlyEndsText}
           isLoadingPay={isLoading && paySelected == "yearly"}
-          onGetPremium={() => handleGetPlan("yearly")}
+          onGetPremium={() => handleGetPremium("yearly")}
           showCancel={Boolean(isMember && canCancel)}
           onCancel={handleCancelSubscription}
           endsText={yearlyEndsText}
-          onReactivate={yearlyEndsText ? handleReactivate : undefined}
-          isReactivating={isReactivating}
+          {...reactivateProps("yearly", yearlyEndsText)}
         />
 
         {/* Phones: between the paid cards and the free one. lg: under all three. */}
@@ -638,8 +640,8 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
               months={offer.durationInMonths}
               analyses={offer.tokens > 0 ? offer.tokens : 80 * offer.durationInMonths}
               validUntil={offer.validUntil}
-              onGetOffer={() => handleOfferCheckout("banner")}
-              isLoading={isCheckingOut && offerCheckoutFrom === "banner"}
+              onGetOffer={startOfferCheckout}
+              isLoading={isCheckingOut}
             />
           </div>
         )}

@@ -2,7 +2,7 @@
 
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useProfileStore } from "@/app/store/profile";
+import { hasMembership, useProfileStore } from "@/app/store/profile";
 import { trackCustomEvent } from "@/app/utils/facebookPixel";
 import { useApiClient } from "@/functions/api-client";
 import {
@@ -108,9 +108,10 @@ export const useMembershipCheckout = (source: PaywallSource) => {
       new Date(profile?.discountInfo?.startDate).getTime() + 7 * 24 * 60 * 60 * 1000;
     const isPass = deadline - Date.now();
 
+    // A plan bought while another still runs is sold at the normal price.
     const yearlyCheckoutPrice = (premium?.price ?? 79.99) * 100;
     const monthlyCheckoutPrice =
-      profile?.discountInfo?.hasActiveDiscount && isPass > 0
+      !hasMembership() && profile?.discountInfo?.hasActiveDiscount && isPass > 0
         ? 699
         : (monthlyPremium?.price ?? 9.99) * 100;
     const body: BodyType = {
@@ -133,6 +134,13 @@ export const useMembershipCheckout = (source: PaywallSource) => {
       const res = await checkoutSessions(body);
       if (res?.data?.url) {
         window.location.href = res.data.url;
+        return;
+      }
+      // A plan still renewing through the App Store / Google Play can't be
+      // switched here until it's cancelled there; the backend says which store.
+      const message = String(res?.message ?? "");
+      if (message.includes("Cancel it there first")) {
+        toast.info(message);
         return;
       }
       // The backend reports checkout failures in a 200 body, so apiRequest's

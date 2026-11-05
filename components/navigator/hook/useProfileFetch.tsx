@@ -1,5 +1,5 @@
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useProfileStore } from "@/app/store/profile";
+import { hasEverCancelled, useProfileStore } from "@/app/store/profile";
 import { usePgnStore } from "@/app/store/zustandStore";
 import { useMarchOfferDialog } from "@/app/store/marchOfferDialog";
 import {
@@ -83,6 +83,13 @@ export const useProfileFetch = () => {
               const marchCampaignActive = isPromoWindowActive(
                 await ensurePromoAppSetting()
               );
+              // The promo outbids this offer while it runs, but an account
+              // that ever cancelled never gets the promo: this offer stays.
+              const promoOutbids =
+                !hasEverCancelled() &&
+                (marchCampaignActive ||
+                  hasPendingMarchOffer ||
+                  isMarchOfferDialogOpen);
               if (
                 data.balance == 0 &&
                 profileData.username.length > 0 &&
@@ -90,9 +97,7 @@ export const useProfileFetch = () => {
                 profileData?.discountInfo?.startDate &&
                 !everShowOffer &&
                 !isFromGameHistory &&
-                !marchCampaignActive &&
-                !hasPendingMarchOffer &&
-                !isMarchOfferDialogOpen
+                !promoOutbids
               ) {
                 setOpenOffer(true);
                 setEverShowOffer(true);

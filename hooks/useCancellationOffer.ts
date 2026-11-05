@@ -18,6 +18,8 @@ export interface CancellationOfferStatus {
   cancellationDate: string | null;
   /** When the offer stops being sold: the cancellation + 7 days. */
   validUntil: string | null;
+  /** The cancelled plan is the 6-month offer itself. */
+  isCancelOffer?: boolean;
   offer: {
     price: number;
     durationInMonths: number;
@@ -72,6 +74,7 @@ export const useCancellationOffer = (enabled: boolean, fetchKey?: string) => {
           ...status.offer,
           validUntil: status.validUntil,
           cancellationDate: status.cancellationDate,
+          isCancelOffer: Boolean(status.isCancelOffer),
         }
       : null;
 
