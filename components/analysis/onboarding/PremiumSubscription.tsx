@@ -2,7 +2,7 @@
 
 import { useContactUs } from "@/app/store/contactUs";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { useProfileStore } from "@/app/store/profile";
+import { useHasEverCancelled, useProfileStore } from "@/app/store/profile";
 import CountdownTimerDiscount from "@/components/CountdownTimer/CountdownTimerDiscount";
 import DotSpinner from "@/components/game-history/Spinner";
 import { useApiClient } from "@/functions/api-client";
@@ -184,7 +184,11 @@ export const PremiumSubsContent: React.FC<{
 
   const marchActive = usePromoActive();
   const promoEndLabel = usePromoEndDateLabel();
-  const showMarchDiscount = marchActive && !isMember && !isMemberMonthly;
+  // An account that ever cancelled pays full price; the zero-token discount
+  // is all that stays for it.
+  const everCancelled = useHasEverCancelled();
+  const showMarchDiscount =
+    marchActive && !isMember && !isMemberMonthly && !everCancelled;
   const marchMultiplier = (100 - MARCH_OFFER_DISCOUNT_PERCENT) / 100;
   const monthlyDiscounted = Math.round(9.99 * marchMultiplier * 100) / 100;
   const yearlyDiscounted = Math.round(79.99 * marchMultiplier * 100) / 100;

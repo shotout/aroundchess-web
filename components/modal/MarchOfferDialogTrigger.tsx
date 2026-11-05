@@ -2,7 +2,12 @@
 
 import { useMarchOfferDialog } from "@/app/store/marchOfferDialog";
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { hasMembership, useHasMembership } from "@/app/store/profile";
+import {
+  hasEverCancelled,
+  hasMembership,
+  useHasEverCancelled,
+  useHasMembership,
+} from "@/app/store/profile";
 import {
   MARCH_OFFER_DIALOG_DELAY_MS,
   MARCH_OFFER_DIALOG_MAX_WAIT_MS,
@@ -17,19 +22,22 @@ export function MarchOfferDialogTrigger() {
   const { setOpenOffer } = usePricingOffer();
   const pathname = usePathname();
   const isEligibleRoute = pathname === "/analysis" || pathname === "/my-game-history";
+  // Members have nothing to buy here, and an account that ever cancelled pays
+  // full price.
   const isMember = useHasMembership();
+  const everCancelled = useHasEverCancelled();
+  const isExcluded = isMember || everCancelled;
 
-  // Members have nothing to buy here. The membership call can land after the
-  // dialog opened, so close it as soon as we know rather than only gating the
-  // initial show.
+  // The membership call can land after the dialog opened, so close it as soon
+  // as we know rather than only gating the initial show.
   useEffect(() => {
-    if (isMember && open) {
+    if (isExcluded && open) {
       setOpen(false);
     }
-  }, [isMember, open, setOpen]);
+  }, [isExcluded, open, setOpen]);
 
   useEffect(() => {
-    if (!isEligibleRoute || isMember) {
+    if (!isEligibleRoute || isExcluded) {
       return;
     }
 
@@ -57,7 +65,7 @@ export function MarchOfferDialogTrigger() {
 
       // Re-checked at fire time: the membership call may have resolved during
       // the delay. Drop the pending flag either way so it can't fire later.
-      if (hasMembership()) {
+      if (hasMembership() || hasEverCancelled()) {
         window.sessionStorage.removeItem(MARCH_OFFER_DIALOG_SESSION_KEY);
         return;
       }
@@ -110,9 +118,9 @@ export function MarchOfferDialogTrigger() {
         cleanup();
       }
     };
-  }, [isEligibleRoute, isMember, setOpen, setOpenOffer]);
+  }, [isEligibleRoute, isExcluded, setOpen, setOpenOffer]);
 
-  if (!isEligibleRoute || isMember) {
+  if (!isEligibleRoute || isExcluded) {
     return null;
   }
 

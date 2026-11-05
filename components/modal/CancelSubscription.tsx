@@ -23,8 +23,13 @@ import { toast } from "sonner";
 export function CancelSubscription() {
 
   const router = useRouter();
-  const { activeMembership, setActiveMembership, setIsMember, setIsMemberMonthly } =
-    useProfileStore();
+  const {
+    activeMembership,
+    setActiveMembership,
+    setIsMember,
+    setIsMemberMonthly,
+    setProfile,
+  } = useProfileStore();
   const { open, setOpen } = useCancelSubscription();
   const { postCancelMembership, getActiveMembership } = useApiClient();
   const [isCancelling, setIsCancelling] = useState(false);
@@ -53,6 +58,13 @@ export function CancelSubscription() {
       setIsCancelling(false);
       return;
     }
+
+    // The backend flags the account at the cancel; mirror it so the promo
+    // goes away now rather than on the next profile read.
+    setProfile({
+      ...useProfileStore.getState().profile,
+      isEverCancelSubscription: true,
+    });
 
     let endDate = activeMembership?.endDate;
     try {

@@ -1,7 +1,12 @@
 "use client";
 
 import { usePricingOffer } from "@/app/store/pricingOffer";
-import { hasMembership, useHasMembership } from "@/app/store/profile";
+import {
+  hasEverCancelled,
+  hasMembership,
+  useHasEverCancelled,
+  useHasMembership,
+} from "@/app/store/profile";
 import { isMarchCampaignActive } from "@/constants/marchOffer";
 import { usePromoActive, usePromoEndDateLabel } from "@/hooks/usePromo";
 import { X } from "lucide-react";
@@ -69,11 +74,13 @@ export function MarchOfferBanner() {
   const bannerRef = useRef<HTMLDivElement | null>(null);
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const promoEndLabel = usePromoEndDateLabel();
-  // Members already have the plan this banner sells, so the campaign is simply
-  // not active for them — folding it into one flag keeps every show path
-  // (initial, reset event, midnight re-show) gated the same way.
+  // Members already have the plan this banner sells, and an account that ever
+  // cancelled pays full price, so the campaign is simply not active for them —
+  // folding it into one flag keeps every show path (initial, reset event,
+  // midnight re-show) gated the same way.
   const isMember = useHasMembership();
-  const isPromoActive = usePromoActive() && !isMember;
+  const everCancelled = useHasEverCancelled();
+  const isPromoActive = usePromoActive() && !isMember && !everCancelled;
 
   const syncBannerHeight = useCallback(() => {
     if (!bannerRef.current || typeof document === "undefined") {
@@ -99,7 +106,7 @@ export function MarchOfferBanner() {
 
   useEffect(() => {
     const handleReset = () => {
-      if (!isMarchCampaignActive() || hasMembership()) {
+      if (!isMarchCampaignActive() || hasMembership() || hasEverCancelled()) {
         setIsVisible(false);
         resetBannerHeight();
         return;
@@ -154,7 +161,7 @@ export function MarchOfferBanner() {
     nextMidnight.setHours(24, 0, 0, 0);
 
     const timeoutId = window.setTimeout(() => {
-      if (!isMarchCampaignActive() || hasMembership()) {
+      if (!isMarchCampaignActive() || hasMembership() || hasEverCancelled()) {
         return;
       }
 
