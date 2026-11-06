@@ -20,7 +20,7 @@ import PriceDiscount from "./PriceDiscount";
 import { useCancelSubscription } from "@/app/store/cancelSubscription";
 import { PremiumPackageBadge } from "@/components/v2/premium-package-badge";
 import { useConfirmLogin } from "@/app/store/confirmLogin";
-import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { checkoutEventParams, trackCustomEvent } from "@/app/utils/facebookPixel";
 import { trackPaywallInteraction } from "@/functions/tracking";
 import { MARCH_OFFER_DISCOUNT_PERCENT } from "@/constants/marchOffer";
 import { usePromoActive, usePromoEndDateLabel } from "@/hooks/usePromo";
@@ -292,7 +292,7 @@ export const PremiumSubsContent: React.FC<{
       body.couponId = profile.discountInfo?.discountCode;
     }
     setParamsPayment(body);
-    trackCustomEvent("InitiateCheckoutSubscription", body);
+    trackCustomEvent("InitiateCheckoutSubscription", checkoutEventParams(body));
     // A checkout that doesn't come back with a URL — failed 200 body, or a
     // thrown request — used to read `res.data.url` off nothing and take the page
     // down. Report the shared payment line instead and log the detail.

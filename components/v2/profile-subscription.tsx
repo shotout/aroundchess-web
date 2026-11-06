@@ -398,6 +398,9 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       (activeMembership?.autoRenew || isOnPass) &&
       !isCancelled
   );
+  // A plan activated in the mobile app is changed there, so no other plan is
+  // sold next to it on the web.
+  const isAppPlan = isPremium && !activeMembership?.stripeSubscriptionId;
 
   // The other plan can always be bought (a switch), and the cancelled plan's
   // card shows when Premium ends, and Reactivate, until it does. For 7 days
@@ -599,7 +602,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           perAnalysis={(monthlyCard.price / monthlyCard.analyses).toFixed(2)}
           offerEndsLabel={showMarchDiscount && !passTerms ? promoEndLabel : ""}
           isCurrentPlan={Boolean(isMemberMonthly)}
-          canPurchase={!isMemberMonthly && !monthlyEndsText}
+          canPurchase={!isAppPlan && !isMemberMonthly && !monthlyEndsText}
           isLoadingPay={isLoading && paySelected == "monthly"}
           onGetPremium={() => handleGetPremium("monthly")}
           showCancel={Boolean(isMemberMonthly && canCancel)}
@@ -623,7 +626,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           perAnalysis={(yearlyPrice / 1000).toFixed(2)}
           offerEndsLabel={showMarchDiscount ? promoEndLabel : ""}
           isCurrentPlan={Boolean(isMember)}
-          canPurchase={!isMember && !yearlyEndsText}
+          canPurchase={!isAppPlan && !isMember && !yearlyEndsText}
           isLoadingPay={isLoading && paySelected == "yearly"}
           onGetPremium={() => handleGetPremium("yearly")}
           showCancel={Boolean(isMember && canCancel)}

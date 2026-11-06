@@ -3,7 +3,7 @@
 import { useConfirmLogin } from "@/app/store/confirmLogin";
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { hasMembership, useProfileStore } from "@/app/store/profile";
-import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { checkoutEventParams, trackCustomEvent } from "@/app/utils/facebookPixel";
 import { useApiClient } from "@/functions/api-client";
 import {
   PAYMENT_ERROR_MESSAGE,
@@ -129,7 +129,7 @@ export const useMembershipCheckout = (source: PaywallSource) => {
       body.couponId = profile.discountInfo?.discountCode;
     }
     setParamsPayment(body);
-    trackCustomEvent("InitiateCheckoutSubscription", body);
+    trackCustomEvent("InitiateCheckoutSubscription", checkoutEventParams(body));
     try {
       const res = await checkoutSessions(body);
       if (res?.data?.url) {

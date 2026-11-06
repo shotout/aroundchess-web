@@ -299,7 +299,7 @@ const ChessTrainingPlanDialog: React.FC<ChessTrainingPlanDialogProps> = ({
             selectedBlackOpenings,
             selectedMiddlegames,
             selectedEndgames,
-            profile: displayUserProfile,
+            level: storeUserProfile?.level,
           });
           onPlanCreated();
         }

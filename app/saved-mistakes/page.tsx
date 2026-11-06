@@ -13,7 +13,7 @@ export default function FeedbackLog() {
   const { isLoading, hydrated } = usePgnStore();
   const [ready, setReady] = useState(false);
   useEffect(() => {
-      trackCustomEvent("ViewFeedbackLog");
+      trackCustomEvent("ViewSavedMistakes");
     }, []);
   useEffect(() => {
     if (hydrated) {
