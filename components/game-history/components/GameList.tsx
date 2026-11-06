@@ -458,7 +458,7 @@ const GamesList: React.FC<GamesListProps> = ({
       );
       const lastCompleted = freshlyCompleted[freshlyCompleted.length - 1];
       if (lastCompleted) {
-        trackCustomEvent("AnalysisCompleted", lastCompleted.gameId);
+        trackCustomEvent("AnalysisCompleted", { game_id: lastCompleted.gameId });
         markIsAnalysisInStore(lastCompleted.gameId);
       }
       // Shared refresher so this and the header/drawer readouts can't disagree;
@@ -636,7 +636,7 @@ const GamesList: React.FC<GamesListProps> = ({
             className:
               "bg-red-600 hover:bg-red-700 border border-white text-white shadow-sm ring-1 ring-red-200",
             onClick: () => {
-              trackCustomEvent("RetryAnalysis", gameId);
+              trackCustomEvent("RetryAnalysis", { game_id: gameId });
 
               setAutoStartGameId(gameId);
             },
@@ -652,7 +652,7 @@ const GamesList: React.FC<GamesListProps> = ({
       onClick: () => {
         // Skip the depth dialog — auto-run the Standard analysis headlessly
         setAutoStartGameId(gameId);
-        trackCustomEvent("StartAnalysis", gameId);
+        trackCustomEvent("StartAnalysis", { game_id: gameId });
       },
     };
   };

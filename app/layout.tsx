@@ -20,9 +20,10 @@ import { SessionKeepAlive } from "../components/v2/session-keepalive";
 // Imported for its side effect, and imported here so the fetch wrapper is in
 // place before any page code can fire a request.
 import "../functions/install-auth-fetch";
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import Script from "next/script";
 import { useModalSetting } from "./store/cookiesSetting";
+import { loadTrackers } from "./utils/facebookPixel";
 
 export default function RootLayout({
   children,
@@ -30,6 +31,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const { setting } = useModalSetting();
+  // GA4 and the Pixel are loaded from the tracking helper, which also skips
+  // every non-production host. This covers a visitor who consents mid-visit.
+  useEffect(() => {
+    loadTrackers();
+  }, [setting.analytics, setting.marketing]);
   return (
     <Suspense>
       <html lang="en">
@@ -41,56 +47,11 @@ export default function RootLayout({
           <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
           <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="anonymous" />
           <script src="/stockfish.js" defer></script>
-          {setting.marketing && (
-            <noscript>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                height="1"
-                width="1"
-                style={{ display: "none" }}
-                src="https://www.facebook.com/tr?id=1143400640994363&ev=PageView&noscript=1"
-                alt=""
-              />
-            </noscript>
-          )}
         </head>
         <body>
           <AppSettingProvider />
           <SessionKeepAlive />
           <MarchOfferBanner />
-          {setting.marketing && (
-            <Script id="facebook-pixel" strategy="afterInteractive">
-              {`
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '1143400640994363');
-            fbq('track', 'PageView');
-          `}
-            </Script>
-          )}
-          {setting.analytics && (
-            <>
-              <Script
-                id="google-analytics"
-                strategy="afterInteractive"
-                src="https://www.googletagmanager.com/gtag/js?id=G-C2DL4G5MEB"
-              />
-              <Script id="google-analytics-init" strategy="afterInteractive">
-                {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', 'G-C2DL4G5MEB');
-              `}
-              </Script>
-            </>
-          )}
           {setting.marketing && (
             <Script
               id="google-adsense"

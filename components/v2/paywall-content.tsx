@@ -3,7 +3,7 @@
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useProfileStore } from "@/app/store/profile";
 import { useStatusPurchaseTokens } from "@/app/store/statusPurchaseTokens";
-import { trackCustomEvent } from "@/app/utils/facebookPixel";
+import { checkoutEventParams, trackCustomEvent } from "@/app/utils/facebookPixel";
 import DotSpinner from "@/components/game-history/Spinner";
 import { SubscriptionPlans } from "@/components/v2/profile-subscription";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -132,7 +132,7 @@ export const PaywallContent: React.FC<{
       idUser: profile.id,
     };
     try {
-      trackCustomEvent("InitiateCheckoutToken", body);
+      trackCustomEvent("InitiateCheckoutToken", checkoutEventParams(body));
       setParamsPayment(body);
       const res = await checkoutSessions(body);
       setLoading(false);

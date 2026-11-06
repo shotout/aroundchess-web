@@ -18,7 +18,7 @@ import { refreshTokenBalance, useProfileStore } from "../store/profile";
 import { useProfileFetch } from "@/components/navigator/hook/useProfileFetch";
 import { useApiClient } from "@/functions/api-client";
 import { formatTimePgn } from "@/functions/format-date";
-import { trackCustomEvent, trackSubscription } from "../utils/facebookPixel";
+import { checkoutEventParams, trackCustomEvent } from "../utils/facebookPixel";
 import { usePricingOffer } from "../store/pricingOffer";
 
 /** Gaps between GET /membership/active reads after a Stripe checkout, ~30s in
@@ -83,12 +83,13 @@ function Profile() {
           useProfileStore.getState().activeMembership?.id;
         setAwaitingMembership(true);
         setOpenSuccess(true);
-        trackCustomEvent("Subscribe", {
-          ...paramsPayment,
-          currency: "USD",
-          value: paramsPayment.price,
-          predicted_ltv:paramsPayment.price
-        });
+        {
+          const params = checkoutEventParams(paramsPayment);
+          trackCustomEvent("Subscribe", {
+            ...params,
+            ...("value" in params ? { predicted_ltv: params.value } : {}),
+          });
+        }
         break;
 
       case "cancelSubscribe":
@@ -100,11 +101,7 @@ function Profile() {
         setOpenPurchaseStatus(true);
         setQuantity(amount);
         setStatus("success");
-        trackCustomEvent("Purchase", {
-          ...paramsPayment,
-          currency: "USD",
-          value: paramsPayment.price,
-        });
+        trackCustomEvent("Purchase", checkoutEventParams(paramsPayment));
         break;
 
       case "cancelToken":

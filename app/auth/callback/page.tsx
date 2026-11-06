@@ -92,7 +92,7 @@ export default function SSOCallbackPage() {
         const expiresIn = params.get("expires_in");
         const isNew = params.get("is_new");
         if(isNew){
-          trackCustomEvent("CompleteRegistration", { sso: providerType});
+          trackCustomEvent("CompleteRegistration", { method: providerType });
         }
         if (!accessToken) {
           showAlert(

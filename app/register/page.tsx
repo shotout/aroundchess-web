@@ -11,7 +11,7 @@ import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { persistSession } from "@/functions/refresh-token";
 import { useSearchParams } from "next/navigation";
-import { trackCustomEvent, trackSignUp } from "../utils/facebookPixel";
+import { trackCustomEvent } from "../utils/facebookPixel";
 import { useRouter } from "next/navigation";
 export const dynamic = "force-dynamic";
 interface PasswordCondition {
@@ -172,12 +172,12 @@ function RegisterPage() {
         persistSession(data.data.access_token, data.data);
 
         toast.success("Account verified and logged in successfully!");
-        trackCustomEvent("CompleteRegistration", { email });
+        trackCustomEvent("CompleteRegistration", { method: "email" });
         router.push("/chess-knowledge");
 
       } else if (data.token) {
         persistSession(data.token, data);
-        trackCustomEvent("CompleteRegistration", { email });
+        trackCustomEvent("CompleteRegistration", { method: "email" });
 
         toast.success("Account verified and logged in successfully!");
         router.push("/chess-knowledge");
