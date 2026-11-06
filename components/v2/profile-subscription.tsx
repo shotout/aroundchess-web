@@ -389,13 +389,14 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   // the pass's terms instead of the subscription's.
   const isOnPass = Boolean(activeMembership?.is_cancel_offer);
 
-  // Only a renewing Stripe plan can be cancelled from the web: store rows
-  // (App Store / Google Play) keep autoRenew false, so they never see it.
-  // A pass never renews either, but still offers Cancel: with no Stripe
-  // subscription behind it, the backend only stamps its cancellationDate and
-  // the pass runs to its end date.
+  // Only a renewing Stripe plan can be cancelled from the web. App Store /
+  // Google Play plans (the 6-month one included) are cancelled in the store:
+  // they have no Stripe subscription, and their rows can still read
+  // autoRenew true once the store reports a renewal.
   const canCancel = Boolean(
-    (activeMembership?.autoRenew || isOnPass) && !isCancelled
+    activeMembership?.stripeSubscriptionId &&
+      (activeMembership?.autoRenew || isOnPass) &&
+      !isCancelled
   );
 
   // The other plan can always be bought (a switch), and the cancelled plan's
