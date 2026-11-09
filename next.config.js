@@ -5,7 +5,13 @@ const nextConfig = {
     BASE_URL_STAGING: process.env.BASE_URL_STAGING,                                                                                                                                                          
     BASE_URL_IP: process.env.BASE_URL_IP,                                                                                                                                                                    
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,                                                                                                                                                        
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY                                                                                                                                         
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    // Stamped on every app error log (functions/error-logger.ts): the package
+    // version, and the deployed commit on Vercel.
+    APP_VERSION: process.env.npm_package_version,
+    APP_BUILD_NUMBER: process.env.VERCEL_GIT_COMMIT_SHA
+      ? process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7)
+      : undefined,
   },                                                                                                                                                                                                         
                                                                                                                                                                                                              
   experimental: {

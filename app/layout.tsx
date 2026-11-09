@@ -20,6 +20,9 @@ import { SessionKeepAlive } from "../components/v2/session-keepalive";
 // Imported for its side effect, and imported here so the fetch wrapper is in
 // place before any page code can fire a request.
 import "../functions/install-auth-fetch";
+// After install-auth-fetch, so its API tracker wraps the auth wrapper.
+import "../functions/install-error-logger";
+import { ErrorLoggerHost } from "../components/v2/error-logger-host";
 import React, { Suspense, useEffect } from "react";
 import Script from "next/script";
 import { useModalSetting } from "./store/cookiesSetting";
@@ -51,6 +54,7 @@ export default function RootLayout({
         <body>
           <AppSettingProvider />
           <SessionKeepAlive />
+          <ErrorLoggerHost />
           <MarchOfferBanner />
           {setting.marketing && (
             <Script

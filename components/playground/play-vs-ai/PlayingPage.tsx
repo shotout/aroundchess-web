@@ -8,6 +8,11 @@ import {
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 import GameCard from "@/components/playground/play-vs-ai/GameCard";
 import { Engine } from "@/components/playground/src/lib/stockfish";
+import {
+  clearErrorLogGameContext,
+  logError,
+  setErrorLogGameContext,
+} from "@/functions/error-logger";
 import { motion } from "@/utils/motion";
 import { useGameEndStatus } from "@/app/store/gameEndStatus";
 import {
@@ -913,6 +918,25 @@ export default function PlayingPage() {
     saveGameState();
   }, [gamePosition, statusGame, saveGameState]);
 
+  // Every app error log sent while this game is open carries it, so an engine
+  // or save failure can be traced to the exact position. `game`, not
+  // gamePosition: the latter follows the move-history viewer, and the log
+  // wants the last position actually reached.
+  useEffect(() => {
+    try {
+      setErrorLogGameContext({
+        gameId: currentGameId || null,
+        opponentElo: Number(AIChoosed?.opponent?.elo) || null,
+        fen: game.fen(),
+        moveCount: game.history().length,
+      });
+    } catch {
+      // Logging context only — never let it disturb the game.
+    }
+  }, [currentGameId, gamePosition, AIChoosed, game]);
+
+  useEffect(() => () => clearErrorLogGameContext(), []);
+
   useEffect(() => {
     clearOldJobs();
     restorePollingJobs();
@@ -1559,6 +1583,10 @@ export default function PlayingPage() {
       // position. None of these should surface as an unhandled rejection.
       aiMoveInFlightRef.current = false;
       console.warn("Skipping AI move:", error);
+      // A finished position is the normal end of a game, not a failure.
+      if ((error as Error)?.message !== "No legal moves available") {
+        logError("AI_MOVE_FAILED", error, { message: "AI move unavailable" });
+      }
     });
   };
 

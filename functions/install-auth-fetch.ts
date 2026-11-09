@@ -62,6 +62,8 @@ export function installAuthFetchInterceptor() {
   globals[INSTALLED_FLAG] = true;
 
   const originalFetch = window.fetch.bind(window);
+  // For the error logger, whose requests must bypass this wrapper.
+  globals.__aroundchessOriginalFetch = originalFetch;
 
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = resolveUrl(input);

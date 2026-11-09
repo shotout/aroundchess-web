@@ -10,6 +10,7 @@ import { useProfileStore } from "../store/profile";
 import { SiteHeaderNew } from "@/components/site-header-new";
 import { SiteFooterNew } from "@/components/site-footer-new";
 import { persistSession } from "@/functions/refresh-token";
+import { logSuccess } from "@/functions/error-logger";
 import { useSearchParams } from "next/navigation";
 import { trackCustomEvent } from "../utils/facebookPixel";
 import { useRouter } from "next/navigation";
@@ -170,6 +171,9 @@ function RegisterPage() {
 
       if (data.data && data.data.access_token) {
         persistSession(data.data.access_token, data.data);
+        // Only now is there a session to file it under; the OTP request before
+        // it ran logged out.
+        logSuccess("REGISTER_SUCCESS", { extra: { method: "email" } });
 
         toast.success("Account verified and logged in successfully!");
         trackCustomEvent("CompleteRegistration", { method: "email" });
@@ -177,6 +181,7 @@ function RegisterPage() {
 
       } else if (data.token) {
         persistSession(data.token, data);
+        logSuccess("REGISTER_SUCCESS", { extra: { method: "email" } });
         trackCustomEvent("CompleteRegistration", { method: "email" });
 
         toast.success("Account verified and logged in successfully!");

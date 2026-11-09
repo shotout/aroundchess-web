@@ -1,5 +1,6 @@
 import { useProfileStore } from "@/app/store/profile";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
+import { logError, logSuccess } from "./error-logger";
 
 /**
  * Keeps the session alive by exchanging the stored refresh token for a fresh
@@ -216,6 +217,9 @@ async function exchangeRefreshToken(
     // Offline, DNS, a sleeping laptop's dropped socket — the refresh token is
     // very probably still fine, so keep the session and try again later.
     console.error("Could not reach the token refresh endpoint:", error);
+    logError("TOKEN_REFRESH_FAILED", error, {
+      extra: { status: null, kind: "request", outcome: "unavailable" },
+    });
     return { status: "unavailable" };
   }
 
@@ -225,18 +229,37 @@ async function exchangeRefreshToken(
   if (!response.ok) {
     // 4xx = the backend judged the token; anything else = infrastructure.
     const rejected = response.status >= 400 && response.status < 500;
+    logError("TOKEN_REFRESH_FAILED", null, {
+      message: typeof data?.message === "string" ? data.message : undefined,
+      extra: {
+        status: response.status,
+        kind: "request",
+        outcome: rejected ? "rejected" : "unavailable",
+      },
+    });
     return rejected ? { status: "rejected" } : { status: "unavailable" };
   }
 
-  if (data?.success === false) return { status: "rejected" };
+  if (data?.success === false) {
+    logError("TOKEN_REFRESH_FAILED", null, {
+      message: typeof data?.message === "string" ? data.message : undefined,
+      extra: { status: data?.statusCode ?? null, kind: "body", outcome: "rejected" },
+    });
+    return { status: "rejected" };
+  }
 
   const payload: SessionPayload = data?.data ?? data ?? {};
   if (!payload.access_token) {
     // A 200 without a token is a backend contract break, not a dead session.
+    logError("TOKEN_REFRESH_FAILED", null, {
+      message: "refresh response had no access_token",
+      extra: { status: response.status, kind: "body", outcome: "unavailable" },
+    });
     return { status: "unavailable" };
   }
 
   persistSession(payload.access_token, payload);
+  logSuccess("TOKEN_REFRESH_SUCCESS");
   return { status: "refreshed", token: payload.access_token };
 }
 

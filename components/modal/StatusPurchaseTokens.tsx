@@ -3,6 +3,7 @@
 import { usePricingOffer } from "@/app/store/pricingOffer";
 import { useStatusPurchaseTokens } from "@/app/store/statusPurchaseTokens";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useRetryCheckout } from "@/hooks/useRetryCheckout";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,7 +11,8 @@ import { useEffect, useState } from "react";
 export function StatusPurchaseTokens() {
   const router = useRouter();
   const { open, setOpen, status, quantity } = useStatusPurchaseTokens();
-  const { setOpen: setOpenPricing } = usePricingOffer();
+  const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
+  const { retry: retryCheckout, isRetrying } = useRetryCheckout();
   const [content, setContent] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [dots, setDots] = useState<string>("");
@@ -68,12 +70,22 @@ export function StatusPurchaseTokens() {
     // Redirect to game history instead of showing AnalyzeGameDialog
     router.replace("/my-game-history");
   };
-  const handleFailed = () => {
+  // Straight back to Stripe with the plan / offer / pack they left. Without a
+  // checkout to replay, open the paywall on the tab that failed.
+  const handleFailed = async () => {
+    const kind = status == "failed" ? "token" : "membership";
+    if (await retryCheckout(kind)) return;
     setOpen(false);
+    setTabType(kind == "token" ? "tokens" : "subscription");
     setOpenPricing(true);
   };
+  // Keep the modal up while the new checkout is being created.
+  const handleOpenChange = (next: boolean) => {
+    if (!next && isRetrying) return;
+    setOpen(next);
+  };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         style={{
           backgroundImage: `url(/images/background-modal.png)`,
@@ -126,17 +138,19 @@ export function StatusPurchaseTokens() {
           {(status == "failed" || status == "failed-membership") && (
             <button
               onClick={handleFailed}
-              className="w-[320px] btn-primary rounded-full h-[44px] "
+              disabled={isRetrying}
+              className="w-[320px] btn-primary rounded-full h-[44px] disabled:opacity-70 disabled:cursor-wait"
             >
               <span className="font-medium text-[14px] -- sm:text-[16px] text-[#e6f7fe]">
-                Retry Payment
+                {isRetrying ? "Redirecting to payment..." : "Retry Payment"}
               </span>
             </button>
           )}
           {status != "waiting" && (
             <button
               onClick={handleBack}
-              className="w-[320px] btn-secondary rounded-full h-[44px] "
+              disabled={isRetrying}
+              className="w-[320px] btn-secondary rounded-full h-[44px] disabled:opacity-70"
             >
               <span className="font-medium text-[14px] -- sm:text-[16px] text-[#e6f7fe]">
                 Back to Dashboard
