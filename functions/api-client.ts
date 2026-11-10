@@ -14,6 +14,7 @@ import {
 } from "./refresh-token";
 import { redactSecrets, toSafeApiErrorMessage } from "./api-error-message";
 import { clearAccountLocalState } from "./clear-account-storage";
+import { logError } from "./error-logger";
 
 type RequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -46,6 +47,10 @@ const indicatesDeadSession = (message: unknown): boolean =>
   typeof message === "string" &&
   /session (?:has )?(?:expired|is inactive)|please log ?in again/i.test(message);
 
+/** "GET /profile" — the request that ended the session, for the error log. */
+const signOutLabel = (method: string, path: string): string =>
+  `${method} ${path.replace(process.env.BASE_URL ?? "", "").split("?")[0]}`;
+
 export function useApiClient() {
   const router = useRouter()
   const { setIsLoading, isLoading } = useLoadingAPI();
@@ -53,9 +58,18 @@ export function useApiClient() {
   const [error, setError] = useState<Error | null>(null);
   const { clearAll } = useProfileStore();
   const { clearAll: clearPGN } = usePgnStore();
-  const handleSignOut = async () => {
+  const handleSignOut = async (endpoint?: string) => {
     if (isSigningOut) return;
     isSigningOut = true;
+
+    // Fired BEFORE clearAll; the token is already dead, so the log is held and
+    // sent after the next login.
+    logError(
+      "SESSION_FORCED_LOGOUT",
+      null,
+      { extra: { caller: "apiRequest", endpoint: endpoint ?? null }, deferUntilSession: true },
+      "error"
+    );
 
     clearAll();
     clearPGN();
@@ -186,7 +200,7 @@ export function useApiClient() {
               }
 
               if (refreshed.status !== "refreshed") {
-                handleSignOut();
+                handleSignOut(signOutLabel(method, path));
                 throw new Error("Session expired");
               }
 
@@ -206,7 +220,7 @@ export function useApiClient() {
                   // over. A fresh access token cannot revive it, so end it
                   // here instead of leaving the user in a 401 loop.
                   if (indicatesDeadSession(retryError.message)) {
-                    handleSignOut();
+                    handleSignOut(signOutLabel(method, path));
                     throw new Error("Session expired");
                   }
 

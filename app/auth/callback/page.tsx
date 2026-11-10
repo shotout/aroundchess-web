@@ -9,6 +9,7 @@ import {
 } from "@/constants/marchOffer";
 import { ensurePromoAppSetting } from "@/functions/app-setting";
 import { clearSession, persistSession } from "@/functions/refresh-token";
+import { logSuccess } from "@/functions/error-logger";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -155,6 +156,9 @@ export default function SSOCallbackPage() {
             refresh_token: refreshToken ?? undefined,
             expires_at: expiresAt ?? undefined,
             expires_in: expiresIn ?? undefined,
+          });
+          logSuccess("LOGIN_SUCCESS", {
+            extra: { method: "sso", provider: providerType || null },
           });
 
           try {

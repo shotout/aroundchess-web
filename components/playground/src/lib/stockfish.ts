@@ -5,6 +5,7 @@ declare global {
 }
 
 import { Chess } from "chess.js";
+import { logError } from "@/functions/error-logger";
 
 interface EngineMessage {
   bestMove: any;
@@ -32,6 +33,10 @@ export class Engine {
     if (typeof window !== "undefined") {
       this.worker = new Worker("/stockfish/stockfish-nnue-16-single.js");
       this.worker.onmessage = (e) => this.handleMessage(e.data);
+      // Report only: not prevented, so the browser still surfaces it as before.
+      this.worker.onerror = (event) => {
+        logError("ENGINE_SCRIPT_ERROR", event, { extra: { worker: "evaluation" } });
+      };
       this.init();
     }
   }

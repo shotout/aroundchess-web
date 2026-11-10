@@ -12,6 +12,7 @@ import { useProfileStore } from "../store/profile";
 import { useRouter } from "next/navigation";
 import { setPersistedCookie } from "@/utils/persisted-cookie";
 import { clearSession, persistSession } from "@/functions/refresh-token";
+import { logSuccess } from "@/functions/error-logger";
 import DotSpinner from "@/components/game-history/Spinner";
 import {
   isPromoWindowActive,
@@ -126,6 +127,7 @@ useEffect(() => {
         }
 
         persistSession(data.data.access_token, data.data);
+        logSuccess("LOGIN_SUCCESS", { extra: { method: "email" } });
         toast.success("Logged in successfully!");
 
         await new Promise(resolve => setTimeout(resolve, 1500));

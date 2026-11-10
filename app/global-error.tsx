@@ -3,6 +3,7 @@
 import * as Sentry from "@sentry/nextjs";
 import NextError from "next/error";
 import { useEffect } from "react";
+import { logError } from "@/functions/error-logger";
 
 export default function GlobalError({
   error,
@@ -11,6 +12,14 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     Sentry.captureException(error);
+    // A render crash took the whole page down. Next hands it to this boundary
+    // instead of window "error", so the global listener never sees it.
+    logError(
+      "JS_FATAL",
+      error,
+      { extra: { isFatal: true, boundary: "global-error", digest: error?.digest ?? null } },
+      "fatal"
+    );
   }, [error]);
 
   return (

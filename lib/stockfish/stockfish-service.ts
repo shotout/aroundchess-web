@@ -1,4 +1,5 @@
 import { Chess } from 'chess.js';
+import { logError } from '@/functions/error-logger';
 
 class StockfishService {
   private worker: Worker | null = null;
@@ -26,11 +27,13 @@ class StockfishService {
 
           this.worker.onerror = (error) => {
             console.error('Stockfish worker error:', error);
+            logError('ENGINE_SCRIPT_ERROR', error, { extra: { worker: 'analysis' } });
           };
 
           this.worker.postMessage('uci');
         } catch (error) {
           console.error('Error initializing Stockfish:', error);
+          logError('ENGINE_FILE_LOAD_FAILED', error, { extra: { worker: 'analysis' } });
         }
       }
     });
