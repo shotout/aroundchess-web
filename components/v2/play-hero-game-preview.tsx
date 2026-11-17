@@ -8,6 +8,8 @@ import { usePlayPageStore } from "@/app/store/playPage";
 import { usePlayVSAIStore } from "@/app/store/playVSAI";
 import { GamePlayerAvatar } from "@/components/v2/game-player-avatar";
 import { AiOpponentPreviewBar } from "@/components/v2/ai-opponent-preview-bar";
+import { useVsAiFullscreen } from "@/components/v2/fullscreen/useVsAiFullscreen";
+import { useRouter } from "next/navigation";
 import TwoDChessboard from "@/components/chessboard/2d/TwoDChessboard";
 
 // Standard starting position for the (non-interactive) board preview.
@@ -18,6 +20,19 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
   const { leaderboard } = usePlayPageStore();
   // Flip the preview board when "Black" is chosen in the color picker.
   const selectedColor = usePlayVSAIStore((s) => s.selectedColor);
+  const { enter: enterFullscreen } = useVsAiFullscreen();
+  const router = useRouter();
+  // Same as Play Now, but the game opens straight in fullscreen.
+  const handlePlayFullscreen = () => {
+    const { selectedOpponent, AIChoosed, setAIChoosed } = usePlayVSAIStore.getState();
+    setAIChoosed({
+      color: selectedColor,
+      difficulty: AIChoosed?.difficulty ?? "recommended",
+      opponent: selectedOpponent ?? AIChoosed?.opponent,
+    });
+    enterFullscreen();
+    router.push("/playground/play-vs-ai/playing");
+  };
   const username = profile?.username || profile?.name || "User";
   const elo = leaderboard?.my_elo ?? 0;
   // Same seed recipe as the sidebar so the placeholder color is stable per user.
@@ -67,7 +82,7 @@ export function PlayHeroGamePreview({ recommendedListHeightClass }: { recommende
     // (TourHeroCopy in playground-tour.tsx) rather than resizing this one.
     <div id="play-vs-ai" data-tour-anchor="playground-hero" className="w-full flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center mt-4 sm:mt-3">
       <div ref={boardCardRef} data-tour-anchor="board-preview" className="hidden sm:flex sm:w-[70%] self-start bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex-col gap-2">
-        <AiOpponentPreviewBar />
+        <AiOpponentPreviewBar onFullscreen={handlePlayFullscreen} />
         <div ref={boardWrapRef} data-preview-board className="w-full">
           <TwoDChessboard
             position={START_FEN}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useVsAiFullscreenStore } from "@/app/store/vsAiFullscreen";
 import Image from "next/image";
 import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
 import { EffectCards, Pagination } from 'swiper/modules';
@@ -68,6 +69,7 @@ export default function GameAnalysis({
     initialMoveNumber,
     initialMove,
 }: Props) {
+    const isVsAiFullscreen = useVsAiFullscreenStore((s) => s.isFullscreen);
     const [activeIndex, setActiveIndex] = useState(0);
     const swiperRef = useRef<SwiperType>();
     const [loadingBookmark, setLoadingBookmark] = useState<boolean>(false);
@@ -329,8 +331,8 @@ export default function GameAnalysis({
            z-[70], not z-50: at 50 the overlay tied with the header (z-50) it
            now runs up behind. */
         <div
-            className="fixed top-0 right-0 bottom-0 bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-[70] flex justify-center items-center lg:py-[16px]"
-            style={{ left: sidebarWidth }}
+            className={`fixed top-0 right-0 bottom-0 bg-[rgba(0,0,0,.5)] backdrop-blur-sm flex justify-center items-center lg:py-[16px] ${isVsAiFullscreen ? "z-[510] animate-in fade-in-0 duration-200" : "z-[70]"}`}
+            style={{ left: isVsAiFullscreen ? 0 : sidebarWidth }}
             onClick={() => onOpenChange(false)}
         >
             <div onClick={(e) => e.stopPropagation()} data-tutorial="4" className="z-10 relative flex md:block flex-col justify-between w-full lg:w-[400px] xxl:w-[450px] 2xl:w-[520px] h-[100dvh] top-0 md:h-[580px] xxl:h-[678px] 2xl:h-[724px] overflow-x-hidden bg-gradient-to-b from-white to-[#D0EFFF] rounded-0 lg:rounded-[16px] p-[16px] lg:py-[10px] xxl:p-[20px]">

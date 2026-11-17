@@ -1,5 +1,6 @@
 "use client";
 
+import { useVsAiFullscreenStore } from "@/app/store/vsAiFullscreen";
 import PgnPlayer from "@/components/analysis-loading/LoadingChess";
 import LoadingPage from "@/components/analysis-loading/LoadingPage";
 import Image from "next/image";
@@ -33,6 +34,7 @@ export default function ProcessingAnalysisMode({
     onOpenGameAnalysis,
     playerColor
 }: Props) {
+    const isVsAiFullscreen = useVsAiFullscreenStore((s) => s.isFullscreen);
     const { getJobByGameId } = useV3BackgroundAnalysisStore();
     const { startV3BackgroundPolling } = useV3PollingManager();
     const { setPgn } = usePgnStore();
@@ -189,8 +191,8 @@ export default function ProcessingAnalysisMode({
            z-[70], not z-50: at 50 the overlay tied with the header (z-50) it
            now runs up behind. */
         <div
-            className="fixed top-0 right-0 bottom-0 bg-[rgba(0,0,0,.5)] backdrop-blur-sm z-[70] flex items-center justify-center p-4 md:p-0"
-            style={{ left: sidebarWidth }}
+            className={`fixed top-0 right-0 bottom-0 bg-[rgba(0,0,0,.5)] backdrop-blur-sm flex items-center justify-center p-4 md:p-0 ${isVsAiFullscreen ? "z-[510] animate-in fade-in-0 duration-200" : "z-[70]"}`}
+            style={{ left: isVsAiFullscreen ? 0 : sidebarWidth }}
             onClick={() => onOpenChange(false)}
         >
             <div

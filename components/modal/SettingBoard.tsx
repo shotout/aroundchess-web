@@ -1,6 +1,7 @@
 "use client";
 
 import { useChessBoardThemeStore } from "@/app/store/chessBoardTheme";
+import { useVsAiFullscreenStore } from "@/app/store/vsAiFullscreen";
 import {
   Dialog,
   DialogContent,
@@ -15,13 +16,17 @@ import { formatTimePgn } from "@/functions/format-date";
 import { Edit } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 interface SettingBoardProps {
   enable3D?: boolean;
+  triggerClassName?: string;
+  triggerLabel?: string;
+  triggerIcon?: ReactNode;
 }
 
-export function SettingBoard({ enable3D = false }: SettingBoardProps) {
+export function SettingBoard({ enable3D = false, triggerClassName, triggerLabel, triggerIcon }: SettingBoardProps) {
+  const isVsAiFullscreen = useVsAiFullscreenStore((s) => s.isFullscreen);
   const router = useRouter();
   const boardsTwoD = [
     {
@@ -225,17 +230,21 @@ export function SettingBoard({ enable3D = false }: SettingBoardProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button>
-          <Image
+        <button className={triggerClassName}>
+          {triggerIcon ?? <Image
             src={"/images/play-vs-ai/setting.png"}
             alt="icon"
             width={1000}
             height={1000}
             className="w-[20px] h-[20px] object-contain"
-          />
+          />}
+          {triggerLabel && <span>{triggerLabel}</span>}
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-lg max-w-sm sm:max-w-[640px] md:max-w-xl overflow-y-auto max-h-[95%]">
+      <DialogContent
+        className={`rounded-lg max-w-sm sm:max-w-[640px] md:max-w-xl overflow-y-auto max-h-[95%] ${isVsAiFullscreen ? "z-[521]" : ""}`}
+        overlayClassName={isVsAiFullscreen ? "z-[520]" : undefined}
+      >
         <DialogHeader className="gap-2 mb-2 flex flex-col items-center justify-center">
           <DialogTitle className="font-semibold text-[24px]">
             Game Settings
