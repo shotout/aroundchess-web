@@ -14,6 +14,12 @@ import {
   setErrorLogGameContext,
 } from "@/functions/error-logger";
 import { motion } from "@/utils/motion";
+import { AnimatePresence } from "framer-motion";
+import { useVsAiFullscreen, useVsAiFullscreenLifecycle } from "@/components/v2/fullscreen/useVsAiFullscreen";
+import { PlayVsAiFullscreenLayout } from "@/components/v2/fullscreen/play-vs-ai-fullscreen-layout";
+import { FullscreenModalTransition } from "@/components/v2/fullscreen/fullscreen-modal-transition";
+import { fsMenuBtn } from "@/components/v2/fullscreen/play-vs-ai-fullscreen-layout";
+import { SettingBoard } from "@/components/modal/SettingBoard";
 import { useGameEndStatus } from "@/app/store/gameEndStatus";
 import {
   getLocalDateStamp,
@@ -49,6 +55,14 @@ import {
   ChevronRight,
   Loader2,
   RotateCw,
+  RotateCcw,
+  Undo2,
+  Plus,
+  ArrowDownUp,
+  Lightbulb,
+  Flag,
+  Share2,
+  Settings as SettingsIcon,
   ChartNoAxesColumn,
 } from "lucide-react";
 import Image from "next/image";
@@ -57,6 +71,7 @@ import {
   CSSProperties,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -572,6 +587,42 @@ export default function PlayingPage() {
   const { startBackgroundPolling, restorePollingJobs } = usePollingManager();
   const [currentGameId, setCurrentGameId] = useState<string>("");
   const refBoard = useRef<HTMLDivElement | null>(null);
+  const refFullscreenBoard = useRef<HTMLDivElement | null>(null);
+  const {
+    isFullscreen,
+    exit: exitFullscreen,
+    requestNative: requestNativeFullscreen,
+    setFullscreen,
+  } = useVsAiFullscreen();
+  useVsAiFullscreenLifecycle();
+  const [postGameDismissed, setPostGameDismissed] = useState(false);
+  // layoutId is only set around the morph; left on, the board would animate on every scroll/reflow.
+  const [boardMorph, setBoardMorph] = useState(false);
+  // New key per entry so a still-exiting overlay never blocks the next one.
+  const [fullscreenSession, setFullscreenSession] = useState(0);
+  const handleEnterFullscreen = useCallback(() => {
+    // Animate only after the browser finishes resizing, so the board morph has a stable target.
+    requestNativeFullscreen().then(() => {
+      setBoardMorph(true);
+      requestAnimationFrame(() => requestAnimationFrame(() => setFullscreen(true)));
+    });
+  }, [requestNativeFullscreen, setFullscreen]);
+  // Dev-only: fullscreen layout without browser fullscreen, so URL bar and devtools stay usable.
+  const showDevFullscreen =
+    process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_DEV_FULLSCREEN === "true";
+  const handleEnterOverlayOnly = useCallback(() => {
+    setBoardMorph(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => setFullscreen(true)));
+  }, [setFullscreen]);
+  useEffect(() => {
+    if (isFullscreen) {
+      setBoardMorph(true);
+      return;
+    }
+    setFullscreenSession((n) => n + 1);
+    const t = setTimeout(() => setBoardMorph(false), 900);
+    return () => clearTimeout(t);
+  }, [isFullscreen]);
   const { PieceChoosed, StyleChoosed, setStyleChoosed } =
     useChessBoardThemeStore();
   const [selectedTab, setSelectedTab] = useState<string>("current");
@@ -583,6 +634,7 @@ export default function PlayingPage() {
   const [is3DMode, setIs3DMode] = useState<boolean>(false);
   const [mounted] = useState<boolean>(true);
   const [boardSize, setBoardSize] = useState<number>(700);
+  const normalBoardSizeRef = useRef<number>(700);
   const engine = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
   const [pastGames, setPastGames] = useState<any[]>([]);
@@ -635,6 +687,9 @@ export default function PlayingPage() {
   } | null>(null);
   const [possibleMate, setPossibleMate] = useState<string>("");
   const [statusGame, setStatusGame] = useState<string>("Ongoing");
+  useEffect(() => {
+    if (statusGame === "Ongoing") setPostGameDismissed(false);
+  }, [statusGame]);
   const [winnerColor, setWinnerColor] = useState<string>("");
   const [loserColor, setLoserColor] = useState<string>("");
   const [capturedWhite, setCapturedWhite] = useState<any[]>([]);
@@ -1949,9 +2004,41 @@ export default function PlayingPage() {
     handleResize();
     window?.addEventListener("resize", handleResize);
     return () => window?.removeEventListener("resize", handleResize);
-  }, [mounted, hideDiv, is3DMode, isTutorialPlay]);
+  }, [mounted, hideDiv, is3DMode, isTutorialPlay, isFullscreen]);
+
+  // Fullscreen board slot changes size with panels and native fullscreen, so observe it directly.
+  useEffect(() => {
+    if (!isFullscreen || typeof ResizeObserver === "undefined") return;
+    const slot = refFullscreenBoard.current;
+    if (!slot) return;
+    const observer = new ResizeObserver(() => handleResize());
+    observer.observe(slot);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFullscreen]);
+
+  const setNormalBoardSize = (size: number) => {
+    normalBoardSizeRef.current = size;
+    setBoardSize(size);
+  };
+
+  // Restore the normal size before paint so the exit morph lands on the right box.
+  useLayoutEffect(() => {
+    if (isFullscreen) handleResize();
+    else setBoardSize(normalBoardSizeRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFullscreen]);
 
   const handleResize = () => {
+    const slot = refFullscreenBoard.current;
+    if (isFullscreen && slot) {
+      const isMobileFs = window.innerWidth < 640;
+      const fit = isMobileFs
+        ? Math.min(slot.clientWidth, window.innerHeight * 0.62)
+        : Math.min(slot.clientWidth, slot.clientHeight);
+      setBoardSize(Math.max(260, Math.min(Math.floor(fit), 1100)));
+      return;
+    }
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isPortrait = height > width;
@@ -1967,14 +2054,14 @@ export default function PlayingPage() {
       const sizeFactor = isTutorialPlay
         ? (width <= 430 ? 0.65 : 0.7)
         : (width <= 430 ? 0.85 : 0.9);
-      setBoardSize(
+      setNormalBoardSize(
         Math.min(maxSize, availableWidth * sizeFactor + 20, maxBoardWidth)
       );
     } else {
       const availableHeight = height - minPadding * 2;
       // Reduce board size during tutorial to ensure button visibility
       const heightFactor = isTutorialPlay ? 0.5 : 0.8;
-      setBoardSize(Math.min(maxSize, availableHeight * heightFactor, maxBoardWidth));
+      setNormalBoardSize(Math.min(maxSize, availableHeight * heightFactor, maxBoardWidth));
     }
   };
 
@@ -3225,25 +3312,226 @@ export default function PlayingPage() {
    *  with the normal end-of-game flow. */
   const endModalHeldOffline = offlineSaveBlocked || offlineModalDismissed;
 
+  // Fullscreen player bars mirror WhitePlayer/BlackPlayer names, ELO and result.
+  const fsPlayer = (color: "white" | "black") => {
+    const isMe = myColor === color;
+    const elo = isMe ? leaderboard?.my_elo : AIChoosed?.opponent?.elo;
+    const name = isMe ? "You" : AIChoosed?.opponent?.name?.replace(/ .*/, "") ?? "AI";
+    return {
+      label: elo ? `${name} (ELO ${elo})` : name,
+      captured: color === "white" ? capturedWhite : capturedBlack,
+      result:
+        statusGame === "Draw"
+          ? ("draw" as const)
+          : winnerColor === color
+          ? ("win" as const)
+          : loserColor === color
+          ? ("loss" as const)
+          : null,
+    };
+  };
+  const fsWhitePlayer = fsPlayer("white");
+  const fsBlackPlayer = fsPlayer("black");
+
+  const showFullscreenPostGame =
+    statusGame !== "Ongoing" &&
+    !postGameDismissed &&
+    !showWinModal &&
+    !showLoseModal &&
+    !showDrawModal &&
+    !showPlayVSAIModal &&
+    !analysisFlowActive &&
+    !(offlineSaveBlocked && !offlineModalDismissed);
+
+  // Same flow as the lose modal's "Discover Mistakes", or open the stored analysis.
+  const handleFullscreenAnalyze = () => {
+    if (hasAnalysis) {
+      handleShowAnalysis();
+      return;
+    }
+    triggerAnalyzeGame(() => setProcessingAnalysisModeOpen(true));
+  };
+
+  const hintLoading = !hintClicked && bestLine?.length == null;
+  const fullscreenMenu = (
+    <div className="grid grid-cols-6 gap-2">
+      {statusGame === "Ongoing" ? (
+        <>
+          <button disabled={game.history().length === 0} onClick={requestUndo} className={`${fsMenuBtn} col-span-2`}>
+            <Undo2 size={16} strokeWidth={2.5} /> Undo
+          </button>
+          <button
+            disabled={currentTurn.toLowerCase() != myColor || hintLoading}
+            onClick={requestHint}
+            className={`${fsMenuBtn} col-span-2 ${hintClicked ? "!bg-[#221AE9] !border-[#6C66FF]" : ""}`}
+          >
+            {hintLoading ? <DotSpinner size={5} /> : <><Lightbulb size={16} fill="currentColor" /> Hint</>}
+          </button>
+          <button onClick={requestReset} className={`${fsMenuBtn} col-span-2`}>
+            <RotateCcw size={16} strokeWidth={2.5} /> Restart
+          </button>
+          <button disabled={!hasMoved} onClick={requestResign} className={`${fsMenuBtn} col-span-3`}>
+            <Flag size={16} fill="currentColor" /> Resign
+          </button>
+          <button onClick={requestNewGame} className={`${fsMenuBtn} col-span-3`}>
+            <Plus size={17} strokeWidth={2.5} /> New Game
+          </button>
+        </>
+      ) : (
+        <>
+          <button onClick={handleFullscreenAnalyze} disabled={autoStartAnalyze} className={`${fsMenuBtn} col-span-6`}>
+            <ChartNoAxesColumn size={16} strokeWidth={2.5} />
+            {hasAnalysis ? "Show Analysis" : autoStartAnalyze ? "Starting..." : "Analyze Mistakes"}
+          </button>
+          <button onClick={handleShare} className={`${fsMenuBtn} col-span-3`}>
+            <Share2 size={16} /> Share PGN/FEN
+          </button>
+          <button onClick={handleNewGame} className={`${fsMenuBtn} col-span-3`}>
+            <Plus size={17} strokeWidth={2.5} /> New Game
+          </button>
+        </>
+      )}
+      <button onClick={handleSwitch} className={`${fsMenuBtn} col-span-3`}>
+        <ArrowDownUp size={16} strokeWidth={2.5} /> Flip board
+      </button>
+      <SettingBoard
+        triggerClassName={`${fsMenuBtn} col-span-3`}
+        triggerIcon={<SettingsIcon size={16} />}
+        triggerLabel="Board settings"
+      />
+    </div>
+  );
+
+  // Mobile menu per the phone mockup: four actions in a row, then board controls.
+  const mBtn = `${fsMenuBtn} !gap-1 !px-1 !text-[12px] min-[400px]:!text-[13px]`;
+  const fullscreenMobileMenu = (
+    <div className="grid grid-cols-4 gap-2">
+      {statusGame === "Ongoing" ? (
+        <>
+          <button disabled={game.history().length === 0} onClick={requestUndo} className={mBtn}>
+            <Undo2 size={15} strokeWidth={2.5} /> Undo
+          </button>
+          <button onClick={requestReset} className={mBtn}>
+            <RotateCcw size={15} strokeWidth={2.5} /> Restart
+          </button>
+          <button
+            disabled={currentTurn.toLowerCase() != myColor || hintLoading}
+            onClick={requestHint}
+            className={`${mBtn} ${hintClicked ? "!bg-[#221AE9] !border-[#6C66FF]" : ""}`}
+          >
+            {hintLoading ? <DotSpinner size={4} /> : <><Lightbulb size={15} fill="currentColor" /> Hint</>}
+          </button>
+          <button disabled={!hasMoved} onClick={requestResign} className={mBtn}>
+            <Flag size={15} fill="currentColor" /> Resign
+          </button>
+        </>
+      ) : (
+        <>
+          <button onClick={handleFullscreenAnalyze} disabled={autoStartAnalyze} className={`${mBtn} col-span-2`}>
+            <ChartNoAxesColumn size={15} strokeWidth={2.5} />
+            {hasAnalysis ? "Show Analysis" : autoStartAnalyze ? "Starting..." : "Analyze"}
+          </button>
+          <button onClick={handleShare} className={mBtn}>
+            <Share2 size={15} /> Share
+          </button>
+          <button onClick={handleNewGame} className={mBtn}>
+            <Plus size={16} strokeWidth={2.5} /> New
+          </button>
+        </>
+      )}
+      <button onClick={handleSwitch} className={`${mBtn} col-span-2`}>
+        <ArrowDownUp size={15} strokeWidth={2.5} /> Flip board
+      </button>
+      <SettingBoard
+        triggerClassName={`${fsMenuBtn} col-span-2`}
+        triggerIcon={<SettingsIcon size={15} />}
+        triggerLabel="Board settings"
+      />
+    </div>
+  );
+
+  // Single board instance, placed in either the normal slot or the fullscreen layout.
+  const boardNode = (
+    <motion.div
+      layoutId={boardMorph ? "vsai-board" : undefined}
+      transition={{ layout: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }}
+      style={{
+        width: boardSize,
+        display: !is3DMode ? "flex" : "none",
+        backfaceVisibility: "hidden",
+        position: "relative",
+        // Above the fading overlay while flying back to the page.
+        zIndex: boardMorph && !isFullscreen ? 401 : undefined,
+      }}
+      onMouseDown={handleBoardMouseDown}
+      onMouseUp={handleBoardMouseUp}
+      onContextMenu={handleBoardContextMenu}
+    >
+      {/* {!is3DMode && (
+          <> */}
+            <TwoDChessboard
+              game={game}
+              gameStatus={statusGame.toLowerCase()}
+              setOptionSquares={setOptionSquares}
+              arePiecesDraggable={isAtCurrentMove}
+            onPieceDrop={onPieceDrop}
+            arePiecesClickable={
+              statusGame === "Ongoing" && isAtCurrentMove
+            }
+            orientation={orientation}
+            boardWidth={boardSize}
+            position={gamePosition}
+            onSquareClick={
+              game.turn() === isYourTurn ? onSquareClick : () => null
+            }
+            onSquareRightClick={onSquareRightClick}
+            onPromotionPieceSelect={onPromotionPieceSelect}
+            customSquareStyles={{
+              ...moveSquares,
+              ...optionSquares,
+              ...rightClickedSquares,
+              ...preMoveSquareStyles,
+              ...prevCurrentColor,
+            }}
+            areArrowsAllowed={false}
+            promotionToSquare={moveTo}
+            showPromotionDialog={showPromotionDialog}
+          />
+          {(customArrowsConfig.length > 0 || userDrawnArrows.length > 0) && (
+            <CustomChessArrows
+              arrows={[...customArrowsConfig, ...userDrawnArrows]}
+              boardSize={boardSize}
+              orientation={orientation}
+            />
+          )}
+        {/* </>
+      )} */}
+    </motion.div>
+  );
+
   return (
     <div className="flex flex-col xl:flex-row w-full bg-white gap-4">
       {!isTutorialPlay && <GameEndStatus gameStatus={statusGame.toLowerCase()} />}
-      {leaveGuard && (
-        <PlayVsAiLeaveGuardModal
-          type={leaveGuard.type}
-          onCancel={dismissLeaveGuard}
-          onConfirm={confirmLeaveGuard}
-        />
-      )}
-      {confirmAction && (
-        <PlayVsAiConfirmModal
-          type={confirmAction}
-          dontShowAgain={confirmDontShowAgain}
-          onDontShowAgainChange={setConfirmDontShowAgain}
-          onCancel={() => setConfirmAction(null)}
-          onConfirm={handleConfirmAction}
-        />
-      )}
+      <FullscreenModalTransition show={!!leaveGuard} enabled={isFullscreen}>
+        {() => (
+          <PlayVsAiLeaveGuardModal
+            type={leaveGuard!.type}
+            onCancel={dismissLeaveGuard}
+            onConfirm={confirmLeaveGuard}
+          />
+        )}
+      </FullscreenModalTransition>
+      <FullscreenModalTransition show={!!confirmAction} enabled={isFullscreen}>
+        {() => (
+          <PlayVsAiConfirmModal
+            type={confirmAction!}
+            dontShowAgain={confirmDontShowAgain}
+            onDontShowAgainChange={setConfirmDontShowAgain}
+            onCancel={() => setConfirmAction(null)}
+            onConfirm={handleConfirmAction}
+          />
+        )}
+      </FullscreenModalTransition>
       {showWinModal && !isTutorialPlay && !endModalHeldOffline && (
         <PlayVsAiWinModal
           oldElo={winElo?.oldElo ?? readElo(leaderboard, leaderboardMe)}
@@ -3290,14 +3578,19 @@ export default function PlayingPage() {
           }}
         />
       )}
-      {offlineSaveBlocked && !offlineModalDismissed && !isTutorialPlay && (
-        <OfflineModal
-          variant="sync"
-          isRetrying={isRetryingOfflineSave}
-          onRetry={retryOfflineSave}
-          onClose={() => setOfflineModalDismissed(true)}
-        />
-      )}
+      <FullscreenModalTransition
+        show={offlineSaveBlocked && !offlineModalDismissed && !isTutorialPlay}
+        enabled={isFullscreen}
+      >
+        {() => (
+          <OfflineModal
+            variant="sync"
+            isRetrying={isRetryingOfflineSave}
+            onRetry={retryOfflineSave}
+            onClose={() => setOfflineModalDismissed(true)}
+          />
+        )}
+      </FullscreenModalTransition>
       {pendingCelebration !== null &&
         endModalShown &&
         !endModalHeldOffline &&
@@ -3378,6 +3671,31 @@ export default function PlayingPage() {
         onClose={handleClosePlayVSAI}
         onLimit={handlePlayVSAILimit}
       />
+
+      <AnimatePresence>
+        {isFullscreen && !isTutorialPlay && (
+          <PlayVsAiFullscreenLayout
+            key={`vsai-fullscreen-${fullscreenSession}`}
+            board={boardNode}
+            boardSlotRef={refFullscreenBoard}
+            topPlayer={orientation === "white" ? fsBlackPlayer : fsWhitePlayer}
+            bottomPlayer={orientation === "white" ? fsWhitePlayer : fsBlackPlayer}
+            whiteMoves={capturedWhite}
+            blackMoves={capturedBlack}
+            pieceTheme={PieceChoosed}
+            statusGame={statusGame}
+            lossReason={lossReason}
+            menu={fullscreenMenu}
+            mobileMenu={fullscreenMobileMenu}
+            showPostGame={showFullscreenPostGame}
+            isAnalyzing={autoStartAnalyze}
+            onDismissPostGame={() => setPostGameDismissed(true)}
+            onAnalyze={handleFullscreenAnalyze}
+            onStartNewGame={handleNewGame}
+            onExit={exitFullscreen}
+          />
+        )}
+      </AnimatePresence>
 
       <div className="flex flex-col w-full gap-y-2 ">
         {/* <div className="xl:hidden flex flex-row items-center justify-between sm:mb-2 pt-[32px] p-4 sm:p-0 border-b sm:border-none"> */}
@@ -3467,6 +3785,8 @@ export default function PlayingPage() {
                     handleThreeD={handleThreeD}
                     is3DMode={is3DMode}
                     boardSize={boardSize}
+                    onFullscreen={isTutorialPlay ? undefined : handleEnterFullscreen}
+                    onFullscreenOverlay={!isTutorialPlay && showDevFullscreen ? handleEnterOverlayOnly : undefined}
                   />
               </div>
             </div>
@@ -3542,57 +3862,11 @@ export default function PlayingPage() {
               <Image src={"/images/wood.png"} alt="tutorial" width={600} height={645} className="w-[80%]" />
             ) : (
               <>
-                <motion.div
-                  style={{
-                    width: boardSize,
-                    display: !is3DMode ? "flex" : "none",
-                    backfaceVisibility: "hidden",
-                    position: "relative",
-                  }}
-                  onMouseDown={handleBoardMouseDown}
-                  onMouseUp={handleBoardMouseUp}
-                  onContextMenu={handleBoardContextMenu}
-                >
-                  {/* {!is3DMode && (
-                      <> */}
-                        <TwoDChessboard
-                          game={game}
-                          gameStatus={statusGame.toLowerCase()}
-                          setOptionSquares={setOptionSquares}
-                          arePiecesDraggable={isAtCurrentMove}
-                        onPieceDrop={onPieceDrop}
-                        arePiecesClickable={
-                          statusGame === "Ongoing" && isAtCurrentMove
-                        }
-                        orientation={orientation}
-                        boardWidth={boardSize}
-                        position={gamePosition}
-                        onSquareClick={
-                          game.turn() === isYourTurn ? onSquareClick : () => null
-                        }
-                        onSquareRightClick={onSquareRightClick}
-                        onPromotionPieceSelect={onPromotionPieceSelect}
-                        customSquareStyles={{
-                          ...moveSquares,
-                          ...optionSquares,
-                          ...rightClickedSquares,
-                          ...preMoveSquareStyles,
-                          ...prevCurrentColor,
-                        }}
-                        areArrowsAllowed={false}
-                        promotionToSquare={moveTo}
-                        showPromotionDialog={showPromotionDialog}
-                      />
-                      {(customArrowsConfig.length > 0 || userDrawnArrows.length > 0) && (
-                        <CustomChessArrows
-                          arrows={[...customArrowsConfig, ...userDrawnArrows]}
-                          boardSize={boardSize}
-                          orientation={orientation}
-                        />
-                      )}
-                    {/* </>
-                  )} */}
-                </motion.div>
+                {isFullscreen ? (
+                  <div style={{ width: normalBoardSizeRef.current, height: normalBoardSizeRef.current }} />
+                ) : (
+                  boardNode
+                )}
               </>
             )}
 

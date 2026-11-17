@@ -15,7 +15,7 @@ const FALLBACK: SelectedOpponent = {
   img: "/images/v2/AI avatar/Beginner/Thomas.png",
 };
 
-export function AiOpponentPreviewBar() {
+export function AiOpponentPreviewBar({ onFullscreen }: { onFullscreen?: () => void } = {}) {
   const { selectedOpponent, AIChoosed } = usePlayVSAIStore();
   const opponent = selectedOpponent || AIChoosed?.opponent || FALLBACK;
 
@@ -39,6 +39,21 @@ export function AiOpponentPreviewBar() {
       <div className="flex items-center gap-3 ml-auto text-[#040404] pr-1">
         <ArrowDownUp size={18} />
         <Settings size={18} />
+        {onFullscreen && (
+          <button
+            onClick={onFullscreen}
+            aria-label="Play in fullscreen"
+            className="transition-transform duration-200 hover:scale-125 active:scale-90"
+          >
+            <Image
+              src="/images/v2/play-vs-ai/open_in_full.png"
+              alt="fullscreen"
+              width={36}
+              height={36}
+              className="w-[18px] h-[18px] object-contain"
+            />
+          </button>
+        )}
       </div>
     </div>
   );

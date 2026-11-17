@@ -1,5 +1,6 @@
 "use client";
 
+import { useVsAiFullscreenStore } from "@/app/store/vsAiFullscreen";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -34,6 +35,7 @@ export function AnalyzeGameHistory({
   onAnalysisStarted,
   onShortAnalysisReceived,
 }: AnalyzeGameHistoryProps) {
+  const isVsAiFullscreen = useVsAiFullscreenStore((s) => s.isFullscreen);
   const router = useRouter();
   const { setOpen: setOpenPricing, setTabType } = usePricingOffer();
   const { isMember,isMemberMonthly, token, sessionId } = useProfileStore();
@@ -439,13 +441,14 @@ export function AnalyzeGameHistory({
 
   return (
     <div
-      className="fixed bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-0"
+      className={`fixed bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 md:p-0 ${isVsAiFullscreen ? "z-[510] animate-in fade-in-0 duration-200" : "z-50"}`}
       style={{
-        top:
-          typeof window !== "undefined" && window.innerWidth >= 1024
+        top: isVsAiFullscreen
+          ? 0
+          : typeof window !== "undefined" && window.innerWidth >= 1024
             ? headerHeightLg
             : headerHeight,
-        left: sidebarWidth,
+        left: isVsAiFullscreen ? 0 : sidebarWidth,
         right: 0,
         bottom: 0,
       }}

@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "../ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useVsAiFullscreenStore } from "@/app/store/vsAiFullscreen";
 
 export function GameEndStatus({ gameStatus }: any) {
   const router = useRouter();
   const { open, setOpen } = useGameEndStatus();
+  const isVsAiFullscreen = useVsAiFullscreenStore((s) => s.isFullscreen);
   useEffect(() => {
     setOpen(open);
   }, [open]);
@@ -25,7 +27,8 @@ export function GameEndStatus({ gameStatus }: any) {
       />
       <DialogContent
         onClick={() => setOpen(false)}
-        className="min-w-full min-h-full rounded-none lg:p-[32px] bg-[#00000090] border-0 shadow-none items-center justify-center"
+        className={`min-w-full min-h-full rounded-none lg:p-[32px] bg-[#00000090] border-0 shadow-none items-center justify-center ${isVsAiFullscreen ? "z-[521]" : ""}`}
+        overlayClassName={isVsAiFullscreen ? "z-[520]" : undefined}
       >
         <VisuallyHidden>
           <DialogTitle>Game End Status</DialogTitle>

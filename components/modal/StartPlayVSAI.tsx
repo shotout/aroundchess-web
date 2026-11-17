@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import DotSpinner from "../game-history/Spinner";
 import { useTutorial } from "@/components/TutorialProvider";
+import { useVsAiFullscreenStore } from "@/app/store/vsAiFullscreen";
 
 export interface StartPlayVSAIProps {
   visible: boolean;
@@ -22,6 +23,7 @@ export function StartPlayVSAI({
 }: StartPlayVSAIProps) {
   const [isDesktop, setIsDesktop] = useState(false);
   const { isTutorialPlay } = useTutorial();
+  const isVsAiFullscreen = useVsAiFullscreenStore((s) => s.isFullscreen);
 
   useEffect(() => {
     const checkIfDesktop = () => {
@@ -41,10 +43,10 @@ export function StartPlayVSAI({
 
   return (
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center p-1 sm:p-4"
+      className={`fixed inset-0 flex items-center justify-center p-1 sm:p-4 ${isVsAiFullscreen ? "z-[510] animate-in fade-in-0 duration-200" : "z-40"}`}
       style={{
-        paddingLeft: isDesktop ? sidebarWidth + 16 : 16,
-        paddingTop: headerHeight + 16,
+        paddingLeft: isDesktop && !isVsAiFullscreen ? sidebarWidth + 16 : 16,
+        paddingTop: isVsAiFullscreen ? 16 : headerHeight + 16,
         paddingBottom: 16,
         paddingRight: 16,
       }}
