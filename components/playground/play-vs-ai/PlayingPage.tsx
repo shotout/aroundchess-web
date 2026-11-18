@@ -607,9 +607,7 @@ export default function PlayingPage() {
       requestAnimationFrame(() => requestAnimationFrame(() => setFullscreen(true)));
     });
   }, [requestNativeFullscreen, setFullscreen]);
-  // Dev-only: fullscreen layout without browser fullscreen, so URL bar and devtools stay usable.
-  const showDevFullscreen =
-    process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_DEV_FULLSCREEN === "true";
+  // Fullscreen layout without browser fullscreen, so URL bar and devtools stay usable.
   const handleEnterOverlayOnly = useCallback(() => {
     setBoardMorph(true);
     requestAnimationFrame(() => requestAnimationFrame(() => setFullscreen(true)));
@@ -3786,7 +3784,7 @@ export default function PlayingPage() {
                     is3DMode={is3DMode}
                     boardSize={boardSize}
                     onFullscreen={isTutorialPlay ? undefined : handleEnterFullscreen}
-                    onFullscreenOverlay={!isTutorialPlay && showDevFullscreen ? handleEnterOverlayOnly : undefined}
+                    onFullscreenOverlay={isTutorialPlay ? undefined : handleEnterOverlayOnly}
                   />
               </div>
             </div>
